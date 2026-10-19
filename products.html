@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cửa Hàng Sản Phẩm - Nước Mắm Ba Cô Khánh Hòa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes toastIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .toast-enter { animation: toastIn 0.25s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-[#faf8f5] text-slate-800 font-sans antialiased pb-20 lg:pb-0">
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-20 right-4 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- Mobile Sticky Bottom Bar -->
+    <div class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 py-2 flex items-center justify-between gap-2 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+        <a href="./index.html" class="flex flex-col items-center justify-center px-3 py-1.5 rounded-xl text-slate-600 hover:text-amber-700 text-[11px] font-bold">
+            <span class="text-base leading-none">🏠</span>
+            <span class="mt-0.5">Trang chủ</span>
+        </a>
+        <button onclick="toggleCart()" class="relative flex-1 bg-amber-100 text-amber-900 font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center space-x-1.5 active:scale-95">
+            <span>🛒 Giỏ hàng</span>
+            <span id="cartMobileBadge" class="bg-amber-600 text-white text-[10px] px-1.5 py-0.5 rounded-full font-black">0</span>
+        </button>
+        <button onclick="openCheckoutModal()" class="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black py-2.5 px-3 rounded-xl text-xs shadow-md active:scale-95 text-center">
+            ⚡ Đặt Mua Ngay
+        </button>
+    </div>
+
+    <!-- Cart Sidebar Drawer -->
+    <div id="cartDrawer" class="fixed inset-0 z-50 overflow-hidden hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="toggleCart()"></div>
+        <div class="absolute inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10 w-full sm:w-auto">
+            <div class="w-full sm:w-screen max-w-md bg-white shadow-2xl flex flex-col">
+                <div class="flex items-center justify-between px-5 py-5 border-b border-slate-100 bg-amber-50">
+                    <h2 class="text-lg sm:text-xl font-serif font-bold text-amber-900 flex items-center space-x-2">
+                        <span>🛒</span> <span>Giỏ Hàng Của Bạn</span>
+                    </h2>
+                    <button onclick="toggleCart()" class="w-9 h-9 rounded-full bg-white hover:bg-amber-100 flex items-center justify-center text-slate-700 font-bold transition shadow-sm">✕</button>
+                </div>
+                <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 divide-y divide-slate-100"></div>
+                <div class="p-5 sm:p-6 border-t border-slate-100 bg-[#faf8f5] space-y-4">
+                    <div class="flex justify-between items-center text-base sm:text-lg font-bold text-slate-900">
+                        <span>Tổng tiền:</span>
+                        <span id="cartTotalPrice" class="text-amber-700">0 đ</span>
+                    </div>
+                    <button onclick="openCheckoutModal()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-center block text-base active:scale-95">
+                        Tiến Hành Đặt Hàng Ngay
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-teal-100/80 shadow-xs">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <a href="./index.html" class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-slate-100 hover:bg-amber-100 text-slate-700 font-bold text-sm transition" title="Về trang chủ">
+                    ←
+                </a>
+                <a href="#" onclick="window.scrollTo({ top: 0, behavior: 'smooth' }); return false;" class="flex items-center space-x-2.5 cursor-pointer group" title="Cuộn lên đầu trang">
+                    <img src="./pictrure/logo.JPG" alt="Logo Ba Cô Khánh Hòa" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shadow-sm ring-2 ring-amber-400">
+                    <div>
+                        <span class="site-brand-name font-serif font-bold text-base sm:text-xl text-slate-900 block leading-tight group-hover:text-amber-600 transition">Ba Cô Khánh Hòa</span>
+                        <span class="site-brand-slogan block text-[10px] sm:text-xs text-teal-700 font-semibold uppercase">Cửa Hàng Đặc Sản Chính Hãng</span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <a href="./index.html" class="hidden sm:inline-flex items-center space-x-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-amber-600 px-3 py-2 rounded-xl hover:bg-slate-100 transition">
+                    <span>🏠</span>
+                    <span>Về Trang Chủ</span>
+                </a>
+                <button onclick="toggleCart()" class="relative p-2.5 sm:px-4 sm:py-2.5 rounded-2xl bg-amber-50 hover:bg-amber-100 text-slate-900 transition flex items-center space-x-1.5 text-xs sm:text-sm font-bold border border-amber-200 shadow-xs active:scale-95">
+                    <span>🛒</span>
+                    <span class="hidden sm:inline">Giỏ hàng</span>
+                    <span id="cartNavBadge" class="bg-amber-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Compact Store Banner -->
+    <section class="bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 text-white py-6 sm:py-10 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="space-y-1">
+                <span class="text-amber-300 text-[10px] sm:text-xs font-bold uppercase tracking-widest bg-white/10 px-2.5 py-0.5 rounded-full border border-white/15 inline-block">
+                    🐟 100% Cá Cơm Than Cam Ranh
+                </span>
+                <h1 class="font-serif text-xl sm:text-3xl font-bold">
+                    Tất Cả Dòng Sản Phẩm Nước Mắm Ba Cô
+                </h1>
+                <p class="text-slate-300 text-xs sm:text-sm">
+                    Đầy đủ các dòng Mắm Nhĩ Thượng Hạng, Mắm Truyền Thống, Hộp Quà Biếu & Can Lớn Gia Đình
+                </p>
+            </div>
+            <div class="flex items-center space-x-2 text-xs">
+                <a href="tel:0985520678" class="site-hotline-link bg-white/10 hover:bg-white/20 border border-white/20 px-3.5 py-2 rounded-xl font-bold flex items-center space-x-1.5 transition">
+                    <span>📞 Tư vấn:</span>
+                    <span class="site-hotline text-amber-300">0985 520 678</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Catalog Content -->
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 space-y-4 sm:space-y-6">
+        <!-- Thanh Công Cụ Tìm Kiếm, Lọc Danh Mục & Sắp Xếp Giá -->
+        <div class="bg-white p-3 sm:p-4 rounded-2xl sm:rounded-3xl shadow-xs border border-slate-200/80 space-y-3">
+            <div class="flex flex-col sm:flex-row gap-2.5">
+                <!-- Ô tìm kiếm -->
+                <div class="relative flex-1">
+                    <span class="absolute inset-y-0 left-3.5 flex items-center text-slate-400 text-sm">🔍</span>
+                    <input type="text" id="catalogSearchInput" oninput="handleCatalogFilter()" placeholder="Tìm tên sản phẩm, độ đạm, dung tích..." class="w-full pl-9 pr-4 py-2 sm:py-2.5 rounded-xl bg-slate-100 focus:bg-white border border-slate-200/80 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition">
+                </div>
+                <!-- Sắp xếp theo giá -->
+                <div class="flex items-center space-x-2">
+                    <select id="catalogSortSelect" onchange="handleCatalogFilter()" class="w-full sm:w-auto px-3.5 py-2 sm:py-2.5 rounded-xl bg-slate-100 border border-slate-200/80 text-xs sm:text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <option value="default">✨ Sắp xếp: Nổi bật nhất</option>
+                        <option value="price_asc">⬆️ Giá: Thấp đến Cao</option>
+                        <option value="price_desc">⬇️ Giá: Cao đến Thấp</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Danh mục (Vuốt ngang mượt trên điện thoại) -->
+            <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 no-scrollbar" id="catalogCategoryBar">
+                <button type="button" onclick="selectCatalogCategory('all')" data-cat="all" class="cat-pill-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-slate-900 text-white shadow-xs">
+                    Tất cả
+                </button>
+                <button type="button" onclick="selectCatalogCategory('Mắm Nhĩ Thượng Hạng')" data-cat="Mắm Nhĩ Thượng Hạng" class="cat-pill-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition bg-slate-100 text-slate-700 hover:bg-amber-50">
+                    🌟 Mắm Nhĩ Thượng Hạng
+                </button>
+                <button type="button" onclick="selectCatalogCategory('Mắm Truyền Thống')" data-cat="Mắm Truyền Thống" class="cat-pill-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition bg-slate-100 text-slate-700 hover:bg-amber-50">
+                    🍳 Mắm Truyền Thống
+                </button>
+                <button type="button" onclick="selectCatalogCategory('Quà Biếu VIP')" data-cat="Quà Biếu VIP" class="cat-pill-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition bg-slate-100 text-slate-700 hover:bg-amber-50">
+                    🎁 Quà Biếu VIP
+                </button>
+                <button type="button" onclick="selectCatalogCategory('Can Lớn Gia Đình')" data-cat="Can Lớn Gia Đình" class="cat-pill-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition bg-slate-100 text-slate-700 hover:bg-amber-50">
+                    🏡 Can Lớn Gia Đình
+                </button>
+            </div>
+        </div>
+
+        <!-- Số lượng kết quả -->
+        <div class="flex items-center justify-between px-1 text-xs text-slate-500">
+            <span>Hiển thị <strong id="catalogCountLabel" class="text-slate-900">0</strong> sản phẩm</span>
+            <span class="text-[11px] text-teal-700 font-semibold">💡 Chạm vào ảnh để xem chi tiết</span>
+        </div>
+
+        <!-- Lưới sản phẩm: 2 cột trên điện thoại (thấy 4 sản phẩm cùng lúc), 3 cột tablet, 4 cột máy tính -->
+        <div id="catalogGridContainer" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-5">
+            <!-- Render bằng JS -->
+        </div>
+    </main>
+
+    <!-- Modal Xem Nhanh Chi Tiết Sản Phẩm (Quick View) -->
+    <div id="productQuickViewModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+        <div class="fixed inset-0" onclick="closeProductQuickView()"></div>
+        <div class="relative bg-white rounded-t-[28px] sm:rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100 z-10 max-h-[90vh] flex flex-col">
+            <button onclick="closeProductQuickView()" class="absolute top-3.5 right-3.5 z-20 w-8 h-8 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center font-bold text-sm transition">✕</button>
+            <div class="h-56 sm:h-64 bg-slate-100 relative shrink-0">
+                <img id="qvImage" src="./pictrure/1.jpg" alt="Chi tiết sản phẩm" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-transparent"></div>
+                <span id="qvTag" class="absolute top-3.5 left-3.5 bg-amber-500 text-slate-950 text-xs font-black px-3 py-1 rounded-full shadow">Đặc Biệt</span>
+                <div class="absolute bottom-3 left-4 right-4 flex items-center justify-between text-white text-xs">
+                    <span id="qvCategory" class="bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full font-semibold">Mắm Nhĩ Thượng Hạng</span>
+                    <button type="button" onclick="const name = document.getElementById('qvName').textContent; closeProductQuickView(); openReviewModal(name);" class="text-amber-300 font-bold hover:underline transition flex items-center space-x-1" title="Bấm để viết đánh giá">
+                        <span>★★★★★ 4.9/5</span>
+                        <span class="text-[10px] text-white/80">✍️</span>
+                    </button>
+                </div>
+            </div>
+            <div class="p-5 sm:p-6 space-y-3 overflow-y-auto">
+                <h3 id="qvName" class="font-serif font-bold text-lg sm:text-2xl text-slate-900 leading-snug"></h3>
+                <div class="flex items-baseline space-x-2">
+                    <span id="qvPrice" class="text-xl sm:text-2xl font-black text-amber-700"></span>
+                    <span id="qvUnit" class="text-xs sm:text-sm text-slate-500"></span>
+                </div>
+                <p id="qvDesc" class="text-xs sm:text-sm text-slate-600 leading-relaxed bg-slate-50 p-3.5 rounded-2xl border border-slate-100"></p>
+                <div id="qvActionBtns" class="pt-2 flex gap-2.5"></div>
+                <div class="pt-1 text-center">
+                    <button type="button" onclick="const name = document.getElementById('qvName').textContent; closeProductQuickView(); openReviewModal(name);" class="text-xs font-semibold text-amber-700 hover:text-amber-800 hover:underline inline-flex items-center space-x-1">
+                        <span>⭐ Bạn đã từng dùng mắm này? Viết cảm nhận & đánh giá ngay</span>
+                        <span>➔</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Viết Đánh Giá & Cảm Nhận Sản Phẩm (Review Pop-up) -->
+    <div id="reviewModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+        <div class="fixed inset-0" onclick="closeReviewModal()"></div>
+        <div class="relative bg-white rounded-t-[28px] sm:rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl border border-slate-200/80 my-0 sm:my-auto z-10 max-h-[92vh] overflow-y-auto text-slate-800 space-y-4">
+            <div class="w-10 h-1.5 bg-slate-300 rounded-full mx-auto sm:hidden mb-1"></div>
+            
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div class="flex items-center space-x-2.5">
+                    <span class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl shadow-xs">⭐</span>
+                    <div>
+                        <h3 class="font-serif text-lg sm:text-xl font-bold text-slate-900 leading-tight">Đánh Giá & Cảm Nhận</h3>
+                        <p class="text-[11px] text-slate-500">Góp ý của bạn giúp Nước Mắm Ba Cô ngày càng hoàn thiện</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeReviewModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold flex items-center justify-center transition">✕</button>
+            </div>
+
+            <form id="reviewForm" onsubmit="submitProductReview(event)" class="space-y-3.5">
+                <!-- Chọn sản phẩm đánh giá -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Sản phẩm bạn muốn đánh giá *</label>
+                    <select id="reviewProductSelect" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-800 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <!-- Nạp động qua JS -->
+                    </select>
+                </div>
+
+                <!-- Chấm điểm số sao tương tác 1 - 5 sao -->
+                <div class="bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200/70 text-center space-y-1.5">
+                    <label class="block text-xs font-bold text-amber-950">Mức độ hài lòng của bạn *</label>
+                    <div class="flex items-center justify-center space-x-2 text-3xl sm:text-4xl cursor-pointer select-none" id="starRatingGroup">
+                        <span class="star-btn transition transform hover:scale-125 text-amber-400" data-star="1" onclick="setStarRating(1)">★</span>
+                        <span class="star-btn transition transform hover:scale-125 text-amber-400" data-star="2" onclick="setStarRating(2)">★</span>
+                        <span class="star-btn transition transform hover:scale-125 text-amber-400" data-star="3" onclick="setStarRating(3)">★</span>
+                        <span class="star-btn transition transform hover:scale-125 text-amber-400" data-star="4" onclick="setStarRating(4)">★</span>
+                        <span class="star-btn transition transform hover:scale-125 text-amber-400" data-star="5" onclick="setStarRating(5)">★</span>
+                    </div>
+                    <input type="hidden" id="reviewRatingInput" value="5">
+                    <div id="starRatingLabel" class="text-xs font-bold text-amber-800">
+                        ⭐⭐⭐⭐⭐ Tuyệt vời - Chuẩn vị cá cơm truyền thống!
+                    </div>
+                </div>
+
+                <!-- Tiêu chí nổi bật (Chọn nhanh dạng tags) -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Tiêu chí bạn ưng ý nhất (Chọn nhanh):</label>
+                    <div class="flex flex-wrap gap-1.5" id="reviewCriteriaTags">
+                        <button type="button" onclick="toggleReviewTag(this)" class="review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-amber-400 active:scale-95">🐟 Mùi thơm cá cơm thật</button>
+                        <button type="button" onclick="toggleReviewTag(this)" class="review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-amber-400 active:scale-95">🍯 Hậu vị ngọt sâu đậm đà</button>
+                        <button type="button" onclick="toggleReviewTag(this)" class="review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-amber-400 active:scale-95">✨ Màu hổ phách sánh óng</button>
+                        <button type="button" onclick="toggleReviewTag(this)" class="review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-amber-400 active:scale-95">📦 Đóng thùng chống sốc kỹ</button>
+                        <button type="button" onclick="toggleReviewTag(this)" class="review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-amber-400 active:scale-95">⚡ Giao hàng nhanh cẩn thận</button>
+                        <button type="button" onclick="toggleReviewTag(this)" class="review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-amber-400 active:scale-95">🎁 Đẹp mắt để làm quà biếu</button>
+                    </div>
+                </div>
+
+                <!-- Họ tên & SĐT -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Họ và tên bạn *</label>
+                        <input type="text" id="reviewAuthorName" required placeholder="Ví dụ: Chị Lan Anh" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Số điện thoại *</label>
+                        <input type="tel" id="reviewAuthorPhone" required placeholder="0985520678" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Tỉnh / Thành phố bạn sinh sống</label>
+                    <input type="text" id="reviewAuthorLocation" placeholder="Ví dụ: TP. Hồ Chí Minh, Hà Nội, Nha Trang..." class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+
+                <!-- Lời nhận xét -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Cảm nhận chi tiết của bạn *</label>
+                    <textarea id="reviewComment" required rows="2.5" placeholder="Chia sẻ cảm nhận về hương vị, độ sánh, bao bì hoặc trải nghiệm sử dụng..." class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"></textarea>
+                </div>
+
+                <!-- Nút gửi -->
+                <button type="submit" id="submitReviewBtn" class="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold py-3 rounded-xl shadow-md transition active:scale-95 text-xs sm:text-sm flex items-center justify-center space-x-2">
+                    <span>⭐</span>
+                    <span>Gửi Đánh Giá Ngay</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Đặt Hàng Trực Tuyến (Checkout Pop-up) -->
+    <div id="checkoutOrderModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+        <div class="fixed inset-0" onclick="closeCheckoutModal()"></div>
+        <div class="relative bg-white rounded-t-[28px] sm:rounded-3xl max-w-2xl w-full p-5 sm:p-8 shadow-2xl border border-slate-200/80 my-0 sm:my-auto z-10 max-h-[92vh] overflow-y-auto text-slate-800">
+            <div class="w-10 h-1.5 bg-slate-300 rounded-full mx-auto sm:hidden mb-3"></div>
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4 sticky top-0 bg-white/95 backdrop-blur-md z-20">
+                <div>
+                    <span class="text-teal-700 font-bold uppercase tracking-wider text-[10px] bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200 inline-block">⚡ Đặt Mua Nhanh</span>
+                    <h3 class="font-serif text-lg sm:text-2xl font-bold text-slate-900 mt-0.5">Điền Thông Tin Đặt Hàng</h3>
+                </div>
+                <button type="button" onclick="closeCheckoutModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold flex items-center justify-center">✕</button>
+            </div>
+
+            <form id="orderForm" onsubmit="submitOrder(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Họ và tên *</label>
+                        <input type="text" id="name" required placeholder="Nguyễn Văn A" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Số điện thoại *</label>
+                        <input type="tel" id="phone" required placeholder="0985520678" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Địa chỉ nhận hàng chi tiết *</label>
+                    <textarea id="address" required rows="2" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm"></textarea>
+                </div>
+
+                <!-- Bảng giỏ hàng trong Checkout -->
+                <div id="checkoutCartSection" class="hidden bg-white border-2 border-amber-500/30 rounded-2xl p-3.5 space-y-2.5">
+                    <div class="flex items-center justify-between border-b border-amber-100 pb-2">
+                        <div class="flex items-center space-x-1.5">
+                            <span>🛒</span>
+                            <span class="font-bold text-xs">Giỏ hàng:</span>
+                            <span id="checkoutCartBadge" class="bg-amber-100 text-amber-900 text-[11px] font-bold px-2 py-0.5 rounded-full">0 món</span>
+                        </div>
+                        <button type="button" onclick="closeCheckoutModal()" class="text-xs font-bold text-amber-700 hover:underline">➕ Chọn thêm món</button>
+                    </div>
+                    <div class="overflow-x-auto max-h-48 overflow-y-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-amber-50/80 text-slate-600 font-semibold border-b border-amber-100">
+                                <tr>
+                                    <th class="py-2 px-2">Sản Phẩm</th>
+                                    <th class="py-2 px-1 text-center">Giá</th>
+                                    <th class="py-2 px-1 text-center">SL</th>
+                                    <th class="py-2 px-2 text-right">Thành Tiền</th>
+                                    <th class="py-2 px-1"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="checkoutCartItemsBody" class="divide-y divide-slate-100 font-medium"></tbody>
+                        </table>
+                    </div>
+                    <div class="flex items-center justify-between pt-2 border-t border-amber-100">
+                        <span class="text-xs text-slate-600">Tổng số lượng: <strong id="checkoutTotalQuantity">0</strong></span>
+                        <span id="checkoutCartTotalPrice" class="text-base sm:text-xl font-black text-emerald-700">0 đ</span>
+                    </div>
+                </div>
+
+                <div id="singleProductSelector" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Chọn sản phẩm *</label>
+                        <select id="product" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Số lượng *</label>
+                        <input type="number" id="quantity" min="1" value="1" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-center">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Ghi chú thêm</label>
+                    <input type="text" id="note" placeholder="Giao giờ hành chính..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <label class="flex items-center p-3 border-2 rounded-2xl cursor-pointer border-amber-600 bg-amber-50/60" id="cardCod">
+                        <input type="radio" name="paymentMethod" value="COD (Thanh toán tiền mặt khi nhận hàng)" checked onchange="togglePaymentMethod('cod')" class="w-4 h-4 text-amber-600">
+                        <div class="ml-2.5">
+                            <span class="block font-bold text-xs text-slate-900">💵 Tiền mặt khi nhận hàng (COD)</span>
+                            <span class="block text-[10px] text-slate-500">Kiểm tra hàng trước khi thanh toán</span>
+                        </div>
+                    </label>
+                    <label class="flex items-center p-3 border-2 border-slate-200 rounded-2xl cursor-pointer bg-white" id="cardBank">
+                        <input type="radio" name="paymentMethod" value="Chuyển khoản ngân hàng" onchange="togglePaymentMethod('bank')" class="w-4 h-4 text-amber-600">
+                        <div class="ml-2.5">
+                            <span class="block font-bold text-xs text-slate-900">💳 Quét mã VietQR</span>
+                            <span class="block text-[10px] text-emerald-600 font-semibold">✨ Tự động điền số tiền & nội dung</span>
+                        </div>
+                    </label>
+                </div>
+
+                <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black py-3.5 rounded-2xl shadow-lg transition text-sm">
+                    ⚡ Xác Nhận Đặt Hàng Ngay
+                </button>
+                <div id="successMessage" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 p-3.5 rounded-xl text-center text-xs"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- VietQR Payment Modal -->
+    <div id="qrPaymentModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl relative border border-amber-100 my-auto text-center space-y-4">
+            <button onclick="document.getElementById('qrPaymentModal').classList.add('hidden')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold">✕</button>
+            <h3 class="font-serif text-xl font-bold text-slate-900">Quét Mã VietQR Thanh Toán</h3>
+            <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200 inline-block mx-auto">
+                <img id="vietQrImage" src="" alt="VietQR" class="w-56 h-56 object-contain mx-auto rounded-xl bg-white p-2 shadow">
+            </div>
+            <div class="bg-slate-50 rounded-2xl p-3.5 text-left space-y-1.5 text-xs border border-slate-100">
+                <div class="flex justify-between"><span>Mã đơn:</span><strong id="modalOrderCode" class="text-amber-700"></strong></div>
+                <div class="flex justify-between"><span>Số tiền:</span><strong id="modalOrderAmount" class="text-emerald-700"></strong></div>
+                <div class="flex justify-between"><span>Ngân hàng:</span><strong>MB Bank - 0985520678</strong></div>
+            </div>
+            <button onclick="document.getElementById('qrPaymentModal').classList.add('hidden')" class="w-full bg-amber-600 text-white font-bold py-3 rounded-xl text-sm">Đóng</button>
+        </div>
+    </div>
+
+    <script>
+        const SHEET_ID = '1ZvX_-wHeoc6fcv43hW_Jj-blOagtsFJiazorJJ8pBBw';
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
+
+        const DEFAULT_PRODUCTS = [
+            {
+                id: "prod_1",
+                name: "Nước Mắm Nhĩ Thượng Hạng 40° Đạm",
+                category: "Mắm Nhĩ Thượng Hạng",
+                price: 180000,
+                unit: "Chai Thủy Tinh 500ml",
+                tag: "Bán Chạy",
+                image: "./pictrure/1.jpg",
+                desc: "Cốt nhĩ kéo rút đợt đầu tiên sánh đặc hổ phách, hậu vị ngọt sâu. Thích hợp chấm trực tiếp hoặc biếu tặng.",
+                inStock: true
+            },
+            {
+                id: "prod_2",
+                name: "Nước Mắm Truyền Thống 35° Đạm",
+                category: "Mắm Truyền Thống",
+                price: 120000,
+                unit: "Chai 500ml",
+                tag: "Phổ Biến",
+                image: "./pictrure/1.jpg",
+                desc: "Đậm đà vị cá cơm than Cam Ranh, lựa chọn hàng đầu cho chấm, ướp và kho nấu gia đình mỗi ngày.",
+                inStock: true
+            },
+            {
+                id: "prod_3",
+                name: "Hộp Quà Tặng Đôi 2 Chai 40° Đạm",
+                category: "Quà Biếu VIP",
+                price: 380000,
+                unit: "Hộp 2 chai 500ml",
+                tag: "Combo Quà Biếu",
+                image: "./pictrure/1.jpg",
+                desc: "Hộp quà thiết kế sang trọng kèm túi xách lịch sự, món quà sức khỏe ý nghĩa tặng đối tác và người thân.",
+                inStock: true
+            },
+            {
+                id: "prod_4",
+                name: "Mắm Nhĩ Cốt Đặc Biệt 43°N Ủ Thùng Gỗ",
+                category: "Mắm Nhĩ Thượng Hạng",
+                price: 245000,
+                unit: "Chai Thủy Tinh 500ml",
+                tag: "Đặc Biệt",
+                image: "./pictrure/1.jpg",
+                desc: "Ủ chượp ròng rã 15 tháng trong thùng gỗ bời lời, đạm cá tự nhiên cao kỷ lục 43°N, thơm dịu sánh quyện.",
+                inStock: true
+            },
+            {
+                id: "prod_5",
+                name: "Combo Tiết Kiệm 2 Chai Truyền Thống 35°N",
+                category: "Mắm Truyền Thống",
+                price: 225000,
+                unit: "Lốc 2 chai 500ml",
+                tag: "Tiết Kiệm",
+                image: "./pictrure/1.jpg",
+                desc: "Mua 2 chai tiết kiệm hơn cho gian bếp gia đình, vị mặn đằm hậu ngọt chuẩn mắm truyền thống Khánh Hòa.",
+                inStock: true
+            },
+            {
+                id: "prod_6",
+                name: "Can Gia Đình 2 Lít Kho Nấu Đậm Đà 30°N",
+                category: "Can Lớn Gia Đình",
+                price: 290000,
+                unit: "Can 2 Lít",
+                tag: "Tiết Kiệm",
+                image: "./pictrure/1.jpg",
+                desc: "Dung tích lớn siêu tiết kiệm chuyên dùng kho thịt, kho cá, nấu canh giúp món ăn dậy mùi thơm nức.",
+                inStock: true
+            }
+        ];
+
+        let catalogProducts = [];
+        let selectedCat = 'all';
+        let cart = [];
+        try {
+            cart = JSON.parse(localStorage.getItem('baco_cart') || '[]') || [];
+        } catch(e) {}
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-amber-600';
+            toast.className = `pointer-events-auto ${bgColor} text-white px-5 py-3 rounded-2xl shadow-xl font-medium text-xs sm:text-sm flex items-center space-x-2 toast-enter`;
+            toast.innerHTML = `<span>✅</span><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function loadCatalogProducts() {
+            const stored = localStorage.getItem('baco_products');
+            if (stored) {
+                try { catalogProducts = JSON.parse(stored); } catch(e) { catalogProducts = DEFAULT_PRODUCTS; }
+            } else {
+                catalogProducts = DEFAULT_PRODUCTS;
+                localStorage.setItem('baco_products', JSON.stringify(catalogProducts));
+            }
+            handleCatalogFilter();
+            const selectEl = document.getElementById('product');
+            if (selectEl) {
+                selectEl.innerHTML = catalogProducts.filter(p => p.inStock).map(p => `
+                    <option value="${p.name} (${Number(p.price).toLocaleString('vi-VN')}đ)">${p.name} (${Number(p.price).toLocaleString('vi-VN')}đ)</option>
+                `).join('');
+            }
+        }
+
+        function selectCatalogCategory(cat) {
+            selectedCat = cat;
+            document.querySelectorAll('.cat-pill-btn').forEach(btn => {
+                if (btn.getAttribute('data-cat') === cat) {
+                    btn.className = "cat-pill-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold transition bg-slate-900 text-white shadow-xs";
+                } else {
+                    btn.className = "cat-pill-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition bg-slate-100 text-slate-700 hover:bg-amber-50";
+                }
+            });
+            handleCatalogFilter();
+        }
+
+        function handleCatalogFilter() {
+            const q = (document.getElementById('catalogSearchInput').value || '').toLowerCase().trim();
+            const sort = document.getElementById('catalogSortSelect').value;
+
+            let list = catalogProducts.filter(p => {
+                const matchCat = selectedCat === 'all' || (p.category || 'Mắm Nhĩ Thượng Hạng') === selectedCat;
+                const matchSearch = !q || (p.name && p.name.toLowerCase().includes(q)) || (p.desc && p.desc.toLowerCase().includes(q)) || (p.category && p.category.toLowerCase().includes(q));
+                return matchCat && matchSearch;
+            });
+
+            if (sort === 'price_asc') list.sort((a, b) => Number(a.price) - Number(b.price));
+            if (sort === 'price_desc') list.sort((a, b) => Number(b.price) - Number(a.price));
+
+            document.getElementById('catalogCountLabel').textContent = list.length;
+            const grid = document.getElementById('catalogGridContainer');
+            if (list.length === 0) {
+                grid.innerHTML = `<div class="col-span-2 md:col-span-3 lg:col-span-4 bg-white rounded-3xl p-10 text-center text-slate-400 text-sm border border-slate-200/60">Không tìm thấy sản phẩm phù hợp với từ khóa.</div>`;
+                return;
+            }
+
+            grid.innerHTML = list.map(p => {
+                const safeName = (p.name || '').replace(/'/g, "\\'");
+                const badgeBg = (p.tag === 'Combo Quà Biếu') ? 'bg-rose-600 text-white'
+                              : (p.tag === 'Tiết Kiệm') ? 'bg-teal-600 text-white'
+                              : 'bg-amber-500 text-slate-950';
+
+                const stockBtn = p.inStock
+                    ? `<button type="button" onclick="addToCart('${safeName}', ${p.price})" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold px-2.5 sm:px-3 py-2 rounded-xl transition active:scale-95 text-xs flex items-center justify-center shrink-0" title="Thêm vào giỏ">
+                           <span>🛒</span>
+                       </button>
+                       <button type="button" onclick="buyNow('${safeName}', ${p.price})" class="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black py-2 px-2 rounded-xl transition shadow-xs active:scale-95 text-[11px] sm:text-xs text-center">
+                           Mua Ngay
+                       </button>`
+                    : `<button disabled class="w-full bg-slate-200 text-slate-500 font-semibold py-2 rounded-xl text-[11px] cursor-not-allowed">🔴 Tạm Hết</button>`;
+
+                return `
+                    <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/80 flex flex-col justify-between group">
+                        <div>
+                            <div onclick="openProductQuickView('${p.id}')" class="h-32 sm:h-48 relative overflow-hidden bg-slate-100 cursor-pointer">
+                                <img src="${p.image || './pictrure/1.jpg'}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/65 via-transparent to-transparent"></div>
+                                <span class="absolute top-2 left-2 ${badgeBg} text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-full shadow">
+                                    ${p.tag || 'Đặc Biệt'}
+                                </span>
+                                <div class="absolute bottom-1.5 left-2 right-2 flex justify-between items-center text-white text-[9px] sm:text-[11px]">
+                                    <span class="truncate max-w-[70%]">${p.unit || 'Chai 500ml'}</span>
+                                    <span onclick="event.stopPropagation(); openReviewModal('${safeName}')" class="text-amber-300 font-bold hover:underline hover:scale-110 transition cursor-pointer select-none" title="Bấm để đánh giá sản phẩm này">★ 4.9</span>
+                                </div>
+                            </div>
+                            <div class="p-2.5 sm:p-4 space-y-1">
+                                <div class="flex items-center justify-between gap-1 text-[9px] sm:text-[10px] whitespace-nowrap overflow-hidden">
+                                    <span class="font-bold text-teal-700 uppercase tracking-wider truncate">${p.category || 'Đặc Sản'}</span>
+                                    <span class="font-bold text-amber-900 bg-amber-100 px-1.5 py-0.5 rounded text-[8px] sm:text-[9px] shrink-0">${p.tag || 'VIP'}</span>
+                                </div>
+                                <h3 onclick="openProductQuickView('${p.id}')" class="font-serif font-bold text-xs sm:text-base text-slate-900 group-hover:text-amber-700 transition line-clamp-2 min-h-[2rem] sm:min-h-[2.75rem] leading-snug cursor-pointer">
+                                    ${p.name}
+                                </h3>
+                                <p class="hidden sm:line-clamp-2 text-slate-500 text-[11px] leading-relaxed">${p.desc || ''}</p>
+                                <div class="pt-1 flex items-baseline justify-between border-t border-slate-100 whitespace-nowrap">
+                                    <span class="text-sm sm:text-lg font-black text-amber-700 shrink-0">${Number(p.price).toLocaleString('vi-VN')} đ</span>
+                                    <span class="text-[9px] sm:text-[11px] text-slate-400 truncate ml-1">/ ${p.unit || 'chai'}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-2.5 sm:p-4 pt-0 flex gap-1.5">
+                            ${stockBtn}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openProductQuickView(prodId) {
+            const p = catalogProducts.find(item => item.id === prodId);
+            if (!p) return;
+            document.getElementById('qvImage').src = p.image || './pictrure/1.jpg';
+            document.getElementById('qvTag').textContent = p.tag || 'Đặc Biệt';
+            document.getElementById('qvCategory').textContent = p.category || 'Đặc Sản Cam Ranh';
+            document.getElementById('qvName').textContent = p.name;
+            document.getElementById('qvPrice').textContent = Number(p.price).toLocaleString('vi-VN') + ' đ';
+            document.getElementById('qvUnit').textContent = '/ ' + (p.unit || 'Chai 500ml');
+            document.getElementById('qvDesc').textContent = p.desc || '';
+            const safeName = (p.name || '').replace(/'/g, "\\'");
+            const actionEl = document.getElementById('qvActionBtns');
+            if (p.inStock) {
+                actionEl.innerHTML = `
+                    <button type="button" onclick="addToCart('${safeName}', ${p.price}); closeProductQuickView();" class="flex-1 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold py-3 rounded-2xl text-xs sm:text-sm">🛒 Thêm Vào Giỏ</button>
+                    <button type="button" onclick="closeProductQuickView(); buyNow('${safeName}', ${p.price});" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-3 rounded-2xl text-xs sm:text-sm shadow-md">⚡ Mua Ngay</button>
+                `;
+            } else {
+                actionEl.innerHTML = `<button disabled class="w-full bg-slate-200 text-slate-500 font-bold py-3 rounded-2xl text-xs">🔴 Tạm hết hàng</button>`;
+            }
+            document.getElementById('productQuickViewModal').classList.remove('hidden');
+        }
+
+        function closeProductQuickView() {
+            document.getElementById('productQuickViewModal').classList.add('hidden');
+        }
+
+        function toggleCart() {
+            document.getElementById('cartDrawer').classList.toggle('hidden');
+        }
+
+        function addToCart(name, price) {
+            const existing = cart.find(i => i.name === name);
+            if (existing) existing.quantity += 1;
+            else cart.push({ name, price, quantity: 1 });
+            updateCartUI();
+            showToast(`Đã thêm "${name}" vào giỏ hàng!`);
+        }
+
+        function buyNow(name, price) {
+            const existing = cart.find(i => i.name === name);
+            if (existing) existing.quantity += 1;
+            else cart.push({ name, price, quantity: 1 });
+            updateCartUI();
+            openCheckoutModal();
+        }
+
+        function changeCartQty(idx, delta) {
+            if (!cart[idx]) return;
+            cart[idx].quantity += delta;
+            if (cart[idx].quantity <= 0) cart.splice(idx, 1);
+            updateCartUI();
+        }
+
+        function removeFromCart(idx) {
+            cart.splice(idx, 1);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            try { localStorage.setItem('baco_cart', JSON.stringify(cart)); } catch(e) {}
+            const container = document.getElementById('cartItemsContainer');
+            const badgeNav = document.getElementById('cartNavBadge');
+            const badgeMob = document.getElementById('cartMobileBadge');
+            const totalEl = document.getElementById('cartTotalPrice');
+            const checkoutSection = document.getElementById('checkoutCartSection');
+            const checkoutBody = document.getElementById('checkoutCartItemsBody');
+            const singleSelector = document.getElementById('singleProductSelector');
+
+            let totalCount = 0;
+            let totalPrice = 0;
+
+            if (cart.length === 0) {
+                if (container) container.innerHTML = `<div class="text-center py-12 text-slate-400">Giỏ hàng đang trống 🛒</div>`;
+                if (checkoutSection) checkoutSection.classList.add('hidden');
+                if (singleSelector) singleSelector.classList.remove('hidden');
+            } else {
+                if (container) {
+                    container.innerHTML = cart.map((item, i) => `
+                        <div class="py-3.5 flex justify-between items-center">
+                            <div>
+                                <h4 class="font-bold text-xs sm:text-sm text-slate-900">${item.name}</h4>
+                                <p class="text-xs text-amber-700 font-semibold">${Number(item.price).toLocaleString('vi-VN')} đ</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="flex items-center border border-slate-200 rounded-lg bg-white">
+                                    <button type="button" onclick="changeCartQty(${i}, -1)" class="px-2 py-0.5 font-bold">-</button>
+                                    <span class="px-2 text-xs font-bold">${item.quantity}</span>
+                                    <button type="button" onclick="changeCartQty(${i}, 1)" class="px-2 py-0.5 font-bold">+</button>
+                                </div>
+                                <button type="button" onclick="removeFromCart(${i})" class="text-rose-500 text-xs font-bold">✕</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                if (checkoutSection && checkoutBody) {
+                    checkoutSection.classList.remove('hidden');
+                    if (singleSelector) singleSelector.classList.add('hidden');
+                    checkoutBody.innerHTML = cart.map((item, i) => `
+                        <tr>
+                            <td class="py-2 px-2 font-semibold">${item.name}</td>
+                            <td class="py-2 px-1 text-center">${Number(item.price).toLocaleString('vi-VN')}đ</td>
+                            <td class="py-2 px-1 text-center">
+                                <button type="button" onclick="changeCartQty(${i}, -1)" class="px-1.5 border rounded">-</button>
+                                <span class="px-1.5 font-bold">${item.quantity}</span>
+                                <button type="button" onclick="changeCartQty(${i}, 1)" class="px-1.5 border rounded">+</button>
+                            </td>
+                            <td class="py-2 px-2 text-right font-bold text-emerald-700">${(item.price * item.quantity).toLocaleString('vi-VN')}đ</td>
+                            <td class="py-2 px-1 text-center"><button type="button" onclick="removeFromCart(${i})" class="text-rose-500 font-bold">✕</button></td>
+                        </tr>
+                    `).join('');
+                }
+                cart.forEach(item => {
+                    totalCount += item.quantity;
+                    totalPrice += item.price * item.quantity;
+                });
+            }
+            if (badgeNav) badgeNav.textContent = totalCount;
+            if (badgeMob) badgeMob.textContent = totalCount;
+            if (totalEl) totalEl.textContent = totalPrice.toLocaleString('vi-VN') + ' đ';
+            if (document.getElementById('checkoutTotalQuantity')) document.getElementById('checkoutTotalQuantity').textContent = totalCount;
+            if (document.getElementById('checkoutCartTotalPrice')) document.getElementById('checkoutCartTotalPrice').textContent = totalPrice.toLocaleString('vi-VN') + ' đ';
+            if (document.getElementById('checkoutCartBadge')) document.getElementById('checkoutCartBadge').textContent = `${cart.length} món`;
+        }
+
+        function openCheckoutModal() {
+            document.getElementById('cartDrawer').classList.add('hidden');
+            updateCartUI();
+            document.getElementById('checkoutOrderModal').classList.remove('hidden');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkoutOrderModal').classList.add('hidden');
+        }
+
+        function togglePaymentMethod(m) {
+            const cCod = document.getElementById('cardCod');
+            const cBank = document.getElementById('cardBank');
+            if (m === 'bank') {
+                cBank.className = "flex items-center p-3 border-2 rounded-2xl cursor-pointer border-amber-600 bg-amber-50/60";
+                cCod.className = "flex items-center p-3 border-2 border-slate-200 rounded-2xl cursor-pointer bg-white";
+            } else {
+                cCod.className = "flex items-center p-3 border-2 rounded-2xl cursor-pointer border-amber-600 bg-amber-50/60";
+                cBank.className = "flex items-center p-3 border-2 border-slate-200 rounded-2xl cursor-pointer bg-white";
+            }
+        }
+
+        function submitOrder(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = "Đang gửi đơn hàng...";
+
+            const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const orderCode = 'BC' + Math.floor(100000 + Math.random() * 900000);
+            let productSummary = '';
+            let totalQuantity = 1;
+            let totalAmount = 0;
+
+            if (cart.length > 0) {
+                productSummary = cart.map(i => `${i.name} (x${i.quantity})`).join(', ');
+                totalQuantity = cart.reduce((s, i) => s + i.quantity, 0);
+                totalAmount = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+            } else {
+                const prodVal = document.getElementById('product').value;
+                const qtyVal = parseInt(document.getElementById('quantity').value) || 1;
+                productSummary = prodVal;
+                totalQuantity = qtyVal;
+                const found = catalogProducts.find(p => prodVal.includes(p.name));
+                totalAmount = (found ? Number(found.price) : 180000) * qtyVal;
+            }
+
+            const formData = {
+                orderCode,
+                name: document.getElementById('name').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                product: productSummary,
+                quantity: totalQuantity,
+                totalAmount,
+                paymentMethod: selectedPayment,
+                note: document.getElementById('note').value.trim(),
+                timestamp: new Date().toLocaleString('vi-VN')
+            };
+
+            try {
+                const existing = JSON.parse(localStorage.getItem('baco_orders') || '[]');
+                existing.unshift(Object.assign({}, formData, { status: 'Chờ xác nhận' }));
+                localStorage.setItem('baco_orders', JSON.stringify(existing));
+            } catch(err) {}
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(formData)
+            }).finally(() => {
+                btn.disabled = false;
+                btn.textContent = "⚡ Xác Nhận Đặt Hàng Ngay";
+                cart = [];
+                updateCartUI();
+                if (selectedPayment.includes('Chuyển khoản')) {
+                    closeCheckoutModal();
+                    document.getElementById('modalOrderCode').textContent = '#' + orderCode;
+                    document.getElementById('modalOrderAmount').textContent = totalAmount.toLocaleString('vi-VN') + ' đ';
+                    document.getElementById('vietQrImage').src = `https://img.vietqr.io/image/MB-0985520678-compact2.png?amount=${totalAmount}&addInfo=${orderCode}`;
+                    document.getElementById('qrPaymentModal').classList.remove('hidden');
+                } else {
+                    const box = document.getElementById('successMessage');
+                    box.innerHTML = `🎉 Đặt hàng thành công mã <strong>#${orderCode}</strong>! Tổng: <strong>${totalAmount.toLocaleString('vi-VN')} đ</strong>.`;
+                    box.classList.remove('hidden');
+                    showToast('Đặt hàng thành công!');
+                }
+            });
+        }
+
+        function applyBrandInfo() {
+            try {
+                const raw = localStorage.getItem('baco_site_content');
+                if (!raw) return;
+                const c = JSON.parse(raw);
+                if (c.brandName) document.querySelectorAll('.site-brand-name').forEach(el => el.textContent = c.brandName);
+                if (c.brandSlogan) document.querySelectorAll('.site-brand-slogan').forEach(el => el.textContent = c.brandSlogan);
+                if (c.brandPhone) {
+                    document.querySelectorAll('.site-hotline').forEach(el => el.textContent = c.brandPhone);
+                    document.querySelectorAll('.site-hotline-link').forEach(el => el.href = `tel:${c.brandPhone}`);
+                }
+            } catch(e) {}
+        }
+
+        async function syncCatalogFromGoogleSheet() {
+            const SHEET_ID = '1ZvX_-wHeoc6fcv43hW_Jj-blOagtsFJiazorJJ8pBBw';
+            try {
+                const urlProd = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('SanPham')}`;
+                const resProd = await fetch(urlProd);
+                const textProd = await resProd.text();
+                const matchProd = textProd.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
+                if (matchProd && matchProd[1]) {
+                    const dataProd = JSON.parse(matchProd[1]);
+                    const rowsProd = dataProd.table.rows || [];
+                    const sheetProds = [];
+                    for (let i = 0; i < rowsProd.length; i++) {
+                        const c = rowsProd[i].c;
+                        if (!c) continue;
+                        const getVal = idx => (c[idx] && c[idx].v !== null && c[idx].v !== undefined) ? (c[idx].f || c[idx].v) : '';
+                        const id = String(getVal(0)).trim();
+                        const name = String(getVal(1)).trim();
+                        if (!id.startsWith('prod_') || !name) continue;
+                        const stockRaw = String(getVal(6)).trim().toUpperCase();
+                        const inStock = !(stockRaw === 'FALSE' || stockRaw === 'HẾT HÀNG' || stockRaw === 'HET HANG' || stockRaw === '0');
+                        sheetProds.push({
+                            id: id,
+                            name: name,
+                            price: Number(String(getVal(2)).replace(/\D/g, '')) || 150000,
+                            unit: String(getVal(3) || 'Chai 500ml'),
+                            category: String(getVal(4) || 'Mắm Nhĩ Thượng Hạng'),
+                            tag: String(getVal(5) || 'Đặc Biệt'),
+                            inStock: inStock,
+                            desc: String(getVal(7) || ''),
+                            image: String(getVal(8) || './pictrure/1.jpg')
+                        });
+                    }
+                    if (sheetProds.length > 0 && !localStorage.getItem('baco_products_custom_saved')) {
+                        localStorage.setItem('baco_products', JSON.stringify(sheetProds));
+                        loadCatalogProducts();
+                    }
+                }
+            } catch(e) {}
+        }
+
+        let selectedReviewRating = 5;
+        let selectedReviewTags = [];
+
+        function setStarRating(num) {
+            selectedReviewRating = num;
+            const input = document.getElementById('reviewRatingInput');
+            if (input) input.value = num;
+            const stars = document.querySelectorAll('#starRatingGroup .star-btn');
+            stars.forEach((star, idx) => {
+                if (idx < num) {
+                    star.className = "star-btn transition transform hover:scale-125 text-amber-400";
+                } else {
+                    star.className = "star-btn transition transform hover:scale-125 text-slate-300";
+                }
+            });
+
+            const labels = {
+                5: "⭐⭐⭐⭐⭐ Tuyệt vời - Chuẩn vị cá cơm truyền thống!",
+                4: "⭐⭐⭐⭐ Rất tốt - Mắm thơm ngon, hài lòng!",
+                3: "⭐⭐⭐ Bình thường - Ổn trong tầm giá",
+                2: "⭐⭐ Chưa thật sự hài lòng",
+                1: "⭐ Không hài lòng"
+            };
+            const labelEl = document.getElementById('starRatingLabel');
+            if (labelEl) labelEl.textContent = labels[num] || labels[5];
+        }
+
+        function toggleReviewTag(btn) {
+            const tagText = btn.textContent.trim();
+            const idx = selectedReviewTags.indexOf(tagText);
+            if (idx > -1) {
+                selectedReviewTags.splice(idx, 1);
+                btn.className = "review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-amber-400 active:scale-95";
+            } else {
+                selectedReviewTags.push(tagText);
+                btn.className = "review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-bold border border-amber-500 bg-amber-500 text-slate-950 transition active:scale-95 shadow-2xs";
+            }
+        }
+
+        function openReviewModal(productName = '') {
+            const selectEl = document.getElementById('reviewProductSelect');
+            if (selectEl) {
+                const prods = (catalogProducts && catalogProducts.length > 0) ? catalogProducts : DEFAULT_CATALOG;
+                selectEl.innerHTML = prods.map(p => `
+                    <option value="${p.name}" ${p.name === productName ? 'selected' : ''}>${p.name}</option>
+                `).join('');
+                if (!productName && prods.length > 0) {
+                    selectEl.value = prods[0].name;
+                }
+            }
+            setStarRating(5);
+            selectedReviewTags = [];
+            document.querySelectorAll('.review-tag-btn').forEach(btn => {
+                btn.className = "review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-amber-400 active:scale-95";
+            });
+            document.getElementById('reviewModal').classList.remove('hidden');
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewModal').classList.add('hidden');
+        }
+
+        async function submitProductReview(e) {
+            e.preventDefault();
+            const author = document.getElementById('reviewAuthorName').value.trim();
+            const phone = document.getElementById('reviewAuthorPhone').value.trim();
+            const location = document.getElementById('reviewAuthorLocation').value.trim() || 'Khách mua online';
+            const product = document.getElementById('reviewProductSelect').value;
+            const comment = document.getElementById('reviewComment').value.trim();
+            const rating = selectedReviewRating;
+            const tags = [...selectedReviewTags];
+
+            const newReview = {
+                id: 'REV-' + Date.now(),
+                name: author,
+                phone: phone,
+                location: location,
+                product: product,
+                rating: rating,
+                tags: tags,
+                comment: comment,
+                status: 'approved',
+                date: new Date().toLocaleDateString('vi-VN'),
+                verified: true
+            };
+
+            let reviewsList = [];
+            try {
+                reviewsList = JSON.parse(localStorage.getItem('baco_reviews')) || [];
+            } catch(e) {}
+            reviewsList.unshift(newReview);
+            try {
+                localStorage.setItem('baco_reviews', JSON.stringify(reviewsList));
+            } catch(err) {}
+
+            // Đồng bộ ngầm lên Google Sheet
+            try {
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'submit_review',
+                        review: newReview,
+                        timestamp: new Date().toLocaleString('vi-VN')
+                    })
+                });
+            } catch(err) {}
+
+            closeReviewModal();
+            showToast('Cảm ơn bạn! Đánh giá đã được ghi nhận thành công ⭐⭐⭐⭐⭐', 'success');
+            document.getElementById('reviewForm').reset();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadCatalogProducts();
+            updateCartUI();
+            applyBrandInfo();
+            syncCatalogFromGoogleSheet();
+        });
+    </script>
+</body>
+</html>
