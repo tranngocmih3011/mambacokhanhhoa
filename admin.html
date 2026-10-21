@@ -825,6 +825,11 @@
                                     </div>
                                 </div>
                                 <input type="text" id="cms_heroBgImg" oninput="updateCmsPreviewFromInput('heroBgImg')" placeholder="VD: ./pictrure/banner_khanhhoa.jpg hoặc link web..." class="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] text-slate-600 font-mono">
+                                <div class="pt-0.5 flex flex-wrap gap-2">
+                                    <button type="button" onclick="setPresetCmsImage('heroBgImg', './pictrure/banner_khanhhoa.jpg')" class="text-[10px] text-amber-800 hover:text-amber-950 font-bold bg-amber-100/70 hover:bg-amber-100 px-2 py-0.5 rounded-md transition">
+                                        🌊 Dùng banner biển gốc (Nét 100%)
+                                    </button>
+                                </div>
                             </div>
 
                             <!-- Ảnh chai sản phẩm nổi bật -->
@@ -843,6 +848,11 @@
                                     </div>
                                 </div>
                                 <input type="text" id="cms_heroProductImg" oninput="updateCmsPreviewFromInput('heroProductImg')" placeholder="VD: ./pictrure/1.jpg hoặc link web..." class="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] text-slate-600 font-mono">
+                                <div class="pt-0.5 flex flex-wrap gap-2">
+                                    <button type="button" onclick="setPresetCmsImage('heroProductImg', './pictrure/1.jpg')" class="text-[10px] text-amber-800 hover:text-amber-950 font-bold bg-amber-100/70 hover:bg-amber-100 px-2 py-0.5 rounded-md transition">
+                                        🍾 Dùng chai mắm gốc (Nét 100%)
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1281,8 +1291,13 @@
                             <button type="button" onclick="document.getElementById('prodImageFileInput').click()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition shadow flex items-center space-x-1.5 ios-press">
                                 <span>📷 Chọn ảnh từ máy tính / ĐT</span>
                             </button>
-                            <p class="text-[10px] text-slate-400">Hỗ trợ chọn ảnh từ máy tính, thư viện iPhone/Android hoặc dán đường dẫn ảnh:</p>
-                            <input type="text" id="prodImage" oninput="document.getElementById('imagePreview').src = this.value" placeholder="./pictrure/1.jpg hoặc link web..." class="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] text-slate-700 focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono" value="./pictrure/1.jpg">
+                            <p class="text-[10px] text-slate-400">Hỗ trợ chọn ảnh từ máy/ĐT hoặc dán đường dẫn ảnh / link Google Drive:</p>
+                            <input type="text" id="prodImage" oninput="handleProdImageInput(this.value)" placeholder="./pictrure/1.jpg hoặc link web..." class="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] text-slate-700 focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono" value="./pictrure/1.jpg">
+                            <div class="pt-0.5">
+                                <button type="button" onclick="handleProdImageInput('./pictrure/1.jpg')" class="text-[10px] text-amber-800 hover:text-amber-950 font-bold bg-amber-100/70 hover:bg-amber-100 px-2 py-0.5 rounded-md transition">
+                                    🍾 Dùng chai mắm Ba Cô gốc (Nét 100%)
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -4897,11 +4912,49 @@ function dinhDangDongKhachSi(sheet, row) {
             });
         }
 
+        // Tự động nhận diện và chuyển đổi link Google Drive, Postimages sang link CDN trực tiếp siêu nét
+        function formatImageUrl(url) {
+            if (!url) return '';
+            let u = url.trim();
+            // Google Drive dạng /file/d/FILE_ID/view...
+            const d1 = u.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (d1 && d1[1]) return `https://lh3.googleusercontent.com/d/${d1[1]}`;
+            // Google Drive dạng ?id=FILE_ID
+            const d2 = u.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (d2 && d2[1]) return `https://lh3.googleusercontent.com/d/${d2[1]}`;
+            return u;
+        }
+
+        function setPresetCmsImage(fieldKey, path) {
+            const inputEl = document.getElementById(`cms_${fieldKey}`);
+            const previewEl = document.getElementById(`preview_cms_${fieldKey}`);
+            if (inputEl) inputEl.value = path;
+            if (previewEl) previewEl.src = path;
+            showAdminToast('Đã chọn ảnh gốc siêu nét trong dự án!', 'success');
+        }
+
+        function handleProdImageInput(val) {
+            const formatted = formatImageUrl(val);
+            const inputEl = document.getElementById('prodImage');
+            if (inputEl && formatted !== inputEl.value) {
+                inputEl.value = formatted;
+            }
+            const imgEl = document.getElementById('imagePreview');
+            if (imgEl && formatted) {
+                imgEl.src = formatted;
+            }
+        }
+
         function updateCmsPreviewFromInput(fieldKey) {
             const inputEl = document.getElementById(`cms_${fieldKey}`);
             const previewEl = document.getElementById(`preview_cms_${fieldKey}`);
-            if (inputEl && previewEl && inputEl.value.trim()) {
-                previewEl.src = inputEl.value.trim();
+            if (inputEl && previewEl) {
+                const raw = inputEl.value.trim();
+                const formatted = formatImageUrl(raw);
+                if (formatted !== raw) {
+                    inputEl.value = formatted;
+                }
+                if (formatted) previewEl.src = formatted;
             }
         }
 
