@@ -1469,6 +1469,30 @@ function doPost(e) {
     var nowStr = data.timestamp || new Date().toLocaleString(&quot;vi-VN&quot;);
 
     // ========================================================
+    // TẦNG BẢO VỆ CHỐNG BOT SPAM &amp; CÀO DỮ LIỆU (ANTI-BOT &amp; RATE LIMIT)
+    // ========================================================
+    if (data.website_trap_hp &amp;&amp; String(data.website_trap_hp).trim() !== &quot;&quot;) {
+      return jsonSuccess({ status: &quot;success&quot;, msg: &quot;Bot trap triggered - Ignored&quot;, ignored: true });
+    }
+
+    var isNewSubmission = (data.type === &quot;wholesale&quot; || action === &quot;wholesale&quot; || action === &quot;submit_review&quot; || !action);
+    if (isNewSubmission) {
+      var phoneRaw = String(data.phone || (data.review &amp;&amp; data.review.phone) || &quot;&quot;).replace(/\D/g, &quot;&quot;);
+      if (phoneRaw.length &gt;= 9) {
+        try {
+          var cache = CacheService.getScriptCache();
+          if (cache) {
+            var cacheKey = &quot;baco_spam_&quot; + phoneRaw;
+            if (cache.get(cacheKey)) {
+              return jsonError(&quot;Thao tác quá nhanh! Vui lòng chờ 30 giây trước khi gửi tiếp.&quot;);
+            }
+            cache.put(cacheKey, &quot;sent&quot;, 30);
+          }
+        } catch(cErr) {}
+      }
+    }
+
+    // ========================================================
     // NHÁNH 0: ĐỒNG BỘ BẢNG SẢN PHẨM &amp; BẢNG NỘI DUNG WEBSITE
     // ========================================================
 
@@ -2420,15 +2444,38 @@ function dinhDangDongKhachSi(sheet, row) {
 
         function handleAdminLogin(e) {
             if (e && e.preventDefault) e.preventDefault();
+            const now = Date.now();
+            const lockedUntil = parseInt(localStorage.getItem('baco_pin_locked_until') || '0', 10);
+            if (now < lockedUntil) {
+                const remainSec = Math.ceil((lockedUntil - now) / 1000);
+                showAdminToast(`⚠️ Hệ thống tạm khóa trong ${remainSec}s do nhập sai PIN quá 5 lần!`, 'error');
+                return;
+            }
+
             const pass = (document.getElementById('adminPasswordInput').value || '').trim();
             if (pass === ADMIN_PIN) {
+                // Đăng nhập thành công -> Xóa bộ đếm sai
+                localStorage.removeItem('baco_pin_fail_count');
+                localStorage.removeItem('baco_pin_locked_until');
                 // Lưu trạng thái đăng nhập vĩnh viễn trong localStorage để reload/kéo trang không bị hỏi lại
                 localStorage.setItem('baco_admin_logged', 'true');
                 sessionStorage.setItem('baco_admin_logged', 'true');
                 showAdminDashboard();
                 showAdminToast('Đăng nhập quản trị thành công!', 'success');
             } else {
-                showAdminToast('Mã PIN không đúng! Vui lòng nhập 123456', 'error');
+                let failCount = parseInt(localStorage.getItem('baco_pin_fail_count') || '0', 10) + 1;
+                localStorage.setItem('baco_pin_fail_count', failCount.toString());
+
+                if (failCount >= 5) {
+                    // Khóa 5 phút chống tấn công dò PIN tự động (Brute-force)
+                    const lockTime = Date.now() + (5 * 60 * 1000);
+                    localStorage.setItem('baco_pin_locked_until', lockTime.toString());
+                    localStorage.removeItem('baco_pin_fail_count');
+                    showAdminToast('🚨 Nhập sai quá 5 lần! Hệ thống tạm khóa 5 phút để bảo vệ dữ liệu.', 'error');
+                } else {
+                    const remainAttempts = 5 - failCount;
+                    showAdminToast(`Mã PIN không đúng! Còn ${remainAttempts} lần thử trước khi bị khóa tạm thời.`, 'error');
+                }
             }
         }
 

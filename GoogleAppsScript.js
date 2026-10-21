@@ -64,6 +64,33 @@ function doPost(e) {
     var nowStr = data.timestamp || new Date().toLocaleString("vi-VN");
 
     // ========================================================
+    // TẦNG BẢO VỆ CHỐNG BOT SPAM & CÀO DỮ LIỆU (ANTI-BOT & RATE LIMIT)
+    // ========================================================
+    // 1. Kiểm tra Bẫy Bot Tàng hình (Honeypot Trap)
+    // Nếu bot tự động điền trường website_trap_hp -> Phản hồi ảo, không lưu DB & không gửi mail
+    if (data.website_trap_hp && String(data.website_trap_hp).trim() !== "") {
+      return jsonSuccess({ status: "success", msg: "Bot trap triggered - Ignored", ignored: true });
+    }
+
+    // 2. Chống Spam liên tục vào Webhook qua CacheService (Rate limiting 30 giây)
+    var isNewSubmission = (data.type === "wholesale" || action === "wholesale" || action === "submit_review" || !action);
+    if (isNewSubmission) {
+      var phoneRaw = String(data.phone || (data.review && data.review.phone) || "").replace(/\D/g, "");
+      if (phoneRaw.length >= 9) {
+        try {
+          var cache = CacheService.getScriptCache();
+          if (cache) {
+            var cacheKey = "baco_spam_" + phoneRaw;
+            if (cache.get(cacheKey)) {
+              return jsonError("Thao tác quá nhanh! Vui lòng chờ 30 giây trước khi gửi tiếp.");
+            }
+            cache.put(cacheKey, "sent", 30);
+          }
+        } catch(cErr) {}
+      }
+    }
+
+    // ========================================================
     // NHÁNH 0: ĐỒNG BỘ BẢNG SẢN PHẨM & BẢNG NỘI DUNG WEBSITE
     // ========================================================
 
