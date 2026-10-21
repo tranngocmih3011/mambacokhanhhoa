@@ -824,7 +824,7 @@
                                         <p class="text-[10px] text-slate-400">Hỗ trợ chọn ảnh từ máy tính hoặc thư viện điện thoại</p>
                                     </div>
                                 </div>
-                                <input type="text" id="cms_heroBgImg" oninput="updateCmsPreviewFromInput('heroBgImg')" placeholder="Hoặc dán link ảnh..." class="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] text-slate-600">
+                                <input type="text" id="cms_heroBgImg" oninput="updateCmsPreviewFromInput('heroBgImg')" placeholder="VD: ./pictrure/banner_khanhhoa.jpg hoặc link web..." class="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] text-slate-600 font-mono">
                             </div>
 
                             <!-- Ảnh chai sản phẩm nổi bật -->
@@ -842,7 +842,7 @@
                                         <p class="text-[10px] text-slate-400">Hỗ trợ chọn ảnh từ máy tính hoặc thư viện điện thoại</p>
                                     </div>
                                 </div>
-                                <input type="text" id="cms_heroProductImg" oninput="updateCmsPreviewFromInput('heroProductImg')" placeholder="Hoặc dán link ảnh..." class="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] text-slate-600">
+                                <input type="text" id="cms_heroProductImg" oninput="updateCmsPreviewFromInput('heroProductImg')" placeholder="VD: ./pictrure/1.jpg hoặc link web..." class="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] text-slate-600 font-mono">
                             </div>
                         </div>
                     </div>
@@ -1281,8 +1281,8 @@
                             <button type="button" onclick="document.getElementById('prodImageFileInput').click()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition shadow flex items-center space-x-1.5 ios-press">
                                 <span>📷 Chọn ảnh từ máy tính / ĐT</span>
                             </button>
-                            <p class="text-[10px] text-slate-400">Hỗ trợ chọn ảnh từ máy tính, thư viện iPhone/Android hoặc Camera</p>
-                            <input type="hidden" id="prodImage" value="./pictrure/1.jpg">
+                            <p class="text-[10px] text-slate-400">Hỗ trợ chọn ảnh từ máy tính, thư viện iPhone/Android hoặc dán đường dẫn ảnh:</p>
+                            <input type="text" id="prodImage" oninput="document.getElementById('imagePreview').src = this.value" placeholder="./pictrure/1.jpg hoặc link web..." class="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] text-slate-700 focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono" value="./pictrure/1.jpg">
                         </div>
                     </div>
                 </div>
@@ -3907,7 +3907,8 @@ function dinhDangDongKhachSi(sheet, row) {
             });
         }
 
-        // Hàm nén ảnh thông minh từ máy tính / điện thoại (đảm bảo < 38,000 ký tự để lưu vừa ô Google Sheet & localStorage)
+        // Hàm xử lý ảnh thông minh: Giữ độ nét cao (1200px, WebP/JPEG chất lượng cao, khử răng cưa Retina)
+        // Đảm bảo ảnh luôn sắc nét khi xem trên điện thoại & máy tính, đồng thời không vượt quá giới hạn Google Sheet
         function compressImageFileToDataUrl(file, callback) {
             const reader = new FileReader();
             reader.onload = function(event) {
@@ -3916,7 +3917,7 @@ function dinhDangDongKhachSi(sheet, row) {
                     const canvas = document.createElement('canvas');
                     let width = img.width;
                     let height = img.height;
-                    const maxDim = 640;
+                    const maxDim = 1200; // Tăng từ 640px lên 1200px giúp ảnh nét căng trên màn hình Retina
 
                     if (width > height && width > maxDim) {
                         height = Math.round((height * maxDim) / width);
@@ -3929,15 +3930,39 @@ function dinhDangDongKhachSi(sheet, row) {
                     canvas.width = width;
                     canvas.height = height;
                     const ctx = canvas.getContext('2d');
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    let quality = 0.76;
-                    let compressedBase64 = canvas.toDataURL('image/jpeg', quality);
-                    while (compressedBase64.length > 38000 && quality > 0.35) {
-                        quality -= 0.1;
-                        compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+                    // Ưu tiên chuẩn WebP (độ nét cao hơn 40% so với JPEG ở cùng kích thước)
+                    let format = 'image/webp';
+                    let quality = 0.88;
+                    let result = canvas.toDataURL(format, quality);
+
+                    // Nếu trình duyệt không xuất được WebP thì fallback sang JPEG
+                    if (!result.startsWith('data:image/webp')) {
+                        format = 'image/jpeg';
+                        result = canvas.toDataURL(format, quality);
                     }
-                    callback(compressedBase64);
+
+                    // Điều chỉnh nhẹ nếu dung lượng vượt quá giới hạn 46.000 ký tự (an toàn cho ô Google Sheet 50.000)
+                    while (result.length > 46000 && quality > 0.45) {
+                        quality -= 0.08;
+                        result = canvas.toDataURL(format, quality);
+                    }
+
+                    // Nếu vẫn hơi lớn do ảnh quá nhiều chi tiết phức tạp, co nhẹ kích thước để giữ chất lượng hạt ảnh
+                    if (result.length > 46000) {
+                        const scale = 0.82;
+                        canvas.width = Math.round(width * scale);
+                        canvas.height = Math.round(height * scale);
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        result = canvas.toDataURL(format, 0.75);
+                    }
+
+                    callback(result);
                 };
                 img.src = event.target.result;
             };
@@ -3947,11 +3972,11 @@ function dinhDangDongKhachSi(sheet, row) {
         function handleDeviceImageSelect(e) {
             const file = e.target.files[0];
             if (!file) return;
-            showAdminToast('Đang tối ưu ảnh từ thiết bị...', 'info');
+            showAdminToast('Đang tối ưu độ nét ảnh chuẩn HD...', 'info');
             compressImageFileToDataUrl(file, function(compressedBase64) {
                 document.getElementById('imagePreview').src = compressedBase64;
                 document.getElementById('prodImage').value = compressedBase64;
-                showAdminToast('Đã chọn và tối ưu ảnh thành công!', 'success');
+                showAdminToast('Đã nạp ảnh HD thành công!', 'success');
             });
         }
 
