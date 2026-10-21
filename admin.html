@@ -119,6 +119,24 @@
             transition: transform 0.1s ease, opacity 0.1s ease;
         }
 
+        /* Hiệu ứng nổi bật mục tiêu khi ấn từ thông báo */
+        @keyframes bacoPulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.8), 0 10px 25px -5px rgba(245, 158, 11, 0.4); transform: scale(1.02); }
+            50% { box-shadow: 0 0 0 14px rgba(245, 158, 11, 0), 0 15px 30px -5px rgba(245, 158, 11, 0.3); transform: scale(1.03); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.8), 0 10px 25px -5px rgba(245, 158, 11, 0.4); transform: scale(1.02); }
+        }
+
+        .baco-target-highlight {
+            outline: 3px solid #d97706 !important;
+            outline-offset: 3px !important;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+            border-color: #f59e0b !important;
+            animation: bacoPulseGlow 1.8s infinite ease-in-out !important;
+            z-index: 30 !important;
+            position: relative !important;
+            transition: all 0.3s ease !important;
+        }
+
         /* Tối ưu in báo cáo (A4 / PDF) - CHỈ IN DUY NHẤT BÁO CÁO CHÍNH THỨC */
         @media print {
             /* Ẩn hoàn toàn tất cả các phần tử trên trang, bao gồm thanh điều hướng, tabs, modals, buttons */
@@ -220,6 +238,12 @@
 
     <!-- Toast Notification Container (Chuẩn Dynamic Island / iOS Banner - Luôn nổi lên trên cùng màn hình) -->
     <div id="adminToastContainer" class="fixed top-3 inset-x-4 sm:inset-x-auto sm:right-5 sm:max-w-sm z-[999999] flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- iOS Native Push Dropdown Banner (Biểu ngữ đẩy rơi từ trên Dynamic Island / Tai thỏ như App thật) -->
+    <div id="iosPushBannerContainer" class="fixed top-3 sm:top-5 inset-x-3 sm:inset-x-auto sm:right-6 sm:w-96 z-[9999999] pointer-events-none transition-all duration-300"></div>
+
+    <!-- Audio Element phát chuông Ting-Ting chuyên dụng cho iOS / Safari / PWA -->
+    <audio id="bacoChimeAudioElement" preload="auto" playsinline></audio>
 
     <!-- 1. MÀN HÌNH ĐĂNG NHẬP BẢO MẬT (Chuẩn FaceID / Passcode iOS) -->
     <div id="loginScreen" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xl flex items-center justify-center p-4">
@@ -3484,13 +3508,14 @@ function dinhDangDongKhachSi(sheet, row) {
                     mobileContainer.innerHTML = paginated.map((order) => {
                         const originalIdx = orders.findIndex(item => item.orderCode === order.orderCode);
                         const isBank = order.paymentMethod && order.paymentMethod.includes('Chuyển khoản');
+                        const cleanCode = String(order.orderCode || '').replace('#', '').trim();
                         
                         let statusColor = "bg-amber-100 text-amber-900 border-amber-200";
                         if (order.status === 'Đang giao') statusColor = "bg-blue-100 text-blue-900 border-blue-200";
                         if (order.status === 'Hoàn tất' || order.status === 'Đã nhận tiền') statusColor = "bg-emerald-100 text-emerald-900 border-emerald-200";
 
                         return `
-                            <div class="ios-card p-4 space-y-3">
+                            <div id="order-card-mobile-${cleanCode}" class="ios-card p-4 space-y-3 transition-all duration-300">
                                 <!-- Hàng 1: Mã đơn, Giờ & Badge Trạng Thái -->
                                 <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
                                     <div class="flex items-center space-x-2">
@@ -3573,8 +3598,9 @@ function dinhDangDongKhachSi(sheet, row) {
                     tbody.innerHTML = paginated.map((order) => {
                         const originalIdx = orders.findIndex(item => item.orderCode === order.orderCode);
                         const isBank = order.paymentMethod && order.paymentMethod.includes('Chuyển khoản');
+                        const cleanCode = String(order.orderCode || '').replace('#', '').trim();
                         return `
-                            <tr class="hover:bg-slate-50/80 transition">
+                            <tr id="order-row-desktop-${cleanCode}" class="hover:bg-slate-50/80 transition-all duration-300">
                                 <td class="px-5 py-3 font-mono font-bold text-amber-800">
                                     #${order.orderCode}
                                     <div class="text-[11px] text-slate-400 font-sans font-normal">${order.timestamp}</div>
@@ -3755,12 +3781,13 @@ function dinhDangDongKhachSi(sheet, row) {
                 } else {
                     mobileContainer.innerHTML = paginated.map((lead) => {
                         const originalIdx = wholesaleLeads.findIndex(item => item.leadCode === lead.leadCode);
+                        const cleanCode = String(lead.leadCode || '').replace('#', '').trim();
                         let badgeColor = "bg-purple-100 text-purple-900 border-purple-200";
                         if (lead.status === 'Đã chốt đại lý') badgeColor = "bg-emerald-100 text-emerald-900 border-emerald-200";
                         if (lead.status === 'Đã gửi bảng giá') badgeColor = "bg-blue-100 text-blue-900 border-blue-200";
 
                         return `
-                            <div class="ios-card p-4 space-y-3 border-l-4 border-l-purple-500">
+                            <div id="wholesale-card-mobile-${cleanCode}" class="ios-card p-4 space-y-3 border-l-4 border-l-purple-500 transition-all duration-300">
                                 <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
                                     <div class="flex items-center space-x-2">
                                         <span class="font-mono font-bold text-sm text-purple-800">#${lead.leadCode}</span>
@@ -3832,8 +3859,9 @@ function dinhDangDongKhachSi(sheet, row) {
                 } else {
                     tbody.innerHTML = paginated.map((lead) => {
                         const originalIdx = wholesaleLeads.findIndex(item => item.leadCode === lead.leadCode);
+                        const cleanCode = String(lead.leadCode || '').replace('#', '').trim();
                         return `
-                            <tr class="hover:bg-purple-50/40 transition">
+                            <tr id="wholesale-row-desktop-${cleanCode}" class="hover:bg-purple-50/40 transition-all duration-300">
                                 <td class="px-5 py-3 font-mono font-bold text-purple-800">
                                     #${lead.leadCode}
                                     <div class="text-[11px] text-slate-400 font-sans font-normal">${lead.timestamp || ''}</div>
@@ -4881,6 +4909,7 @@ function dinhDangDongKhachSi(sheet, row) {
                     mobileList.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">Không tìm thấy đánh giá nào phù hợp.</div>`;
                 } else {
                     mobileList.innerHTML = filtered.map(r => {
+                        const cleanId = String(r.id || '').trim();
                         const stars = '★'.repeat(Math.max(1, Math.min(5, Number(r.rating) || 5)));
                         const isApproved = r.status === 'approved';
                         const statusBadge = isApproved
@@ -4896,7 +4925,7 @@ function dinhDangDongKhachSi(sheet, row) {
                             : '';
 
                         return `
-                            <div class="p-3 space-y-2 hover:bg-slate-50/80 transition">
+                            <div id="review-card-mobile-${cleanId}" class="p-3 space-y-2 hover:bg-slate-50/80 transition-all duration-300">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center space-x-2">
                                         <span class="font-bold text-slate-900 text-xs sm:text-sm">${r.name}</span>
@@ -4944,8 +4973,9 @@ function dinhDangDongKhachSi(sheet, row) {
                             ? `<div class="flex flex-wrap gap-1 mt-1">${r.tags.map(t => `<span class="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-medium">${t}</span>`).join('')}</div>`
                             : '';
 
+                        const cleanId = String(r.id || '').trim();
                         return `
-                            <tr class="hover:bg-amber-50/30 transition">
+                            <tr id="review-row-desktop-${cleanId}" class="hover:bg-amber-50/30 transition-all duration-300">
                                 <td class="px-4 py-2.5">
                                     <div class="font-bold text-slate-900 text-xs sm:text-sm">${r.name}</div>
                                     <div class="text-[10px] text-slate-400">${r.phone ? r.phone : ''} ${r.location ? '• ' + r.location : ''}</div>
@@ -5646,6 +5676,51 @@ function dinhDangDongKhachSi(sheet, row) {
             }).join('');
         }
 
+        function highlightTargetItem(type, code, title) {
+            if (!code) return;
+            const cleanCode = String(code).replace('#', '').trim();
+
+            setTimeout(() => {
+                let el = null;
+                if (type === 'orders') {
+                    el = document.getElementById(`order-card-mobile-${cleanCode}`) ||
+                         document.getElementById(`order-row-desktop-${cleanCode}`);
+                } else if (type === 'wholesale') {
+                    el = document.getElementById(`wholesale-card-mobile-${cleanCode}`) ||
+                         document.getElementById(`wholesale-row-desktop-${cleanCode}`);
+                } else if (type === 'reviews') {
+                    el = document.getElementById(`review-card-mobile-${cleanCode}`) ||
+                         document.getElementById(`review-row-desktop-${cleanCode}`);
+                }
+
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                    // Thêm class highlight rực rỡ
+                    el.classList.add('baco-target-highlight');
+
+                    // Gắn nhãn mục tiêu nhấp nháy bên trong card/row
+                    let badge = el.querySelector('.baco-active-target-badge');
+                    if (!badge) {
+                        badge = document.createElement('div');
+                        badge.className = 'baco-active-target-badge inline-flex items-center space-x-1.5 bg-gradient-to-r from-amber-600 to-amber-500 text-white font-extrabold text-[11px] px-3 py-1 rounded-full shadow-lg animate-bounce mb-2';
+                        badge.innerHTML = `<span>🎯</span><span>MỤC TIÊU ĐANG CHỌN #${cleanCode}</span>`;
+                        el.prepend(badge);
+                    }
+
+                    // Tự động tắt hiệu ứng sau 6 giây
+                    setTimeout(() => {
+                        el.classList.remove('baco-target-highlight');
+                        if (badge) badge.remove();
+                    }, 6000);
+
+                    showAdminToast(`🎯 Đã chuyển đến & làm nổi bật: #${cleanCode}`, 'success');
+                } else {
+                    showAdminToast(`Đang hiển thị mục: #${cleanCode}`, 'info');
+                }
+            }, 300);
+        }
+
         function handleNotificationClick(notifId) {
             const notif = notifications.find(n => n.id === notifId);
             if (!notif) return;
@@ -5653,18 +5728,55 @@ function dinhDangDongKhachSi(sheet, row) {
             // Đánh dấu đã đọc
             markNotificationAsRead(notifId);
 
-            // Chuyển hướng tới tab tương ứng
+            const code = notif.code || '';
+            const cleanCode = String(code).replace('#', '').trim();
+
+            // Chuyển hướng tới tab tương ứng & làm nổi bật chính xác mục tiêu
             if (notif.targetTab === 'orders') {
                 switchTab('orders');
                 if (notif.targetSubTab === 'wholesale') {
                     switchOrderType('wholesale');
+                    // Reset bộ lọc & tìm kiếm để mục tiêu chắc chắn hiển thị
+                    wholesaleSearchQuery = '';
+                    const wsSearch = document.getElementById('wholesaleSearchInput');
+                    if (wsSearch) wsSearch.value = '';
+                    wholesaleDateFilter = 'all';
+                    setWholesaleDateFilter('all');
+
+                    // Tìm trang phân trang chứa đối tác sỉ này
+                    const leadIdx = wholesaleLeads.findIndex(w => String(w.leadCode || '').replace('#', '').trim() === cleanCode);
+                    if (leadIdx >= 0) {
+                        currentWholesalePage = Math.floor(leadIdx / PAGE_SIZE) + 1;
+                    }
+                    renderWholesaleLeads();
+                    highlightTargetItem('wholesale', cleanCode, notif.title);
                 } else {
                     switchOrderType('retail');
+                    // Reset bộ lọc & tìm kiếm để đơn hàng chắc chắn hiển thị
+                    searchQuery = '';
+                    const oSearch = document.getElementById('orderSearchInput');
+                    if (oSearch) oSearch.value = '';
+                    orderDateFilter = 'all';
+                    currentFilter = 'all';
+                    setOrderFilter('all');
+                    setOrderDateFilter('all');
+
+                    // Tìm trang phân trang chứa đơn hàng này
+                    const orderIdx = orders.findIndex(o => String(o.orderCode || '').replace('#', '').trim() === cleanCode);
+                    if (orderIdx >= 0) {
+                        currentOrderPage = Math.floor(orderIdx / PAGE_SIZE) + 1;
+                    }
+                    renderOrders();
+                    highlightTargetItem('orders', cleanCode, notif.title);
                 }
-                showAdminToast(`Đang mở: ${notif.title}`, 'info');
             } else if (notif.targetTab === 'reviews') {
                 switchTab('reviews');
-                showAdminToast(`Đang mở mục đánh giá khách hàng`, 'info');
+                reviewSearchQuery = '';
+                const rSearch = document.getElementById('reviewSearchInput');
+                if (rSearch) rSearch.value = '';
+                currentReviewStarFilter = 'all';
+                renderAdminReviews();
+                highlightTargetItem('reviews', cleanCode, notif.title);
             }
         }
 
@@ -5759,7 +5871,75 @@ function dinhDangDongKhachSi(sheet, row) {
 
         // ================= HỆ THỐNG CHUÔNG TING-TING & THÔNG BÁO ĐẨY IPHONE (PWA APP) =================
         let bacoAudioCtx = null;
-        let bacoSwReg = null;
+        let bacoNativeAudio = null;
+        let bacoAudioUnlocked = false;
+
+        // Sinh file âm thanh chuẩn WAV (PCM 16-bit) 100% trong bộ nhớ (Không cần file ngoài, không lo lỗi 404/CORS)
+        function createChimeWavBlobUrl() {
+            try {
+                const sampleRate = 22050;
+                const duration = 0.85;
+                const numSamples = Math.floor(sampleRate * duration);
+                const header = new ArrayBuffer(44);
+                const view = new DataView(header);
+
+                function writeString(offset, string) {
+                    for (let i = 0; i < string.length; i++) {
+                        view.setUint8(offset + i, string.charCodeAt(i));
+                    }
+                }
+
+                writeString(0, 'RIFF');
+                view.setUint32(4, 36 + numSamples * 2, true);
+                writeString(8, 'WAVE');
+                writeString(12, 'fmt ');
+                view.setUint32(16, 16, true);
+                view.setUint16(20, 1, true); // PCM
+                view.setUint16(22, 1, true); // Mono
+                view.setUint32(24, sampleRate, true);
+                view.setUint32(28, sampleRate * 2, true);
+                view.setUint16(32, 2, true);
+                view.setUint16(34, 16, true);
+                writeString(36, 'data');
+                view.setUint32(40, numSamples * 2, true);
+
+                const samples = new Int16Array(numSamples);
+                for (let i = 0; i < numSamples; i++) {
+                    const t = i / sampleRate;
+                    // Tiếng Ting 1 (C6 ~ 1046.5Hz)
+                    const decay1 = Math.exp(-t * 6.0);
+                    const s1 = 0.45 * Math.sin(2 * Math.PI * 1046.5 * t) * decay1;
+                    
+                    // Tiếng Ting 2 (G6 ~ 1567.98Hz + C7 ~ 2093Hz) bắt đầu sau 0.12s
+                    let s2 = 0;
+                    if (t >= 0.12) {
+                        const t2 = t - 0.12;
+                        const decay2 = Math.exp(-t2 * 4.2);
+                        s2 = 0.55 * Math.sin(2 * Math.PI * 1567.98 * t2) * decay2;
+                        s2 += 0.22 * Math.sin(2 * Math.PI * 2093.0 * t2) * decay2;
+                    }
+
+                    const val = Math.max(-1, Math.min(1, s1 + s2));
+                    samples[i] = val < 0 ? val * 0x8000 : val * 0x7FFF;
+                }
+
+                const blob = new Blob([header, samples], { type: 'audio/wav' });
+                return URL.createObjectURL(blob);
+            } catch (err) {
+                console.warn('WAV blob err:', err);
+                return '';
+            }
+        }
+
+        function initAudioChimeEngine() {
+            bacoNativeAudio = document.getElementById('bacoChimeAudioElement');
+            if (bacoNativeAudio) {
+                const wavUrl = createChimeWavBlobUrl();
+                if (wavUrl) {
+                    bacoNativeAudio.src = wavUrl;
+                }
+            }
+        }
 
         function getBacoAudioContext() {
             if (!bacoAudioCtx) {
@@ -5774,84 +5954,169 @@ function dinhDangDongKhachSi(sheet, row) {
             return bacoAudioCtx;
         }
 
-        // Mở khóa âm thanh ngay khi người dùng chạm vào màn hình (Yêu cầu bắt buộc của Safari iPhone)
+        // Mở khóa âm thanh toàn diện ngay từ cái chạm đầu tiên trên iPhone / Safari
         function unlockAudioEngine() {
-            getBacoAudioContext();
+            if (bacoAudioUnlocked) return;
+            bacoAudioUnlocked = true;
+
+            // 1. Mở khóa Audio Element
+            if (bacoNativeAudio) {
+                bacoNativeAudio.play().then(() => {
+                    bacoNativeAudio.pause();
+                    bacoNativeAudio.currentTime = 0;
+                }).catch(() => {});
+            }
+
+            // 2. Mở khóa AudioContext
+            const ctx = getBacoAudioContext();
+            if (ctx && ctx.state === 'suspended') {
+                ctx.resume().catch(() => {});
+            }
         }
         window.addEventListener('touchstart', unlockAudioEngine, { passive: true });
         window.addEventListener('click', unlockAudioEngine, { passive: true });
 
-        // Hàm phát âm thanh "Ting-Ting" thanh thoát chuẩn chuông ứng dụng Apple
+        // Phát âm thanh "Ting-Ting" (Chạy song song cả Audio Element & Web Audio Synth để đảm bảo 100% kêu trên iPhone)
         function playChimeSound() {
+            unlockAudioEngine();
+
+            // Kênh 1: Audio Element với file WAV PCM thuần
+            if (bacoNativeAudio) {
+                try {
+                    bacoNativeAudio.currentTime = 0;
+                    bacoNativeAudio.volume = 1.0;
+                    bacoNativeAudio.play().catch(e => console.warn('Audio tag play:', e));
+                } catch (e) {}
+            }
+
+            // Kênh 2: Web Audio API Oscillator Synth (Âm thanh ngân cao phong cách Apple)
             try {
                 const ctx = getBacoAudioContext();
-                if (!ctx) return;
+                if (ctx) {
+                    const now = ctx.currentTime;
 
-                const now = ctx.currentTime;
+                    // Nốt 1: 1046.5Hz (C6)
+                    const osc1 = ctx.createOscillator();
+                    const gain1 = ctx.createGain();
+                    osc1.type = 'sine';
+                    osc1.frequency.setValueAtTime(1046.5, now);
+                    gain1.gain.setValueAtTime(0, now);
+                    gain1.gain.linearRampToValueAtTime(0.35, now + 0.015);
+                    gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+                    osc1.connect(gain1);
+                    gain1.connect(ctx.destination);
+                    osc1.start(now);
+                    osc1.stop(now + 0.5);
 
-                // Tiếng Ting thứ 1 (Nốt C6 ~ 1046.5Hz)
-                const osc1 = ctx.createOscillator();
-                const gain1 = ctx.createGain();
-                osc1.type = 'sine';
-                osc1.frequency.setValueAtTime(1046.5, now);
+                    // Nốt 2: 1567.98Hz (G6)
+                    const osc2 = ctx.createOscillator();
+                    const gain2 = ctx.createGain();
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(1567.98, now + 0.12);
+                    gain2.gain.setValueAtTime(0, now + 0.12);
+                    gain2.gain.linearRampToValueAtTime(0.4, now + 0.135);
+                    gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.9);
+                    osc2.connect(gain2);
+                    gain2.connect(ctx.destination);
+                    osc2.start(now + 0.12);
+                    osc2.stop(now + 0.95);
 
-                gain1.gain.setValueAtTime(0, now);
-                gain1.gain.linearRampToValueAtTime(0.3, now + 0.015);
-                gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
-
-                osc1.connect(gain1);
-                gain1.connect(ctx.destination);
-
-                osc1.start(now);
-                osc1.stop(now + 0.5);
-
-                // Tiếng Ting thứ 2 cao hơn và ngân dài hơn (Nốt G6 ~ 1567.98Hz)
-                const osc2 = ctx.createOscillator();
-                const gain2 = ctx.createGain();
-                osc2.type = 'sine';
-                osc2.frequency.setValueAtTime(1567.98, now + 0.12);
-
-                gain2.gain.setValueAtTime(0, now + 0.12);
-                gain2.gain.linearRampToValueAtTime(0.35, now + 0.135);
-                gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.9);
-
-                osc2.connect(gain2);
-                gain2.connect(ctx.destination);
-
-                osc2.start(now + 0.12);
-                osc2.stop(now + 0.95);
-
-                // Âm rung chuông ngân cao (Harmonic Shimmer nốt C7 ~ 2093Hz)
-                const osc3 = ctx.createOscillator();
-                const gain3 = ctx.createGain();
-                osc3.type = 'triangle';
-                osc3.frequency.setValueAtTime(2093, now + 0.12);
-
-                gain3.gain.setValueAtTime(0, now + 0.12);
-                gain3.gain.linearRampToValueAtTime(0.08, now + 0.135);
-                gain3.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
-
-                osc3.connect(gain3);
-                gain3.connect(ctx.destination);
-
-                osc3.start(now + 0.12);
-                osc3.stop(now + 0.65);
-
-                // Rung phản hồi xúc giác trên iPhone / Điện thoại (Haptic feedback)
-                if (navigator.vibrate) {
-                    navigator.vibrate([150, 70, 200]);
+                    // Nốt 3 Shimmer: 2093Hz (C7)
+                    const osc3 = ctx.createOscillator();
+                    const gain3 = ctx.createGain();
+                    osc3.type = 'triangle';
+                    osc3.frequency.setValueAtTime(2093, now + 0.12);
+                    gain3.gain.setValueAtTime(0, now + 0.12);
+                    gain3.gain.linearRampToValueAtTime(0.1, now + 0.135);
+                    gain3.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+                    osc3.connect(gain3);
+                    gain3.connect(ctx.destination);
+                    osc3.start(now + 0.12);
+                    osc3.stop(now + 0.65);
                 }
-            } catch(e) {
-                console.warn('Audio Chime:', e);
+            } catch(e) {}
+
+            // Rung phản hồi haptic
+            if (navigator.vibrate) {
+                try { navigator.vibrate([160, 80, 240]); } catch(e) {}
             }
         }
 
-        // Đăng ký Service Worker và kiểm tra quyền thông báo
+        // Biểu ngữ đẩy phong cách Apple iOS (Dynamic Dropdown Push Banner)
+        function showIosPushBanner(title, body, data = {}) {
+            const container = document.getElementById('iosPushBannerContainer');
+            if (!container) return;
+
+            const banner = document.createElement('div');
+            banner.className = 'pointer-events-auto transform -translate-y-14 opacity-0 transition-all duration-500 ease-out cursor-pointer';
+            banner.innerHTML = `
+                <div class="bg-slate-900/95 backdrop-blur-2xl text-white rounded-3xl p-3.5 sm:p-4 shadow-[0_20px_45px_rgba(0,0,0,0.4)] border border-white/20 flex items-start space-x-3.5">
+                    <img src="./pictrure/logo.JPG" class="w-11 h-11 rounded-2xl object-cover border border-amber-400/40 shadow-md flex-shrink-0">
+                    <div class="flex-1 min-w-0 space-y-0.5">
+                        <div class="flex items-center justify-between text-[11px] text-slate-400">
+                            <span class="font-black tracking-wider text-amber-400 uppercase text-[10px]">BA CÔ KHÁNH HÒA</span>
+                            <span class="text-[10px] bg-white/10 px-1.5 py-0.2 rounded font-mono">Vừa xong</span>
+                        </div>
+                        <h4 class="font-bold text-sm text-white truncate">${title}</h4>
+                        <p class="text-xs text-slate-300 line-clamp-2 leading-relaxed">${body}</p>
+                        <div class="pt-1 flex items-center justify-between">
+                            <span class="text-[11px] text-amber-400 font-bold flex items-center space-x-1">
+                                <span>Chạm để xem & làm nổi bật</span>
+                                <span>➔</span>
+                            </span>
+                            <span class="text-[10px] text-slate-500">Vuốt lên để đóng</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            banner.onclick = () => {
+                banner.remove();
+                if (data.id) {
+                    handleNotificationClick(data.id);
+                } else if (data.targetTab) {
+                    if (data.targetTab === 'orders') {
+                        switchTab('orders');
+                        if (data.targetSubTab === 'wholesale') {
+                            switchOrderType('wholesale');
+                            highlightTargetItem('wholesale', data.code, title);
+                        } else {
+                            switchOrderType('retail');
+                            highlightTargetItem('orders', data.code, title);
+                        }
+                    } else if (data.targetTab === 'reviews') {
+                        switchTab('reviews');
+                        highlightTargetItem('reviews', data.code, title);
+                    }
+                }
+            };
+
+            container.innerHTML = '';
+            container.appendChild(banner);
+
+            setTimeout(() => {
+                banner.classList.remove('-translate-y-14', 'opacity-0');
+                banner.classList.add('translate-y-0', 'opacity-100');
+            }, 30);
+
+            setTimeout(() => {
+                if (banner.parentElement) {
+                    banner.classList.remove('translate-y-0', 'opacity-100');
+                    banner.classList.add('-translate-y-14', 'opacity-0');
+                    setTimeout(() => banner.remove(), 450);
+                }
+            }, 6500);
+        }
+
+        // Đăng ký Service Worker và đồng bộ trạng thái quyền thông báo
         function initPushNotifications() {
+            initAudioChimeEngine();
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('./sw.js').then(reg => {
                     bacoSwReg = reg;
-                }).catch(() => {});
+                }).catch(err => {
+                    console.log('SW register:', err);
+                });
             }
             updatePushStatusBadge();
         }
@@ -5862,32 +6127,32 @@ function dinhDangDongKhachSi(sheet, row) {
             if (!badge) return;
 
             if (!('Notification' in window)) {
-                badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700";
+                badge.className = "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700";
                 badge.textContent = "Thiết bị chưa hỗ trợ Push";
                 if (btn) btn.classList.add('hidden');
                 return;
             }
 
             if (Notification.permission === 'granted') {
-                badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+                badge.className = "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
                 badge.textContent = "🟢 Đã Bật Chuông & Đẩy";
                 if (btn) {
                     btn.innerHTML = '<span>✅</span><span>Đã Bật Thông Báo</span>';
-                    btn.classList.add('opacity-70');
+                    btn.className = "bg-emerald-50 text-emerald-800 border border-emerald-300 font-bold text-xs px-3 py-2 rounded-xl transition flex items-center space-x-1.5 opacity-80 cursor-default";
                 }
             } else if (Notification.permission === 'denied') {
-                badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300";
+                badge.className = "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300";
                 badge.textContent = "🔴 Đang Chặn (Cần Mở Cài Đặt)";
                 if (btn) {
                     btn.innerHTML = '<span>⚙️</span><span>Cài Đặt Safari</span>';
-                    btn.classList.remove('opacity-70');
+                    btn.className = "bg-rose-50 text-rose-700 border border-rose-300 font-bold text-xs px-3 py-2 rounded-xl transition flex items-center space-x-1.5 ios-press";
                 }
             } else {
-                badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 animate-pulse";
+                badge.className = "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 animate-pulse";
                 badge.textContent = "🟡 Chưa Kích Hoạt";
                 if (btn) {
                     btn.innerHTML = '<span>📲</span><span>Bật Thông Báo Đẩy</span>';
-                    btn.classList.remove('opacity-70');
+                    btn.className = "bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 font-bold text-xs px-3 py-2 rounded-xl shadow-xs transition flex items-center space-x-1.5 ios-press";
                 }
             }
         }
@@ -5926,42 +6191,41 @@ function dinhDangDongKhachSi(sheet, row) {
 
         function testNotificationChime() {
             unlockAudioEngine();
-            playChimeSound();
             triggerSystemPushNotification(
-                '🛒 [THỬ CHUÔNG] Đơn Hàng Mới #BC999',
-                'Khách: Chị Lan Anh (0985 520 678) vừa đặt 2 Chai Thượng Hạng 40° Đạm - Chuông Ting-Ting kêu như App!',
-                { url: './admin.html' }
+                '🛒 Đơn Hàng Mới #BC999 (Thử Nghiệm)',
+                'Chị Lan Anh (0985.520.678) vừa đặt 2 Chai Thượng Hạng 40° Đạm - Chuông kêu Ting-Ting!',
+                { targetTab: 'orders', targetSubTab: 'retail', code: 'BC1' }
             );
-            showAdminToast('🔔 Đang thử chuông Ting-Ting & Thông báo đẩy...', 'success');
+            showAdminToast('🔊 Đang phát chuông & gửi biểu ngữ đẩy...', 'success');
         }
 
         function triggerSystemPushNotification(title, body, data = {}) {
+            // 1. Phát âm thanh chuông Ting-Ting
             playChimeSound();
 
-            // Nhấp nháy tiêu đề tab trình duyệt
+            // 2. Hiển thị Biểu Ngữ Thông Báo Đẩy (Được đảm bảo 100% hiển thị trên mọi phiên bản iOS / Android / PC)
+            showIosPushBanner(title, body, data);
+
+            // 3. Nhấp nháy tiêu đề tab trình duyệt
             const originalTitle = document.title;
             document.title = '🔔 ' + title;
-            setTimeout(() => { document.title = originalTitle; }, 4000);
+            setTimeout(() => { document.title = originalTitle; }, 5000);
 
-            // 1. Gửi qua Service Worker (Chuẩn PWA trên iOS 16.4+ và Android)
-            if (bacoSwReg && bacoSwReg.showNotification && Notification.permission === 'granted') {
-                bacoSwReg.showNotification(title, {
-                    body: body,
-                    icon: './pictrure/logo.JPG',
-                    badge: './pictrure/logo.JPG',
-                    vibrate: [200, 100, 200, 100, 200],
-                    tag: 'baco-notif-' + Date.now(),
-                    renotify: true,
-                    data: data
-                }).catch(() => {
-                    try {
-                        new Notification(title, { body: body, icon: './pictrure/logo.JPG' });
-                    } catch(e) {}
-                });
-            } else if ('Notification' in window && Notification.permission === 'granted') {
-                try {
-                    new Notification(title, { body: body, icon: './pictrure/logo.JPG' });
-                } catch(e) {}
+            // 4. Gửi qua Service Worker (Chuẩn Web Push trên iOS 16.4+ và Android khi ra màn hình chính)
+            if ('serviceWorker' in navigator && 'Notification' in window && Notification.permission === 'granted') {
+                navigator.serviceWorker.ready.then(reg => {
+                    reg.showNotification(title, {
+                        body: body,
+                        icon: './pictrure/logo.JPG',
+                        badge: './pictrure/logo.JPG',
+                        vibrate: [200, 100, 200, 100, 200],
+                        tag: 'baco-notif-' + Date.now(),
+                        renotify: true,
+                        data: data
+                    }).catch(err => {
+                        console.warn("SW showNotification error:", err);
+                    });
+                }).catch(() => {});
             }
         }
 
