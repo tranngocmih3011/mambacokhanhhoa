@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Nước Mắm Ba Cô Khánh Hòa - Tinh Hoa Đất Trời Miền Biển</title>
     <!-- Hệ thống bảo mật & Chống xem mã nguồn F12 -->
     <script src="./security.js"></script>
@@ -1189,22 +1192,22 @@
                     <label class="block text-xs sm:text-sm font-semibold text-slate-700">Chọn phương thức thanh toán *</label>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                         <!-- Option 1: COD -->
-                        <label class="relative flex items-center p-3 sm:p-3.5 border-2 rounded-2xl cursor-pointer transition border-amber-600 bg-amber-50/60 shadow-xs payment-card" id="cardCod">
-                            <input type="radio" name="paymentMethod" value="COD (Thanh toán tiền mặt khi nhận hàng)" checked onchange="togglePaymentMethod('cod')" class="w-4 h-4 text-amber-600 border-slate-300 focus:ring-amber-500">
+                        <div onclick="selectPaymentMethod('cod')" class="relative flex items-center p-3 sm:p-3.5 border-2 rounded-2xl cursor-pointer transition border-amber-600 bg-amber-50/60 shadow-xs payment-card select-none" id="cardCod">
+                            <input type="radio" name="paymentMethod" value="COD (Thanh toán tiền mặt khi nhận hàng)" checked class="w-4 h-4 text-amber-600 border-slate-300 focus:ring-amber-500 pointer-events-none">
                             <div class="ml-2.5">
                                 <span class="block font-bold text-xs sm:text-sm text-slate-900">💵 Tiền mặt khi nhận hàng (COD)</span>
                                 <span class="block text-[11px] text-slate-500 mt-0.5">Kiểm tra hàng trước, trả tiền sau</span>
                             </div>
-                        </label>
+                        </div>
 
                         <!-- Option 2: Chuyển khoản -->
-                        <label class="relative flex items-center p-3 sm:p-3.5 border-2 border-slate-200 rounded-2xl cursor-pointer transition hover:border-amber-300 bg-white payment-card" id="cardBank">
-                            <input type="radio" name="paymentMethod" value="Chuyển khoản ngân hàng" onchange="togglePaymentMethod('bank')" class="w-4 h-4 text-amber-600 border-slate-300 focus:ring-amber-500">
+                        <div onclick="selectPaymentMethod('bank')" class="relative flex items-center p-3 sm:p-3.5 border-2 border-slate-200 rounded-2xl cursor-pointer transition hover:border-amber-300 bg-white payment-card select-none" id="cardBank">
+                            <input type="radio" name="paymentMethod" value="Chuyển khoản ngân hàng" class="w-4 h-4 text-amber-600 border-slate-300 focus:ring-amber-500 pointer-events-none">
                             <div class="ml-2.5">
                                 <span class="block font-bold text-xs sm:text-sm text-slate-900">💳 Quét mã VietQR</span>
                                 <span class="block text-[11px] text-emerald-600 font-semibold mt-0.5">✨ Tự động xác nhận giao dịch</span>
                             </div>
-                        </label>
+                        </div>
                     </div>
                 </div>
 
@@ -1574,6 +1577,7 @@
                 toggleCart();
             }
             updateCartUI();
+            try { selectPaymentMethod('cod'); } catch(e) {}
             const modal = document.getElementById('checkoutOrderModal');
             if (modal) {
                 modal.classList.remove('hidden');
@@ -1710,7 +1714,24 @@
         let currentAmount = 0;
         let currentCustomerName = '';
 
+        let activePaymentMethod = 'cod';
+
+        function selectPaymentMethod(method) {
+            activePaymentMethod = method;
+            const codRadio = document.querySelector('input[name="paymentMethod"][value*="COD"]');
+            const bankRadio = document.querySelector('input[name="paymentMethod"][value*="Chuyển khoản"]');
+            if (method === 'bank') {
+                if (bankRadio) bankRadio.checked = true;
+                if (codRadio) codRadio.checked = false;
+            } else {
+                if (codRadio) codRadio.checked = true;
+                if (bankRadio) bankRadio.checked = false;
+            }
+            togglePaymentMethod(method);
+        }
+
         function togglePaymentMethod(method) {
+            activePaymentMethod = method;
             const cardCod = document.getElementById('cardCod');
             const cardBank = document.getElementById('cardBank');
             const bankInfo = document.getElementById('bankTransferInfo');
@@ -2461,7 +2482,12 @@
                 return;
             }
 
-            const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked') ? document.querySelector('input[name="paymentMethod"]:checked').value : 'COD';
+            const radioChecked = document.querySelector('input[name="paymentMethod"]:checked');
+            const checkedVal = radioChecked ? radioChecked.value : '';
+            const isBankPayment = (activePaymentMethod === 'bank') || 
+                                  checkedVal.toLowerCase().includes('chuyển khoản') || 
+                                  checkedVal.toLowerCase().includes('vietqr');
+            const selectedPayment = isBankPayment ? 'Chuyển khoản ngân hàng (VietQR)' : 'COD (Thanh toán tiền mặt khi nhận hàng)';
             const orderCode = 'BC' + Math.floor(100000 + Math.random() * 900000);
             
             let productSummary = '';
@@ -2498,7 +2524,7 @@
             localStorage.setItem('baco_last_order_submit', Date.now().toString());
 
             // TRƯỜNG HỢP 1: NẾU CHỌN THANH TOÁN QR -> CHƯA GỬI ĐƠN LÊN HỆ THỐNG, CHƯA BẮN THÔNG BÁO, MỞ NGAY POP-UP VIETQR
-            if (selectedPayment.includes('Chuyển khoản')) {
+            if (isBankPayment) {
                 closeCheckoutModal();
                 openQrModal(orderCode, totalAmount, cleanPhone, rawName, formData);
                 return;

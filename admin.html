@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Quản Trị Ba Cô Khánh Hòa</title>
     <!-- Cấu hình PWA & App Độc Lập cho iPhone (iOS Standalone) -->
     <link rel="manifest" href="./manifest.json">
@@ -2974,7 +2977,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 console.log("Tab Khách Sỉ chưa có dữ liệu hoặc chưa tạo:", errW);
             }
 
-            syncNotificationsFromData(silent);
+            syncNotificationsFromData(false);
             updateBadges();
             if (!silent) showAdminToast('Đã hoàn tất đồng bộ từ Google Sheet!', 'success');
         }
@@ -5314,15 +5317,24 @@ function dinhDangDongKhachSi(sheet, row) {
             // 1. Quét đơn hàng bán lẻ
             if (Array.isArray(orders)) {
                 orders.forEach((o, idx) => {
+                    // Lọc đơn QR chưa thanh toán: Nếu khách chọn Chuyển khoản QR mà chưa đổi sang 'Đã nhận tiền' / 'Hoàn tất' -> Bỏ qua, không báo thông báo
+                    const payMethod = String(o.paymentMethod || '').toLowerCase();
+                    const isQrOrder = payMethod.includes('chuyển khoản') || payMethod.includes('vietqr') || payMethod.includes('qr');
+                    const isPaid = (o.status === 'Đã nhận tiền' || o.status === 'Hoàn tất');
+                    if (isQrOrder && !isPaid) {
+                        return; // Chưa chuyển tiền -> Tuyệt đối không tạo thông báo
+                    }
+
                     const stableKey = o.orderCode || o.phone || (String(o.timestamp || '') + '_' + idx);
                     const id = 'notif_order_' + String(stableKey).replace(/[^a-zA-Z0-9_]/g, '_');
                     if (deletedIds.has(id)) return;
                     const isRead = readIds.has(id);
                     const orderTotal = Number(o.totalAmount || 0).toLocaleString('vi-VN');
+                    const isQrPaid = isQrOrder && isPaid;
                     items.push({
                         id,
                         type: 'orders',
-                        title: `🛒 Đơn hàng mới #${o.orderCode || 'BC'}`,
+                        title: isQrPaid ? `💰 Đơn QR Đã Thanh Toán #${o.orderCode || 'BC'}` : `🛒 Đơn hàng mới #${o.orderCode || 'BC'}`,
                         message: `${o.name || 'Khách hàng'} • SĐT: ${o.phone || 'Chưa có'} • SP: ${o.product || 'Nước mắm'} (${o.quantity || 1} chai) • Tổng: ${orderTotal}đ • Đ/c: ${o.address || 'Tại shop'}`,
                         time: o.timestamp || 'Mới đặt',
                         read: isRead,

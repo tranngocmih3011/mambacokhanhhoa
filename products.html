@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Cửa Hàng Sản Phẩm - Nước Mắm Ba Cô Khánh Hòa</title>
     <!-- Hệ thống bảo mật & Chống xem mã nguồn F12 -->
     <script src="./security.js"></script>
@@ -380,20 +383,20 @@
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    <label class="flex items-center p-3 border-2 rounded-2xl cursor-pointer border-amber-600 bg-amber-50/60" id="cardCod">
-                        <input type="radio" name="paymentMethod" value="COD (Thanh toán tiền mặt khi nhận hàng)" checked onchange="togglePaymentMethod('cod')" class="w-4 h-4 text-amber-600">
+                    <div onclick="selectPaymentMethod('cod')" class="flex items-center p-3 border-2 rounded-2xl cursor-pointer border-amber-600 bg-amber-50/60 select-none" id="cardCod">
+                        <input type="radio" name="paymentMethod" value="COD (Thanh toán tiền mặt khi nhận hàng)" checked class="w-4 h-4 text-amber-600 pointer-events-none">
                         <div class="ml-2.5">
                             <span class="block font-bold text-xs text-slate-900">💵 Tiền mặt khi nhận hàng (COD)</span>
                             <span class="block text-[10px] text-slate-500">Kiểm tra hàng trước khi thanh toán</span>
                         </div>
-                    </label>
-                    <label class="flex items-center p-3 border-2 border-slate-200 rounded-2xl cursor-pointer bg-white" id="cardBank">
-                        <input type="radio" name="paymentMethod" value="Chuyển khoản ngân hàng" onchange="togglePaymentMethod('bank')" class="w-4 h-4 text-amber-600">
+                    </div>
+                    <div onclick="selectPaymentMethod('bank')" class="flex items-center p-3 border-2 border-slate-200 rounded-2xl cursor-pointer bg-white select-none" id="cardBank">
+                        <input type="radio" name="paymentMethod" value="Chuyển khoản ngân hàng" class="w-4 h-4 text-amber-600 pointer-events-none">
                         <div class="ml-2.5">
                             <span class="block font-bold text-xs text-slate-900">💳 Quét mã VietQR</span>
                             <span class="block text-[10px] text-emerald-600 font-semibold">✨ Tự động điền số tiền & nội dung</span>
                         </div>
-                    </label>
+                    </div>
                 </div>
 
                 <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black py-3.5 rounded-2xl shadow-lg transition text-sm">
@@ -760,6 +763,7 @@
         function openCheckoutModal() {
             document.getElementById('cartDrawer').classList.add('hidden');
             updateCartUI();
+            try { selectPaymentMethod('cod'); } catch(e) {}
             document.getElementById('checkoutOrderModal').classList.remove('hidden');
         }
 
@@ -769,18 +773,34 @@
 
         let pendingQrOrder = null;
         let qrCountdownInterval = null;
+        let activePaymentMethod = 'cod';
+
+        function selectPaymentMethod(m) {
+            activePaymentMethod = m;
+            const codRadio = document.querySelector('input[name="paymentMethod"][value*="COD"]');
+            const bankRadio = document.querySelector('input[name="paymentMethod"][value*="Chuyển khoản"]');
+            if (m === 'bank') {
+                if (bankRadio) bankRadio.checked = true;
+                if (codRadio) codRadio.checked = false;
+            } else {
+                if (codRadio) codRadio.checked = true;
+                if (bankRadio) bankRadio.checked = false;
+            }
+            togglePaymentMethod(m);
+        }
 
         function togglePaymentMethod(m) {
+            activePaymentMethod = m;
             const cCod = document.getElementById('cardCod');
             const cBank = document.getElementById('cardBank');
             const submitBtn = document.getElementById('submitBtn');
             if (m === 'bank') {
-                cBank.className = "flex items-center p-3 border-2 rounded-2xl cursor-pointer border-amber-600 bg-amber-50/60";
-                cCod.className = "flex items-center p-3 border-2 border-slate-200 rounded-2xl cursor-pointer bg-white";
+                cBank.className = "flex items-center p-3 border-2 rounded-2xl cursor-pointer border-amber-600 bg-amber-50/60 select-none";
+                cCod.className = "flex items-center p-3 border-2 border-slate-200 rounded-2xl cursor-pointer bg-white select-none";
                 if (submitBtn) submitBtn.textContent = "⚡ Tiếp Tục Quét Mã QR Thanh Toán";
             } else {
-                cCod.className = "flex items-center p-3 border-2 rounded-2xl cursor-pointer border-amber-600 bg-amber-50/60";
-                cBank.className = "flex items-center p-3 border-2 border-slate-200 rounded-2xl cursor-pointer bg-white";
+                cCod.className = "flex items-center p-3 border-2 rounded-2xl cursor-pointer border-amber-600 bg-amber-50/60 select-none";
+                cBank.className = "flex items-center p-3 border-2 border-slate-200 rounded-2xl cursor-pointer bg-white select-none";
                 if (submitBtn) submitBtn.textContent = "⚡ Xác Nhận Đặt Hàng Ngay";
             }
         }
@@ -959,7 +979,12 @@
                 return;
             }
 
-            const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const radioChecked = document.querySelector('input[name="paymentMethod"]:checked');
+            const checkedVal = radioChecked ? radioChecked.value : '';
+            const isBankPayment = (activePaymentMethod === 'bank') || 
+                                  checkedVal.toLowerCase().includes('chuyển khoản') || 
+                                  checkedVal.toLowerCase().includes('vietqr');
+            const selectedPayment = isBankPayment ? 'Chuyển khoản ngân hàng (VietQR)' : 'COD (Thanh toán tiền mặt khi nhận hàng)';
             const orderCode = 'BC' + Math.floor(100000 + Math.random() * 900000);
             let productSummary = '';
             let totalQuantity = 1;
@@ -995,7 +1020,7 @@
             localStorage.setItem('baco_last_order_submit', Date.now().toString());
 
             // NẾU CHỌN THANH TOÁN QR -> MỞ POP-UP VIETQR VÀ CHƯA GỬI ĐƠN/CHƯA BẮN THÔNG BÁO CHO ADMIN
-            if (selectedPayment.includes('Chuyển khoản')) {
+            if (isBankPayment) {
                 pendingQrOrder = formData;
                 closeCheckoutModal();
                 document.getElementById('modalOrderCode').textContent = '#' + orderCode;
