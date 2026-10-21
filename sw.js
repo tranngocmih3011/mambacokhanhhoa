@@ -1,5 +1,5 @@
 // Service Worker cho Nước Mắm Ba Cô Admin (Hỗ trợ PWA & Web Push Notification trên iOS 16.4+, Android & PC)
-const CACHE_NAME = 'baco-admin-v3';
+const CACHE_NAME = 'baco-admin-v4';
 
 async function syncSwAppBadge(explicitCount) {
     try {
@@ -84,8 +84,18 @@ self.addEventListener('push', (event) => {
     };
 
     event.waitUntil(
-        self.registration.showNotification(data.title || '🔔 Nước Mắm Ba Cô', options)
-            .then(() => syncSwAppBadge())
+        Promise.all([
+            self.registration.showNotification(data.title || '🔔 Nước Mắm Ba Cô', options)
+                .then(() => syncSwAppBadge()),
+            self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+                windowClients.forEach(client => {
+                    client.postMessage({
+                        type: 'PUSH_NOTIFICATION_RECEIVED',
+                        payload: data
+                    });
+                });
+            })
+        ])
     );
 });
 

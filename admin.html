@@ -2697,7 +2697,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 renderWholesaleLeads();
                 renderAnalytics();
                 renderAdminReviews();
-                syncNotificationsFromData();
+                syncNotificationsFromData(true);
                 renderNotifications();
             }
         });
@@ -2977,7 +2977,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 console.log("Tab Khách Sỉ chưa có dữ liệu hoặc chưa tạo:", errW);
             }
 
-            syncNotificationsFromData(false);
+            syncNotificationsFromData(true);
             updateBadges();
             if (!silent) showAdminToast('Đã hoàn tất đồng bộ từ Google Sheet!', 'success');
         }
@@ -6052,6 +6052,18 @@ function dinhDangDongKhachSi(sheet, row) {
                     }
                 }).catch(err => {
                     console.log('SW register:', err);
+                });
+
+                navigator.serviceWorker.addEventListener('message', (event) => {
+                    if (event.data && event.data.type === 'PUSH_NOTIFICATION_RECEIVED') {
+                        const p = event.data.payload || {};
+                        triggerSystemPushNotification(p.title || '🔔 Đơn Hàng Mới!', p.body || 'Bạn có đơn hàng mới vừa được gửi tới!', {
+                            code: p.code || '',
+                            targetTab: 'orders',
+                            targetSubTab: 'retail'
+                        });
+                        fetchOrdersFromGoogleSheet(true);
+                    }
                 });
             }
             updatePushStatusBadge();
