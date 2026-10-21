@@ -2523,10 +2523,10 @@ function dinhDangDongKhachSi(sheet, row) {
             let hasSheetContent = false;
             let hasSheetProducts = false;
 
-            // 1. Tải Nội Dung Website từ tab NoiDungWeb
+            // 1. Tải Nội Dung Website từ tab NoiDungWeb (Luôn đồng bộ mới nhất từ Google Sheet)
             try {
-                const urlCfg = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('NoiDungWeb')}`;
-                const resCfg = await fetch(urlCfg);
+                const urlCfg = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('NoiDungWeb')}&_t=${Date.now()}`;
+                const resCfg = await fetch(urlCfg, { cache: 'no-store' });
                 const textCfg = await resCfg.text();
                 const matchCfg = textCfg.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
                 if (matchCfg && matchCfg[1]) {
@@ -2538,7 +2538,10 @@ function dinhDangDongKhachSi(sheet, row) {
                         const c = rowsCfg[i].c;
                         if (!c) continue;
                         const k = c[0] && c[0].v ? String(c[0].v).trim() : '';
-                        const v = c[1] && c[1].v !== null && c[1].v !== undefined ? String(c[1].v) : '';
+                        let v = c[1] && c[1].v !== null && c[1].v !== undefined ? String(c[1].v) : '';
+                        if (k === 'heroBgImg' && v.includes('photo-1507525428034-b723cf961d3e')) {
+                            v = './pictrure/banner_khanhhoa.jpg';
+                        }
                         if (k && k in DEFAULT_SITE_CONTENT) {
                             sheetContent[k] = v;
                             foundKeys++;
@@ -2546,19 +2549,17 @@ function dinhDangDongKhachSi(sheet, row) {
                     }
                     if (foundKeys > 0) {
                         hasSheetContent = true;
-                        if (!localStorage.getItem('baco_site_content')) {
-                            const merged = Object.assign({}, DEFAULT_SITE_CONTENT, sheetContent);
-                            localStorage.setItem('baco_site_content', JSON.stringify(merged));
-                            loadSiteContentIntoAdmin();
-                        }
+                        const merged = Object.assign({}, DEFAULT_SITE_CONTENT, sheetContent);
+                        localStorage.setItem('baco_site_content', JSON.stringify(merged));
+                        loadSiteContentIntoAdmin();
                     }
                 }
             } catch (e) {}
 
-            // 2. Tải Sản Phẩm từ tab SanPham
+            // 2. Tải Sản Phẩm từ tab SanPham (Luôn đồng bộ danh mục mới nhất)
             try {
-                const urlProd = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('SanPham')}`;
-                const resProd = await fetch(urlProd);
+                const urlProd = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('SanPham')}&_t=${Date.now()}`;
+                const resProd = await fetch(urlProd, { cache: 'no-store' });
                 const textProd = await resProd.text();
                 const matchProd = textProd.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
                 if (matchProd && matchProd[1]) {
@@ -2588,11 +2589,9 @@ function dinhDangDongKhachSi(sheet, row) {
                     }
                     if (sheetProds.length > 0) {
                         hasSheetProducts = true;
-                        if (!localStorage.getItem('baco_products_custom_saved')) {
-                            products = sheetProds;
-                            localStorage.setItem('baco_products', JSON.stringify(products));
-                            renderProducts();
-                        }
+                        products = sheetProds;
+                        localStorage.setItem('baco_products', JSON.stringify(products));
+                        renderProducts();
                     }
                 }
             } catch (e) {}
@@ -2606,10 +2605,10 @@ function dinhDangDongKhachSi(sheet, row) {
         async function fetchOrdersFromGoogleSheet(silent = false) {
             
             // 1. Tải đơn hàng bán lẻ từ Tab 1
-            const urlRetail = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+            const urlRetail = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&_t=${Date.now()}`;
             try {
                 if (!silent) showAdminToast('Đang tải dữ liệu từ Google Sheet...', 'info');
-                const res = await fetch(urlRetail);
+                const res = await fetch(urlRetail, { cache: 'no-store' });
                 const text = await res.text();
                 const jsonMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
                 if (jsonMatch && jsonMatch[1]) {
@@ -2695,9 +2694,9 @@ function dinhDangDongKhachSi(sheet, row) {
             }
 
             // 2. Tải danh sách khách sỉ từ Tab "Khách Sỉ & Đại Lý"
-            const urlWholesale = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('Khách Sỉ & Đại Lý')}`;
+            const urlWholesale = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('Khách Sỉ & Đại Lý')}&_t=${Date.now()}`;
             try {
-                const resW = await fetch(urlWholesale);
+                const resW = await fetch(urlWholesale, { cache: 'no-store' });
                 const textW = await resW.text();
                 const jsonMatchW = textW.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
                 if (jsonMatchW && jsonMatchW[1]) {
@@ -4797,6 +4796,9 @@ function dinhDangDongKhachSi(sheet, row) {
                 const stored = localStorage.getItem('baco_site_content');
                 if (stored) {
                     data = Object.assign({}, DEFAULT_SITE_CONTENT, JSON.parse(stored));
+                    if (data.heroBgImg && data.heroBgImg.includes('photo-1507525428034-b723cf961d3e')) {
+                        data.heroBgImg = './pictrure/banner_khanhhoa.jpg';
+                    }
                 }
             } catch(e) {}
 

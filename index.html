@@ -1910,10 +1910,10 @@
                 'recipe2Title', 'recipe2Desc', 'recipe2Img',
                 'recipe3Title', 'recipe3Desc', 'recipe3Img'
             ]);
-            // 1. Đồng bộ Nội dung Website từ tab NoiDungWeb
+            // 1. Đồng bộ Nội dung Website từ tab NoiDungWeb (Luôn lấy dữ liệu mới nhất từ Google Sheet)
             try {
-                const urlCfg = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('NoiDungWeb')}`;
-                const resCfg = await fetch(urlCfg);
+                const urlCfg = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('NoiDungWeb')}&_t=${Date.now()}`;
+                const resCfg = await fetch(urlCfg, { cache: 'no-store' });
                 const textCfg = await resCfg.text();
                 const matchCfg = textCfg.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
                 if (matchCfg && matchCfg[1]) {
@@ -1925,23 +1925,26 @@
                         const c = rowsCfg[i].c;
                         if (!c) continue;
                         const k = c[0] && c[0].v ? String(c[0].v).trim() : '';
-                        const v = c[1] && c[1].v !== null && c[1].v !== undefined ? String(c[1].v) : '';
+                        let v = c[1] && c[1].v !== null && c[1].v !== undefined ? String(c[1].v) : '';
+                        if (k === 'heroBgImg' && v.includes('photo-1507525428034-b723cf961d3e')) {
+                            v = './pictrure/banner_khanhhoa.jpg';
+                        }
                         if (k && VALID_CMS_KEYS.has(k)) {
                             sheetContent[k] = v;
                             count++;
                         }
                     }
-                    if (count > 0 && !localStorage.getItem('baco_site_content')) {
+                    if (count > 0) {
                         localStorage.setItem('baco_site_content', JSON.stringify(sheetContent));
                         applySiteContent();
                     }
                 }
             } catch(e) {}
 
-            // 2. Đồng bộ Sản phẩm từ tab SanPham
+            // 2. Đồng bộ Sản phẩm từ tab SanPham (Luôn cập nhật giá và tồn kho mới nhất)
             try {
-                const urlProd = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('SanPham')}`;
-                const resProd = await fetch(urlProd);
+                const urlProd = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('SanPham')}&_t=${Date.now()}`;
+                const resProd = await fetch(urlProd, { cache: 'no-store' });
                 const textProd = await resProd.text();
                 const matchProd = textProd.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
                 if (matchProd && matchProd[1]) {
@@ -1969,7 +1972,7 @@
                             image: String(getVal(8) || './pictrure/1.jpg')
                         });
                     }
-                    if (sheetProds.length > 0 && !localStorage.getItem('baco_products_custom_saved')) {
+                    if (sheetProds.length > 0) {
                         localStorage.setItem('baco_products', JSON.stringify(sheetProds));
                         loadDynamicProducts();
                     }

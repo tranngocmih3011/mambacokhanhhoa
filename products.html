@@ -841,8 +841,8 @@
         async function syncCatalogFromGoogleSheet() {
             const SHEET_ID = '1ZvX_-wHeoc6fcv43hW_Jj-blOagtsFJiazorJJ8pBBw';
             try {
-                const urlProd = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('SanPham')}`;
-                const resProd = await fetch(urlProd);
+                const urlProd = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('SanPham')}&_t=${Date.now()}`;
+                const resProd = await fetch(urlProd, { cache: 'no-store' });
                 const textProd = await resProd.text();
                 const matchProd = textProd.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
                 if (matchProd && matchProd[1]) {
@@ -870,7 +870,7 @@
                             image: String(getVal(8) || './pictrure/1.jpg')
                         });
                     }
-                    if (sheetProds.length > 0 && !localStorage.getItem('baco_products_custom_saved')) {
+                    if (sheetProds.length > 0) {
                         localStorage.setItem('baco_products', JSON.stringify(sheetProds));
                         loadCatalogProducts();
                     }
