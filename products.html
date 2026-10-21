@@ -407,17 +407,40 @@
     <!-- VietQR Payment Modal -->
     <div id="qrPaymentModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto hidden">
         <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl relative border border-amber-100 my-auto text-center space-y-4">
-            <button onclick="document.getElementById('qrPaymentModal').classList.add('hidden')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold">✕</button>
-            <h3 class="font-serif text-xl font-bold text-slate-900">Quét Mã VietQR Thanh Toán</h3>
-            <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200 inline-block mx-auto">
+            <button onclick="cancelProductsPendingQrOrder()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center font-bold text-slate-500">✕</button>
+            <div>
+                <div class="inline-flex items-center space-x-1.5 bg-amber-100 text-amber-900 text-xs font-semibold px-3 py-1 rounded-full mb-1">
+                    <span>⏱️ Thời gian chờ thanh toán:</span>
+                    <span id="qrCountdownText" class="font-bold text-amber-950 font-mono">15:00</span>
+                </div>
+                <h3 class="font-serif text-xl font-bold text-slate-900">Quét Mã VietQR Thanh Toán</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Mở app ngân hàng quét mã chuyển khoản tự động</p>
+            </div>
+            <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200 inline-block mx-auto shadow-inner">
                 <img id="vietQrImage" src="" alt="VietQR" class="w-56 h-56 object-contain mx-auto rounded-xl bg-white p-2 shadow">
+                <div class="mt-1.5 text-xs text-amber-900 font-semibold">⚡ Tự động điền số tiền & nội dung</div>
             </div>
             <div class="bg-slate-50 rounded-2xl p-3.5 text-left space-y-1.5 text-xs border border-slate-100">
-                <div class="flex justify-between"><span>Mã đơn:</span><strong id="modalOrderCode" class="text-amber-700"></strong></div>
-                <div class="flex justify-between"><span>Số tiền:</span><strong id="modalOrderAmount" class="text-emerald-700"></strong></div>
-                <div class="flex justify-between"><span>Ngân hàng:</span><strong>MB Bank - 0985520678</strong></div>
+                <div class="flex justify-between"><span>Mã đơn:</span><strong id="modalOrderCode" class="text-amber-700 font-bold"></strong></div>
+                <div class="flex justify-between"><span>Số tiền:</span><strong id="modalOrderAmount" class="text-emerald-700 font-bold"></strong></div>
+                <div class="flex justify-between"><span>Ngân hàng nhận:</span><strong class="text-slate-900">MB Bank - 0985520678</strong></div>
             </div>
-            <button onclick="document.getElementById('qrPaymentModal').classList.add('hidden')" class="w-full bg-amber-600 text-white font-bold py-3 rounded-xl text-sm">Đóng</button>
+
+            <!-- Các nút hành động chính -->
+            <div class="space-y-2 pt-1">
+                <button type="button" id="btnConfirmQrPaidProducts" onclick="confirmProductsQrPaymentDone()" 
+                        class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center space-x-2 text-sm">
+                    <span>✅ Tôi Đã Chuyển Khoản Thành Công</span>
+                </button>
+                <button type="button" onclick="switchProductsPendingToCod()" 
+                        class="w-full bg-slate-100 hover:bg-amber-50 hover:border-amber-300 text-slate-700 hover:text-amber-900 border border-slate-200 font-semibold py-2.5 px-4 rounded-xl transition flex items-center justify-center space-x-1.5 text-xs">
+                    <span>💵 Đổi sang nhận hàng thanh toán tiền mặt (COD)</span>
+                </button>
+                <button type="button" onclick="cancelProductsPendingQrOrder()" 
+                        class="w-full text-slate-400 hover:text-rose-600 text-xs py-1 transition">
+                    ✕ Hủy đơn hàng này (Chưa chuyển tiền)
+                </button>
+            </div>
         </div>
     </div>
 
@@ -744,16 +767,154 @@
             document.getElementById('checkoutOrderModal').classList.add('hidden');
         }
 
+        let pendingQrOrder = null;
+        let qrCountdownInterval = null;
+
         function togglePaymentMethod(m) {
             const cCod = document.getElementById('cardCod');
             const cBank = document.getElementById('cardBank');
+            const submitBtn = document.getElementById('submitBtn');
             if (m === 'bank') {
                 cBank.className = "flex items-center p-3 border-2 rounded-2xl cursor-pointer border-amber-600 bg-amber-50/60";
                 cCod.className = "flex items-center p-3 border-2 border-slate-200 rounded-2xl cursor-pointer bg-white";
+                if (submitBtn) submitBtn.textContent = "⚡ Tiếp Tục Quét Mã QR Thanh Toán";
             } else {
                 cCod.className = "flex items-center p-3 border-2 rounded-2xl cursor-pointer border-amber-600 bg-amber-50/60";
                 cBank.className = "flex items-center p-3 border-2 border-slate-200 rounded-2xl cursor-pointer bg-white";
+                if (submitBtn) submitBtn.textContent = "⚡ Xác Nhận Đặt Hàng Ngay";
             }
+        }
+
+        function startProductsQrCountdown(seconds) {
+            if (qrCountdownInterval) clearInterval(qrCountdownInterval);
+            let remain = seconds;
+            const cdText = document.getElementById('qrCountdownText');
+            if (!cdText) return;
+
+            const updateDisplay = () => {
+                const m = Math.floor(remain / 60);
+                const s = remain % 60;
+                cdText.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            };
+            updateDisplay();
+
+            qrCountdownInterval = setInterval(() => {
+                remain--;
+                if (remain <= 0) {
+                    clearInterval(qrCountdownInterval);
+                    cdText.textContent = "Hết hạn";
+                    showToast('Mã QR đã hết hạn chờ thanh toán. Vui lòng thử lại!', 'warning');
+                    cancelProductsPendingQrOrder();
+                } else {
+                    updateDisplay();
+                }
+            }, 1000);
+        }
+
+        function cancelProductsPendingQrOrder() {
+            const isConfirm = confirm("Bạn chưa hoàn tất chuyển tiền cho đơn hàng này.\n\n• Bấm [OK] để hủy đơn hoàn toàn (không lưu đơn ảo)\n• Bấm [Hủy] để tiếp tục giữ mã QR");
+            if (isConfirm) {
+                if (qrCountdownInterval) {
+                    clearInterval(qrCountdownInterval);
+                    qrCountdownInterval = null;
+                }
+                pendingQrOrder = null;
+                document.getElementById('qrPaymentModal').classList.add('hidden');
+                showToast('Đã hủy thao tác thanh toán QR.', 'info');
+            }
+        }
+
+        async function switchProductsPendingToCod() {
+            if (!pendingQrOrder) {
+                document.getElementById('qrPaymentModal').classList.add('hidden');
+                return;
+            }
+
+            const codOrder = { ...pendingQrOrder };
+            codOrder.paymentMethod = 'COD (Thanh toán tiền mặt khi nhận hàng)';
+            codOrder.status = 'Chờ xác nhận';
+
+            try {
+                const existing = JSON.parse(localStorage.getItem('baco_orders') || '[]');
+                existing.unshift(Object.assign({}, codOrder, { status: 'Chờ xác nhận', createdAt: Date.now() }));
+                localStorage.setItem('baco_orders', JSON.stringify(existing));
+            } catch(err) {}
+
+            fetch('/api/send-push', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: `🛒 Đơn Hàng COD Mới #${codOrder.orderCode} - ${Number(codOrder.totalAmount).toLocaleString('vi-VN')}đ`,
+                    body: `${codOrder.name} (${codOrder.phone}) vừa đặt COD: ${codOrder.product} - ${codOrder.address}`,
+                    url: './admin.html',
+                    code: codOrder.orderCode,
+                    type: 'orders'
+                })
+            }).catch(err => console.warn('Push error:', err));
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(codOrder)
+            }).catch(() => {});
+
+            if (qrCountdownInterval) clearInterval(qrCountdownInterval);
+            document.getElementById('qrPaymentModal').classList.add('hidden');
+            showToast(`Đã chuyển đơn #${codOrder.orderCode} sang thanh toán COD thành công!`, 'success');
+            cart = [];
+            updateCartUI();
+            pendingQrOrder = null;
+        }
+
+        async function confirmProductsQrPaymentDone() {
+            const btn = document.getElementById('btnConfirmQrPaidProducts');
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = "Đang ghi nhận đơn hàng...";
+            }
+
+            if (!pendingQrOrder) {
+                document.getElementById('qrPaymentModal').classList.add('hidden');
+                return;
+            }
+
+            const paidOrder = { ...pendingQrOrder };
+            paidOrder.status = 'Đã nhận tiền';
+
+            try {
+                const existing = JSON.parse(localStorage.getItem('baco_orders') || '[]');
+                existing.unshift(Object.assign({}, paidOrder, { status: 'Đã nhận tiền', createdAt: Date.now() }));
+                localStorage.setItem('baco_orders', JSON.stringify(existing));
+            } catch(err) {}
+
+            fetch('/api/send-push', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: `💰 Đơn QR Đã Thanh Toán #${paidOrder.orderCode} - ${Number(paidOrder.totalAmount).toLocaleString('vi-VN')}đ`,
+                    body: `${paidOrder.name} (${paidOrder.phone}) đã quét QR chuyển khoản: ${paidOrder.product}`,
+                    url: './admin.html',
+                    code: paidOrder.orderCode,
+                    type: 'orders'
+                })
+            }).catch(err => console.warn('Push error:', err));
+
+            try {
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(paidOrder)
+                });
+            } catch(err) {}
+
+            if (qrCountdownInterval) clearInterval(qrCountdownInterval);
+            document.getElementById('qrPaymentModal').classList.add('hidden');
+            showToast(`🎉 Thanh toán đơn hàng #${paidOrder.orderCode} thành công! Cảm ơn bạn.`, 'success');
+            cart = [];
+            updateCartUI();
+            pendingQrOrder = null;
         }
 
         function submitOrder(e) {
@@ -798,9 +959,6 @@
                 return;
             }
 
-            btn.disabled = true;
-            btn.textContent = "Đang gửi đơn hàng...";
-
             const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked').value;
             const orderCode = 'BC' + Math.floor(100000 + Math.random() * 900000);
             let productSummary = '';
@@ -836,11 +994,44 @@
 
             localStorage.setItem('baco_last_order_submit', Date.now().toString());
 
+            // NẾU CHỌN THANH TOÁN QR -> MỞ POP-UP VIETQR VÀ CHƯA GỬI ĐƠN/CHƯA BẮN THÔNG BÁO CHO ADMIN
+            if (selectedPayment.includes('Chuyển khoản')) {
+                pendingQrOrder = formData;
+                closeCheckoutModal();
+                document.getElementById('modalOrderCode').textContent = '#' + orderCode;
+                document.getElementById('modalOrderAmount').textContent = totalAmount.toLocaleString('vi-VN') + ' đ';
+                document.getElementById('vietQrImage').src = `https://img.vietqr.io/image/MB-0985520678-compact2.png?amount=${totalAmount}&addInfo=${orderCode}&accountName=NGUYEN%20VAN%20A`;
+                document.getElementById('qrPaymentModal').classList.remove('hidden');
+                const btnConfirm = document.getElementById('btnConfirmQrPaidProducts');
+                if (btnConfirm) {
+                    btnConfirm.disabled = false;
+                    btnConfirm.textContent = "✅ Tôi Đã Chuyển Khoản Thành Công";
+                }
+                startProductsQrCountdown(15 * 60);
+                return;
+            }
+
+            // NẾU CHỌN COD -> ĐÂY LÀ ĐƠN TIỀN MẶT ĐÃ XÁC NHẬN MUA
+            btn.disabled = true;
+            btn.textContent = "Đang gửi đơn hàng...";
+
             try {
                 const existing = JSON.parse(localStorage.getItem('baco_orders') || '[]');
-                existing.unshift(Object.assign({}, formData, { status: 'Chờ xác nhận' }));
+                existing.unshift(Object.assign({}, formData, { status: 'Chờ xác nhận', createdAt: Date.now() }));
                 localStorage.setItem('baco_orders', JSON.stringify(existing));
             } catch(err) {}
+
+            fetch('/api/send-push', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: `🛒 Đơn Hàng COD Mới #${orderCode} - ${Number(totalAmount).toLocaleString('vi-VN')}đ`,
+                    body: `${rawName} (${cleanPhone}) vừa đặt COD: ${productSummary} - ${rawAddress}`,
+                    url: './admin.html',
+                    code: orderCode,
+                    type: 'orders'
+                })
+            }).catch(err => console.warn('Push error:', err));
 
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
@@ -852,22 +1043,15 @@
                 btn.textContent = "⚡ Xác Nhận Đặt Hàng Ngay";
                 cart = [];
                 updateCartUI();
-                if (selectedPayment.includes('Chuyển khoản')) {
+
+                const box = document.getElementById('successMessage');
+                box.innerHTML = `🎉 Đặt hàng thành công mã <strong>#${orderCode}</strong>! Tổng: <strong>${totalAmount.toLocaleString('vi-VN')} đ</strong>.`;
+                box.classList.remove('hidden');
+                showToast('Đặt hàng thành công!');
+                setTimeout(() => {
+                    if (box) box.classList.add('hidden');
                     closeCheckoutModal();
-                    document.getElementById('modalOrderCode').textContent = '#' + orderCode;
-                    document.getElementById('modalOrderAmount').textContent = totalAmount.toLocaleString('vi-VN') + ' đ';
-                    document.getElementById('vietQrImage').src = `https://img.vietqr.io/image/MB-0985520678-compact2.png?amount=${totalAmount}&addInfo=${orderCode}`;
-                    document.getElementById('qrPaymentModal').classList.remove('hidden');
-                } else {
-                    const box = document.getElementById('successMessage');
-                    box.innerHTML = `🎉 Đặt hàng thành công mã <strong>#${orderCode}</strong>! Tổng: <strong>${totalAmount.toLocaleString('vi-VN')} đ</strong>.`;
-                    box.classList.remove('hidden');
-                    showToast('Đặt hàng thành công!');
-                    setTimeout(() => {
-                        if (box) box.classList.add('hidden');
-                        closeCheckoutModal();
-                    }, 3500);
-                }
+                }, 3500);
             });
         }
 
