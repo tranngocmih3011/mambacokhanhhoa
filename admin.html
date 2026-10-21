@@ -197,6 +197,14 @@
 </head>
 <body class="bg-iosBg text-slate-900 antialiased min-h-screen flex flex-col pb-safe-bottom">
 
+    <!-- Pull to Refresh Indicator trên Mobile -->
+    <div id="pullToRefreshIndicator" class="fixed top-2 inset-x-0 mx-auto w-fit z-50 pointer-events-none opacity-0 transform -translate-y-6 transition-all duration-200">
+        <div class="ios-blur bg-white/95 shadow-2xl border border-slate-300/80 rounded-full px-4 py-2 flex items-center space-x-2 text-xs font-bold text-slate-800">
+            <span class="animate-spin text-amber-600 text-sm">🔄</span>
+            <span id="pullRefreshText">Đang kéo để làm mới...</span>
+        </div>
+    </div>
+
     <!-- Toast Notification Container (Chuẩn Dynamic Island / iOS Banner) -->
     <div id="adminToastContainer" class="fixed top-3 inset-x-4 sm:inset-x-auto sm:right-5 sm:max-w-sm z-50 flex flex-col space-y-2 pointer-events-none"></div>
 
@@ -248,7 +256,7 @@
 
                 <!-- Action Controls trên Top Bar -->
                 <div class="flex items-center space-x-2">
-                    <button onclick="fetchOrdersFromGoogleSheet()" title="Đồng bộ lại từ Google Sheet" 
+                    <button onclick="triggerManualRefresh(true)" title="Đồng bộ lại từ Google Sheet" 
                             class="bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm border border-slate-200/80 flex items-center space-x-1.5 ios-press">
                         <span class="text-sm">🔄</span>
                         <span class="hidden sm:inline">Đồng bộ Sheet</span>
@@ -2386,19 +2394,21 @@ function dinhDangDongKhachSi(sheet, row) {
             const dateEl = document.getElementById('statTodayDate');
             if (dateEl) dateEl.textContent = dateStr;
 
-            // Xóa triệt để cache vĩnh viễn cũ trong localStorage để đảm bảo tính bảo mật
-            localStorage.removeItem('baco_admin_logged');
+            // Kiểm tra trạng thái đã đăng nhập lưu vĩnh viễn trên thiết bị
+            const isLogged = localStorage.getItem('baco_admin_logged') === 'true' || sessionStorage.getItem('baco_admin_logged') === 'true';
 
-            // Nếu người dùng bấm từ nút khóa ở chân trang chủ (có tham số ?lock=1) thì luôn bắt buộc đăng nhập
+            // Chỉ bắt buộc đăng nhập lại nếu URL có tham số khóa chủ động ?lock=1
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('lock') === '1') {
+                localStorage.removeItem('baco_admin_logged');
                 sessionStorage.removeItem('baco_admin_logged');
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
 
-            if (sessionStorage.getItem('baco_admin_logged') === 'true') {
+            if (isLogged && urlParams.get('lock') !== '1') {
                 showAdminDashboard();
             } else {
-                // Focus ngay vào ô nhập PIN
+                // Focus ngay vào ô nhập PIN nếu chưa đăng nhập
                 setTimeout(() => {
                     const passInput = document.getElementById('adminPasswordInput');
                     if (passInput) passInput.focus();
@@ -2410,7 +2420,8 @@ function dinhDangDongKhachSi(sheet, row) {
             if (e && e.preventDefault) e.preventDefault();
             const pass = (document.getElementById('adminPasswordInput').value || '').trim();
             if (pass === ADMIN_PIN) {
-                // Chỉ lưu trong phiên tab hiện tại (sessionStorage)
+                // Lưu trạng thái đăng nhập vĩnh viễn trong localStorage để reload/kéo trang không bị hỏi lại
+                localStorage.setItem('baco_admin_logged', 'true');
                 sessionStorage.setItem('baco_admin_logged', 'true');
                 showAdminDashboard();
                 showAdminToast('Đăng nhập quản trị thành công!', 'success');
@@ -2436,6 +2447,78 @@ function dinhDangDongKhachSi(sheet, row) {
                 passInput.focus();
             }
             showAdminToast('Đã đăng xuất & khóa trang quản trị', 'info');
+        }
+
+        // ================= XỬ LÝ KÉO XUỐNG LÀM MỚI (PULL-TO-REFRESH) TRÊN ĐIỆN THOẠI =================
+        let touchStartY = 0;
+        let isPullTracking = false;
+
+        window.addEventListener('touchstart', (e) => {
+            if (window.scrollY <= 5 && e.touches.length === 1) {
+                touchStartY = e.touches[0].clientY;
+                isPullTracking = true;
+            } else {
+                isPullTracking = false;
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!isPullTracking) return;
+            const currentY = e.touches[0].clientY;
+            const diff = currentY - touchStartY;
+            if (diff > 30 && window.scrollY <= 5) {
+                const indicator = document.getElementById('pullToRefreshIndicator');
+                const text = document.getElementById('pullRefreshText');
+                if (indicator) {
+                    indicator.classList.remove('hidden');
+                    indicator.style.opacity = `${Math.min(diff / 80, 1)}`;
+                    indicator.style.transform = `translateY(${Math.min(diff * 0.35, 45)}px)`;
+                    if (diff > 80 && text) {
+                        text.textContent = 'Thả tay để tải bản mới nhất!';
+                    } else if (text) {
+                        text.textContent = 'Kéo xuống để làm mới...';
+                    }
+                }
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchend', (e) => {
+            if (!isPullTracking) return;
+            isPullTracking = false;
+            const currentY = e.changedTouches[0].clientY;
+            const diff = currentY - touchStartY;
+            const indicator = document.getElementById('pullToRefreshIndicator');
+            const text = document.getElementById('pullRefreshText');
+            if (diff > 80 && window.scrollY <= 5) {
+                if (text) text.textContent = 'Đang tải bản mới nhất...';
+                if (indicator) {
+                    indicator.style.transform = 'translateY(40px)';
+                    indicator.style.opacity = '1';
+                }
+                triggerManualRefresh(true).finally(() => {
+                    setTimeout(() => {
+                        if (indicator) {
+                            indicator.style.transform = 'translateY(-24px)';
+                            indicator.style.opacity = '0';
+                        }
+                    }, 400);
+                });
+            } else {
+                if (indicator) {
+                    indicator.style.transform = 'translateY(-24px)';
+                    indicator.style.opacity = '0';
+                }
+            }
+        });
+
+        // Hàm làm mới toàn diện dữ liệu (Đơn hàng, Khách sỉ, Sản phẩm, Nội dung web)
+        async function triggerManualRefresh(showToast = true) {
+            if (showToast) showAdminToast('🔄 Đang đồng bộ dữ liệu mới nhất từ Google Sheet...', 'info');
+            await Promise.all([
+                fetchOrdersFromGoogleSheet(true),
+                fetchSiteAndProductsFromSheet(true)
+            ]);
+            if (showToast) showAdminToast('✅ Đã cập nhật bản mới nhất thành công!', 'success');
         }
 
         function showAdminDashboard() {
