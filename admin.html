@@ -2496,7 +2496,6 @@ function dinhDangDongKhachSi(sheet, row) {
                 if (inputEl) inputEl.classList.remove('border-rose-500', 'bg-rose-50/50');
                 localStorage.setItem('baco_admin_logged', 'true');
                 sessionStorage.setItem('baco_admin_logged', 'true');
-                unlockAudioEngine();
                 showAdminDashboard();
                 showAdminToast('Đăng nhập quản trị thành công! Chào mừng bạn.', 'success');
             } else {
@@ -2975,6 +2974,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 console.log("Tab Khách Sỉ chưa có dữ liệu hoặc chưa tạo:", errW);
             }
 
+            syncNotificationsFromData(silent);
             updateBadges();
             if (!silent) showAdminToast('Đã hoàn tất đồng bộ từ Google Sheet!', 'success');
         }
@@ -5299,7 +5299,7 @@ function dinhDangDongKhachSi(sheet, row) {
         }
 
         // ================= TRUNG TÂM THÔNG BÁO (NOTIFICATION CENTER) =================
-        function syncNotificationsFromData() {
+        function syncNotificationsFromData(allowAlert = false) {
             let readIds = new Set();
             let deletedIds = new Set();
             try {
@@ -5313,8 +5313,9 @@ function dinhDangDongKhachSi(sheet, row) {
 
             // 1. Quét đơn hàng bán lẻ
             if (Array.isArray(orders)) {
-                orders.forEach(o => {
-                    const id = 'notif_order_' + (o.orderCode || o.phone || Math.random());
+                orders.forEach((o, idx) => {
+                    const stableKey = o.orderCode || o.phone || (String(o.timestamp || '') + '_' + idx);
+                    const id = 'notif_order_' + String(stableKey).replace(/[^a-zA-Z0-9_]/g, '_');
                     if (deletedIds.has(id)) return;
                     const isRead = readIds.has(id);
                     const orderTotal = Number(o.totalAmount || 0).toLocaleString('vi-VN');
@@ -5334,8 +5335,9 @@ function dinhDangDongKhachSi(sheet, row) {
 
             // 2. Quét khách sỉ & đại lý
             if (Array.isArray(wholesaleLeads)) {
-                wholesaleLeads.forEach(w => {
-                    const id = 'notif_ws_' + (w.leadCode || w.phone || Math.random());
+                wholesaleLeads.forEach((w, idx) => {
+                    const stableKey = w.leadCode || w.phone || (String(w.timestamp || '') + '_' + idx);
+                    const id = 'notif_ws_' + String(stableKey).replace(/[^a-zA-Z0-9_]/g, '_');
                     if (deletedIds.has(id)) return;
                     const isRead = readIds.has(id);
                     items.push({
@@ -5354,8 +5356,9 @@ function dinhDangDongKhachSi(sheet, row) {
 
             // 3. Quét đánh giá khách hàng
             if (Array.isArray(reviews)) {
-                reviews.forEach(r => {
-                    const id = 'notif_rev_' + (r.id || (r.name + '_' + (r.date || '')));
+                reviews.forEach((r, idx) => {
+                    const stableKey = r.id || ((r.name || 'rev') + '_' + (r.date || '') + '_' + idx);
+                    const id = 'notif_rev_' + String(stableKey).replace(/[^a-zA-Z0-9_]/g, '_');
                     if (deletedIds.has(id)) return;
                     const isRead = readIds.has(id);
                     const commentSnippet = (r.comment || '').substring(0, 80) + ((r.comment || '').length > 80 ? '...' : '');
@@ -5379,7 +5382,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 return 0;
             });
 
-            // Quản lý các thông báo đã biết để phát chuông Ting-Ting & hiện thông báo đẩy khi có tin MỚI
+            // Quản lý các thông báo đã biết
             let seenIds = null;
             const seenRaw = localStorage.getItem('baco_seen_notification_ids');
             const isInitialRun = (seenRaw === null);
@@ -5406,8 +5409,8 @@ function dinhDangDongKhachSi(sheet, row) {
                 localStorage.setItem('baco_seen_notification_ids', JSON.stringify([...seenIds]));
             } catch(e) {}
 
-            // Nếu có đơn hàng mới hoặc khách sỉ mới vừa về: Phát chuông Ting-Ting và bắn thông báo đẩy!
-            if (hasNewArrival && newestItem) {
+            // CHỈ PHÁT CHUÔNG KHI allowAlert === true (tuyệt đối không phát khi ấn các mục, chuyển tab, mở thông báo hay làm mới)
+            if (allowAlert && hasNewArrival && newestItem) {
                 triggerSystemPushNotification(newestItem.title, newestItem.message, { 
                     id: newestItem.id, 
                     code: newestItem.code, 
@@ -5799,36 +5802,8 @@ function dinhDangDongKhachSi(sheet, row) {
             return bacoAudioCtx;
         }
 
-        // Mở khóa AudioContext hoàn toàn IM LẶNG (không phát bất kỳ hiệu ứng âm thanh nào khi thao tác trong app)
-        function unlockAudioEngine() {
-            if (bacoAudioUnlocked) return;
-            bacoAudioUnlocked = true;
-
-            window.removeEventListener('touchstart', unlockAudioEngine);
-            window.removeEventListener('touchend', unlockAudioEngine);
-            window.removeEventListener('click', unlockAudioEngine);
-
-            try {
-                const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
-                if (!bacoAudioCtx && AudioCtxClass) {
-                    bacoAudioCtx = new AudioCtxClass();
-                }
-                if (bacoAudioCtx) {
-                    if (bacoAudioCtx.state === 'suspended') {
-                        bacoAudioCtx.resume().catch(() => {});
-                    }
-                    // Phát buffer rỗng 1 mẫu (0dB - hoàn toàn không có tiếng) để mở khóa iOS WebAudio
-                    const silentBuf = bacoAudioCtx.createBuffer(1, 1, 22050);
-                    const src = bacoAudioCtx.createBufferSource();
-                    src.buffer = silentBuf;
-                    src.connect(bacoAudioCtx.destination);
-                    src.start(0);
-                }
-            } catch(e) {}
-        }
-        window.addEventListener('touchstart', unlockAudioEngine, { passive: true });
-        window.addEventListener('touchend', unlockAudioEngine, { passive: true });
-        window.addEventListener('click', unlockAudioEngine, { passive: true });
+        // Tuyệt đối không gắn bất kỳ listener âm thanh nào khi người dùng chạm, click hoặc ấn các mục trong ứng dụng.
+        // Chỉ phát âm thanh khi có THÔNG BÁO MỚI (đơn hàng mới, khách sỉ mới) hoặc khi người dùng chủ động bấm "Thử chuông".
 
         // CHỈ phát âm thanh chuông "Ting-Ting" khi có THÔNG BÁO MỚI
         function playChimeSound() {
@@ -5888,11 +5863,6 @@ function dinhDangDongKhachSi(sheet, row) {
                     osc3.stop(now + 0.65);
                 }
             } catch(e) {}
-
-            // Rung phản hồi khi có thông báo
-            if (navigator.vibrate) {
-                try { navigator.vibrate([160, 80, 240]); } catch(e) {}
-            }
         }
 
         // Biểu ngữ thông báo chuẩn Apple iOS Notification Banner
