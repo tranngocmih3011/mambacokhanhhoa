@@ -72,7 +72,7 @@ function doPost(e) {
       return jsonSuccess({ status: "success", msg: "Bot trap triggered - Ignored", ignored: true });
     }
 
-    // 2. Chống Spam liên tục vào Webhook qua CacheService (Rate limiting 30 giây)
+    // 2. Chống Spam liên tục vào Webhook qua CacheService (Rate limiting 3 giây)
     var isNewSubmission = (data.type === "wholesale" || action === "wholesale" || action === "submit_review" || !action);
     if (isNewSubmission) {
       var phoneRaw = String(data.phone || (data.review && data.review.phone) || "").replace(/\D/g, "");
@@ -82,9 +82,9 @@ function doPost(e) {
           if (cache) {
             var cacheKey = "baco_spam_" + phoneRaw;
             if (cache.get(cacheKey)) {
-              return jsonError("Thao tác quá nhanh! Vui lòng chờ 30 giây trước khi gửi tiếp.");
+              return jsonError("Thao tác quá nhanh! Vui lòng chờ 2 giây trước khi gửi tiếp.");
             }
-            cache.put(cacheKey, "sent", 30);
+            cache.put(cacheKey, "sent", 3);
           }
         } catch(cErr) {}
       }

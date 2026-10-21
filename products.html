@@ -771,10 +771,10 @@
                 return;
             }
 
-            // 2. Chống Spam gửi đơn liên tục (Cooldown 20 giây)
+            // 2. Chống Spam gửi đơn liên tục (Cooldown 2 giây)
             const nowTime = Date.now();
             const lastOrderTime = parseInt(localStorage.getItem('baco_last_order_submit') || '0', 10);
-            const cooldownMs = 20000;
+            const cooldownMs = 2000;
             if (nowTime - lastOrderTime < cooldownMs) {
                 const remainSec = Math.ceil((cooldownMs - (nowTime - lastOrderTime)) / 1000);
                 alert(`Bạn thao tác quá nhanh! Vui lòng đợi ${remainSec}s trước khi gửi tiếp.`);

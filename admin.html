@@ -1484,9 +1484,9 @@ function doPost(e) {
           if (cache) {
             var cacheKey = &quot;baco_spam_&quot; + phoneRaw;
             if (cache.get(cacheKey)) {
-              return jsonError(&quot;Thao tác quá nhanh! Vui lòng chờ 30 giây trước khi gửi tiếp.&quot;);
+              return jsonError(&quot;Thao tác quá nhanh! Vui lòng chờ 2 giây trước khi gửi tiếp.&quot;);
             }
-            cache.put(cacheKey, &quot;sent&quot;, 30);
+            cache.put(cacheKey, &quot;sent&quot;, 3);
           }
         } catch(cErr) {}
       }

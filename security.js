@@ -88,62 +88,12 @@
         }, 2200);
     }
 
-    // 6. Tấm chắn toàn màn hình khi phát hiện DevTools được mở
-    let shieldModal = null;
-    function showDevToolsShield() {
-        if (!shieldModal) {
-            shieldModal = document.createElement('div');
-            shieldModal.id = 'bacoDevToolsShield';
-            shieldModal.style.cssText = 'position:fixed;inset:0;background:rgba(2,6,23,0.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);z-index:9999999;display:flex;align-items:center;justify-content:center;padding:24px;font-family:system-ui,-apple-system,sans-serif;color:white;text-align:center;';
-            shieldModal.innerHTML = `
-                <div style="max-width:440px;background:rgba(15,23,42,0.95);border:1px solid rgba(251,191,36,0.3);padding:32px 24px;border-radius:24px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.7);line-height:1.6;">
-                    <div style="font-size:48px;margin-bottom:12px;">🛡️</div>
-                    <h2 style="font-size:20px;font-weight:800;color:#fef08a;margin-bottom:8px;letter-spacing:-0.5px;">BẢO MẬT HỆ THỐNG BA CÔ</h2>
-                    <p style="font-size:13px;color:#cbd5e1;margin-bottom:16px;">Công cụ kiểm tra mã nguồn (DevTools) đã được kích hoạt. Vì lý do bảo mật bản quyền và dữ liệu, nội dung trang web tạm thời được ẩn đi.</p>
-                    <div style="display:inline-block;background:rgba(251,191,36,0.1);color:#fde047;border:1px solid rgba(251,191,36,0.3);padding:8px 16px;border-radius:12px;font-size:12px;font-weight:700;">
-                        Vui lòng đóng cửa sổ F12 để tiếp tục xem trang
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(shieldModal);
-        }
-        shieldModal.style.display = 'flex';
-        try { window.console.clear(); } catch(e) {}
-    }
-
-    function hideDevToolsShield() {
-        if (shieldModal) {
-            shieldModal.style.display = 'none';
-        }
-    }
-
-    // 7. Thuật toán phát hiện DevTools liên tục
-    let isDevToolsOpen = false;
-    function checkDevTools() {
-        // Kiểm tra qua độ chênh lệch kích thước khung cửa sổ
-        const threshold = 160;
-        const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-        const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-
-        // Kiểm tra qua thời gian thực thi debugger
-        const startTime = performance.now();
-        (function() { return false; }['constructor']('debugger')());
-        const endTime = performance.now();
-        const debuggerTriggered = (endTime - startTime) > 100;
-
-        if (widthThreshold || heightThreshold || debuggerTriggered) {
-            if (!isDevToolsOpen) {
-                isDevToolsOpen = true;
-                showDevToolsShield();
+    // 6. Xóa và bảo vệ Console sạch sẽ
+    setInterval(function() {
+        try {
+            if (window.console) {
+                window.console.clear();
             }
-        } else {
-            if (isDevToolsOpen) {
-                isDevToolsOpen = false;
-                hideDevToolsShield();
-            }
-        }
-    }
-
-    // Kiểm tra liên tục mỗi 600ms
-    setInterval(checkDevTools, 600);
+        } catch(e) {}
+    }, 2000);
 })();
