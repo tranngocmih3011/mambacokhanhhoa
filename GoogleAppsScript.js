@@ -165,11 +165,11 @@ function doPost(e) {
       var sheet = ss.getSheets()[0];
       var cleanCode = chuanHoa(data.orderCode);
       var lastRow = sheet.getLastRow();
-      if (lastRow >= 7) {
-        var codes = sheet.getRange("C7:C" + lastRow).getValues();
+      if (lastRow >= 3) {
+        var codes = sheet.getRange("C3:C" + lastRow).getValues();
         for (var i = 0; i < codes.length; i++) {
           if (chuanHoa(codes[i][0]) === cleanCode) {
-            var targetRow = 7 + i;
+            var targetRow = 3 + i;
             var cell = sheet.getRange(targetRow, 12);
             cell.setValue(data.status);
             dinhDangTrangThaiDonHang(cell, data.status);
@@ -185,11 +185,11 @@ function doPost(e) {
       var sheet = ss.getSheets()[0];
       var cleanCode = chuanHoa(data.orderCode);
       var lastRow = sheet.getLastRow();
-      if (lastRow >= 7) {
-        var codes = sheet.getRange("C7:C" + lastRow).getValues();
+      if (lastRow >= 3) {
+        var codes = sheet.getRange("C3:C" + lastRow).getValues();
         for (var i = 0; i < codes.length; i++) {
           if (chuanHoa(codes[i][0]) === cleanCode) {
-            sheet.deleteRow(7 + i);
+            sheet.deleteRow(3 + i);
             return jsonSuccess({ deleted: cleanCode });
           }
         }
@@ -201,8 +201,8 @@ function doPost(e) {
     if (action === "clear_all_orders") {
       var sheet = ss.getSheets()[0];
       var lastRow = sheet.getLastRow();
-      if (lastRow >= 7) {
-        sheet.deleteRows(7, lastRow - 6);
+      if (lastRow >= 3) {
+        sheet.deleteRows(3, lastRow - 2);
       }
       return jsonSuccess({ cleared: true });
     }

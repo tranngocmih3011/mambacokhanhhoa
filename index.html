@@ -1594,7 +1594,8 @@
                 area: area,
                 businessModel: model,
                 note: note,
-                timestamp: timestamp
+                timestamp: timestamp,
+                createdAt: Date.now()
             };
 
             // 1. Lưu vào localStorage để trang Admin baco_wholesale_leads hiển thị ngay
@@ -2188,7 +2189,8 @@
                     totalAmount: formData.totalAmount,
                     paymentMethod: formData.paymentMethod,
                     status: 'Chờ xác nhận',
-                    timestamp: new Date().toLocaleDateString('vi-VN')
+                    timestamp: new Date().toLocaleDateString('vi-VN'),
+                    createdAt: Date.now()
                 });
                 localStorage.setItem('baco_orders', JSON.stringify(existingOrders));
             } catch (err) {}

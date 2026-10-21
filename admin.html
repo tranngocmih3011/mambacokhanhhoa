@@ -1560,11 +1560,11 @@ function doPost(e) {
       var sheet = ss.getSheets()[0];
       var cleanCode = chuanHoa(data.orderCode);
       var lastRow = sheet.getLastRow();
-      if (lastRow &gt;= 7) {
-        var codes = sheet.getRange(&quot;C7:C&quot; + lastRow).getValues();
+      if (lastRow &gt;= 3) {
+        var codes = sheet.getRange(&quot;C3:C&quot; + lastRow).getValues();
         for (var i = 0; i &lt; codes.length; i++) {
           if (chuanHoa(codes[i][0]) === cleanCode) {
-            var targetRow = 7 + i;
+            var targetRow = 3 + i;
             var cell = sheet.getRange(targetRow, 12);
             cell.setValue(data.status);
             dinhDangTrangThaiDonHang(cell, data.status);
@@ -1580,11 +1580,11 @@ function doPost(e) {
       var sheet = ss.getSheets()[0];
       var cleanCode = chuanHoa(data.orderCode);
       var lastRow = sheet.getLastRow();
-      if (lastRow &gt;= 7) {
-        var codes = sheet.getRange(&quot;C7:C&quot; + lastRow).getValues();
+      if (lastRow &gt;= 3) {
+        var codes = sheet.getRange(&quot;C3:C&quot; + lastRow).getValues();
         for (var i = 0; i &lt; codes.length; i++) {
           if (chuanHoa(codes[i][0]) === cleanCode) {
-            sheet.deleteRow(7 + i);
+            sheet.deleteRow(3 + i);
             return jsonSuccess({ deleted: cleanCode });
           }
         }
@@ -1596,8 +1596,8 @@ function doPost(e) {
     if (action === &quot;clear_all_orders&quot;) {
       var sheet = ss.getSheets()[0];
       var lastRow = sheet.getLastRow();
-      if (lastRow &gt;= 7) {
-        sheet.deleteRows(7, lastRow - 6);
+      if (lastRow &gt;= 3) {
+        sheet.deleteRows(3, lastRow - 2);
       }
       return jsonSuccess({ cleared: true });
     }
@@ -2654,36 +2654,27 @@ function dinhDangDongKhachSi(sheet, row) {
                     if (sheetOrders.length > 0) {
                         sheetOrders.reverse(); // Đơn hàng mới nhất lên đầu danh sách
 
-                        // Danh sách mã đơn đã xóa thủ công
-                        let deletedOrders = new Set();
-                        try {
-                            deletedOrders = new Set(JSON.parse(localStorage.getItem('baco_deleted_orders') || '[]'));
-                        } catch(e) {}
-
-                        // Giữ lại trạng thái đơn hàng mà admin đã cập nhật thủ công
+                        // Giữ lại các đơn hàng vừa mới đặt trong vòng 10 phút trên máy này mà chưa kịp có trên Google Sheet
                         let localOrders = [];
-                        const localStatusMap = new Map();
                         try {
                             localOrders = JSON.parse(localStorage.getItem('baco_orders') || '[]');
-                            localOrders.forEach(o => {
-                                if (o.orderCode && o.status) localStatusMap.set(o.orderCode, o.status);
-                            });
                         } catch (e) {}
 
-                        sheetOrders.forEach(o => {
-                            if (localStatusMap.has(o.orderCode)) {
-                                o.status = localStatusMap.get(o.orderCode);
-                            }
+                        const tenMinsAgo = Date.now() - 10 * 60 * 1000;
+                        const pendingLocalOrders = localOrders.filter(lo => {
+                            const isFresh = (lo.createdAt && lo.createdAt > tenMinsAgo);
+                            const notOnSheet = !sheetOrders.some(so => so.orderCode === lo.orderCode);
+                            return isFresh && notOnSheet;
                         });
 
-                        // Kết hợp các đơn mới tạo từ local (chưa kịp lên Sheet) và đơn từ Sheet
-                        const combined = [...localOrders, ...sheetOrders];
-                        const seenOrders = new Set();
-                        orders = combined.filter(o => {
-                            if (!o.orderCode || seenOrders.has(o.orderCode) || deletedOrders.has(o.orderCode)) return false;
-                            seenOrders.add(o.orderCode);
-                            return true;
-                        });
+                        // Google Sheet là nguồn dữ liệu chuẩn xác nhất từ mọi thiết bị (cập nhật trạng thái và xóa đồng bộ)
+                        orders = [...pendingLocalOrders, ...sheetOrders];
+                        localStorage.setItem('baco_orders', JSON.stringify(orders));
+                        renderOrders();
+                        renderAnalytics();
+                    } else {
+                        // Nếu Google Sheet rỗng (đã xóa sạch đơn trên thiết bị khác)
+                        orders = [];
                         localStorage.setItem('baco_orders', JSON.stringify(orders));
                         renderOrders();
                         renderAnalytics();
@@ -2729,34 +2720,23 @@ function dinhDangDongKhachSi(sheet, row) {
                     if (leads.length > 0) {
                         leads.reverse(); // Đại lý mới nhất lên đầu danh sách
 
-                        // Danh sách mã đại lý đã xóa thủ công
-                        let deletedLeads = new Set();
-                        try {
-                            deletedLeads = new Set(JSON.parse(localStorage.getItem('baco_deleted_leads') || '[]'));
-                        } catch(e) {}
-
                         let localLeads = [];
-                        const localLeadStatusMap = new Map();
                         try {
                             localLeads = JSON.parse(localStorage.getItem('baco_wholesale_leads') || '[]');
-                            localLeads.forEach(l => {
-                                if (l.leadCode && l.status) localLeadStatusMap.set(l.leadCode, l.status);
-                            });
                         } catch (e) {}
 
-                        leads.forEach(l => {
-                            if (localLeadStatusMap.has(l.leadCode)) {
-                                l.status = localLeadStatusMap.get(l.leadCode);
-                            }
+                        const tenMinsAgo = Date.now() - 10 * 60 * 1000;
+                        const pendingLocalLeads = localLeads.filter(ll => {
+                            const isFresh = (ll.createdAt && ll.createdAt > tenMinsAgo);
+                            const notOnSheet = !leads.some(sl => sl.leadCode === ll.leadCode);
+                            return isFresh && notOnSheet;
                         });
 
-                        const combinedLeads = [...localLeads, ...leads];
-                        const seenLeads = new Set();
-                        wholesaleLeads = combinedLeads.filter(l => {
-                            if (!l.leadCode || seenLeads.has(l.leadCode) || deletedLeads.has(l.leadCode)) return false;
-                            seenLeads.add(l.leadCode);
-                            return true;
-                        });
+                        wholesaleLeads = [...pendingLocalLeads, ...leads];
+                        localStorage.setItem('baco_wholesale_leads', JSON.stringify(wholesaleLeads));
+                        renderWholesaleLeads();
+                    } else {
+                        wholesaleLeads = [];
                         localStorage.setItem('baco_wholesale_leads', JSON.stringify(wholesaleLeads));
                         renderWholesaleLeads();
                     }
@@ -3184,15 +3164,6 @@ function dinhDangDongKhachSi(sheet, row) {
             if (!order) return;
             if (confirm(`Bạn có chắc muốn xóa đơn hàng #${order.orderCode} của "${order.name}"?`)) {
                 const targetCode = order.orderCode;
-                // Thêm vào danh sách đã xóa để không bị đồng bộ lại từ Google Sheet
-                try {
-                    const deleted = JSON.parse(localStorage.getItem('baco_deleted_orders') || '[]');
-                    if (targetCode && !deleted.includes(targetCode)) {
-                        deleted.push(targetCode);
-                        localStorage.setItem('baco_deleted_orders', JSON.stringify(deleted));
-                    }
-                } catch(e) {}
-
                 orders.splice(index, 1);
                 localStorage.setItem('baco_orders', JSON.stringify(orders));
                 renderOrders();
@@ -3204,6 +3175,8 @@ function dinhDangDongKhachSi(sheet, row) {
                 syncToGoogleSheet({
                     action: 'delete_order',
                     orderCode: targetCode
+                }).then(() => {
+                    setTimeout(() => fetchOrdersFromGoogleSheet(true), 1200);
                 });
             }
         }
@@ -3221,20 +3194,14 @@ function dinhDangDongKhachSi(sheet, row) {
                     action: 'update_order_status',
                     orderCode: targetCode,
                     status: newStatus
+                }).then(() => {
+                    setTimeout(() => fetchOrdersFromGoogleSheet(true), 1200);
                 });
             }
         }
 
         function clearAllOrders() {
             if (confirm('Bạn có chắc muốn dọn sạch danh sách đơn hàng không?')) {
-                try {
-                    const deleted = JSON.parse(localStorage.getItem('baco_deleted_orders') || '[]');
-                    orders.forEach(o => {
-                        if (o.orderCode && !deleted.includes(o.orderCode)) deleted.push(o.orderCode);
-                    });
-                    localStorage.setItem('baco_deleted_orders', JSON.stringify(deleted));
-                } catch(e) {}
-
                 orders = [];
                 localStorage.setItem('baco_orders', JSON.stringify(orders));
                 renderOrders();
@@ -3245,6 +3212,8 @@ function dinhDangDongKhachSi(sheet, row) {
                 // Đồng bộ dọn sạch toàn bộ đơn trên Google Sheet
                 syncToGoogleSheet({
                     action: 'clear_all_orders'
+                }).then(() => {
+                    setTimeout(() => fetchOrdersFromGoogleSheet(true), 1200);
                 });
             }
         }
@@ -3461,6 +3430,8 @@ function dinhDangDongKhachSi(sheet, row) {
                     action: 'update_wholesale_status',
                     leadCode: targetCode,
                     status: newStatus
+                }).then(() => {
+                    setTimeout(() => fetchOrdersFromGoogleSheet(true), 1200);
                 });
             }
         }
@@ -3470,15 +3441,6 @@ function dinhDangDongKhachSi(sheet, row) {
             if (!lead) return;
             if (confirm(`Bạn có chắc muốn xóa đối tác đại lý "${lead.name}" (#${lead.leadCode})?`)) {
                 const targetCode = lead.leadCode;
-                // Thêm vào danh sách đã xóa để không bị đồng bộ lại từ Google Sheet
-                try {
-                    const deleted = JSON.parse(localStorage.getItem('baco_deleted_leads') || '[]');
-                    if (targetCode && !deleted.includes(targetCode)) {
-                        deleted.push(targetCode);
-                        localStorage.setItem('baco_deleted_leads', JSON.stringify(deleted));
-                    }
-                } catch(e) {}
-
                 wholesaleLeads.splice(index, 1);
                 localStorage.setItem('baco_wholesale_leads', JSON.stringify(wholesaleLeads));
                 renderWholesaleLeads();
@@ -3489,20 +3451,14 @@ function dinhDangDongKhachSi(sheet, row) {
                 syncToGoogleSheet({
                     action: 'delete_wholesale',
                     leadCode: targetCode
+                }).then(() => {
+                    setTimeout(() => fetchOrdersFromGoogleSheet(true), 1200);
                 });
             }
         }
 
         function clearAllWholesaleLeads() {
             if (confirm('Bạn có chắc muốn dọn sạch toàn bộ danh sách khách sỉ & đại lý thử nghiệm?')) {
-                try {
-                    const deleted = JSON.parse(localStorage.getItem('baco_deleted_leads') || '[]');
-                    wholesaleLeads.forEach(l => {
-                        if (l.leadCode && !deleted.includes(l.leadCode)) deleted.push(l.leadCode);
-                    });
-                    localStorage.setItem('baco_deleted_leads', JSON.stringify(deleted));
-                } catch(e) {}
-
                 wholesaleLeads = [];
                 localStorage.setItem('baco_wholesale_leads', JSON.stringify(wholesaleLeads));
                 renderWholesaleLeads();
@@ -3512,6 +3468,8 @@ function dinhDangDongKhachSi(sheet, row) {
                 // Đồng bộ dọn sạch toàn bộ đại lý trên Google Sheet
                 syncToGoogleSheet({
                     action: 'clear_all_wholesale'
+                }).then(() => {
+                    setTimeout(() => fetchOrdersFromGoogleSheet(true), 1200);
                 });
             }
         }
