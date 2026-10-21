@@ -562,49 +562,46 @@
 
             grid.innerHTML = list.map(p => {
                 const safeName = (p.name || '').replace(/'/g, "\\'");
-                const badgeBg = (p.tag === 'Combo Quà Biếu') ? 'bg-rose-600 text-white'
-                              : (p.tag === 'Tiết Kiệm') ? 'bg-teal-600 text-white'
-                              : 'bg-amber-500 text-slate-950';
+                const tagColor = (p.tag === 'Combo Quà Biếu') ? 'bg-rose-500 text-white'
+                               : (p.tag === 'Tiết Kiệm') ? 'bg-teal-600 text-white'
+                               : 'bg-amber-500 text-slate-950 font-bold';
 
                 const stockBtn = p.inStock
-                    ? `<button type="button" onclick="addToCart('${safeName}', ${p.price})" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold px-2.5 sm:px-3 py-2 rounded-xl transition active:scale-95 text-xs flex items-center justify-center shrink-0" title="Thêm vào giỏ">
+                    ? `<button type="button" onclick="addToCart('${safeName}', ${p.price})" class="bg-amber-50 hover:bg-amber-100 text-amber-900 font-semibold px-2.5 py-2 rounded-xl transition active:scale-95 text-xs flex items-center justify-center shrink-0 border border-amber-200/60" title="Thêm vào giỏ">
                            <span>🛒</span>
                        </button>
-                       <button type="button" onclick="buyNow('${safeName}', ${p.price})" class="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black py-2 px-2 rounded-xl transition shadow-xs active:scale-95 text-[11px] sm:text-xs text-center">
-                           Mua Ngay
+                       <button type="button" onclick="buyNow('${safeName}', ${p.price})" class="flex-1 bg-slate-950 hover:bg-slate-900 text-white font-bold py-2 px-2.5 rounded-xl transition shadow-xs active:scale-95 text-[11px] sm:text-xs text-center">
+                           Đặt Mua
                        </button>`
-                    : `<button disabled class="w-full bg-slate-200 text-slate-500 font-semibold py-2 rounded-xl text-[11px] cursor-not-allowed">🔴 Tạm Hết</button>`;
+                    : `<button disabled class="w-full bg-slate-100 text-slate-400 font-medium py-2 rounded-xl text-[11px] cursor-not-allowed">Tạm Hết</button>`;
 
                 return `
-                    <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/80 flex flex-col justify-between group">
+                    <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-lg transition-all duration-300 overflow-hidden border border-slate-200/70 flex flex-col justify-between group">
                         <div>
-                            <div onclick="openProductQuickView('${p.id}')" class="h-32 sm:h-48 relative overflow-hidden bg-slate-100 cursor-pointer">
+                            <div onclick="openProductQuickView('${p.id}')" class="h-36 sm:h-52 relative overflow-hidden bg-slate-100 cursor-pointer">
                                 <img src="${p.image || './pictrure/1.jpg'}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/65 via-transparent to-transparent"></div>
-                                <span class="absolute top-2 left-2 ${badgeBg} text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-full shadow">
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
+                                <span class="absolute top-2.5 left-2.5 ${tagColor} text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-xs">
                                     ${p.tag || 'Đặc Biệt'}
                                 </span>
-                                <div class="absolute bottom-1.5 left-2 right-2 flex justify-between items-center text-white text-[9px] sm:text-[11px]">
-                                    <span class="truncate max-w-[70%]">${p.unit || 'Chai 500ml'}</span>
-                                    <span onclick="event.stopPropagation(); openReviewModal('${safeName}')" class="text-amber-300 font-bold hover:underline hover:scale-110 transition cursor-pointer select-none" title="Bấm để đánh giá sản phẩm này">★ 4.9</span>
+                                <div class="absolute bottom-2 left-2.5 right-2.5 flex justify-between items-center text-white text-[9px] sm:text-xs">
+                                    <span class="truncate max-w-[70%] opacity-90">${p.unit || 'Chai 500ml'}</span>
+                                    <span onclick="event.stopPropagation(); openReviewModal('${safeName}')" class="text-amber-300 font-semibold hover:underline transition cursor-pointer select-none">★ 4.9</span>
                                 </div>
                             </div>
-                            <div class="p-2.5 sm:p-4 space-y-1">
-                                <div class="flex items-center justify-between gap-1 text-[9px] sm:text-[10px] whitespace-nowrap overflow-hidden">
-                                    <span class="font-bold text-teal-700 uppercase tracking-wider truncate">${p.category || 'Đặc Sản'}</span>
-                                    <span class="font-bold text-amber-900 bg-amber-100 px-1.5 py-0.5 rounded text-[8px] sm:text-[9px] shrink-0">${p.tag || 'VIP'}</span>
+                            <div class="p-3 sm:p-4 space-y-1">
+                                <div class="text-[10px] font-semibold text-teal-800 uppercase tracking-wider truncate">
+                                    ${p.category || 'Đặc Sản'}
                                 </div>
-                                <h3 onclick="openProductQuickView('${p.id}')" class="font-serif font-bold text-xs sm:text-base text-slate-900 group-hover:text-amber-700 transition line-clamp-2 min-h-[2rem] sm:min-h-[2.75rem] leading-snug cursor-pointer">
+                                <h3 onclick="openProductQuickView('${p.id}')" class="font-serif font-bold text-xs sm:text-base text-slate-900 group-hover:text-amber-700 transition line-clamp-2 min-h-[2rem] sm:min-h-[2.6rem] leading-snug cursor-pointer">
                                     ${p.name}
                                 </h3>
-                                <p class="hidden sm:line-clamp-2 text-slate-500 text-[11px] leading-relaxed">${p.desc || ''}</p>
-                                <div class="pt-1 flex items-baseline justify-between border-t border-slate-100 whitespace-nowrap">
+                                <div class="pt-1 flex items-baseline justify-between whitespace-nowrap">
                                     <span class="text-sm sm:text-lg font-black text-amber-700 shrink-0">${Number(p.price).toLocaleString('vi-VN')} đ</span>
-                                    <span class="text-[9px] sm:text-[11px] text-slate-400 truncate ml-1">/ ${p.unit || 'chai'}</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="p-2.5 sm:p-4 pt-0 flex gap-1.5">
+                        <div class="p-3 sm:p-4 pt-0 flex gap-1.5">
                             ${stockBtn}
                         </div>
                     </div>
@@ -866,6 +863,10 @@
                     box.innerHTML = `🎉 Đặt hàng thành công mã <strong>#${orderCode}</strong>! Tổng: <strong>${totalAmount.toLocaleString('vi-VN')} đ</strong>.`;
                     box.classList.remove('hidden');
                     showToast('Đặt hàng thành công!');
+                    setTimeout(() => {
+                        if (box) box.classList.add('hidden');
+                        closeCheckoutModal();
+                    }, 3500);
                 }
             });
         }

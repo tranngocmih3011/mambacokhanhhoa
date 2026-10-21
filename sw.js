@@ -1,5 +1,22 @@
 // Service Worker cho Nước Mắm Ba Cô Admin (Hỗ trợ PWA & Web Push Notification trên iOS 16.4+, Android & PC)
-const CACHE_NAME = 'baco-admin-v2';
+const CACHE_NAME = 'baco-admin-v3';
+
+async function syncSwAppBadge(explicitCount) {
+    try {
+        if (!self.navigator || typeof self.navigator.setAppBadge !== 'function') return;
+        if (typeof explicitCount === 'number') {
+            if (explicitCount > 0) {
+                await self.navigator.setAppBadge(explicitCount);
+            } else if (typeof self.navigator.clearAppBadge === 'function') {
+                await self.navigator.clearAppBadge();
+            }
+            return;
+        }
+        const activeNotifs = await self.registration.getNotifications();
+        const count = (activeNotifs && activeNotifs.length) ? activeNotifs.length : 1;
+        await self.navigator.setAppBadge(count);
+    } catch (e) {}
+}
 
 self.addEventListener('install', (event) => {
     self.skipWaiting();
@@ -9,9 +26,14 @@ self.addEventListener('activate', (event) => {
     event.waitUntil(self.clients.claim());
 });
 
-// Lắng nghe lệnh hiển thị thông báo đẩy từ client script
+// Lắng nghe lệnh hiển thị thông báo đẩy hoặc cập nhật badge từ client script
 self.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
+    if (!event.data) return;
+    if (event.data.type === 'SET_APP_BADGE') {
+        event.waitUntil(syncSwAppBadge(Number(event.data.count || 0)));
+        return;
+    }
+    if (event.data.type === 'SHOW_NOTIFICATION') {
         const payload = event.data.payload || {};
         const options = {
             body: payload.body || 'Bạn có thông báo mới',
@@ -27,7 +49,10 @@ self.addEventListener('message', (event) => {
                 type: payload.type || 'orders'
             }
         };
-        self.registration.showNotification(payload.title || '🔔 Nước Mắm Ba Cô', options);
+        event.waitUntil(
+            self.registration.showNotification(payload.title || '🔔 Nước Mắm Ba Cô', options)
+                .then(() => syncSwAppBadge(payload.badgeCount))
+        );
     }
 });
 
@@ -60,6 +85,7 @@ self.addEventListener('push', (event) => {
 
     event.waitUntil(
         self.registration.showNotification(data.title || '🔔 Nước Mắm Ba Cô', options)
+            .then(() => syncSwAppBadge())
     );
 });
 
