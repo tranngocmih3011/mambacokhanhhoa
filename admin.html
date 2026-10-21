@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Quản Trị Ba Cô Khánh Hòa</title>
+    <!-- Cấu hình PWA & App Độc Lập cho iPhone (iOS Standalone) -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Ba Cô Admin">
+    <link rel="apple-touch-icon" href="./pictrure/logo.JPG">
+    <link rel="apple-touch-icon" sizes="180x180" href="./pictrure/logo.JPG">
+    <link rel="icon" type="image/jpeg" href="./pictrure/logo.JPG">
+    <meta name="theme-color" content="#b45309">
+    <meta name="mobile-web-app-capable" content="yes">
+
     <!-- Hệ thống bảo mật & Chống xem mã nguồn F12 -->
     <script src="./security.js"></script>
     <!-- Tailwind CSS CDN -->
@@ -1288,7 +1299,43 @@
                     </div>
                 </div>
 
-                <!-- Bộ Lọc Phân Loại Thông Báo -->
+                <!-- Bảng Trạng Thái Chuông & Thông Báo Đẩy Chuẩn iOS App -->
+                <div class="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-300/80 rounded-2xl p-3.5 sm:p-4 shadow-xs space-y-2.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2.5">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-800 flex items-center justify-center text-xl flex-shrink-0">
+                                🔔
+                            </div>
+                            <div>
+                                <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center space-x-1.5">
+                                    <span>Chuông & Thông Báo Đẩy (Như App)</span>
+                                    <span id="pushStatusBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">Đang kiểm tra...</span>
+                                </h3>
+                                <p class="text-[11px] text-slate-500 leading-tight">Kêu Ting-Ting & hiện biểu ngữ khi có khách đặt đơn mới hoặc đăng ký đại lý</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2 ml-auto">
+                            <!-- Nút Thử Chuông Ting Ting -->
+                            <button type="button" onclick="testNotificationChime()" 
+                                    class="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs px-3 py-2 rounded-xl shadow-xs transition flex items-center space-x-1.5 ios-press">
+                                <span>🔊</span>
+                                <span>Thử Chuông Ting-Ting</span>
+                            </button>
+                            <!-- Nút Bật Quyền Thông Báo -->
+                            <button type="button" id="btnEnablePush" onclick="requestNotificationPermission()" 
+                                    class="bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 font-bold text-xs px-3 py-2 rounded-xl shadow-xs transition flex items-center space-x-1.5 ios-press">
+                                <span>📲</span>
+                                <span>Bật Thông Báo Đẩy</span>
+                            </button>
+                            <!-- Nút Hướng Dẫn Thêm Màn Hình Chính iPhone -->
+                            <button type="button" onclick="openIosPwaGuideModal()" 
+                                    class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs px-3 py-2 rounded-xl transition flex items-center space-x-1.5 ios-press" title="Hướng dẫn đưa ra Màn hình chính iPhone">
+                                <span>📱</span>
+                                <span>Cài App iPhone</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <div class="flex flex-wrap items-center justify-between gap-2 bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-xs">
                     <div class="flex items-center space-x-1.5 text-xs font-semibold overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
                         <button type="button" onclick="setNotificationFilter('all')" id="btnNotifFilter-all" class="px-3 py-1.5 rounded-xl bg-slate-900 text-white font-bold transition">Tất cả (<span id="countNotifFilter-all">0</span>)</button>
@@ -1527,6 +1574,66 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL HƯỚNG DẪN CÀI ĐẶT RA MÀN HÌNH CHÍNH IPHONE (PWA APP) -->
+    <div id="iosPwaGuideModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+        <div class="bg-white rounded-t-[28px] sm:rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl relative border border-slate-100 max-h-[92vh] overflow-y-auto space-y-4">
+            <div class="w-10 h-1.5 bg-slate-300 rounded-full mx-auto sm:hidden mb-1"></div>
+
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl">📱</span>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900">Cài Ba Cô Admin Vào iPhone</h3>
+                        <p class="text-[11px] text-slate-500">Hoạt động toàn màn hình & có chuông như App tải từ App Store</p>
+                    </div>
+                </div>
+                <button onclick="closeIosPwaGuideModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold transition ios-press">✕</button>
+            </div>
+
+            <div class="space-y-3 text-xs text-slate-700">
+                <div class="flex items-start space-x-3 bg-amber-50 p-3 rounded-2xl border border-amber-200/80">
+                    <div class="w-6 h-6 rounded-full bg-amber-600 text-white font-bold flex items-center justify-center flex-shrink-0 text-xs">1</div>
+                    <div class="space-y-0.5">
+                        <p class="font-bold text-slate-900">Mở Safari trên iPhone</p>
+                        <p class="text-[11px] text-slate-600">Đảm bảo bạn đang mở trang quản trị bằng trình duyệt <strong>Safari</strong>.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-3 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                    <div class="w-6 h-6 rounded-full bg-amber-600 text-white font-bold flex items-center justify-center flex-shrink-0 text-xs">2</div>
+                    <div class="space-y-0.5">
+                        <p class="font-bold text-slate-900">Bấm nút "Chia sẻ" (Share)</p>
+                        <p class="text-[11px] text-slate-600">Bấm vào biểu tượng ô vuông có mũi tên chỉ lên <span class="text-base font-bold text-blue-600">⎋</span> ở thanh dưới cùng của Safari.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-3 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                    <div class="w-6 h-6 rounded-full bg-amber-600 text-white font-bold flex items-center justify-center flex-shrink-0 text-xs">3</div>
+                    <div class="space-y-0.5">
+                        <p class="font-bold text-slate-900">Chọn "Thêm vào MH chính" (Add to Home Screen)</p>
+                        <p class="text-[11px] text-slate-600">Cuộn xuống dưới và bấm vào dòng <strong>"Thêm vào MH chính" <span class="font-bold">⊞</span></strong>, sau đó bấm <strong>"Thêm"</strong> góc trên bên phải.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-3 bg-emerald-50 p-3 rounded-2xl border border-emerald-200">
+                    <div class="w-6 h-6 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0 text-xs">4</div>
+                    <div class="space-y-0.5">
+                        <p class="font-bold text-emerald-950">Mở App & Bật Thông Báo</p>
+                        <p class="text-[11px] text-slate-600">Ra màn hình chính iPhone bấm mở icon <strong>Ba Cô Admin</strong>, bấm nút <strong>"Bật Thông Báo Đẩy"</strong> để chuông kêu Ting-Ting mỗi khi có đơn!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-2.5 bg-slate-100 rounded-xl text-[11px] text-slate-500 text-center font-medium">
+                💡 Lưu ý: Hãy đảm bảo iPhone không bật nút gạt Im Lặng (nút gạt màu cam ở cạnh trái máy) để nghe chuông to rõ.
+            </div>
+
+            <button type="button" onclick="closeIosPwaGuideModal()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-2xl text-xs transition ios-press">
+                Đã Hiểu
+            </button>
         </div>
     </div>
 
@@ -5338,6 +5445,38 @@ function dinhDangDongKhachSi(sheet, row) {
                 return 0;
             });
 
+            // Quản lý các thông báo đã biết để phát chuông Ting-Ting & hiện thông báo đẩy khi có tin MỚI
+            let seenIds = null;
+            const seenRaw = localStorage.getItem('baco_seen_notification_ids');
+            const isInitialRun = (seenRaw === null);
+            try {
+                seenIds = new Set(JSON.parse(seenRaw || '[]'));
+            } catch(e) {
+                seenIds = new Set();
+            }
+
+            let hasNewArrival = false;
+            let newestItem = null;
+
+            items.forEach(item => {
+                if (!seenIds.has(item.id)) {
+                    if (!isInitialRun && !item.read) {
+                        hasNewArrival = true;
+                        if (!newestItem) newestItem = item;
+                    }
+                    seenIds.add(item.id);
+                }
+            });
+
+            try {
+                localStorage.setItem('baco_seen_notification_ids', JSON.stringify([...seenIds]));
+            } catch(e) {}
+
+            // Nếu có đơn hàng mới hoặc khách sỉ mới vừa về: Phát chuông Ting-Ting và bắn thông báo đẩy!
+            if (hasNewArrival && newestItem) {
+                triggerSystemPushNotification(newestItem.title, newestItem.message, { targetTab: newestItem.targetTab, targetSubTab: newestItem.targetSubTab });
+            }
+
             notifications = items;
             updateNotificationBadges();
         }
@@ -5618,6 +5757,224 @@ function dinhDangDongKhachSi(sheet, row) {
             if (showToastMsg) showAdminToast('✅ Đã làm mới thông báo thành công!', 'success');
         }
 
+        // ================= HỆ THỐNG CHUÔNG TING-TING & THÔNG BÁO ĐẨY IPHONE (PWA APP) =================
+        let bacoAudioCtx = null;
+        let bacoSwReg = null;
+
+        function getBacoAudioContext() {
+            if (!bacoAudioCtx) {
+                const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioCtxClass) {
+                    bacoAudioCtx = new AudioCtxClass();
+                }
+            }
+            if (bacoAudioCtx && bacoAudioCtx.state === 'suspended') {
+                bacoAudioCtx.resume().catch(() => {});
+            }
+            return bacoAudioCtx;
+        }
+
+        // Mở khóa âm thanh ngay khi người dùng chạm vào màn hình (Yêu cầu bắt buộc của Safari iPhone)
+        function unlockAudioEngine() {
+            getBacoAudioContext();
+        }
+        window.addEventListener('touchstart', unlockAudioEngine, { passive: true });
+        window.addEventListener('click', unlockAudioEngine, { passive: true });
+
+        // Hàm phát âm thanh "Ting-Ting" thanh thoát chuẩn chuông ứng dụng Apple
+        function playChimeSound() {
+            try {
+                const ctx = getBacoAudioContext();
+                if (!ctx) return;
+
+                const now = ctx.currentTime;
+
+                // Tiếng Ting thứ 1 (Nốt C6 ~ 1046.5Hz)
+                const osc1 = ctx.createOscillator();
+                const gain1 = ctx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(1046.5, now);
+
+                gain1.gain.setValueAtTime(0, now);
+                gain1.gain.linearRampToValueAtTime(0.3, now + 0.015);
+                gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+
+                osc1.connect(gain1);
+                gain1.connect(ctx.destination);
+
+                osc1.start(now);
+                osc1.stop(now + 0.5);
+
+                // Tiếng Ting thứ 2 cao hơn và ngân dài hơn (Nốt G6 ~ 1567.98Hz)
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(1567.98, now + 0.12);
+
+                gain2.gain.setValueAtTime(0, now + 0.12);
+                gain2.gain.linearRampToValueAtTime(0.35, now + 0.135);
+                gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.9);
+
+                osc2.connect(gain2);
+                gain2.connect(ctx.destination);
+
+                osc2.start(now + 0.12);
+                osc2.stop(now + 0.95);
+
+                // Âm rung chuông ngân cao (Harmonic Shimmer nốt C7 ~ 2093Hz)
+                const osc3 = ctx.createOscillator();
+                const gain3 = ctx.createGain();
+                osc3.type = 'triangle';
+                osc3.frequency.setValueAtTime(2093, now + 0.12);
+
+                gain3.gain.setValueAtTime(0, now + 0.12);
+                gain3.gain.linearRampToValueAtTime(0.08, now + 0.135);
+                gain3.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+
+                osc3.connect(gain3);
+                gain3.connect(ctx.destination);
+
+                osc3.start(now + 0.12);
+                osc3.stop(now + 0.65);
+
+                // Rung phản hồi xúc giác trên iPhone / Điện thoại (Haptic feedback)
+                if (navigator.vibrate) {
+                    navigator.vibrate([150, 70, 200]);
+                }
+            } catch(e) {
+                console.warn('Audio Chime:', e);
+            }
+        }
+
+        // Đăng ký Service Worker và kiểm tra quyền thông báo
+        function initPushNotifications() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js').then(reg => {
+                    bacoSwReg = reg;
+                }).catch(() => {});
+            }
+            updatePushStatusBadge();
+        }
+
+        function updatePushStatusBadge() {
+            const badge = document.getElementById('pushStatusBadge');
+            const btn = document.getElementById('btnEnablePush');
+            if (!badge) return;
+
+            if (!('Notification' in window)) {
+                badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700";
+                badge.textContent = "Thiết bị chưa hỗ trợ Push";
+                if (btn) btn.classList.add('hidden');
+                return;
+            }
+
+            if (Notification.permission === 'granted') {
+                badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+                badge.textContent = "🟢 Đã Bật Chuông & Đẩy";
+                if (btn) {
+                    btn.innerHTML = '<span>✅</span><span>Đã Bật Thông Báo</span>';
+                    btn.classList.add('opacity-70');
+                }
+            } else if (Notification.permission === 'denied') {
+                badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300";
+                badge.textContent = "🔴 Đang Chặn (Cần Mở Cài Đặt)";
+                if (btn) {
+                    btn.innerHTML = '<span>⚙️</span><span>Cài Đặt Safari</span>';
+                    btn.classList.remove('opacity-70');
+                }
+            } else {
+                badge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 animate-pulse";
+                badge.textContent = "🟡 Chưa Kích Hoạt";
+                if (btn) {
+                    btn.innerHTML = '<span>📲</span><span>Bật Thông Báo Đẩy</span>';
+                    btn.classList.remove('opacity-70');
+                }
+            }
+        }
+
+        async function requestNotificationPermission() {
+            unlockAudioEngine();
+            if (!('Notification' in window)) {
+                showAdminToast('Trình duyệt này không hỗ trợ Web Notification! Hãy thêm ra màn hình chính trên iOS 16.4+.', 'error');
+                return;
+            }
+
+            if (Notification.permission === 'granted') {
+                showAdminToast('Thông báo đẩy và chuông Ting-Ting đã sẵn sàng hoạt động!', 'success');
+                testNotificationChime();
+                return;
+            }
+
+            if (Notification.permission === 'denied') {
+                showAdminToast('Bạn đang tắt thông báo. Vui lòng vào Cài đặt iPhone > Safari > Cho phép Thông báo.', 'error');
+                return;
+            }
+
+            try {
+                const permission = await Notification.requestPermission();
+                updatePushStatusBadge();
+                if (permission === 'granted') {
+                    showAdminToast('🎉 Đã kích hoạt chuông & thông báo đẩy thành công!', 'success');
+                    testNotificationChime();
+                } else {
+                    showAdminToast('Chưa cấp quyền thông báo đẩy.', 'info');
+                }
+            } catch (err) {
+                showAdminToast('Lỗi cấp quyền: ' + err.message, 'error');
+            }
+        }
+
+        function testNotificationChime() {
+            unlockAudioEngine();
+            playChimeSound();
+            triggerSystemPushNotification(
+                '🛒 [THỬ CHUÔNG] Đơn Hàng Mới #BC999',
+                'Khách: Chị Lan Anh (0985 520 678) vừa đặt 2 Chai Thượng Hạng 40° Đạm - Chuông Ting-Ting kêu như App!',
+                { url: './admin.html' }
+            );
+            showAdminToast('🔔 Đang thử chuông Ting-Ting & Thông báo đẩy...', 'success');
+        }
+
+        function triggerSystemPushNotification(title, body, data = {}) {
+            playChimeSound();
+
+            // Nhấp nháy tiêu đề tab trình duyệt
+            const originalTitle = document.title;
+            document.title = '🔔 ' + title;
+            setTimeout(() => { document.title = originalTitle; }, 4000);
+
+            // 1. Gửi qua Service Worker (Chuẩn PWA trên iOS 16.4+ và Android)
+            if (bacoSwReg && bacoSwReg.showNotification && Notification.permission === 'granted') {
+                bacoSwReg.showNotification(title, {
+                    body: body,
+                    icon: './pictrure/logo.JPG',
+                    badge: './pictrure/logo.JPG',
+                    vibrate: [200, 100, 200, 100, 200],
+                    tag: 'baco-notif-' + Date.now(),
+                    renotify: true,
+                    data: data
+                }).catch(() => {
+                    try {
+                        new Notification(title, { body: body, icon: './pictrure/logo.JPG' });
+                    } catch(e) {}
+                });
+            } else if ('Notification' in window && Notification.permission === 'granted') {
+                try {
+                    new Notification(title, { body: body, icon: './pictrure/logo.JPG' });
+                } catch(e) {}
+            }
+        }
+
+        function openIosPwaGuideModal() {
+            const m = document.getElementById('iosPwaGuideModal');
+            if (m) m.classList.remove('hidden');
+        }
+
+        function closeIosPwaGuideModal() {
+            const m = document.getElementById('iosPwaGuideModal');
+            if (m) m.classList.add('hidden');
+        }
+
         // ================= THÔNG BÁO TOAST DẠNG BANNER APPLE =================
         function showAdminToast(message, type = 'success') {
             const container = document.getElementById('adminToastContainer');
@@ -5638,9 +5995,10 @@ function dinhDangDongKhachSi(sheet, row) {
             }, 3000);
         }
 
-        // Tự động nạp dữ liệu CMS khi mở trang admin
+        // Tự động nạp dữ liệu CMS và kích hoạt Service Worker khi mở trang admin
         window.addEventListener('DOMContentLoaded', () => {
             loadSiteContentIntoAdmin();
+            initPushNotifications();
         });
     </script>
 </body>

@@ -1,0 +1,25 @@
+{
+  "name": "Nước Mắm Ba Cô - Quản Trị",
+  "short_name": "Ba Cô Admin",
+  "description": "Quản lý đơn hàng & khách sỉ Nước Mắm Ba Cô Khánh Hòa",
+  "start_url": "./admin.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f2f2f7",
+  "theme_color": "#b45309",
+  "icons": [
+    {
+      "src": "./pictrure/logo.JPG",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./pictrure/logo.JPG",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
