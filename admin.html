@@ -1360,6 +1360,12 @@
                                 <span>📲</span>
                                 <span>Bật Thông Báo Đẩy</span>
                             </button>
+                            <!-- Nút Báo Đơn Telegram (Chuông to khi khóa màn hình) -->
+                            <button type="button" onclick="openTelegramGuideModal()" 
+                                    class="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition flex items-center space-x-1.5 ios-press" title="Kêu to trên iPhone kể cả khi khóa máy và ở ngoài MH chính">
+                                <span>✈️</span>
+                                <span>Báo Đơn Telegram</span>
+                            </button>
                             <!-- Nút Hướng Dẫn Thêm Màn Hình Chính iPhone -->
                             <button type="button" onclick="openIosPwaGuideModal()" 
                                     class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs px-3 py-2 rounded-xl transition flex items-center space-x-1.5 ios-press" title="Hướng dẫn đưa ra Màn hình chính iPhone">
@@ -2446,6 +2452,57 @@ function dinhDangDongKhachSi(sheet, row) {
 </pre>
                 <button type="button" onclick="copyAppsScriptCode()" class="mt-2.5 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow transition ios-press">
                     📋 Sao Chép Toàn Bộ Mã Apps Script Đầy Đủ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CẤU HÌNH BÁO ĐƠN TỨC THÌ VỀ TELEGRAM BOT (ĐÁNH THỨC IPHONE KHI KHÓA MÁY) -->
+    <div id="telegramGuideModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl">✈️</span>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Báo Đơn Telegram (Chuông Kêu Khi Khóa Máy)</h3>
+                        <p class="text-xs text-slate-500">Đánh thức iPhone 100% dù tắt màn hình hay ở ngoài MH chính</p>
+                    </div>
+                </div>
+                <button onclick="closeTelegramGuideModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 font-bold">✕</button>
+            </div>
+
+            <div class="text-xs text-slate-600 space-y-2 bg-sky-50/70 p-3.5 rounded-2xl border border-sky-200">
+                <p class="font-bold text-sky-950">💡 Cách kết nối Telegram siêu nhanh (1 phút):</p>
+                <ol class="list-decimal pl-4 space-y-1.5 text-sky-900">
+                    <li>Mở app <strong>Telegram</strong> trên iPhone, tìm bot <strong>@BotFather</strong>.</li>
+                    <li>Gửi lệnh <code>/newbot</code>, đặt tên cho bot. Bạn sẽ nhận được <strong>Bot Token</strong> (dạng <code>789123456:AAH...</code>).</li>
+                    <li>Tìm bot <strong>@userinfobot</strong>, bấm <strong>Start</strong> để lấy <strong>Chat ID</strong> (dạng dãy số <code>987654321</code>).</li>
+                    <li>Dán vào 2 ô bên dưới rồi bấm <strong>Lưu & Thử Gửi Báo Đơn</strong>!</li>
+                </ol>
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Telegram Bot Token:</label>
+                    <input type="text" id="tgBotTokenInput" placeholder="Ví dụ: 789123456:AAH..." 
+                           class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-sky-500 font-mono">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Telegram Chat ID Của Bạn:</label>
+                    <input type="text" id="tgChatIdInput" placeholder="Ví dụ: 987654321" 
+                           class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-sky-500 font-mono">
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2 pt-1">
+                <button type="button" onclick="saveAndTestTelegramConfig()" 
+                        class="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 rounded-xl text-xs shadow transition flex items-center justify-center space-x-1.5 ios-press">
+                    <span>🚀</span>
+                    <span>Lưu & Bắn Thử Báo Đơn</span>
+                </button>
+                <button type="button" onclick="closeTelegramGuideModal()" 
+                        class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition">
+                    Đóng
                 </button>
             </div>
         </div>
@@ -5639,9 +5696,21 @@ function dinhDangDongKhachSi(sheet, row) {
         }
 
 
-        function openTelegramGuideModal() {
+        async function openTelegramGuideModal() {
             const m = document.getElementById('telegramGuideModal');
             if (m) m.classList.remove('hidden');
+            try {
+                const res = await fetch('https://api.restful-api.dev/objects/ff808181a09d98f701a15e3ab16c3de8');
+                if (res.ok) {
+                    const d = await res.json();
+                    if (d && d.data && d.data.telegram) {
+                        const tokenEl = document.getElementById('tgBotTokenInput');
+                        const chatEl = document.getElementById('tgChatIdInput');
+                        if (tokenEl && !tokenEl.value) tokenEl.value = d.data.telegram.botToken || '';
+                        if (chatEl && !chatEl.value) chatEl.value = d.data.telegram.chatId || '';
+                    }
+                }
+            } catch(e) {}
         }
 
         function closeTelegramGuideModal() {
@@ -6404,8 +6473,8 @@ function dinhDangDongKhachSi(sheet, row) {
                     });
                 }
                 
-                // Gửi subscription lên server để lưu vào Google Sheet
-                await fetch('/api/push-subscribe', {
+                // Gửi subscription lên server để lưu vào Cloud Storage bền vững
+                const res = await fetch('/api/push-subscribe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -6413,6 +6482,10 @@ function dinhDangDongKhachSi(sheet, row) {
                         userAgent: navigator.userAgent
                     })
                 });
+                const data = await res.json();
+                if (data && data.success) {
+                    showAdminToast(`📡 Đã kết nối Apple Push (${data.devicesCount} thiết bị nhận tin)!`, 'success');
+                }
                 
                 return sub;
             } catch (err) {
@@ -6442,6 +6515,19 @@ function dinhDangDongKhachSi(sheet, row) {
             const btn = document.getElementById('btnEnablePush');
             if (!badge) return;
 
+            const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+
+            if (isIos && !isStandalone) {
+                badge.className = "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300";
+                badge.textContent = "⚠️ Mở từ Màn Hình Chính để nhận Đẩy";
+                if (btn) {
+                    btn.innerHTML = '<span>📱</span><span>Cách Thêm Vào MH Chính</span>';
+                    btn.onclick = openIosPwaGuideModal;
+                }
+                return;
+            }
+
             if (!('Notification' in window)) {
                 badge.className = "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700";
                 badge.textContent = "Thiết bị chưa hỗ trợ Push";
@@ -6455,13 +6541,20 @@ function dinhDangDongKhachSi(sheet, row) {
                 if (btn) {
                     btn.innerHTML = '<span>✅</span><span>Đã Bật Đẩy Khóa Máy</span>';
                     btn.className = "bg-emerald-50 text-emerald-800 border border-emerald-300 font-bold text-xs px-3 py-2 rounded-xl transition flex items-center space-x-1.5 opacity-80 cursor-default";
+                    btn.onclick = () => {
+                        showAdminToast('Thiết bị này đã bật nhận thông báo đẩy khi khóa màn hình!', 'info');
+                        registerDevicePushSubscription();
+                    };
                 }
             } else if (Notification.permission === 'denied') {
                 badge.className = "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300";
                 badge.textContent = "🔴 Đang Chặn (Cần Mở Cài Đặt)";
                 if (btn) {
-                    btn.innerHTML = '<span>⚙️</span><span>Cài Đặt Safari</span>';
+                    btn.innerHTML = '<span>⚙️</span><span>Cài Đặt iPhone</span>';
                     btn.className = "bg-rose-50 text-rose-700 border border-rose-300 font-bold text-xs px-3 py-2 rounded-xl transition flex items-center space-x-1.5 ios-press";
+                    btn.onclick = () => {
+                        showAdminToast('Vui lòng vào Cài đặt iPhone > Thông báo > Tìm app Ba Cô > Bật Cho phép thông báo & Màn hình khóa!', 'error');
+                    };
                 }
             } else {
                 badge.className = "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 animate-pulse";
@@ -6469,6 +6562,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 if (btn) {
                     btn.innerHTML = '<span>📲</span><span>Bật Thông Báo Đẩy</span>';
                     btn.className = "bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 font-bold text-xs px-3 py-2 rounded-xl shadow-xs transition flex items-center space-x-1.5 ios-press";
+                    btn.onclick = requestNotificationPermission;
                 }
             }
         }
@@ -6539,11 +6633,60 @@ function dinhDangDongKhachSi(sheet, row) {
                 })
             }).then(r => r.json()).then(res => {
                 if (res && res.sent > 0) {
-                    showAdminToast(`📡 Đã gửi thông báo đẩy tới ${res.sent} thiết bị (kể cả khi khóa màn hình)!`, 'success');
+                    showAdminToast(`📡 Đã gửi Web Push tới ${res.sent} thiết bị (kể cả khi khóa màn hình)!`, 'success');
+                } else if (res && res.telegramSent) {
+                    showAdminToast('🚀 Đã bắn thông báo báo đơn về Telegram của bạn!', 'success');
+                } else {
+                    showAdminToast('⚠️ Chưa có thiết bị nào đăng ký nhận đẩy. Hãy mở từ Màn hình chính và bấm "Bật Thông Báo Đẩy"!', 'warning');
                 }
             }).catch(e => console.warn('Test send push err:', e));
 
             showAdminToast('🔊 Đang phát chuông & gửi biểu ngữ đẩy...', 'success');
+        }
+
+        async function saveAndTestTelegramConfig() {
+            const botToken = (document.getElementById('tgBotTokenInput').value || '').trim();
+            const chatId = (document.getElementById('tgChatIdInput').value || '').trim();
+            if (!botToken || !chatId) {
+                showAdminToast('Vui lòng điền đầy đủ Bot Token và Chat ID!', 'error');
+                return;
+            }
+
+            showAdminToast('Đang kết nối và bắn tin nhắn thử nghiệm tới Telegram...', 'info');
+            try {
+                const res = await fetch('/api/push-subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'save_telegram',
+                        botToken: botToken,
+                        chatId: chatId
+                    })
+                });
+                const data = await res.json();
+                if (data && data.success) {
+                    const pushRes = await fetch('/api/send-push', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title: '🎉 KẾT NỐI TELEGRAM THÀNH CÔNG',
+                            body: 'Hệ thống báo đơn Nước Mắm Ba Cô đã kết nối thành công! Từ nay mỗi khi có khách đặt hàng, iPhone của bạn sẽ đổ chuông và hiện thông báo ngay cả khi khóa màn hình.',
+                            code: 'TEST_TG'
+                        })
+                    });
+                    const pushData = await pushRes.json();
+                    if (pushData && pushData.telegramSent) {
+                        showAdminToast('🚀 Đã gửi tin nhắn báo đơn thử nghiệm thành công vào Telegram của bạn! Hãy mở app Telegram kiểm tra.', 'success');
+                        closeTelegramGuideModal();
+                    } else {
+                        showAdminToast('Đã lưu cấu hình! Nếu Telegram chưa nhận được tin, hãy mở Telegram tìm bot và bấm /start rồi thử lại.', 'warning');
+                    }
+                } else {
+                    showAdminToast('Lỗi lưu cấu hình: ' + (data.error || 'Thất bại'), 'error');
+                }
+            } catch(err) {
+                showAdminToast('Lỗi kết nối: ' + err.message, 'error');
+            }
         }
 
         function triggerSystemPushNotification(title, body, data = {}) {

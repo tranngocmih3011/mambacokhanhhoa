@@ -1,5 +1,5 @@
 // Service Worker cho Nước Mắm Ba Cô Admin (Hỗ trợ PWA & Web Push Notification trên iOS 16.4+, Android & PC)
-const CACHE_NAME = 'baco-admin-v1';
+const CACHE_NAME = 'baco-admin-v2';
 
 self.addEventListener('install', (event) => {
     self.skipWaiting();
@@ -17,20 +17,23 @@ self.addEventListener('message', (event) => {
             body: payload.body || 'Bạn có thông báo mới',
             icon: './pictrure/logo.JPG',
             badge: './pictrure/logo.JPG',
-            vibrate: [200, 100, 200, 100, 200],
-            tag: payload.tag || 'baco-order-' + Date.now(),
+            vibrate: [300, 100, 300, 100, 300],
+            tag: payload.tag || ('baco-order-' + Date.now()),
             renotify: true,
+            requireInteraction: true,
             data: {
-                url: payload.url || './admin.html'
+                url: payload.url || './admin.html',
+                code: payload.code || '',
+                type: payload.type || 'orders'
             }
         };
         self.registration.showNotification(payload.title || '🔔 Nước Mắm Ba Cô', options);
     }
 });
 
-// Xử lý sự kiện nhận Push từ máy chủ (nếu kết nối Web Push)
+// Xử lý sự kiện nhận Push từ máy chủ (Apple APNs / FCM / Mozilla)
 self.addEventListener('push', (event) => {
-    let data = { title: '🔔 Đơn hàng mới!', body: 'Có thông báo mới từ Nước Mắm Ba Cô', url: './admin.html' };
+    let data = { title: '🔔 Đơn Hàng Mới!', body: 'Có thông báo mới từ Nước Mắm Ba Cô', url: './admin.html', code: '', type: 'orders' };
     if (event.data) {
         try {
             data = event.data.json();
@@ -39,15 +42,19 @@ self.addEventListener('push', (event) => {
         }
     }
 
+    const uniqueTag = 'baco-' + (data.code || Date.now());
     const options = {
         body: data.body,
         icon: './pictrure/logo.JPG',
         badge: './pictrure/logo.JPG',
-        vibrate: [200, 100, 200, 100, 200],
-        tag: 'baco-order-notif',
+        vibrate: [300, 100, 300, 100, 300],
+        tag: uniqueTag,
         renotify: true,
+        requireInteraction: true,
         data: {
-            url: data.url || './admin.html'
+            url: data.url || './admin.html',
+            code: data.code || '',
+            type: data.type || 'orders'
         }
     };
 
@@ -56,15 +63,26 @@ self.addEventListener('push', (event) => {
     );
 });
 
-// Xử lý khi người dùng chạm vào thông báo trên điện thoại
+// Xử lý khi người dùng chạm vào thông báo trên điện thoại (Màn hình khóa hoặc Biểu ngữ)
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
-    const targetUrl = (event.notification.data && event.notification.data.url) || './admin.html';
+    const notifData = (event.notification && event.notification.data) || {};
+    let targetUrl = notifData.url || './admin.html';
+    if (notifData.code) {
+        targetUrl = `./admin.html?viewNotif=${encodeURIComponent(notifData.code)}&type=${encodeURIComponent(notifData.type || 'orders')}`;
+    }
 
     event.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
             for (let client of windowClients) {
                 if (client.url.includes('admin.html') && 'focus' in client) {
+                    if (notifData.code) {
+                        client.postMessage({
+                            type: 'OPEN_NOTIFICATION_ITEM',
+                            code: notifData.code,
+                            itemType: notifData.type || 'orders'
+                        });
+                    }
                     return client.focus();
                 }
             }
