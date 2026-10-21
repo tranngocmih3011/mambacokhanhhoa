@@ -1643,6 +1643,19 @@
                 localStorage.setItem('baco_wholesale_leads', JSON.stringify(leads));
             } catch(err) { console.error(err); }
 
+            // Bắn Web Push Notification đánh thức điện thoại Admin
+            fetch('/api/send-push', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: `🤝 Khách Sỉ Mới #${leadCode}`,
+                    body: `${rawName} (${cleanPhone}) đăng ký mô hình "${model}" tại ${area}`,
+                    url: './admin.html',
+                    code: leadCode,
+                    type: 'wholesale'
+                })
+            }).catch(err => console.warn('Push wholesale error:', err));
+
             // 2. Gửi qua Google Apps Script Webhook vào Tab "Khách Sỉ & Đại Lý"
             const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec';
             try {
@@ -2304,6 +2317,19 @@
                     console.warn("Lỗi reset form:", e);
                 }
             };
+
+            // Bắn Web Push Notification đánh thức điện thoại Admin (kể cả khi tắt màn hình)
+            fetch('/api/send-push', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: `🛒 Đơn Hàng Mới #${orderCode} - ${Number(totalAmount).toLocaleString('vi-VN')}đ`,
+                    body: `${rawName} (${cleanPhone}) vừa đặt ${productSummary} - ${rawAddress}`,
+                    url: './admin.html',
+                    code: orderCode,
+                    type: 'orders'
+                })
+            }).catch(err => console.warn('Push error:', err));
 
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',

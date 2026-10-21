@@ -5638,6 +5638,17 @@ function dinhDangDongKhachSi(sheet, row) {
             }
         }
 
+
+        function openTelegramGuideModal() {
+            const m = document.getElementById('telegramGuideModal');
+            if (m) m.classList.remove('hidden');
+        }
+
+        function closeTelegramGuideModal() {
+            const m = document.getElementById('telegramGuideModal');
+            if (m) m.classList.add('hidden');
+        }
+
         function openAppsScriptModal() {
             document.getElementById('appsScriptModal').classList.remove('hidden');
         }
@@ -6363,12 +6374,62 @@ function dinhDangDongKhachSi(sheet, row) {
             }, 7000);
         }
 
+        // Khóa định danh VAPID để gửi Web Push tới máy chủ Apple APNs / Google FCM khi khóa màn hình
+        const VAPID_PUBLIC_KEY = 'BNIqo8uK0d1Fm-43McRzIOp5W0lfQv8XKbWt74wIlDyGwWEOfhct4kDcWyuasywGlAgKR4ft_ZamSMiV90Nbsr8';
+
+        function urlB64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+                .replace(/\-/g, '+')
+                .replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
+        async function registerDevicePushSubscription() {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                return null;
+            }
+            try {
+                const reg = await navigator.serviceWorker.ready;
+                let sub = await reg.pushManager.getSubscription();
+                if (!sub) {
+                    sub = await reg.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlB64ToUint8Array(VAPID_PUBLIC_KEY)
+                    });
+                }
+                
+                // Gửi subscription lên server để lưu vào Google Sheet
+                await fetch('/api/push-subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subscription: sub,
+                        userAgent: navigator.userAgent
+                    })
+                });
+                
+                return sub;
+            } catch (err) {
+                console.warn('Error subscribing to push:', err);
+                return null;
+            }
+        }
+
         // Đăng ký Service Worker và đồng bộ trạng thái quyền thông báo
         function initPushNotifications() {
             initAudioChimeEngine();
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('./sw.js').then(reg => {
                     bacoSwReg = reg;
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        registerDevicePushSubscription();
+                    }
                 }).catch(err => {
                     console.log('SW register:', err);
                 });
@@ -6390,9 +6451,9 @@ function dinhDangDongKhachSi(sheet, row) {
 
             if (Notification.permission === 'granted') {
                 badge.className = "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
-                badge.textContent = "🟢 Đã Bật Chuông & Đẩy";
+                badge.textContent = "🟢 Đã Bật Khóa Màn Hình (Apple Push)";
                 if (btn) {
-                    btn.innerHTML = '<span>✅</span><span>Đã Bật Thông Báo</span>';
+                    btn.innerHTML = '<span>✅</span><span>Đã Bật Đẩy Khóa Máy</span>';
                     btn.className = "bg-emerald-50 text-emerald-800 border border-emerald-300 font-bold text-xs px-3 py-2 rounded-xl transition flex items-center space-x-1.5 opacity-80 cursor-default";
                 }
             } else if (Notification.permission === 'denied') {
@@ -6404,7 +6465,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 }
             } else {
                 badge.className = "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 animate-pulse";
-                badge.textContent = "🟡 Chưa Kích Hoạt";
+                badge.textContent = "🟡 Chưa Kích Hoạt Khóa Máy";
                 if (btn) {
                     btn.innerHTML = '<span>📲</span><span>Bật Thông Báo Đẩy</span>';
                     btn.className = "bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 font-bold text-xs px-3 py-2 rounded-xl shadow-xs transition flex items-center space-x-1.5 ios-press";
@@ -6420,7 +6481,9 @@ function dinhDangDongKhachSi(sheet, row) {
             }
 
             if (Notification.permission === 'granted') {
-                showAdminToast('Thông báo đẩy và chuông Ting-Ting đã sẵn sàng hoạt động!', 'success');
+                showAdminToast('Đang kết nối Apple Push & đăng ký thiết bị...', 'info');
+                await registerDevicePushSubscription();
+                showAdminToast('Thông báo đẩy khóa màn hình và chuông Ting-Ting đã sẵn sàng!', 'success');
                 testNotificationChime();
                 return;
             }
@@ -6434,7 +6497,9 @@ function dinhDangDongKhachSi(sheet, row) {
                 const permission = await Notification.requestPermission();
                 updatePushStatusBadge();
                 if (permission === 'granted') {
-                    showAdminToast('🎉 Đã kích hoạt chuông & thông báo đẩy thành công!', 'success');
+                    showAdminToast('🎉 Đang kích hoạt kết nối Apple Push...', 'info');
+                    await registerDevicePushSubscription();
+                    showAdminToast('🎉 Đã kích hoạt chuông & thông báo đẩy khóa màn hình thành công!', 'success');
                     testNotificationChime();
                 } else {
                     showAdminToast('Chưa cấp quyền thông báo đẩy.', 'info');
@@ -6444,7 +6509,7 @@ function dinhDangDongKhachSi(sheet, row) {
             }
         }
 
-                function testNotificationChime() {
+        function testNotificationChime() {
             unlockAudioEngine();
             let sampleCode = 'BC1';
             let sampleName = 'Chị Lan Anh';
@@ -6454,11 +6519,30 @@ function dinhDangDongKhachSi(sheet, row) {
                 sampleName = orders[0].name || 'Khách hàng';
                 sampleProduct = `${orders[0].product || 'Nước mắm'} (x${orders[0].quantity || 1})`;
             }
+
+            // 1. Kích hoạt chuông & banner nội bộ nếu đang mở app
             triggerSystemPushNotification(
                 `🛒 Đơn Hàng Mới #${sampleCode} (Thử Nghiệm)`,
                 `${sampleName} vừa đặt ${sampleProduct} - Chuông kêu Ting-Ting!`,
                 { targetTab: 'orders', targetSubTab: 'retail', code: sampleCode }
             );
+
+            // 2. Kích hoạt Web Push thực tế từ Server (Đẩy thẳng về màn hình khóa iPhone khi khóa máy hoặc mở app khác)
+            fetch('/api/send-push', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: `🛒 Đơn Hàng Mới #${sampleCode} (Thử Nghiệm)`,
+                    body: `${sampleName} vừa đặt ${sampleProduct} - Chuông kêu Ting-Ting!`,
+                    url: './admin.html',
+                    code: sampleCode
+                })
+            }).then(r => r.json()).then(res => {
+                if (res && res.sent > 0) {
+                    showAdminToast(`📡 Đã gửi thông báo đẩy tới ${res.sent} thiết bị (kể cả khi khóa màn hình)!`, 'success');
+                }
+            }).catch(e => console.warn('Test send push err:', e));
+
             showAdminToast('🔊 Đang phát chuông & gửi biểu ngữ đẩy...', 'success');
         }
 

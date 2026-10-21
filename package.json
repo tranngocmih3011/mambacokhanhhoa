@@ -1,0 +1,9 @@
+{
+  "name": "mambacokhanhhoa",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nước Mắm Truyền Thống Ba Cô Khánh Hòa",
+  "dependencies": {
+    "web-push": "^3.6.7"
+  }
+}

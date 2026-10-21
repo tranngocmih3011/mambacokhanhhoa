@@ -52,7 +52,33 @@ function khoiTaoBangSanPhamVaNoiDung() {
 }
 
 function doGet(e) {
-  return ContentService.createTextOutput("Google Apps Script 2-Way Sync (5 Bảng) & Thông báo Gmail/Zalo đang hoạt động tốt!");
+  var param = (e && e.parameter) || {};
+  if (param.action === "get_push_subscriptions") {
+    var ss = layBangTinh();
+    if (!ss) return jsonSuccess({ subscriptions: [] });
+    var sheet = ss.getSheetByName("PushTokens");
+    if (!sheet) return jsonSuccess({ subscriptions: [] });
+    var lastRow = sheet.getLastRow();
+    if (lastRow < 2) return jsonSuccess({ subscriptions: [] });
+    var values = sheet.getRange(2, 1, lastRow - 1, 5).getValues();
+    var list = [];
+    for (var i = 0; i < values.length; i++) {
+      var endpoint = String(values[i][1] || '').trim();
+      var p256dh = String(values[i][2] || '').trim();
+      var auth = String(values[i][3] || '').trim();
+      if (endpoint && p256dh && auth) {
+        list.push({
+          endpoint: endpoint,
+          keys: {
+            p256dh: p256dh,
+            auth: auth
+          }
+        });
+      }
+    }
+    return jsonSuccess({ subscriptions: list });
+  }
+  return ContentService.createTextOutput("Google Apps Script 2-Way Sync (5 Bảng) & Thông báo Gmail/Zalo/Telegram/Push đang hoạt động tốt!");
 }
 
 function doPost(e) {
@@ -93,6 +119,58 @@ function doPost(e) {
     // ========================================================
     // NHÁNH 0: ĐỒNG BỘ BẢNG SẢN PHẨM & BẢNG NỘI DUNG WEBSITE
     // ========================================================
+
+        // 0.3 Lưu Push Subscription (Tab "PushTokens")
+    if (action === "save_push_subscription" && data.subscription) {
+      var tokenSheet = ss.getSheetByName("PushTokens");
+      if (!tokenSheet) {
+        tokenSheet = ss.insertSheet("PushTokens");
+        tokenSheet.getRange("A1:E1").setValues([["Thời Gian", "Endpoint", "p256dh", "auth", "User Agent"]]);
+        tokenSheet.getRange("A1:E1").setFontWeight("bold").setBackground("#e2e8f0");
+      }
+      var sub = data.subscription;
+      var endpoint = sub.endpoint || "";
+      var keys = sub.keys || {};
+      var p256dh = keys.p256dh || "";
+      var auth = keys.auth || "";
+      var uAgent = String(data.userAgent || "").slice(0, 200);
+
+      var lastRow = tokenSheet.getLastRow();
+      var updated = false;
+      if (lastRow >= 2) {
+        var existingEndpoints = tokenSheet.getRange(2, 2, lastRow - 1, 1).getValues();
+        for (var i = 0; i < existingEndpoints.length; i++) {
+          if (existingEndpoints[i][0] === endpoint) {
+            tokenSheet.getRange(2 + i, 1, 1, 5).setValues([[nowStr, endpoint, p256dh, auth, uAgent]]);
+            updated = true;
+            break;
+          }
+        }
+      }
+      if (!updated) {
+        tokenSheet.appendRow([nowStr, endpoint, p256dh, auth, uAgent]);
+      }
+      return jsonSuccess({ saved: true });
+    }
+
+    // 0.4 Xóa Push Subscription hết hạn
+    if (action === "delete_expired_push_subscriptions" && Array.isArray(data.endpoints)) {
+      var tokenSheet = ss.getSheetByName("PushTokens");
+      if (tokenSheet) {
+        var lastRow = tokenSheet.getLastRow();
+        if (lastRow >= 2) {
+          var epSet = {};
+          data.endpoints.forEach(function(ep) { epSet[ep] = true; });
+          var rows = tokenSheet.getRange(2, 2, lastRow - 1, 1).getValues();
+          for (var i = rows.length - 1; i >= 0; i--) {
+            if (epSet[rows[i][0]]) {
+              tokenSheet.deleteRow(2 + i);
+            }
+          }
+        }
+      }
+      return jsonSuccess({ deleted: true });
+    }
 
     // 0.1 Lưu & Kẻ bảng Sản Phẩm (Tab "SanPham")
     if (action === "save_products" && data.products) {
@@ -321,6 +399,7 @@ function doPost(e) {
 
       // 🔔 GỬI EMAIL THÔNG BÁO TỨC THÌ KÈM NÚT MỞ ZALO CHAT
       sendWholesaleEmail(data, leadCode, nowStr);
+      sendTelegramWholesale(data, leadCode, nowStr);
 
       return jsonSuccess({ type: "wholesale", row: targetRow });
     }
@@ -385,6 +464,7 @@ function doPost(e) {
 
     // 🔔 GỬI EMAIL THÔNG BÁO ĐƠN HÀNG MỚI TỨC THÌ KÈM NÚT MỞ ZALO CHAT
     sendOrderEmail(data, orderCode, nowStr);
+    sendTelegramNotification(data, orderCode, nowStr);
 
     return jsonSuccess({ type: "retail", row: targetRow });
 
@@ -752,4 +832,67 @@ function dinhDangDongKhachSi(sheet, row) {
   range.setFontColors([["#64748b", "#475569", "#7e22ce", "#0f172a", "#0284c7", "#334155", "#0f172a", "#64748b", "#b45309"]]);
   range.setHorizontalAlignments([["center", "center", "center", "left", "center", "left", "left", "left", "center"]]);
   range.setFontWeights([["normal", "normal", "bold", "bold", "bold", "normal", "normal", "normal", "bold"]]);
+}
+
+// ========================================================
+// HỆ THỐNG THÔNG BÁO TELEGRAM BOT (ĐẨY KHÓA MÀN HÌNH TỨC THÌ)
+// ========================================================
+const TELEGRAM_BOT_TOKEN = ""; // Điền Token từ @BotFather (VD: 123456:ABC-DEF...)
+const TELEGRAM_CHAT_ID = "";   // Điền Chat ID cá nhân nhận tin nhắn
+
+function sendTelegramNotification(d, code, timeStr) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+  try {
+    var totalFormatted = Number(d.totalAmount || 0).toLocaleString("vi-VN") + " đ";
+    var msg = "🔔 *CÓ ĐƠN HÀNG MỚI #" + code + "*\n\n" +
+              "👤 *Khách hàng:* " + (d.name || "Khách lẻ") + "\n" +
+              "📞 *Số điện thoại:* " + (d.phone || "Chưa có") + "\n" +
+              "📍 *Địa chỉ:* " + (d.address || "Chưa có") + "\n" +
+              "🛒 *Sản phẩm:* " + (d.product || "Nước mắm") + " (x" + (d.quantity || 1) + ")\n" +
+              "💰 *Tổng tiền:* *" + totalFormatted + "* (" + (d.paymentMethod || "COD") + ")\n" +
+              "⏰ *Thời gian:* " + timeStr + "\n\n" +
+              "👉 [Bấm Vào Đây Để Mở Trang Quản Trị](https://mambacokhanhhoa.vercel.app/admin.html)";
+
+    var url = "https://api.telegram.org/bot" + TELEGRAM_BOT_TOKEN + "/sendMessage";
+    UrlFetchApp.fetch(url, {
+      method: "post",
+      contentType: "application/json",
+      payload: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: msg,
+        parse_mode: "Markdown"
+      }),
+      muteHttpExceptions: true
+    });
+  } catch(e) {
+    Logger.log("Telegram Error: " + e.toString());
+  }
+}
+
+function sendTelegramWholesale(d, code, timeStr) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+  try {
+    var msg = "🤝 *ĐẠI LÝ SỈ MỚI ĐĂNG KÝ #" + code + "*\n\n" +
+              "👤 *Đối tác:* " + (d.name || "Khách sỉ") + "\n" +
+              "📞 *SĐT / Zalo:* " + (d.phone || "Chưa có") + "\n" +
+              "📍 *Khu vực:* " + (d.area || "Toàn quốc") + "\n" +
+              "🏢 *Mô hình:* " + (d.businessModel || "Đại lý") + "\n" +
+              "📝 *Nhu cầu:* " + (d.note || "Tư vấn bảng giá") + "\n" +
+              "⏰ *Thời gian:* " + timeStr + "\n\n" +
+              "👉 [Bấm Vào Đây Để Mở Trang Quản Trị](https://mambacokhanhhoa.vercel.app/admin.html)";
+
+    var url = "https://api.telegram.org/bot" + TELEGRAM_BOT_TOKEN + "/sendMessage";
+    UrlFetchApp.fetch(url, {
+      method: "post",
+      contentType: "application/json",
+      payload: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: msg,
+        parse_mode: "Markdown"
+      }),
+      muteHttpExceptions: true
+    });
+  } catch(e) {
+    Logger.log("Telegram Wholesale Error: " + e.toString());
+  }
 }
