@@ -26,6 +26,7 @@ async function getStorageData() {
   return null;
 }
 
+let lastStorageError = null;
 async function saveStorageData(data) {
   try {
     const res = await fetch(STORAGE_URL, {
@@ -36,9 +37,16 @@ async function saveStorageData(data) {
         data: data
       })
     });
-    return res.ok;
+    if (!res.ok) {
+      const errText = await res.text();
+      lastStorageError = { status: res.status, text: errText };
+      console.error('saveStorageData failed:', res.status, errText);
+      return false;
+    }
+    return true;
   } catch (e) {
-    console.error('saveStorageData error:', e.message);
+    lastStorageError = { error: e.message };
+    console.error('saveStorageData exception:', e.message);
     return false;
   }
 }
@@ -299,7 +307,9 @@ module.exports = async (req, res) => {
       success: true,
       message: `Đã xác nhận thanh toán đơn #${matchedOrderCode} thành công!`,
       orderCode: matchedOrderCode,
-      amount: amount
+      amount: amount,
+      storageSaved: saveSuccess,
+      storageError: lastStorageError
     });
 
   } catch(error) {
