@@ -1028,13 +1028,13 @@
                 <!-- Hàng trạng thái thông báo đẩy gọn chuẩn iOS Settings (Đã ẩn toàn bộ hướng dẫn rườm rà) -->
                 <div class="ios-card px-3.5 py-2.5 flex items-center justify-between gap-2">
                     <div class="flex items-center space-x-2.5 min-w-0">
-                        <span class="w-2 h-2 rounded-full bg-[#34C759] shrink-0"></span>
+                        <span id="pushStatusDot" class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span>
                         <span class="text-xs font-medium text-[#1c1c1e] truncate">Thông báo đẩy & Chuông báo</span>
-                        <span id="pushStatusBadge" class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#767680]/[0.12] text-[#8E8E93] shrink-0">Đang kiểm tra</span>
+                        <span id="pushStatusBadge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 shrink-0">Kiểm tra kết nối</span>
                     </div>
                     <div class="flex items-center space-x-1.5 shrink-0 flex-wrap gap-y-1">
-                        <button type="button" id="btnEnablePush" onclick="requestNotificationPermission()" 
-                                class="bg-[#007AFF] text-white font-medium text-[11px] px-2.5 py-1 rounded-lg transition ios-press">
+                        <button type="button" id="btnEnablePush" onclick="registerDevicePushSubscription(true)" 
+                                class="bg-[#007AFF] text-white font-bold text-xs px-2.5 py-1 rounded-lg transition ios-press">
                             Bật thông báo
                         </button>
                         <button type="button" onclick="testNotificationChime()" 
@@ -6017,10 +6017,31 @@ function dinhDangDongKhachSi(sheet, row) {
         }
 
         async function registerDevicePushSubscription(forceRenew = false) {
-            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+            const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+
+            if (isIos && !isStandalone) {
+                openIosPwaGuideModal();
+                showAdminToast('Trên iPhone: Cần bấm Chia sẻ > "Thêm vào MH chính" để nhận thông báo khi tắt máy!', 'info');
                 return null;
             }
+
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                showAdminToast('Trình duyệt chưa hỗ trợ Web Push.', 'error');
+                return null;
+            }
+
             try {
+                if ('Notification' in window && Notification.permission !== 'granted') {
+                    const p = await Notification.requestPermission();
+                    if (p !== 'granted') {
+                        showAdminToast('Vui lòng bật quyền Thông báo để nhận báo đơn!', 'error');
+                        updatePushStatusBadge();
+                        return null;
+                    }
+                }
+
+                showAdminToast('Đang kết nối Apple APNs...', 'info');
                 const reg = await navigator.serviceWorker.ready;
                 let sub = await reg.pushManager.getSubscription();
 
@@ -6058,15 +6079,19 @@ function dinhDangDongKhachSi(sheet, row) {
                 });
                 const data = await res.json();
                 if (data && data.success) {
-                    showAdminToast(`✅ Đã kết nối thông báo màn hình khóa (${data.devicesCount} máy)`, 'success');
+                    localStorage.setItem('baco_push_sub_registered', 'true');
+                    showAdminToast(`✅ ĐÃ KẾT NỐI IPHONE THÀNH CÔNG! (${data.devicesCount} máy)`, 'success');
+                    playChimeSound();
                 } else if (data && data.error) {
                     showAdminToast(`⚠️ Lỗi lưu thiết bị: ${data.error}`, 'error');
                 }
                 
+                updatePushStatusBadge();
                 return sub;
             } catch (err) {
                 console.warn('Error subscribing to push:', err);
                 showAdminToast(`⚠️ Chưa thể kết nối đẩy: ${err.message || 'Lỗi mạng'}`, 'error');
+                updatePushStatusBadge();
                 return null;
             }
         }
@@ -6076,12 +6101,8 @@ function dinhDangDongKhachSi(sheet, row) {
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('./sw.js').then(reg => {
                     bacoSwReg = reg;
-                    // Tự động kiểm tra bản cập nhật sw.js
                     if (typeof reg.update === 'function') {
                         reg.update().catch(() => {});
-                    }
-                    if ('Notification' in window && Notification.permission === 'granted') {
-                        registerDevicePushSubscription(false);
                     }
                 }).catch(err => {
                     console.log('SW register:', err);
@@ -6102,44 +6123,37 @@ function dinhDangDongKhachSi(sheet, row) {
             updatePushStatusBadge();
         }
 
-        function updatePushStatusBadge() {
+        async function updatePushStatusBadge() {
             const badge = document.getElementById('pushStatusBadge');
             const btn = document.getElementById('btnEnablePush');
+            const dot = document.getElementById('pushStatusDot');
             if (!badge) return;
 
             const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
             const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
 
             if (isIos && !isStandalone) {
-                badge.className = "text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#F2F2F7] text-slate-500";
-                badge.textContent = "Mở từ Màn Hình Chính";
+                if (dot) dot.className = "w-2 h-2 rounded-full bg-amber-500 shrink-0";
+                badge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700";
+                badge.textContent = "Chưa cài ra MH chính";
                 if (btn) {
-                    btn.innerHTML = '<span>Cài App</span>';
-                    btn.className = "bg-[#007AFF] text-white font-medium text-[11px] px-2.5 py-1 rounded-lg transition ios-press";
+                    btn.innerHTML = '<span>📲 Cài App</span>';
+                    btn.className = "bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs px-2.5 py-1 rounded-lg transition ios-press shadow-sm";
                     btn.onclick = openIosPwaGuideModal;
                 }
                 return;
             }
 
-            if (!('Notification' in window)) {
+            if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+                if (dot) dot.className = "w-2 h-2 rounded-full bg-slate-400 shrink-0";
                 badge.className = "text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#F2F2F7] text-slate-500";
-                badge.textContent = "Chưa hỗ trợ Push";
+                badge.textContent = "Chưa hỗ trợ Web Push";
                 if (btn) btn.classList.add('hidden');
                 return;
             }
 
-            if (Notification.permission === 'granted') {
-                badge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700";
-                badge.textContent = "Đã bật thông báo đẩy";
-                if (btn) {
-                    btn.innerHTML = '<span>Làm mới kết nối</span>';
-                    btn.className = "bg-emerald-50 text-emerald-700 font-semibold text-xs px-2.5 py-1 rounded-lg transition ios-press";
-                    btn.title = "Bấm để đăng ký lại token APNs mới nhất với máy chủ";
-                    btn.onclick = () => {
-                        registerDevicePushSubscription(true);
-                    };
-                }
-            } else if (Notification.permission === 'denied') {
+            if (Notification.permission === 'denied') {
+                if (dot) dot.className = "w-2 h-2 rounded-full bg-rose-500 shrink-0";
                 badge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-600";
                 badge.textContent = "Đang tắt quyền";
                 if (btn) {
@@ -6149,44 +6163,47 @@ function dinhDangDongKhachSi(sheet, row) {
                         showAdminToast('Vào Cài đặt iPhone > Thông báo > Ba Cô Admin > Cho phép thông báo', 'error');
                     };
                 }
-            } else {
-                badge.className = "text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#F2F2F7] text-slate-600";
-                badge.textContent = "Chưa bật thông báo";
+                return;
+            }
+
+            // Kiểm tra trạng thái subscription thực tế trên trình duyệt
+            let hasSub = false;
+            try {
+                if (navigator.serviceWorker) {
+                    const reg = await navigator.serviceWorker.ready;
+                    if (reg && reg.pushManager) {
+                        const s = await reg.pushManager.getSubscription();
+                        hasSub = !!s;
+                    }
+                }
+            } catch(e) {}
+
+            const isSaved = localStorage.getItem('baco_push_sub_registered') === 'true';
+
+            if (Notification.permission === 'granted' && hasSub && isSaved) {
+                if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-500 shrink-0";
+                badge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700";
+                badge.textContent = "Đã kết nối máy chủ";
                 if (btn) {
-                    btn.innerHTML = '<span>Bật thông báo</span>';
-                    btn.className = "bg-[#007AFF] text-white font-semibold text-xs px-2.5 py-1 rounded-lg transition ios-press";
-                    btn.onclick = requestNotificationPermission;
+                    btn.innerHTML = '<span>Làm mới</span>';
+                    btn.className = "bg-[#F2F2F7] text-slate-600 font-medium text-xs px-2.5 py-1 rounded-lg transition ios-press";
+                    btn.title = "Bấm để cấp lại token APNs mới nhất";
+                    btn.onclick = () => registerDevicePushSubscription(true);
+                }
+            } else {
+                if (dot) dot.className = "w-2 h-2 rounded-full bg-amber-400 shrink-0 animate-ping";
+                badge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800";
+                badge.textContent = "Chưa kết nối máy chủ";
+                if (btn) {
+                    btn.innerHTML = '<span>👉 KẾT NỐI IPHONE</span>';
+                    btn.className = "bg-[#007AFF] text-white font-bold text-xs px-3 py-1 rounded-lg shadow transition ios-press animate-bounce";
+                    btn.onclick = () => registerDevicePushSubscription(true);
                 }
             }
         }
 
         async function requestNotificationPermission() {
-            if (!('Notification' in window)) {
-                showAdminToast('Hãy thêm trang ra Màn hình chính iPhone để bật thông báo đẩy.', 'error');
-                return;
-            }
-
-            if (Notification.permission === 'granted') {
-                await registerDevicePushSubscription(true);
-                testNotificationChime();
-                return;
-            }
-
-            if (Notification.permission === 'denied') {
-                showAdminToast('Vui lòng bật quyền Thông báo trong Cài đặt iPhone.', 'error');
-                return;
-            }
-
-            try {
-                const permission = await Notification.requestPermission();
-                updatePushStatusBadge();
-                if (permission === 'granted') {
-                    await registerDevicePushSubscription(true);
-                    testNotificationChime();
-                }
-            } catch (err) {
-                showAdminToast('Lỗi cấp quyền: ' + err.message, 'error');
-            }
+            await registerDevicePushSubscription(true);
         }
 
         function testNotificationChime() {
