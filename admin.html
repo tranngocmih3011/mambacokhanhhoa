@@ -1038,8 +1038,8 @@
                             Bật thông báo
                         </button>
                         <button type="button" onclick="testNotificationChime()" 
-                                class="bg-[#767680]/[0.12] text-[#1c1c1e] font-medium text-[11px] px-2.5 py-1 rounded-lg transition ios-press">
-                            Thử chuông
+                                class="bg-[#767680]/[0.12] text-[#1c1c1e] font-medium text-[11px] px-2.5 py-1 rounded-lg transition ios-press" title="Bấm để nghe thử âm thanh chuông báo mẫu">
+                            Nghe thử chuông
                         </button>
                         <button type="button" onclick="testLockScreenPush()" 
                                 class="bg-[#34C759] text-white font-medium text-[11px] px-2.5 py-1 rounded-lg transition ios-press" title="Bấm rồi khóa màn hình để kiểm tra sau 5 giây">
@@ -6190,29 +6190,22 @@ function dinhDangDongKhachSi(sheet, row) {
         }
 
         function testNotificationChime() {
-            let sampleCode = 'BC1';
-            let sampleName = 'Chị Lan Anh';
-            let sampleProduct = '2 Chai Thượng Hạng 40° Đạm';
-            if (orders && orders.length > 0) {
-                sampleCode = String(orders[0].orderCode || 'BC1').replace('#', '').trim();
-                sampleName = orders[0].name || 'Khách hàng';
-                sampleProduct = `${orders[0].product || 'Nước mắm'} (x${orders[0].quantity || 1})`;
-            }
+            showAdminToast('🔔 Đang phát âm thanh chuông thử nghiệm...', 'info');
 
             triggerSystemPushNotification(
-                `Đơn hàng mới #${sampleCode}`,
-                `${sampleName} đặt ${sampleProduct}`,
-                { targetTab: 'orders', targetSubTab: 'retail', code: sampleCode }
+                `🔔 [MẪU THỬ CHUÔNG] Đơn Hàng Mới #DEMO88`,
+                `Chị Lan Anh vừa đặt 2 Chai Thượng Hạng 40°N (Chỉ là mẫu nghe thử âm thanh)`,
+                { targetTab: 'orders', targetSubTab: 'retail', code: 'DEMO88' }
             );
 
             fetch('/api/send-push', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    title: `Đơn hàng mới #${sampleCode}`,
-                    body: `${sampleName} đặt ${sampleProduct}`,
+                    title: `🔔 [MẪU THỬ CHUÔNG] Đơn Hàng Mới #DEMO88`,
+                    body: `Chị Lan Anh vừa đặt 2 Chai Thượng Hạng 40°N (Chỉ là mẫu nghe thử âm thanh)`,
                     url: './admin.html',
-                    code: sampleCode
+                    code: 'DEMO88'
                 })
             }).catch(e => console.warn('Test send push err:', e));
         }
