@@ -25,7 +25,9 @@ module.exports = async (req, res) => {
 
   // GET: Kiểm tra trạng thái thanh toán hoặc xem debug log
   if (req.method === 'GET') {
-    const { checkOrder, debug } = req.query || {};
+    const parsedUrl = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
+    const checkOrder = (req.query && req.query.checkOrder) || parsedUrl.searchParams.get('checkOrder');
+    const debug = (req.query && req.query.debug) || parsedUrl.searchParams.get('debug');
 
     if (debug) {
       try {
