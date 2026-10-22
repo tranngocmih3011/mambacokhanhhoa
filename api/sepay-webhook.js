@@ -5,7 +5,8 @@ const VAPID_PUBLIC_KEY = 'BNIqo8uK0d1Fm-43McRzIOp5W0lfQv8XKbWt74wIlDyGwWEOfhct4k
 const VAPID_PRIVATE_KEY = 'KegP8AMJuN90ptkVt_tvdxi9P7uwXT0fnVPC8x52L-g';
 const VAPID_SUBJECT = 'mailto:tranngocmih3011@gmail.com';
 
-const STORAGE_URL = 'https://api.restful-api.dev/objects/ff808181a09d98f701a15e3ab16c3de8';
+const SUBS_STORAGE_URL = 'https://api.restful-api.dev/objects/ff808181a09d98f701a15e3ab16c3de8';
+const PAID_STORAGE_URL = 'https://api.restful-api.dev/objects/ff808181a09d98f701a16276eb5f4f7e';
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
 
 const STORAGE_HEADERS = {
@@ -14,41 +15,45 @@ const STORAGE_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
 };
 
-async function getStorageData() {
+async function getPaidOrders() {
   try {
-    const res = await fetch(STORAGE_URL, { headers: STORAGE_HEADERS });
+    const res = await fetch(PAID_STORAGE_URL, { headers: STORAGE_HEADERS });
     if (res.ok) {
-      return await res.json();
+      const json = await res.json();
+      return (json && json.data && json.data.paidOrders) || [];
     }
   } catch (e) {
-    console.error('getStorageData error:', e.message);
+    console.error('getPaidOrders error:', e.message);
   }
-  return null;
+  return [];
 }
 
-let lastStorageError = null;
-async function saveStorageData(data) {
+async function savePaidOrders(paidOrders) {
   try {
-    const res = await fetch(STORAGE_URL, {
+    const res = await fetch(PAID_STORAGE_URL, {
       method: 'PUT',
       headers: STORAGE_HEADERS,
       body: JSON.stringify({
-        name: 'baco_subscriptions',
-        data: data
+        name: 'baco_paid_orders',
+        data: { paidOrders: paidOrders }
       })
     });
-    if (!res.ok) {
-      const errText = await res.text();
-      lastStorageError = { status: res.status, text: errText };
-      console.error('saveStorageData failed:', res.status, errText);
-      return false;
-    }
-    return true;
+    return res.ok;
   } catch (e) {
-    lastStorageError = { error: e.message };
-    console.error('saveStorageData exception:', e.message);
+    console.error('savePaidOrders error:', e.message);
     return false;
   }
+}
+
+async function getSubsAndTelegram() {
+  try {
+    const res = await fetch(SUBS_STORAGE_URL, { headers: STORAGE_HEADERS });
+    if (res.ok) {
+      const json = await res.json();
+      return (json && json.data) || {};
+    }
+  } catch(e) {}
+  return {};
 }
 
 function isOrderCodeMatch(paidCode, queryCode) {
@@ -57,13 +62,13 @@ function isOrderCodeMatch(paidCode, queryCode) {
   const q = String(queryCode).replace(/[^A-Za-z0-9]/g, '').toUpperCase();
   if (!p || !q) return false;
 
-  // 1. Khớp chính xác hoàn toàn (ví dụ: BC7006885 === BC7006885)
+  // 1. Khớp chính xác hoàn toàn (BC385011 === BC385011)
   if (p === q) return true;
 
-  // 2. Một chuỗi chứa chuỗi còn lại (ví dụ: BC7006885 chứa BC700688)
+  // 2. Chứa nhau (BC385011 trong SEVQRBC385011)
   if (p.includes(q) || q.includes(p)) return true;
 
-  // 3. Khớp phần chữ số (ví dụ: 700688 trong 7006885)
+  // 3. Khớp phần chữ số (385011)
   const pDigits = p.replace(/\D/g, '');
   const qDigits = q.replace(/\D/g, '');
   if (pDigits && qDigits) {
@@ -98,13 +103,11 @@ module.exports = async (req, res) => {
     const queryAmount = Number((req.query && req.query.amount) || parsedUrl.searchParams.get('amount') || 0);
     const debug = (req.query && req.query.debug) || parsedUrl.searchParams.get('debug');
 
-    const storeData = await getStorageData();
-    const paidOrders = (storeData && storeData.data && storeData.data.paidOrders) || [];
+    const paidOrders = await getPaidOrders();
 
     if (debug) {
       return res.status(200).json({
         status: 'ok',
-        lastWebhooks: (storeData && storeData.data && storeData.data.lastWebhooks) || [],
         paidOrders: paidOrders
       });
     }
@@ -118,13 +121,13 @@ module.exports = async (req, res) => {
     // 1. Tìm đơn hàng đã thanh toán khớp theo mã (chính xác hoặc tương đối)
     let match = paidOrders.find(p => isOrderCodeMatch(p.orderCode, cleanCheck));
 
-    // 2. Nếu không khớp theo mã nhưng có truyền số tiền, tìm giao dịch gần nhất (trong vòng 30 phút) có số tiền tương ứng
+    // 2. Nếu không khớp theo mã nhưng có truyền số tiền, tìm giao dịch gần nhất
     if (!match && queryAmount > 0) {
       match = paidOrders.find(p => {
         if (Math.abs(Number(p.amount) - queryAmount) < 100) {
           const paidTime = new Date(p.paidAt).getTime();
           const diffMinutes = (Date.now() - paidTime) / 60000;
-          return diffMinutes >= 0 && diffMinutes <= 30;
+          return diffMinutes >= 0 && diffMinutes <= 60;
         }
         return false;
       });
@@ -158,33 +161,12 @@ module.exports = async (req, res) => {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     console.log('SePay Webhook Received:', JSON.stringify(body));
 
-    // Lấy dữ liệu lưu trữ hiện tại
-    let storeData = await getStorageData();
-    if (!storeData || !storeData.data) {
-      storeData = { name: 'baco_subscriptions', data: { subs: [], paidOrders: [], lastWebhooks: [] } };
-    }
-
-    // Lưu raw webhook log để kiểm tra
-    try {
-      let list = storeData.data.lastWebhooks || [];
-      list.unshift({ receivedAt: new Date().toISOString(), body: body });
-      if (list.length > 10) list = list.slice(0, 10);
-      storeData.data.lastWebhooks = list;
-    } catch(e) {}
-
-    // Các trường dữ liệu từ SePay:
-    // transferType: "in" (tiền vào)
-    // transferAmount: số tiền
-    // content: nội dung chuyển khoản
-    // code: mã thanh toán do SePay nhận diện
-    // gateway: VietinBank, MBBank, Vietcombank,...
     const transferType = body.transferType || body.type || 'in';
     const amount = Number(body.transferAmount || body.amount || 0);
     const rawContent = String(body.content || body.description || body.order_code || body.code || '');
 
     // Chỉ xử lý giao dịch tiền vào (tiền cộng vào tài khoản)
     if (transferType && transferType.toLowerCase() !== 'in') {
-      await saveStorageData(storeData.data);
       return res.status(200).json({ success: true, message: 'Bỏ qua giao dịch tiền ra' });
     }
 
@@ -216,7 +198,6 @@ module.exports = async (req, res) => {
 
     if (!matchedOrderCode) {
       console.log('Không tìm thấy mã đơn BC trong nội dung SePay:', rawContent);
-      await saveStorageData(storeData.data);
       return res.status(200).json({
         success: true,
         message: 'Giao dịch không chứa mã đơn BC hợp lệ',
@@ -226,8 +207,8 @@ module.exports = async (req, res) => {
 
     console.log(`Tìm thấy đơn hàng thanh toán SePay: #${matchedOrderCode} - Số tiền: ${amount}đ`);
 
-    // 2. Lưu trạng thái Đã Thanh Toán vào Storage để Web khách hàng tự động nhảy thành công
-    let paidOrders = storeData.data.paidOrders || [];
+    // 2. Lưu trạng thái Đã Thanh Toán vào Storage chuẩn để Web khách hàng tự động nhảy thành công
+    let paidOrders = await getPaidOrders();
     const existingIdx = paidOrders.findIndex(p => isOrderCodeMatch(p.orderCode, matchedOrderCode));
     const paidRecord = {
       orderCode: matchedOrderCode,
@@ -240,14 +221,13 @@ module.exports = async (req, res) => {
     if (existingIdx >= 0) {
       paidOrders[existingIdx] = paidRecord;
     } else {
-      paidOrders.push(paidRecord);
+      paidOrders.unshift(paidRecord);
     }
 
     // Giữ tối đa 50 đơn đã thanh toán gần nhất
-    if (paidOrders.length > 50) paidOrders = paidOrders.slice(-50);
-    storeData.data.paidOrders = paidOrders;
+    if (paidOrders.length > 50) paidOrders = paidOrders.slice(0, 50);
 
-    const saveSuccess = await saveStorageData(storeData.data);
+    const saveSuccess = await savePaidOrders(paidOrders);
     console.log('Cập nhật Storage SePay thành công:', saveSuccess);
 
     // 3. Cập nhật trạng thái đơn hàng trên Google Sheet thành "Đã nhận tiền"
@@ -264,7 +244,8 @@ module.exports = async (req, res) => {
     } catch(errSheet) {}
 
     // 4. Bắn Thông Báo Đẩy (Web Push) về iPhone của Admin
-    const subs = (storeData && storeData.data && storeData.data.subs) || [];
+    const subData = await getSubsAndTelegram();
+    const subs = subData.subs || [];
     if (subs.length > 0) {
       const pushPayload = JSON.stringify({
         title: `💰 ĐÃ NHẬN TIỀN #${matchedOrderCode} - ${amount.toLocaleString('vi-VN')}đ`,
@@ -280,7 +261,7 @@ module.exports = async (req, res) => {
     }
 
     // 5. Gửi thông báo Telegram nếu có cấu hình
-    const telegram = (storeData && storeData.data && storeData.data.telegram) || {};
+    const telegram = subData.telegram || {};
     if (telegram.botToken && telegram.chatId) {
       try {
         const tgText = `💰 <b>SEPAY XÁC NHẬN TIỀN VỀ TÀI KHOẢN!</b>\n\n` +
@@ -308,8 +289,7 @@ module.exports = async (req, res) => {
       message: `Đã xác nhận thanh toán đơn #${matchedOrderCode} thành công!`,
       orderCode: matchedOrderCode,
       amount: amount,
-      storageSaved: saveSuccess,
-      storageError: lastStorageError
+      storageSaved: saveSuccess
     });
 
   } catch(error) {

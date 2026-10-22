@@ -2,7 +2,7 @@
 // Endpoint kiểm tra trạng thái thanh toán đơn hàng chuẩn theo tài liệu SePay
 // (https://sepay.vn/lap-trinh-cong-thanh-toan.html - Mục 2.2.3)
 
-const STORAGE_URL = 'https://api.restful-api.dev/objects/ff808181a09d98f701a15e3ab16c3de8';
+const STORAGE_URL = 'https://api.restful-api.dev/objects/ff808181a09d98f701a16276eb5f4f7e';
 const SHEET_ID = '1ZvX_-wHeoc6fcv43hW_Jj-blOagtsFJiazorJJ8pBBw';
 
 const STORAGE_HEADERS = {
