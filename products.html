@@ -867,13 +867,13 @@
                 remain--;
                 pollCounter++;
 
-                // Tự động kiểm tra SePay mỗi 2 giây
-                if (pollCounter % 2 === 0 && pendingQrOrder && pendingQrOrder.orderCode) {
+                // Tự động kiểm tra SePay mỗi 1-2 giây chuẩn SePay
+                if (pendingQrOrder && pendingQrOrder.orderCode) {
                     try {
-                        const sRes = await fetch(`/api/sepay-webhook?checkOrder=${encodeURIComponent(pendingQrOrder.orderCode)}&amount=${encodeURIComponent(pendingQrOrder.totalAmount || 0)}`, { cache: 'no-store' });
+                        const sRes = await fetch(`/api/check-payment-status?order_id=${encodeURIComponent(pendingQrOrder.orderCode)}&amount=${encodeURIComponent(pendingQrOrder.totalAmount || 0)}`, { cache: 'no-store' });
                         if (sRes.ok) {
                             const sData = await sRes.json();
-                            if (sData && sData.paid) {
+                            if (sData && (sData.payment_status === 'Paid' || sData.paid)) {
                                 clearInterval(qrCountdownInterval);
                                 qrCountdownInterval = null;
                                 confirmProductsQrPaymentDone(sData);
@@ -958,10 +958,10 @@
                 btn.textContent = "Đang kiểm tra biến động số dư...";
             }
             try {
-                const sRes = await fetch(`/api/sepay-webhook?checkOrder=${encodeURIComponent(pendingQrOrder.orderCode)}&amount=${encodeURIComponent(pendingQrOrder.totalAmount || 0)}`, { cache: 'no-store' });
+                const sRes = await fetch(`/api/check-payment-status?order_id=${encodeURIComponent(pendingQrOrder.orderCode)}&amount=${encodeURIComponent(pendingQrOrder.totalAmount || 0)}`, { cache: 'no-store' });
                 if (sRes.ok) {
                     const sData = await sRes.json();
-                    if (sData && sData.paid) {
+                    if (sData && (sData.payment_status === 'Paid' || sData.paid)) {
                         confirmProductsQrPaymentDone(sData);
                         return;
                     }

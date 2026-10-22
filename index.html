@@ -2295,11 +2295,11 @@
                 btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Đang kiểm tra giao dịch...`;
             }
             try {
-                // 1. Kiểm tra tức thì qua SePay Endpoint
-                const sepayRes = await fetch(`/api/sepay-webhook?checkOrder=${encodeURIComponent(currentOrderCode)}&amount=${encodeURIComponent(currentAmount || 0)}`, { cache: 'no-store' });
+                // 1. Kiểm tra tức thì qua SePay Endpoint chuẩn check-payment-status
+                const sepayRes = await fetch(`/api/check-payment-status?order_id=${encodeURIComponent(currentOrderCode)}&amount=${encodeURIComponent(currentAmount || 0)}`, { cache: 'no-store' });
                 if (sepayRes.ok) {
                     const sepayData = await sepayRes.json();
-                    if (sepayData && sepayData.paid) {
+                    if (sepayData && (sepayData.payment_status === 'Paid' || sepayData.paid)) {
                         finalizePaidOrder(sepayData);
                         return;
                     }
@@ -2448,12 +2448,12 @@
             qrAutoCheckInterval = setInterval(async () => {
                 attempts++;
 
-                // 1. Kiểm tra tức thì qua SePay Webhook Endpoint (Tốc độ phản hồi tức thì 1-2s)
+                // 1. Kiểm tra tức thì qua SePay Endpoint chuẩn check-payment-status (Tốc độ phản hồi tức thì 1s)
                 try {
-                    const sepayRes = await fetch(`/api/sepay-webhook?checkOrder=${encodeURIComponent(orderCode)}&amount=${encodeURIComponent(currentAmount || 0)}`, { cache: 'no-store' });
+                    const sepayRes = await fetch(`/api/check-payment-status?order_id=${encodeURIComponent(orderCode)}&amount=${encodeURIComponent(currentAmount || 0)}`, { cache: 'no-store' });
                     if (sepayRes.ok) {
                         const sepayData = await sepayRes.json();
-                        if (sepayData && sepayData.paid) {
+                        if (sepayData && (sepayData.payment_status === 'Paid' || sepayData.paid)) {
                             finalizePaidOrder(sepayData);
                             return;
                         }
