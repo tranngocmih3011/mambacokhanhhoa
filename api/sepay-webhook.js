@@ -23,9 +23,24 @@ module.exports = async (req, res) => {
     return res.status(200).end();
   }
 
-  // GET: Kiểm tra trạng thái thanh toán của 1 đơn hàng (Polling từ trang đặt hàng của khách)
+  // GET: Kiểm tra trạng thái thanh toán hoặc xem debug log
   if (req.method === 'GET') {
-    const { checkOrder } = req.query || {};
+    const { checkOrder, debug } = req.query || {};
+
+    if (debug) {
+      try {
+        const storeRes = await fetch(STORAGE_URL, { cache: 'no-store' });
+        if (storeRes.ok) {
+          const storeData = await storeRes.json();
+          return res.status(200).json({
+            status: 'ok',
+            lastWebhooks: (storeData && storeData.data && storeData.data.lastWebhooks) || [],
+            paidOrders: (storeData && storeData.data && storeData.data.paidOrders) || []
+          });
+        }
+      } catch(e) {}
+    }
+
     if (!checkOrder) {
       return res.status(200).json({ status: 'ready', message: 'SePay Webhook Endpoint is running' });
     }
@@ -62,6 +77,25 @@ module.exports = async (req, res) => {
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     console.log('SePay Webhook Received:', JSON.stringify(body));
+
+    // Lưu raw webhook log để kiểm tra
+    try {
+      const storeRes = await fetch(STORAGE_URL, { cache: 'no-store' });
+      if (storeRes.ok) {
+        const sData = await storeRes.json();
+        if (sData && sData.data) {
+          let list = sData.data.lastWebhooks || [];
+          list.unshift({ receivedAt: new Date().toISOString(), body: body });
+          if (list.length > 10) list = list.slice(0, 10);
+          sData.data.lastWebhooks = list;
+          await fetch(STORAGE_URL, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: 'baco_subscriptions', data: sData.data })
+          });
+        }
+      }
+    } catch(e) {}
 
     // Các trường dữ liệu từ SePay:
     // transferType: "in" (tiền vào)
