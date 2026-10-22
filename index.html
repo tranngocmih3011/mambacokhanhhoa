@@ -2148,10 +2148,11 @@
 
             document.getElementById('modalOrderCode').innerText = '#' + orderCode;
             document.getElementById('modalOrderAmount').innerText = Number(amount).toLocaleString('vi-VN') + ' đ';
-            document.getElementById('modalOrderNote').innerText = orderCode;
+            document.getElementById('modalOrderNote').innerText = 'SEVQR ' + orderCode;
 
-            // API chuẩn VietQR tạo ảnh mã QR động kèm STK VietinBank, số tiền và mã đơn cho SePay
-            const vietQrUrl = `https://img.vietqr.io/image/ICB-109872383459-compact2.png?amount=${amount}&addInfo=${orderCode}&accountName=TRAN%20NGOC%20MINH`;
+            // API chuẩn VietQR tạo ảnh mã QR động kèm STK VietinBank, số tiền và tiền tố bắt buộc SEVQR của SePay VietinBank
+            const sepayContent = `SEVQR ${orderCode}`;
+            const vietQrUrl = `https://img.vietqr.io/image/ICB-109872383459-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(sepayContent)}&accountName=TRAN%20NGOC%20MINH`;
             document.getElementById('vietQrImage').src = vietQrUrl;
 
             document.getElementById('qrWaitingState').classList.remove('hidden');

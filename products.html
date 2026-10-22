@@ -427,6 +427,7 @@
                 <div class="flex justify-between"><span>Mã đơn:</span><strong id="modalOrderCode" class="text-amber-700 font-bold"></strong></div>
                 <div class="flex justify-between"><span>Số tiền:</span><strong id="modalOrderAmount" class="text-emerald-700 font-bold"></strong></div>
                 <div class="flex justify-between"><span>Ngân hàng nhận:</span><strong class="text-slate-900">VietinBank - 109872383459 (TRAN NGOC MINH)</strong></div>
+                <div class="flex justify-between"><span>Nội dung chuyển:</span><strong id="modalOrderNote" class="text-amber-800 font-bold">SEVQR ...</strong></div>
             </div>
 
             <!-- Trạng thái tự động kiểm tra SePay -->
@@ -1114,7 +1115,9 @@
                 closeCheckoutModal();
                 document.getElementById('modalOrderCode').textContent = '#' + orderCode;
                 document.getElementById('modalOrderAmount').textContent = totalAmount.toLocaleString('vi-VN') + ' đ';
-                document.getElementById('vietQrImage').src = `https://img.vietqr.io/image/ICB-109872383459-compact2.png?amount=${totalAmount}&addInfo=${orderCode}&accountName=TRAN%20NGOC%20MINH`;
+                document.getElementById('modalOrderNote').textContent = 'SEVQR ' + orderCode;
+                const sepayContent = `SEVQR ${orderCode}`;
+                document.getElementById('vietQrImage').src = `https://img.vietqr.io/image/ICB-109872383459-compact2.png?amount=${totalAmount}&addInfo=${encodeURIComponent(sepayContent)}&accountName=TRAN%20NGOC%20MINH`;
                 document.getElementById('qrPaymentModal').classList.remove('hidden');
                 const btnManual = document.getElementById('btnManualCheckProductsQr');
                 if (btnManual) {

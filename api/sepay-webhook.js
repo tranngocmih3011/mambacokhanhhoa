@@ -119,7 +119,10 @@ module.exports = async (req, res) => {
     let matchedOrderCode = '';
     if (body.code) {
       const c = String(body.code).replace('#', '').trim().toUpperCase();
-      if (/^BC[A-Z0-9]{4,10}$/i.test(c)) {
+      const m = c.match(/BC\d{4,8}/i) || c.match(/\b(BC[A-Z0-9]{4,10})\b/i);
+      if (m) {
+        matchedOrderCode = m[0].toUpperCase();
+      } else if (/^BC[A-Z0-9]{4,10}$/i.test(c)) {
         matchedOrderCode = c;
       }
     }
