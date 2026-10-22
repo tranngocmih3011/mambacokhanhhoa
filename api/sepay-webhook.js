@@ -68,14 +68,11 @@ function isOrderCodeMatch(paidCode, queryCode) {
   // 2. Chứa nhau (BC385011 trong SEVQRBC385011)
   if (p.includes(q) || q.includes(p)) return true;
 
-  // 3. Khớp phần chữ số (385011)
+  // 3. Khớp chính xác toàn bộ chữ số của mã đơn (ví dụ 385011 === 385011)
   const pDigits = p.replace(/\D/g, '');
   const qDigits = q.replace(/\D/g, '');
-  if (pDigits && qDigits) {
+  if (pDigits && qDigits && pDigits.length >= 5 && qDigits.length >= 5) {
     if (pDigits === qDigits) return true;
-    if (pDigits.length >= 4 && qDigits.length >= 4) {
-      if (pDigits.includes(qDigits) || qDigits.includes(pDigits)) return true;
-    }
   }
 
   return false;
@@ -118,20 +115,8 @@ module.exports = async (req, res) => {
 
     const cleanCheck = String(checkOrder).replace('#', '').trim().toUpperCase();
 
-    // 1. Tìm đơn hàng đã thanh toán khớp theo mã (chính xác hoặc tương đối)
+    // 1. Tìm đơn hàng đã thanh toán khớp theo mã đơn
     let match = paidOrders.find(p => isOrderCodeMatch(p.orderCode, cleanCheck));
-
-    // 2. Nếu không khớp theo mã nhưng có truyền số tiền, tìm giao dịch gần nhất
-    if (!match && queryAmount > 0) {
-      match = paidOrders.find(p => {
-        if (Math.abs(Number(p.amount) - queryAmount) < 100) {
-          const paidTime = new Date(p.paidAt).getTime();
-          const diffMinutes = (Date.now() - paidTime) / 60000;
-          return diffMinutes >= 0 && diffMinutes <= 60;
-        }
-        return false;
-      });
-    }
 
     if (match) {
       return res.status(200).json({

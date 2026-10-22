@@ -17,20 +17,17 @@ function isOrderCodeMatch(paidCode, queryCode) {
   const q = String(queryCode).replace(/[^A-Za-z0-9]/g, '').toUpperCase();
   if (!p || !q) return false;
 
-  // 1. Khớp tuyệt đối (BC292087 === BC292087)
+  // 1. Khớp tuyệt đối (BC385011 === BC385011)
   if (p === q) return true;
 
-  // 2. Chứa nhau (BC292087 trong SEVQRBC292087)
+  // 2. Chứa nhau nếu có thêm tiền tố SEVQR (ví dụ SEVQRBC385011 chứa BC385011)
   if (p.includes(q) || q.includes(p)) return true;
 
-  // 3. Khớp chuỗi số (292087)
+  // 3. Khớp chính xác toàn bộ chữ số của mã đơn (ví dụ 385011 === 385011)
   const pDigits = p.replace(/\D/g, '');
   const qDigits = q.replace(/\D/g, '');
-  if (pDigits && qDigits) {
+  if (pDigits && qDigits && pDigits.length >= 5 && qDigits.length >= 5) {
     if (pDigits === qDigits) return true;
-    if (pDigits.length >= 4 && qDigits.length >= 4) {
-      if (pDigits.includes(qDigits) || qDigits.includes(pDigits)) return true;
-    }
   }
 
   return false;
@@ -73,19 +70,8 @@ module.exports = async (req, res) => {
         const storeData = await storeRes.json();
         const paidOrders = (storeData && storeData.data && storeData.data.paidOrders) || [];
 
-        // Khớp theo mã đơn
+        // Chỉ khớp đúng mã đơn hàng (không khớp bừa theo số tiền)
         match = paidOrders.find(p => isOrderCodeMatch(p.orderCode, cleanOrder));
-
-        // Khớp dự phòng theo số tiền nếu giao dịch trong 30 phút gần nhất
-        if (!match && amount > 0) {
-          match = paidOrders.find(p => {
-            if (Math.abs(Number(p.amount) - amount) < 100) {
-              const diffMinutes = (Date.now() - new Date(p.paidAt).getTime()) / 60000;
-              return diffMinutes >= 0 && diffMinutes <= 30;
-            }
-            return false;
-          });
-        }
       }
     } catch (e) {
       console.warn('Lỗi đọc storage:', e.message);
