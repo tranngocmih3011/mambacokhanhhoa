@@ -15,32 +15,32 @@ const STORAGE_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
 };
 
-async function getPaidOrders() {
+async function getPaidData() {
   try {
     const res = await fetch(PAID_STORAGE_URL, { headers: STORAGE_HEADERS });
     if (res.ok) {
       const json = await res.json();
-      return (json && json.data && json.data.paidOrders) || [];
+      return (json && json.data) || { paidOrders: [], lastWebhooks: [] };
     }
   } catch (e) {
-    console.error('getPaidOrders error:', e.message);
+    console.error('getPaidData error:', e.message);
   }
-  return [];
+  return { paidOrders: [], lastWebhooks: [] };
 }
 
-async function savePaidOrders(paidOrders) {
+async function savePaidData(data) {
   try {
     const res = await fetch(PAID_STORAGE_URL, {
       method: 'PUT',
       headers: STORAGE_HEADERS,
       body: JSON.stringify({
         name: 'baco_paid_orders',
-        data: { paidOrders: paidOrders }
+        data: data
       })
     });
     return res.ok;
   } catch (e) {
-    console.error('savePaidOrders error:', e.message);
+    console.error('savePaidData error:', e.message);
     return false;
   }
 }
@@ -97,15 +97,16 @@ module.exports = async (req, res) => {
   if (req.method === 'GET') {
     const parsedUrl = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
     const checkOrder = (req.query && req.query.checkOrder) || parsedUrl.searchParams.get('checkOrder');
-    const queryAmount = Number((req.query && req.query.amount) || parsedUrl.searchParams.get('amount') || 0);
     const debug = (req.query && req.query.debug) || parsedUrl.searchParams.get('debug');
 
-    const paidOrders = await getPaidOrders();
+    const paidData = await getPaidData();
+    const paidOrders = paidData.paidOrders || [];
 
     if (debug) {
       return res.status(200).json({
         status: 'ok',
-        paidOrders: paidOrders
+        paidOrders: paidOrders,
+        lastWebhooks: paidData.lastWebhooks || []
       });
     }
 
@@ -115,7 +116,7 @@ module.exports = async (req, res) => {
 
     const cleanCheck = String(checkOrder).replace('#', '').trim().toUpperCase();
 
-    // 1. Tìm đơn hàng đã thanh toán khớp theo mã đơn
+    // Tìm đơn hàng đã thanh toán khớp theo mã đơn
     let match = paidOrders.find(p => isOrderCodeMatch(p.orderCode, cleanCheck));
 
     if (match) {
@@ -146,12 +147,19 @@ module.exports = async (req, res) => {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     console.log('SePay Webhook Received:', JSON.stringify(body));
 
+    const paidData = await getPaidData();
+    let lastWebhooks = paidData.lastWebhooks || [];
+    lastWebhooks.unshift({ receivedAt: new Date().toISOString(), body: body });
+    if (lastWebhooks.length > 10) lastWebhooks = lastWebhooks.slice(0, 10);
+    paidData.lastWebhooks = lastWebhooks;
+
     const transferType = body.transferType || body.type || 'in';
     const amount = Number(body.transferAmount || body.amount || 0);
     const rawContent = String(body.content || body.description || body.order_code || body.code || '');
 
     // Chỉ xử lý giao dịch tiền vào (tiền cộng vào tài khoản)
     if (transferType && transferType.toLowerCase() !== 'in') {
+      await savePaidData(paidData);
       return res.status(200).json({ success: true, message: 'Bỏ qua giao dịch tiền ra' });
     }
 
@@ -169,6 +177,8 @@ module.exports = async (req, res) => {
       if (m3) return ('BC' + m3[1]).toUpperCase();
       const m4 = s.match(/SEVQR\s*(\d{5,9})/i);
       if (m4) return ('BC' + m4[1]).toUpperCase();
+      const m5 = s.match(/SEVQR\s*(?:DH|DON)?\s*(\d{4,9})/i);
+      if (m5) return ('BC' + m5[1]).toUpperCase();
       return '';
     };
 
@@ -183,6 +193,7 @@ module.exports = async (req, res) => {
 
     if (!matchedOrderCode) {
       console.log('Không tìm thấy mã đơn BC trong nội dung SePay:', rawContent);
+      await savePaidData(paidData);
       return res.status(200).json({
         success: true,
         message: 'Giao dịch không chứa mã đơn BC hợp lệ',
@@ -193,7 +204,7 @@ module.exports = async (req, res) => {
     console.log(`Tìm thấy đơn hàng thanh toán SePay: #${matchedOrderCode} - Số tiền: ${amount}đ`);
 
     // 2. Lưu trạng thái Đã Thanh Toán vào Storage chuẩn để Web khách hàng tự động nhảy thành công
-    let paidOrders = await getPaidOrders();
+    let paidOrders = paidData.paidOrders || [];
     const existingIdx = paidOrders.findIndex(p => isOrderCodeMatch(p.orderCode, matchedOrderCode));
     const paidRecord = {
       orderCode: matchedOrderCode,
@@ -211,8 +222,9 @@ module.exports = async (req, res) => {
 
     // Giữ tối đa 50 đơn đã thanh toán gần nhất
     if (paidOrders.length > 50) paidOrders = paidOrders.slice(0, 50);
+    paidData.paidOrders = paidOrders;
 
-    const saveSuccess = await savePaidOrders(paidOrders);
+    const saveSuccess = await savePaidData(paidData);
     console.log('Cập nhật Storage SePay thành công:', saveSuccess);
 
     // 3. Cập nhật trạng thái đơn hàng trên Google Sheet thành "Đã nhận tiền"
