@@ -50,12 +50,16 @@ module.exports = async (req, res) => {
     }
 
     const cleanCheck = String(checkOrder).replace('#', '').trim().toUpperCase();
+    let debugInfo = {};
 
     try {
       const storeRes = await fetch(STORAGE_URL);
+      debugInfo.fetchStatus = storeRes.status;
       if (storeRes.ok) {
         const storeData = await storeRes.json();
         const paidOrders = (storeData && storeData.data && storeData.data.paidOrders) || [];
+        debugInfo.paidOrdersCount = paidOrders.length;
+        debugInfo.codes = paidOrders.map(p => p.orderCode);
         const match = paidOrders.find(p => String(p.orderCode).replace('#', '').trim().toUpperCase() === cleanCheck);
         if (match) {
           return res.status(200).json({
@@ -67,10 +71,10 @@ module.exports = async (req, res) => {
         }
       }
     } catch(e) {
-      console.warn('Lỗi đọc storage checkOrder:', e);
+      debugInfo.error = e.message;
     }
 
-    return res.status(200).json({ paid: false, orderCode: cleanCheck });
+    return res.status(200).json({ paid: false, orderCode: cleanCheck, debug: debugInfo });
   }
 
   if (req.method !== 'POST') {
