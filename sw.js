@@ -1,5 +1,5 @@
 // Service Worker cho Nước Mắm Ba Cô Admin (Hỗ trợ PWA & Web Push Notification trên iOS 16.4+, Android & PC)
-const CACHE_NAME = 'baco-admin-v5';
+const CACHE_NAME = 'baco-admin-v6';
 
 self.addEventListener('install', (event) => {
     self.skipWaiting();
@@ -35,9 +35,7 @@ self.addEventListener('message', (event) => {
         const payload = event.data.payload || {};
         const options = {
             body: payload.body || 'Bạn có thông báo mới',
-            icon: 'https://mambacokhanhhoa.vercel.app/pictrure/logo.JPG',
             tag: payload.tag || ('baco-order-' + Date.now()),
-            renotify: true,
             data: {
                 url: payload.url || './admin.html',
                 code: payload.code || '',
@@ -78,12 +76,11 @@ self.addEventListener('push', (event) => {
 
     const uniqueTag = 'baco-' + (data.code || Date.now());
 
-    // Các tham số chuẩn 100% tương thích Apple WebKit iOS 16.4+ và Android Chrome
+    // Các tham số chuẩn 100% tương thích Apple WebKit iOS 16.4+ và Android
+    // Tuyệt đối không để icon lớn hay renotify để tránh lỗi WebKit từ chối hiển thị khi màn hình khóa
     const options = {
         body: data.body || 'Khách hàng vừa đặt hàng thành công!',
-        icon: 'https://mambacokhanhhoa.vercel.app/pictrure/logo.JPG',
         tag: uniqueTag,
-        renotify: true,
         data: {
             url: data.url || './admin.html',
             code: data.code || '',
@@ -96,7 +93,6 @@ self.addEventListener('push', (event) => {
         try {
             await self.registration.showNotification(data.title || '🔔 Nước Mắm Ba Cô', options);
         } catch (err) {
-            // Fallback tối giản nhất nếu WebKit kén icon
             try {
                 await self.registration.showNotification(data.title || '🔔 Nước Mắm Ba Cô', {
                     body: data.body || 'Bạn có đơn hàng mới!'

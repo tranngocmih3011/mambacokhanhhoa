@@ -28,7 +28,13 @@ module.exports = async (req, res) => {
 
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    const { title, body: msgBody, url, code, type, directSubscription } = body;
+    const { title, body: msgBody, url, code, type, directSubscription, delay } = body;
+
+    // Nếu có tham số delay (ví dụ 5s để người dùng kịp bấm khóa màn hình điện thoại)
+    if (delay && Number(delay) > 0) {
+      const waitMs = Math.min(Math.max(Number(delay), 1), 15) * 1000;
+      await new Promise(resolve => setTimeout(resolve, waitMs));
+    }
 
     const payload = JSON.stringify({
       title: title || '🛒 Đơn hàng mới - Nước Mắm Ba Cô',

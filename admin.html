@@ -1045,6 +1045,10 @@
                                 class="bg-[#34C759] text-white font-medium text-[11px] px-2.5 py-1 rounded-lg transition ios-press" title="Bấm rồi khóa màn hình để kiểm tra sau 5 giây">
                             🔒 Thử khóa MH (5s)
                         </button>
+                        <button type="button" onclick="openTelegramGuideModal()" 
+                                class="bg-[#0088cc] text-white font-medium text-[11px] px-2.5 py-1 rounded-lg transition ios-press" title="Báo đơn tức thì qua ứng dụng Telegram (Đánh thức màn hình khóa 100%)">
+                            ✈️ Telegram
+                        </button>
                     </div>
                 </div>
 
@@ -6012,13 +6016,24 @@ function dinhDangDongKhachSi(sheet, row) {
             return outputArray;
         }
 
-        async function registerDevicePushSubscription() {
+        async function registerDevicePushSubscription(forceRenew = false) {
             if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
                 return null;
             }
             try {
                 const reg = await navigator.serviceWorker.ready;
                 let sub = await reg.pushManager.getSubscription();
+
+                // Nếu forceRenew hoặc muốn làm mới lại token thiết bị
+                if (forceRenew && sub) {
+                    try {
+                        await sub.unsubscribe();
+                        sub = null;
+                    } catch(unsubErr) {
+                        console.warn('Lỗi hủy subscription cũ:', unsubErr);
+                    }
+                }
+
                 if (!sub) {
                     sub = await reg.pushManager.subscribe({
                         userVisibleOnly: true,
@@ -6026,22 +6041,32 @@ function dinhDangDongKhachSi(sheet, row) {
                     });
                 }
                 
+                // Chuẩn hóa JSON PushSubscription (bắt buộc gọi .toJSON() cho Safari WebKit trên iOS)
+                const subJson = sub.toJSON ? sub.toJSON() : JSON.parse(JSON.stringify(sub));
+                if (!subJson || !subJson.endpoint) {
+                    throw new Error('Thiết bị chưa cấp APNs Endpoint.');
+                }
+
                 const res = await fetch('/api/push-subscribe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        subscription: sub,
+                        action: 'save_subscription',
+                        subscription: subJson,
                         userAgent: navigator.userAgent
                     })
                 });
                 const data = await res.json();
                 if (data && data.success) {
-                    showAdminToast(`Đã kết nối thông báo đẩy (${data.devicesCount} thiết bị)`, 'success');
+                    showAdminToast(`✅ Đã kết nối thông báo màn hình khóa (${data.devicesCount} máy)`, 'success');
+                } else if (data && data.error) {
+                    showAdminToast(`⚠️ Lỗi lưu thiết bị: ${data.error}`, 'error');
                 }
                 
                 return sub;
             } catch (err) {
                 console.warn('Error subscribing to push:', err);
+                showAdminToast(`⚠️ Chưa thể kết nối đẩy: ${err.message || 'Lỗi mạng'}`, 'error');
                 return null;
             }
         }
@@ -6051,8 +6076,12 @@ function dinhDangDongKhachSi(sheet, row) {
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('./sw.js').then(reg => {
                     bacoSwReg = reg;
+                    // Tự động kiểm tra bản cập nhật sw.js
+                    if (typeof reg.update === 'function') {
+                        reg.update().catch(() => {});
+                    }
                     if ('Notification' in window && Notification.permission === 'granted') {
-                        registerDevicePushSubscription();
+                        registerDevicePushSubscription(false);
                     }
                 }).catch(err => {
                     console.log('SW register:', err);
@@ -6086,6 +6115,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 badge.textContent = "Mở từ Màn Hình Chính";
                 if (btn) {
                     btn.innerHTML = '<span>Cài App</span>';
+                    btn.className = "bg-[#007AFF] text-white font-medium text-[11px] px-2.5 py-1 rounded-lg transition ios-press";
                     btn.onclick = openIosPwaGuideModal;
                 }
                 return;
@@ -6102,10 +6132,11 @@ function dinhDangDongKhachSi(sheet, row) {
                 badge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700";
                 badge.textContent = "Đã bật thông báo đẩy";
                 if (btn) {
-                    btn.innerHTML = '<span>Đã bật đẩy</span>';
-                    btn.className = "bg-[#F2F2F7] text-slate-600 font-semibold text-xs px-3 py-1.5 rounded-xl transition cursor-default";
+                    btn.innerHTML = '<span>Làm mới kết nối</span>';
+                    btn.className = "bg-emerald-50 text-emerald-700 font-semibold text-xs px-2.5 py-1 rounded-lg transition ios-press";
+                    btn.title = "Bấm để đăng ký lại token APNs mới nhất với máy chủ";
                     btn.onclick = () => {
-                        registerDevicePushSubscription();
+                        registerDevicePushSubscription(true);
                     };
                 }
             } else if (Notification.permission === 'denied') {
@@ -6113,9 +6144,9 @@ function dinhDangDongKhachSi(sheet, row) {
                 badge.textContent = "Đang tắt quyền";
                 if (btn) {
                     btn.innerHTML = '<span>Mở Cài đặt</span>';
-                    btn.className = "bg-rose-50 text-rose-600 font-semibold text-xs px-3 py-1.5 rounded-xl transition ios-press";
+                    btn.className = "bg-rose-50 text-rose-600 font-semibold text-xs px-2.5 py-1 rounded-lg transition ios-press";
                     btn.onclick = () => {
-                        showAdminToast('Vào Cài đặt iPhone > Thông báo > Cho phép thông báo cho App', 'error');
+                        showAdminToast('Vào Cài đặt iPhone > Thông báo > Ba Cô Admin > Cho phép thông báo', 'error');
                     };
                 }
             } else {
@@ -6123,7 +6154,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 badge.textContent = "Chưa bật thông báo";
                 if (btn) {
                     btn.innerHTML = '<span>Bật thông báo</span>';
-                    btn.className = "bg-[#007AFF] text-white font-semibold text-xs px-3 py-1.5 rounded-xl transition ios-press";
+                    btn.className = "bg-[#007AFF] text-white font-semibold text-xs px-2.5 py-1 rounded-lg transition ios-press";
                     btn.onclick = requestNotificationPermission;
                 }
             }
@@ -6136,7 +6167,7 @@ function dinhDangDongKhachSi(sheet, row) {
             }
 
             if (Notification.permission === 'granted') {
-                await registerDevicePushSubscription();
+                await registerDevicePushSubscription(true);
                 testNotificationChime();
                 return;
             }
@@ -6150,7 +6181,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 const permission = await Notification.requestPermission();
                 updatePushStatusBadge();
                 if (permission === 'granted') {
-                    await registerDevicePushSubscription();
+                    await registerDevicePushSubscription(true);
                     testNotificationChime();
                 }
             } catch (err) {
@@ -6187,26 +6218,27 @@ function dinhDangDongKhachSi(sheet, row) {
         }
 
         function testLockScreenPush() {
-            showAdminToast('⏱️ Đang đếm ngược 5 giây... Hãy bấm nút nguồn KHÓA MÀN HÌNH ngay!', 'info');
-            setTimeout(async () => {
-                try {
-                    const res = await fetch('/api/send-push', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            title: '🛒 [Thử Nghiệm Màn Hình Khóa] Đơn Hàng Mới #BC8888',
-                            body: 'Chị Lan Anh vừa đặt COD: 2 Chai Mắm Nhĩ 40°N (Đã khóa màn hình)',
-                            url: './admin.html',
-                            code: 'BC8888',
-                            type: 'orders'
-                        })
-                    });
-                    const d = await res.json();
-                    console.log('Test lockscreen push result:', d);
-                } catch(err) {
-                    console.warn('Lỗi push:', err);
-                }
-            }, 5000);
+            showAdminToast('⏱️ Đã gửi lệnh! Hãy bấm nút NGUỒN KHÓA MÀN HÌNH ngay bây giờ (Sau 5 giây máy sẽ kêu chuông)!', 'info');
+            
+            // Gửi trực tiếp lên server Vercel với delay: 5.
+            // Server Vercel sẽ giữ kết nối và đếm 5 giây rồi mới bắn APNs!
+            // Nhờ đó không phụ thuộc vào JS trình duyệt (tránh bị iOS ngắt tiến trình khi khóa máy)
+            fetch('/api/send-push', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    delay: 5,
+                    title: '🛒 [Màn Hình Khóa] Đơn Hàng Mới #BC8888',
+                    body: 'Chị Lan Anh vừa đặt COD: 2 Chai Mắm Nhĩ 40°N (Kiểm tra khi khóa máy)',
+                    url: './admin.html',
+                    code: 'BC8888',
+                    type: 'orders'
+                })
+            }).then(r => r.json()).then(d => {
+                console.log('Server lockscreen test result:', d);
+            }).catch(err => {
+                console.warn('Lỗi push:', err);
+            });
         }
 
         async function saveAndTestTelegramConfig() {
