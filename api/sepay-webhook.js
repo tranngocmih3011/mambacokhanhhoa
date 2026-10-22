@@ -33,7 +33,7 @@ module.exports = async (req, res) => {
     const cleanCheck = String(checkOrder).replace('#', '').trim().toUpperCase();
 
     try {
-      const storeRes = await fetch(STORAGE_URL);
+      const storeRes = await fetch(STORAGE_URL, { cache: 'no-store' });
       if (storeRes.ok) {
         const storeData = await storeRes.json();
         const paidOrders = (storeData && storeData.data && storeData.data.paidOrders) || [];
@@ -67,30 +67,34 @@ module.exports = async (req, res) => {
     // transferType: "in" (tiền vào)
     // transferAmount: số tiền
     // content: nội dung chuyển khoản (chứa mã đơn ví dụ: BC123456)
-    // gateway: MBBank, Vietcombank,...
+    // code: mã thanh toán do SePay tự nhận diện
+    // gateway: VietinBank, MBBank, Vietcombank,...
     // referenceCode, transactionDate
     const transferType = body.transferType || body.type || 'in';
     const amount = Number(body.transferAmount || body.amount || 0);
-    const rawContent = String(body.content || body.description || body.order_code || '');
+    const rawContent = String(body.content || body.description || body.order_code || body.code || '');
 
     // Chỉ xử lý giao dịch tiền vào (tiền cộng vào tài khoản)
     if (transferType && transferType.toLowerCase() !== 'in') {
       return res.status(200).json({ success: true, message: 'Bỏ qua giao dịch tiền ra' });
     }
 
-    // 1. Trích xuất mã đơn hàng từ nội dung chuyển tiền (dạng BCxxxxxx hoặc chuỗi số)
+    // 1. Trích xuất mã đơn hàng từ SePay (dạng BCxxxxxx hoặc chuỗi số)
     let matchedOrderCode = '';
-    const bcMatch = rawContent.match(/BC\d{4,8}/i);
-    if (bcMatch) {
-      matchedOrderCode = bcMatch[0].toUpperCase();
-    } else if (body.order_code) {
-      matchedOrderCode = String(body.order_code).replace('#', '').trim().toUpperCase();
-    } else {
-      // Tìm bất kỳ chuỗi mã đơn nào có dạng BC...
-      const genericMatch = rawContent.match(/\b(BC[A-Z0-9]+)\b/i);
-      if (genericMatch) {
-        matchedOrderCode = genericMatch[1].toUpperCase();
+    if (body.code) {
+      const c = String(body.code).replace('#', '').trim().toUpperCase();
+      if (/^BC[A-Z0-9]{4,10}$/i.test(c)) {
+        matchedOrderCode = c;
       }
+    }
+    if (!matchedOrderCode) {
+      const bcMatch = rawContent.match(/BC\d{4,8}/i) || rawContent.match(/\b(BC[A-Z0-9]{4,10})\b/i);
+      if (bcMatch) {
+        matchedOrderCode = bcMatch[0].toUpperCase();
+      }
+    }
+    if (!matchedOrderCode && body.order_code) {
+      matchedOrderCode = String(body.order_code).replace('#', '').trim().toUpperCase();
     }
 
     if (!matchedOrderCode) {
@@ -107,7 +111,7 @@ module.exports = async (req, res) => {
     // 2. Lưu trạng thái Đã Thanh Toán vào Storage để Web khách hàng tự động nhảy thành công
     let storeData = null;
     try {
-      const storeRes = await fetch(STORAGE_URL);
+      const storeRes = await fetch(STORAGE_URL, { cache: 'no-store' });
       if (storeRes.ok) {
         storeData = await storeRes.json();
       }
@@ -137,14 +141,15 @@ module.exports = async (req, res) => {
     if (paidOrders.length > 50) paidOrders = paidOrders.slice(-50);
     storeData.data.paidOrders = paidOrders;
 
-    await fetch(STORAGE_URL, {
+    const putRes = await fetch(STORAGE_URL, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: 'baco_subscriptions',
         data: storeData.data
       })
-    }).catch(e => console.warn('Lỗi ghi storage SePay:', e));
+    });
+    console.log('Cập nhật Storage SePay thành công:', putRes.status);
 
     // 3. Cập nhật trạng thái đơn hàng trên Google Sheet thành "Đã nhận tiền"
     try {
