@@ -53,9 +53,16 @@ module.exports = async (req, res) => {
     let debugInfo = {};
 
     try {
-      const storeRes = await fetch(STORAGE_URL);
+      const storeRes = await fetch(STORAGE_URL, {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+        }
+      });
       debugInfo.fetchStatus = storeRes.status;
-      if (storeRes.ok) {
+      if (!storeRes.ok) {
+        debugInfo.errorText = await storeRes.text();
+      } else {
         const storeData = await storeRes.json();
         const paidOrders = (storeData && storeData.data && storeData.data.paidOrders) || [];
         debugInfo.paidOrdersCount = paidOrders.length;
