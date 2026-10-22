@@ -6311,13 +6311,9 @@ function dinhDangDongKhachSi(sheet, row) {
                 navigator.serviceWorker.ready.then(reg => {
                     reg.showNotification(title, {
                         body: body,
-                        icon: './pictrure/logo.JPG',
-                        badge: './pictrure/logo.JPG',
-                        vibrate: [200, 100, 200],
                         tag: 'baco-notif-' + Date.now(),
-                        renotify: true,
                         data: { ...data, unreadCount }
-                    }).catch(() => {});
+                    }).catch(e => console.warn('showNotification error:', e));
                 }).catch(() => {});
             }
         }
