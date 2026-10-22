@@ -2296,11 +2296,11 @@
             }
             try {
                 // 1. Kiểm tra tức thì qua SePay Endpoint
-                const sepayRes = await fetch(`/api/sepay-webhook?checkOrder=${encodeURIComponent(currentOrderCode)}`, { cache: 'no-store' });
+                const sepayRes = await fetch(`/api/sepay-webhook?checkOrder=${encodeURIComponent(currentOrderCode)}&amount=${encodeURIComponent(currentAmount || 0)}`, { cache: 'no-store' });
                 if (sepayRes.ok) {
                     const sepayData = await sepayRes.json();
                     if (sepayData && sepayData.paid) {
-                        finalizePaidOrder();
+                        finalizePaidOrder(sepayData);
                         return;
                     }
                 }
@@ -2323,21 +2323,26 @@
             }
         }
 
-        async function finalizePaidOrder() {
+        async function finalizePaidOrder(sepayData = null) {
             stopQrAutoCheck();
             if (qrCountdownInterval) {
                 clearInterval(qrCountdownInterval);
                 qrCountdownInterval = null;
             }
 
+            const codeToUse = (sepayData && sepayData.orderCode) || currentOrderCode;
+            const amountToUse = (sepayData && sepayData.amount) || currentAmount;
+
             const paidOrder = pendingQrOrder ? { ...pendingQrOrder } : {
-                orderCode: currentOrderCode,
+                orderCode: codeToUse,
                 name: currentCustomerName,
                 phone: currentPhone,
-                totalAmount: currentAmount,
+                totalAmount: amountToUse,
                 product: 'Nước mắm Ba Cô',
                 quantity: 1
             };
+            paidOrder.orderCode = codeToUse;
+            paidOrder.totalAmount = amountToUse;
             paidOrder.status = 'Đã nhận tiền';
             paidOrder.paymentMethod = 'Chuyển khoản ngân hàng (VietQR)';
             paidOrder.createdAt = Date.now();
@@ -2445,11 +2450,11 @@
 
                 // 1. Kiểm tra tức thì qua SePay Webhook Endpoint (Tốc độ phản hồi tức thì 1-2s)
                 try {
-                    const sepayRes = await fetch(`/api/sepay-webhook?checkOrder=${encodeURIComponent(orderCode)}`, { cache: 'no-store' });
+                    const sepayRes = await fetch(`/api/sepay-webhook?checkOrder=${encodeURIComponent(orderCode)}&amount=${encodeURIComponent(currentAmount || 0)}`, { cache: 'no-store' });
                     if (sepayRes.ok) {
                         const sepayData = await sepayRes.json();
                         if (sepayData && sepayData.paid) {
-                            finalizePaidOrder();
+                            finalizePaidOrder(sepayData);
                             return;
                         }
                     }

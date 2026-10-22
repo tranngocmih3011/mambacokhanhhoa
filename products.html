@@ -870,13 +870,13 @@
                 // Tự động kiểm tra SePay mỗi 2 giây
                 if (pollCounter % 2 === 0 && pendingQrOrder && pendingQrOrder.orderCode) {
                     try {
-                        const sRes = await fetch(`/api/sepay-webhook?checkOrder=${encodeURIComponent(pendingQrOrder.orderCode)}`, { cache: 'no-store' });
+                        const sRes = await fetch(`/api/sepay-webhook?checkOrder=${encodeURIComponent(pendingQrOrder.orderCode)}&amount=${encodeURIComponent(pendingQrOrder.totalAmount || 0)}`, { cache: 'no-store' });
                         if (sRes.ok) {
                             const sData = await sRes.json();
                             if (sData && sData.paid) {
                                 clearInterval(qrCountdownInterval);
                                 qrCountdownInterval = null;
-                                confirmProductsQrPaymentDone();
+                                confirmProductsQrPaymentDone(sData);
                                 return;
                             }
                         }
@@ -958,11 +958,11 @@
                 btn.textContent = "Đang kiểm tra biến động số dư...";
             }
             try {
-                const sRes = await fetch(`/api/sepay-webhook?checkOrder=${encodeURIComponent(pendingQrOrder.orderCode)}`, { cache: 'no-store' });
+                const sRes = await fetch(`/api/sepay-webhook?checkOrder=${encodeURIComponent(pendingQrOrder.orderCode)}&amount=${encodeURIComponent(pendingQrOrder.totalAmount || 0)}`, { cache: 'no-store' });
                 if (sRes.ok) {
                     const sData = await sRes.json();
                     if (sData && sData.paid) {
-                        confirmProductsQrPaymentDone();
+                        confirmProductsQrPaymentDone(sData);
                         return;
                     }
                 }
@@ -977,7 +977,7 @@
             }
         }
 
-        async function confirmProductsQrPaymentDone() {
+        async function confirmProductsQrPaymentDone(sepayData = null) {
             const btn = document.getElementById('btnManualCheckProductsQr');
             if (btn) {
                 btn.disabled = true;
@@ -989,7 +989,12 @@
                 return;
             }
 
+            const codeToUse = (sepayData && sepayData.orderCode) || pendingQrOrder.orderCode;
+            const amountToUse = (sepayData && sepayData.amount) || pendingQrOrder.totalAmount;
+
             const paidOrder = { ...pendingQrOrder };
+            paidOrder.orderCode = codeToUse;
+            paidOrder.totalAmount = amountToUse;
             paidOrder.status = 'Đã nhận tiền';
 
             try {
