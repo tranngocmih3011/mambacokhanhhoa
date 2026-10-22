@@ -426,7 +426,7 @@
             <div class="bg-slate-50 rounded-2xl p-3.5 text-left space-y-1.5 text-xs border border-slate-100">
                 <div class="flex justify-between"><span>Mã đơn:</span><strong id="modalOrderCode" class="text-amber-700 font-bold"></strong></div>
                 <div class="flex justify-between"><span>Số tiền:</span><strong id="modalOrderAmount" class="text-emerald-700 font-bold"></strong></div>
-                <div class="flex justify-between"><span>Ngân hàng nhận:</span><strong class="text-slate-900">MB Bank - 0985520678</strong></div>
+                <div class="flex justify-between"><span>Ngân hàng nhận:</span><strong class="text-slate-900">VietinBank - 109872383459 (TRAN NGOC MINH)</strong></div>
             </div>
 
             <!-- Các nút hành động chính -->
@@ -818,8 +818,27 @@
             };
             updateDisplay();
 
-            qrCountdownInterval = setInterval(() => {
+            let pollCounter = 0;
+            qrCountdownInterval = setInterval(async () => {
                 remain--;
+                pollCounter++;
+
+                // Tự động kiểm tra SePay mỗi 2 giây
+                if (pollCounter % 2 === 0 && pendingQrOrder && pendingQrOrder.orderCode) {
+                    try {
+                        const sRes = await fetch(`/api/sepay-webhook?checkOrder=${encodeURIComponent(pendingQrOrder.orderCode)}`, { cache: 'no-store' });
+                        if (sRes.ok) {
+                            const sData = await sRes.json();
+                            if (sData && sData.paid) {
+                                clearInterval(qrCountdownInterval);
+                                qrCountdownInterval = null;
+                                confirmProductsQrPaymentDone();
+                                return;
+                            }
+                        }
+                    } catch(e) {}
+                }
+
                 if (remain <= 0) {
                     clearInterval(qrCountdownInterval);
                     cdText.textContent = "Hết hạn";
@@ -1025,7 +1044,7 @@
                 closeCheckoutModal();
                 document.getElementById('modalOrderCode').textContent = '#' + orderCode;
                 document.getElementById('modalOrderAmount').textContent = totalAmount.toLocaleString('vi-VN') + ' đ';
-                document.getElementById('vietQrImage').src = `https://img.vietqr.io/image/MB-0985520678-compact2.png?amount=${totalAmount}&addInfo=${orderCode}&accountName=NGUYEN%20VAN%20A`;
+                document.getElementById('vietQrImage').src = `https://img.vietqr.io/image/ICB-109872383459-compact2.png?amount=${totalAmount}&addInfo=${orderCode}&accountName=TRAN%20NGOC%20MINH`;
                 document.getElementById('qrPaymentModal').classList.remove('hidden');
                 const btnConfirm = document.getElementById('btnConfirmQrPaidProducts');
                 if (btnConfirm) {

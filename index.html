@@ -1270,7 +1270,7 @@
                     </div>
                     <div class="flex justify-between items-center py-1 border-b border-slate-200">
                         <span class="text-slate-500">Ngân hàng nhận:</span>
-                        <strong class="text-slate-900 font-semibold">MB Bank (0985520678)</strong>
+                        <strong class="text-slate-900 font-semibold">VietinBank - 109872383459 (TRAN NGOC MINH)</strong>
                     </div>
                     <div class="flex justify-between items-center py-1">
                         <span class="text-slate-500">Nội dung chuyển khoản:</span>
@@ -2111,8 +2111,8 @@
             document.getElementById('modalOrderAmount').innerText = Number(amount).toLocaleString('vi-VN') + ' đ';
             document.getElementById('modalOrderNote').innerText = orderCode;
 
-            // API chuẩn VietQR tạo ảnh mã QR động kèm STK, số tiền và mã đơn
-            const vietQrUrl = `https://img.vietqr.io/image/MB-0985520678-compact2.png?amount=${amount}&addInfo=${orderCode}&accountName=NGUYEN%20VAN%20A`;
+            // API chuẩn VietQR tạo ảnh mã QR động kèm STK VietinBank, số tiền và mã đơn cho SePay
+            const vietQrUrl = `https://img.vietqr.io/image/ICB-109872383459-compact2.png?amount=${amount}&addInfo=${orderCode}&accountName=TRAN%20NGOC%20MINH`;
             document.getElementById('vietQrImage').src = vietQrUrl;
 
             document.getElementById('qrWaitingState').classList.remove('hidden');
