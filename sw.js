@@ -1,22 +1,5 @@
 // Service Worker cho Nước Mắm Ba Cô Admin (Hỗ trợ PWA & Web Push Notification trên iOS 16.4+, Android & PC)
-const CACHE_NAME = 'baco-admin-v4';
-
-async function syncSwAppBadge(explicitCount) {
-    try {
-        if (!self.navigator || typeof self.navigator.setAppBadge !== 'function') return;
-        if (typeof explicitCount === 'number') {
-            if (explicitCount > 0) {
-                await self.navigator.setAppBadge(explicitCount);
-            } else if (typeof self.navigator.clearAppBadge === 'function') {
-                await self.navigator.clearAppBadge();
-            }
-            return;
-        }
-        const activeNotifs = await self.registration.getNotifications();
-        const count = (activeNotifs && activeNotifs.length) ? activeNotifs.length : 1;
-        await self.navigator.setAppBadge(count);
-    } catch (e) {}
-}
+const CACHE_NAME = 'baco-admin-v5';
 
 self.addEventListener('install', (event) => {
     self.skipWaiting();
@@ -26,56 +9,81 @@ self.addEventListener('activate', (event) => {
     event.waitUntil(self.clients.claim());
 });
 
-// Lắng nghe lệnh hiển thị thông báo đẩy hoặc cập nhật badge từ client script
+async function safeSetBadge(count) {
+    try {
+        if (self.navigator && typeof self.navigator.setAppBadge === 'function') {
+            if (typeof count === 'number' && count > 0) {
+                await self.navigator.setAppBadge(count);
+            } else if (typeof count === 'number' && count === 0) {
+                if (typeof self.navigator.clearAppBadge === 'function') await self.navigator.clearAppBadge();
+            } else {
+                const notifs = await self.registration.getNotifications();
+                const total = (notifs && notifs.length) ? notifs.length : 1;
+                await self.navigator.setAppBadge(total);
+            }
+        }
+    } catch(e) {}
+}
+
 self.addEventListener('message', (event) => {
     if (!event.data) return;
     if (event.data.type === 'SET_APP_BADGE') {
-        event.waitUntil(syncSwAppBadge(Number(event.data.count || 0)));
+        event.waitUntil(safeSetBadge(Number(event.data.count || 0)));
         return;
     }
     if (event.data.type === 'SHOW_NOTIFICATION') {
         const payload = event.data.payload || {};
         const options = {
             body: payload.body || 'Bạn có thông báo mới',
-            icon: './pictrure/logo.JPG',
-            badge: './pictrure/logo.JPG',
-            vibrate: [300, 100, 300, 100, 300],
+            icon: 'https://mambacokhanhhoa.vercel.app/pictrure/logo.JPG',
             tag: payload.tag || ('baco-order-' + Date.now()),
             renotify: true,
-            requireInteraction: true,
             data: {
                 url: payload.url || './admin.html',
                 code: payload.code || '',
                 type: payload.type || 'orders'
             }
         };
-        event.waitUntil(
-            self.registration.showNotification(payload.title || '🔔 Nước Mắm Ba Cô', options)
-                .then(() => syncSwAppBadge(payload.badgeCount))
-        );
+        event.waitUntil((async () => {
+            try {
+                await self.registration.showNotification(payload.title || '🔔 Nước Mắm Ba Cô', options);
+            } catch(e) {
+                try {
+                    await self.registration.showNotification(payload.title || '🔔 Nước Mắm Ba Cô', { body: payload.body || 'Bạn có thông báo mới' });
+                } catch(e2) {}
+            }
+            await safeSetBadge(payload.badgeCount);
+        })());
     }
 });
 
-// Xử lý sự kiện nhận Push từ máy chủ (Apple APNs / FCM / Mozilla)
+// Xử lý sự kiện nhận Push từ máy chủ (Apple APNs / FCM / Mozilla) khi tắt màn hình / không dùng app
 self.addEventListener('push', (event) => {
-    let data = { title: '🔔 Đơn Hàng Mới!', body: 'Có thông báo mới từ Nước Mắm Ba Cô', url: './admin.html', code: '', type: 'orders' };
+    let data = {
+        title: '🛒 Đơn Hàng Mới - Ba Cô',
+        body: 'Bạn có đơn hàng mới vừa được gửi tới!',
+        url: './admin.html',
+        code: '',
+        type: 'orders'
+    };
+
     if (event.data) {
         try {
-            data = event.data.json();
+            const parsed = event.data.json();
+            data = Object.assign(data, parsed);
         } catch (e) {
-            data.body = event.data.text();
+            try { data.body = event.data.text(); } catch (e2) {}
         }
     }
 
     const uniqueTag = 'baco-' + (data.code || Date.now());
+
+    // Các tham số chuẩn 100% tương thích Apple WebKit iOS 16.4+ và Android Chrome
     const options = {
-        body: data.body,
-        icon: './pictrure/logo.JPG',
-        badge: './pictrure/logo.JPG',
-        vibrate: [300, 100, 300, 100, 300],
+        body: data.body || 'Khách hàng vừa đặt hàng thành công!',
+        icon: 'https://mambacokhanhhoa.vercel.app/pictrure/logo.JPG',
         tag: uniqueTag,
         renotify: true,
-        requireInteraction: true,
         data: {
             url: data.url || './admin.html',
             code: data.code || '',
@@ -83,20 +91,35 @@ self.addEventListener('push', (event) => {
         }
     };
 
-    event.waitUntil(
-        Promise.all([
-            self.registration.showNotification(data.title || '🔔 Nước Mắm Ba Cô', options)
-                .then(() => syncSwAppBadge()),
-            self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-                windowClients.forEach(client => {
-                    client.postMessage({
-                        type: 'PUSH_NOTIFICATION_RECEIVED',
-                        payload: data
-                    });
+    event.waitUntil((async () => {
+        // 1. Luôn hiển thị thông báo ra Màn hình khóa iPhone / Android (kể cả khi không mở app)
+        try {
+            await self.registration.showNotification(data.title || '🔔 Nước Mắm Ba Cô', options);
+        } catch (err) {
+            // Fallback tối giản nhất nếu WebKit kén icon
+            try {
+                await self.registration.showNotification(data.title || '🔔 Nước Mắm Ba Cô', {
+                    body: data.body || 'Bạn có đơn hàng mới!'
                 });
-            })
-        ])
-    );
+            } catch (err2) {
+                console.error('Không thể hiển thị notification:', err2);
+            }
+        }
+
+        // 2. Cập nhật số đếm badge đỏ ngoài màn hình chính
+        await safeSetBadge();
+
+        // 3. Nếu ứng dụng đang mở trong màn hình thì báo hiệu tức thì
+        try {
+            const windowClients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+            for (const client of windowClients) {
+                client.postMessage({
+                    type: 'PUSH_NOTIFICATION_RECEIVED',
+                    payload: data
+                });
+            }
+        } catch(e) {}
+    })());
 });
 
 // Xử lý khi người dùng chạm vào thông báo trên điện thoại (Màn hình khóa hoặc Biểu ngữ)

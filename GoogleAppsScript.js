@@ -400,6 +400,7 @@ function doPost(e) {
       // 🔔 GỬI EMAIL THÔNG BÁO TỨC THÌ KÈM NÚT MỞ ZALO CHAT
       sendWholesaleEmail(data, leadCode, nowStr);
       sendTelegramWholesale(data, leadCode, nowStr);
+      sendServerWebPush(data, leadCode, "wholesale");
 
       return jsonSuccess({ type: "wholesale", row: targetRow });
     }
@@ -465,6 +466,7 @@ function doPost(e) {
     // 🔔 GỬI EMAIL THÔNG BÁO ĐƠN HÀNG MỚI TỨC THÌ KÈM NÚT MỞ ZALO CHAT
     sendOrderEmail(data, orderCode, nowStr);
     sendTelegramNotification(data, orderCode, nowStr);
+    sendServerWebPush(data, orderCode, "orders");
 
     return jsonSuccess({ type: "retail", row: targetRow });
 
@@ -896,3 +898,37 @@ function sendTelegramWholesale(d, code, timeStr) {
     Logger.log("Telegram Wholesale Error: " + e.toString());
   }
 }
+
+// ========================================================
+// HỆ THỐNG GỬI WEB PUSH THẲNG TỪ GOOGLE CLOUD VỀ ĐIỆN THOẠI
+// ========================================================
+function sendServerWebPush(d, code, type) {
+  try {
+    var url = "https://mambacokhanhhoa.vercel.app/api/send-push";
+    var title = "";
+    var body = "";
+    if (type === "wholesale") {
+      title = "🤝 Khách Sỉ Mới #" + code;
+      body = (d.name || "Khách sỉ") + " (" + (d.phone || "") + ") đăng ký tại " + (d.area || "Toàn quốc");
+    } else {
+      var totalFormatted = Number(d.totalAmount || 0).toLocaleString("vi-VN") + "đ";
+      title = "🛒 Đơn Hàng Mới #" + code + " - " + totalFormatted;
+      body = (d.name || "Khách hàng") + " (" + (d.phone || "") + ") vừa đặt: " + (d.product || "Nước mắm") + " - " + (d.address || "");
+    }
+    UrlFetchApp.fetch(url, {
+      method: "post",
+      contentType: "application/json",
+      payload: JSON.stringify({
+        title: title,
+        body: body,
+        url: "./admin.html",
+        code: code,
+        type: type || "orders"
+      }),
+      muteHttpExceptions: true
+    });
+  } catch(e) {
+    Logger.log("Lỗi sendServerWebPush: " + e.toString());
+  }
+}
+

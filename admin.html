@@ -1032,7 +1032,7 @@
                         <span class="text-xs font-medium text-[#1c1c1e] truncate">Thông báo đẩy & Chuông báo</span>
                         <span id="pushStatusBadge" class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#767680]/[0.12] text-[#8E8E93] shrink-0">Đang kiểm tra</span>
                     </div>
-                    <div class="flex items-center space-x-1.5 shrink-0">
+                    <div class="flex items-center space-x-1.5 shrink-0 flex-wrap gap-y-1">
                         <button type="button" id="btnEnablePush" onclick="requestNotificationPermission()" 
                                 class="bg-[#007AFF] text-white font-medium text-[11px] px-2.5 py-1 rounded-lg transition ios-press">
                             Bật thông báo
@@ -1040,6 +1040,10 @@
                         <button type="button" onclick="testNotificationChime()" 
                                 class="bg-[#767680]/[0.12] text-[#1c1c1e] font-medium text-[11px] px-2.5 py-1 rounded-lg transition ios-press">
                             Thử chuông
+                        </button>
+                        <button type="button" onclick="testLockScreenPush()" 
+                                class="bg-[#34C759] text-white font-medium text-[11px] px-2.5 py-1 rounded-lg transition ios-press" title="Bấm rồi khóa màn hình để kiểm tra sau 5 giây">
+                            🔒 Thử khóa MH (5s)
                         </button>
                     </div>
                 </div>
@@ -6180,6 +6184,29 @@ function dinhDangDongKhachSi(sheet, row) {
                     code: sampleCode
                 })
             }).catch(e => console.warn('Test send push err:', e));
+        }
+
+        function testLockScreenPush() {
+            showAdminToast('⏱️ Đang đếm ngược 5 giây... Hãy bấm nút nguồn KHÓA MÀN HÌNH ngay!', 'info');
+            setTimeout(async () => {
+                try {
+                    const res = await fetch('/api/send-push', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title: '🛒 [Thử Nghiệm Màn Hình Khóa] Đơn Hàng Mới #BC8888',
+                            body: 'Chị Lan Anh vừa đặt COD: 2 Chai Mắm Nhĩ 40°N (Đã khóa màn hình)',
+                            url: './admin.html',
+                            code: 'BC8888',
+                            type: 'orders'
+                        })
+                    });
+                    const d = await res.json();
+                    console.log('Test lockscreen push result:', d);
+                } catch(err) {
+                    console.warn('Lỗi push:', err);
+                }
+            }, 5000);
         }
 
         async function saveAndTestTelegramConfig() {
