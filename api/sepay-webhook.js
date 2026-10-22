@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
 
     if (debug) {
       try {
-        const storeRes = await fetch(STORAGE_URL, { cache: 'no-store' });
+        const storeRes = await fetch(STORAGE_URL);
         if (storeRes.ok) {
           const storeData = await storeRes.json();
           return res.status(200).json({
@@ -40,7 +40,9 @@ module.exports = async (req, res) => {
             paidOrders: (storeData && storeData.data && storeData.data.paidOrders) || []
           });
         }
-      } catch(e) {}
+      } catch(e) {
+        return res.status(200).json({ status: 'error', message: e.message });
+      }
     }
 
     if (!checkOrder) {
@@ -50,7 +52,7 @@ module.exports = async (req, res) => {
     const cleanCheck = String(checkOrder).replace('#', '').trim().toUpperCase();
 
     try {
-      const storeRes = await fetch(STORAGE_URL, { cache: 'no-store' });
+      const storeRes = await fetch(STORAGE_URL);
       if (storeRes.ok) {
         const storeData = await storeRes.json();
         const paidOrders = (storeData && storeData.data && storeData.data.paidOrders) || [];
@@ -82,7 +84,7 @@ module.exports = async (req, res) => {
 
     // Lưu raw webhook log để kiểm tra
     try {
-      const storeRes = await fetch(STORAGE_URL, { cache: 'no-store' });
+      const storeRes = await fetch(STORAGE_URL);
       if (storeRes.ok) {
         const sData = await storeRes.json();
         if (sData && sData.data) {
@@ -150,7 +152,7 @@ module.exports = async (req, res) => {
     // 2. Lưu trạng thái Đã Thanh Toán vào Storage để Web khách hàng tự động nhảy thành công
     let storeData = null;
     try {
-      const storeRes = await fetch(STORAGE_URL, { cache: 'no-store' });
+      const storeRes = await fetch(STORAGE_URL);
       if (storeRes.ok) {
         storeData = await storeRes.json();
       }
