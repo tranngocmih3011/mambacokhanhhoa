@@ -2347,7 +2347,20 @@
             qrAutoCheckInterval = setInterval(async () => {
                 attempts++;
 
-                // 1. Kiểm tra trạng thái đơn hàng trong baco_orders
+                // 1. Kiểm tra tức thì qua SePay Webhook Endpoint (Tốc độ phản hồi tức thì 1-2s)
+                try {
+                    const sepayRes = await fetch(`/api/sepay-webhook?checkOrder=${encodeURIComponent(orderCode)}`, { cache: 'no-store' });
+                    if (sepayRes.ok) {
+                        const sepayData = await sepayRes.json();
+                        if (sepayData && sepayData.paid) {
+                            stopQrAutoCheck();
+                            handlePaymentSuccessAuto();
+                            return;
+                        }
+                    }
+                } catch(e) {}
+
+                // 2. Kiểm tra trạng thái đơn hàng trong baco_orders (nếu admin xác nhận thủ công)
                 try {
                     const orders = JSON.parse(localStorage.getItem('baco_orders') || '[]');
                     const found = orders.find(o => o.orderCode === orderCode);
