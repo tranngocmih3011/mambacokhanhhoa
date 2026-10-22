@@ -1019,35 +1019,20 @@
                         <button type="button" onclick="clearAllNotifications()" class="bg-white text-[#FF3B30] border border-black/[0.08] font-medium text-xs px-2.5 py-1.5 rounded-lg transition ios-press">
                             Xóa hết
                         </button>
-                        <button type="button" onclick="refreshNotifications(true)" class="bg-[#007AFF] text-white font-semibold text-xs px-2.5 py-1.5 rounded-lg transition ios-press">
-                            Làm mới
-                        </button>
                     </div>
                 </div>
 
-                <!-- Hàng trạng thái thông báo đẩy gọn chuẩn iOS Settings (Đã ẩn toàn bộ hướng dẫn rườm rà) -->
+                <!-- Hàng trạng thái thông báo đẩy gọn chuẩn iOS Settings (Tối giản) -->
                 <div class="ios-card px-3.5 py-2.5 flex items-center justify-between gap-2">
                     <div class="flex items-center space-x-2.5 min-w-0">
                         <span id="pushStatusDot" class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span>
                         <span class="text-xs font-medium text-[#1c1c1e] truncate">Thông báo đẩy & Chuông báo</span>
                         <span id="pushStatusBadge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 shrink-0">Kiểm tra kết nối</span>
                     </div>
-                    <div class="flex items-center space-x-1.5 shrink-0 flex-wrap gap-y-1">
+                    <div class="flex items-center space-x-1.5 shrink-0">
                         <button type="button" id="btnEnablePush" onclick="registerDevicePushSubscription(true)" 
-                                class="bg-[#007AFF] text-white font-bold text-xs px-2.5 py-1 rounded-lg transition ios-press">
+                                class="bg-[#007AFF] text-white font-semibold text-xs px-2.5 py-1 rounded-lg transition ios-press">
                             Bật thông báo
-                        </button>
-                        <button type="button" onclick="testNotificationChime()" 
-                                class="bg-[#767680]/[0.12] text-[#1c1c1e] font-medium text-[11px] px-2.5 py-1 rounded-lg transition ios-press" title="Bấm để nghe thử âm thanh chuông báo mẫu">
-                            Nghe thử chuông
-                        </button>
-                        <button type="button" onclick="testLockScreenPush()" 
-                                class="bg-[#34C759] text-white font-medium text-[11px] px-2.5 py-1 rounded-lg transition ios-press" title="Bấm rồi khóa màn hình để kiểm tra sau 5 giây">
-                            🔒 Thử khóa MH (5s)
-                        </button>
-                        <button type="button" onclick="openTelegramGuideModal()" 
-                                class="bg-[#0088cc] text-white font-medium text-[11px] px-2.5 py-1 rounded-lg transition ios-press" title="Báo đơn tức thì qua ứng dụng Telegram (Đánh thức màn hình khóa 100%)">
-                            ✈️ Telegram
                         </button>
                     </div>
                 </div>
@@ -6183,20 +6168,16 @@ function dinhDangDongKhachSi(sheet, row) {
             if (Notification.permission === 'granted' && hasSub && isSaved) {
                 if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-500 shrink-0";
                 badge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700";
-                badge.textContent = "Đã kết nối máy chủ";
-                if (btn) {
-                    btn.innerHTML = '<span>Làm mới</span>';
-                    btn.className = "bg-[#F2F2F7] text-slate-600 font-medium text-xs px-2.5 py-1 rounded-lg transition ios-press";
-                    btn.title = "Bấm để cấp lại token APNs mới nhất";
-                    btn.onclick = () => registerDevicePushSubscription(true);
-                }
+                badge.textContent = "Đang hoạt động";
+                if (btn) btn.classList.add('hidden');
             } else {
-                if (dot) dot.className = "w-2 h-2 rounded-full bg-amber-400 shrink-0 animate-ping";
-                badge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800";
-                badge.textContent = "Chưa kết nối máy chủ";
+                if (dot) dot.className = "w-2 h-2 rounded-full bg-amber-400 shrink-0";
+                badge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700";
+                badge.textContent = "Chưa kết nối";
                 if (btn) {
-                    btn.innerHTML = '<span>👉 KẾT NỐI IPHONE</span>';
-                    btn.className = "bg-[#007AFF] text-white font-bold text-xs px-3 py-1 rounded-lg shadow transition ios-press animate-bounce";
+                    btn.classList.remove('hidden');
+                    btn.innerHTML = '<span>Bật thông báo</span>';
+                    btn.className = "bg-[#007AFF] text-white font-semibold text-xs px-2.5 py-1 rounded-lg transition ios-press";
                     btn.onclick = () => registerDevicePushSubscription(true);
                 }
             }
