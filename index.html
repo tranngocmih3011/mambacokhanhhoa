@@ -1278,28 +1278,28 @@
                     </div>
                 </div>
 
-                <!-- Trạng thái tự động kiểm tra giao dịch từ ngân hàng -->
-                <div class="bg-gradient-to-r from-amber-50 to-orange-50 text-amber-900 border border-amber-200/90 rounded-2xl p-3.5 text-center space-y-2 shadow-xs">
+                <!-- Trạng thái tự động kiểm tra giao dịch từ SePay -->
+                <div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 text-emerald-950 border border-emerald-200/90 rounded-2xl p-4 text-center space-y-2 shadow-xs">
                     <div class="flex items-center justify-center space-x-2">
-                        <span class="relative flex h-2.5 w-2.5">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-600"></span>
+                        <span class="relative flex h-3 w-3">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-600"></span>
                         </span>
-                        <span id="qrStatusText" class="text-xs sm:text-sm font-bold text-amber-900">Đang chờ bạn quét mã chuyển khoản...</span>
+                        <span id="qrStatusText" class="text-xs sm:text-sm font-bold text-emerald-900">Đang tự động kiểm tra biến động số dư VietinBank qua SePay...</span>
                     </div>
-                    <p class="text-[11px] text-slate-500 font-medium leading-relaxed">
-                        Mở app ngân hàng quét mã trên. Sau khi chuyển tiền xong, bạn bấm nút xanh bên dưới để xác nhận đơn ngay!
+                    <p class="text-[11px] text-slate-600 font-medium leading-relaxed">
+                        Chuyển tiền xong hệ thống sẽ <strong>tự động duyệt đơn ngay trong 1-3 giây</strong> mà không cần bạn phải bấm gì!
                     </p>
-                    <div class="w-full bg-amber-200/60 h-1.5 rounded-full overflow-hidden">
-                        <div id="qrScanProgressBar" class="bg-amber-600 h-1.5 rounded-full transition-all duration-500 w-1/3 animate-pulse"></div>
+                    <div class="w-full bg-emerald-200/60 h-1.5 rounded-full overflow-hidden">
+                        <div id="qrScanProgressBar" class="bg-emerald-600 h-1.5 rounded-full transition-all duration-500 w-1/3 animate-pulse"></div>
                     </div>
                 </div>
 
-                <!-- Các nút hành động chính xác nhận hoặc đổi COD hoặc hủy -->
+                <!-- Các nút hành động -->
                 <div class="space-y-2.5 pt-1">
-                    <button type="button" id="btnConfirmQrPaid" onclick="confirmQrPaymentDone()" 
-                            class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-3.5 px-4 rounded-2xl shadow-lg transition flex items-center justify-center space-x-2 text-sm sm:text-base">
-                        <span>✅ Tôi Đã Chuyển Khoản Thành Công</span>
+                    <button type="button" id="btnManualCheckQr" onclick="manualCheckQrPayment()" 
+                            class="w-full bg-slate-900 hover:bg-slate-800 active:scale-95 text-white font-bold py-3 px-4 rounded-xl shadow transition flex items-center justify-center space-x-2 text-xs sm:text-sm">
+                        <span>🔄 Kiểm tra lại nếu bạn đã chuyển khoản</span>
                     </button>
 
                     <button type="button" onclick="switchPendingToCod()" 
@@ -1437,29 +1437,61 @@
             drawer.classList.toggle('hidden');
         }
 
+        function syncCartWithLatestCatalog() {
+            if (!cart || cart.length === 0) return;
+            let prods = homeProductsList;
+            if (!prods || prods.length === 0) {
+                try { prods = JSON.parse(localStorage.getItem('baco_products') || '[]'); } catch(e) {}
+            }
+            if (!prods || prods.length === 0) return;
+            cart.forEach(item => {
+                const found = prods.find(p => p.name.trim().toLowerCase() === item.name.trim().toLowerCase() || item.name.includes(p.name));
+                if (found && Number(found.price) > 0) {
+                    item.price = Number(found.price);
+                }
+            });
+        }
+
         function addToCart(name, price) {
+            let prods = homeProductsList;
+            if (!prods || prods.length === 0) {
+                try { prods = JSON.parse(localStorage.getItem('baco_products') || '[]'); } catch(e) {}
+            }
+            const found = (prods || []).find(p => p.name.trim().toLowerCase() === name.trim().toLowerCase() || name.includes(p.name));
+            const activePrice = found ? Number(found.price) : Number(price);
+
             const existingItem = cart.find(item => item.name === name);
             if (existingItem) {
                 existingItem.quantity += 1;
+                existingItem.price = activePrice;
             } else {
-                cart.push({ name, price, quantity: 1 });
+                cart.push({ name, price: activePrice, quantity: 1 });
             }
             updateCartUI();
             showToast(`Đã thêm "${name}" vào giỏ hàng!`, 'success');
         }
 
         function buyNow(name, price) {
+            let prods = homeProductsList;
+            if (!prods || prods.length === 0) {
+                try { prods = JSON.parse(localStorage.getItem('baco_products') || '[]'); } catch(e) {}
+            }
+            const found = (prods || []).find(p => p.name.trim().toLowerCase() === name.trim().toLowerCase() || name.includes(p.name));
+            const activePrice = found ? Number(found.price) : Number(price);
+
             const existingItem = cart.find(item => item.name === name);
             if (existingItem) {
                 existingItem.quantity += 1;
+                existingItem.price = activePrice;
             } else {
-                cart.push({ name, price, quantity: 1 });
+                cart.push({ name, price: activePrice, quantity: 1 });
             }
             updateCartUI();
             scrollToCheckout();
         }
 
         function updateCartUI() {
+            syncCartWithLatestCatalog();
             try { localStorage.setItem('baco_cart', JSON.stringify(cart)); } catch(e) {}
             const container = document.getElementById('cartItemsContainer');
             const badge1 = document.getElementById('cartBadge');
@@ -1767,18 +1799,25 @@
         }
 
         function calculateOrderAmount(productText, quantity) {
-            const storedProds = localStorage.getItem('baco_products');
-            if (storedProds) {
-                try {
-                    const list = JSON.parse(storedProds);
-                    const found = list.find(p => productText.includes(p.name));
-                    if (found) return Number(found.price) * parseInt(quantity || 1);
-                } catch(e) {}
+            const qty = parseInt(quantity || 1, 10);
+            let list = homeProductsList;
+            if (!list || list.length === 0) {
+                try { list = JSON.parse(localStorage.getItem('baco_products') || '[]'); } catch(e) {}
+            }
+            if (list && list.length > 0) {
+                const found = list.find(p => productText.includes(p.name) || p.name.includes(productText));
+                if (found && Number(found.price) > 0) return Number(found.price) * qty;
+            }
+            // Trích xuất số tiền trong chuỗi nếu có dạng (2.000đ) hoặc (180.000đ)
+            const priceMatch = (productText || '').match(/\(([\d\.]+)\s*đ\)/);
+            if (priceMatch && priceMatch[1]) {
+                const num = parseInt(priceMatch[1].replace(/\./g, ''), 10);
+                if (!isNaN(num) && num > 0) return num * qty;
             }
             let unitPrice = 180000;
             if (productText.includes('35°')) unitPrice = 120000;
             else if (productText.includes('Hộp Quà')) unitPrice = 380000;
-            return unitPrice * parseInt(quantity || 1);
+            return unitPrice * qty;
         }
 
         const DEFAULT_PRODUCTS = [
@@ -2119,10 +2158,10 @@
             document.getElementById('qrSuccessState').classList.add('hidden');
             document.getElementById('qrPaymentModal').classList.remove('hidden');
 
-            const btnConfirm = document.getElementById('btnConfirmQrPaid');
-            if (btnConfirm) {
-                btnConfirm.disabled = false;
-                btnConfirm.innerHTML = `<span>✅ Tôi Đã Chuyển Khoản Thành Công</span>`;
+            const btnManual = document.getElementById('btnManualCheckQr');
+            if (btnManual) {
+                btnManual.disabled = false;
+                btnManual.innerHTML = `<span>🔄 Kiểm tra lại nếu bạn đã chuyển khoản</span>`;
             }
 
             // Bắt đầu đếm ngược 15 phút
@@ -2247,48 +2286,93 @@
             pendingQrOrder = null;
         }
 
-        async function confirmQrPaymentDone() {
-            const btn = document.getElementById('btnConfirmQrPaid');
+        async function manualCheckQrPayment() {
+            if (!currentOrderCode) return;
+            const btn = document.getElementById('btnManualCheckQr');
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Đang ghi nhận đơn hàng...`;
+                btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Đang kiểm tra giao dịch...`;
+            }
+            try {
+                // 1. Kiểm tra tức thì qua SePay Endpoint
+                const sepayRes = await fetch(`/api/sepay-webhook?checkOrder=${encodeURIComponent(currentOrderCode)}`, { cache: 'no-store' });
+                if (sepayRes.ok) {
+                    const sepayData = await sepayRes.json();
+                    if (sepayData && sepayData.paid) {
+                        finalizePaidOrder();
+                        return;
+                    }
+                }
+
+                // 2. Kiểm tra Google Sheet
+                const isPaidOnSheet = await checkGoogleSheetPayment(currentOrderCode);
+                if (isPaidOnSheet) {
+                    finalizePaidOrder();
+                    return;
+                }
+
+                showToast(`⚠️ Chưa nhận được tiền cho đơn #${currentOrderCode}. Quý khách vui lòng kiểm tra lại app ngân hàng đã trừ tiền chưa hoặc đợi vài giây để hệ thống tự động ghi nhận!`, 'warning');
+            } catch(e) {
+                showToast('Đang kết nối kiểm tra ngân hàng, vui lòng thử lại sau vài giây!', 'info');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `<span>🔄 Kiểm tra lại nếu bạn đã chuyển khoản</span>`;
+                }
+            }
+        }
+
+        async function finalizePaidOrder() {
+            stopQrAutoCheck();
+            if (qrCountdownInterval) {
+                clearInterval(qrCountdownInterval);
+                qrCountdownInterval = null;
             }
 
-            if (!pendingQrOrder) {
-                handlePaymentSuccessAuto();
-                return;
-            }
-
-            const paidOrder = { ...pendingQrOrder };
+            const paidOrder = pendingQrOrder ? { ...pendingQrOrder } : {
+                orderCode: currentOrderCode,
+                name: currentCustomerName,
+                phone: currentPhone,
+                totalAmount: currentAmount,
+                product: 'Nước mắm Ba Cô',
+                quantity: 1
+            };
             paidOrder.status = 'Đã nhận tiền';
+            paidOrder.paymentMethod = 'Chuyển khoản ngân hàng (VietQR)';
+            paidOrder.createdAt = Date.now();
 
             // 1. Lưu vào baco_orders chính thức
             try {
                 const existingOrders = JSON.parse(localStorage.getItem('baco_orders') || '[]');
-                existingOrders.unshift({
-                    orderCode: paidOrder.orderCode,
-                    name: paidOrder.name,
-                    phone: paidOrder.phone,
-                    address: paidOrder.address,
-                    product: paidOrder.product,
-                    quantity: paidOrder.quantity,
-                    totalAmount: paidOrder.totalAmount,
-                    paymentMethod: 'Chuyển khoản ngân hàng (VietQR)',
-                    status: 'Đã nhận tiền',
-                    timestamp: new Date().toLocaleDateString('vi-VN'),
-                    createdAt: Date.now()
-                });
+                const idx = existingOrders.findIndex(o => o.orderCode === paidOrder.orderCode);
+                if (idx !== -1) {
+                    existingOrders[idx].status = 'Đã nhận tiền';
+                } else {
+                    existingOrders.unshift({
+                        orderCode: paidOrder.orderCode,
+                        name: paidOrder.name,
+                        phone: paidOrder.phone,
+                        address: paidOrder.address || '',
+                        product: paidOrder.product,
+                        quantity: paidOrder.quantity,
+                        totalAmount: paidOrder.totalAmount,
+                        paymentMethod: 'Chuyển khoản ngân hàng (VietQR)',
+                        status: 'Đã nhận tiền',
+                        timestamp: new Date().toLocaleDateString('vi-VN'),
+                        createdAt: Date.now()
+                    });
+                }
                 localStorage.setItem('baco_orders', JSON.stringify(existingOrders));
             } catch(err) {}
 
-            // 2. Gửi Web Push Notification cho Admin (Lúc này khách đã chuyển tiền xong)
+            // 2. Gửi Web Push Notification cho Admin (Lúc này khách đã chuyển tiền xong qua SePay)
             fetch('/api/send-push', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    title: `💰 Đơn QR Đã Thanh Toán #${paidOrder.orderCode} - ${Number(paidOrder.totalAmount).toLocaleString('vi-VN')}đ`,
-                    body: `${paidOrder.name} (${paidOrder.phone}) đã quét QR chuyển khoản: ${paidOrder.product}`,
-                    url: './admin.html',
+                    title: `💰 ĐÃ NHẬN TIỀN QR #${paidOrder.orderCode} - ${Number(paidOrder.totalAmount).toLocaleString('vi-VN')}đ`,
+                    body: `${paidOrder.name} (${paidOrder.phone}) đã chuyển tiền thành công: ${paidOrder.product}`,
+                    url: './admin.html?viewNotif=' + encodeURIComponent(paidOrder.orderCode),
                     code: paidOrder.orderCode,
                     type: 'orders'
                 })
@@ -2297,7 +2381,7 @@
             // 3. Đồng bộ lên Google Sheet
             const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
             try {
-                await fetch(GOOGLE_SCRIPT_URL, {
+                fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -2307,16 +2391,27 @@
                 console.warn('Lỗi ghi sheet:', err);
             }
 
-            handlePaymentSuccessAuto();
+            // 4. Chuyển sang màn hình xác nhận thành công
+            document.getElementById('qrWaitingState').classList.add('hidden');
+            document.getElementById('qrSuccessState').classList.remove('hidden');
+
+            document.getElementById('successOrderCode').innerText = '#' + paidOrder.orderCode;
+            document.getElementById('smsPhoneDisplay').innerText = 'Gửi đến: ' + (paidOrder.phone || currentPhone);
+            document.getElementById('smsMessageContent').innerText = 
+                `"Ba Co Khanh Hoa: Cam on quy khach ${paidOrder.name || currentCustomerName || ''} da thanh toan don hang #${paidOrder.orderCode} so tien ${Number(paidOrder.totalAmount || currentAmount).toLocaleString('vi-VN')}d. Don hang dang duoc dong goi va se giao som nhat!"`;
+
+            showToast('Tài khoản VietinBank đã nhận tiền! Đơn hàng được duyệt tự động 🎉', 'success');
 
             try {
                 document.getElementById('orderForm').reset();
-                togglePaymentMethod('cod');
                 cart = [];
                 updateCartUI();
             } catch(e) {}
 
             pendingQrOrder = null;
+            setTimeout(() => {
+                closeQrModal();
+            }, 4000);
         }
 
         async function downloadQrImage() {
@@ -2353,8 +2448,7 @@
                     if (sepayRes.ok) {
                         const sepayData = await sepayRes.json();
                         if (sepayData && sepayData.paid) {
-                            stopQrAutoCheck();
-                            handlePaymentSuccessAuto();
+                            finalizePaidOrder();
                             return;
                         }
                     }
@@ -2365,22 +2459,20 @@
                     const orders = JSON.parse(localStorage.getItem('baco_orders') || '[]');
                     const found = orders.find(o => o.orderCode === orderCode);
                     if (found && (found.status === 'Đã nhận tiền' || found.status === 'Hoàn tất')) {
-                        stopQrAutoCheck();
-                        handlePaymentSuccessAuto();
+                        finalizePaidOrder();
                         return;
                     }
                 } catch(e) {}
 
-                // 2. Kiểm tra trực tiếp trên Google Sheet xem đơn hàng này đã được đổi sang "Đã nhận tiền" chưa
+                // 3. Kiểm tra trực tiếp trên Google Sheet xem đơn hàng này đã được đổi sang "Đã nhận tiền" chưa
                 if (attempts % 2 === 0) {
                     const isPaidOnSheet = await checkGoogleSheetPayment(orderCode);
                     if (isPaidOnSheet) {
-                        stopQrAutoCheck();
-                        handlePaymentSuccessAuto();
+                        finalizePaidOrder();
                         return;
                     }
                 }
-            }, 3000);
+            }, 2000);
         }
 
         async function checkGoogleSheetPayment(orderCode) {
@@ -2415,38 +2507,6 @@
                 clearInterval(qrAutoCheckInterval);
                 qrAutoCheckInterval = null;
             }
-        }
-
-        function handlePaymentSuccessAuto() {
-            stopQrAutoCheck();
-            if (qrCountdownInterval) {
-                clearInterval(qrCountdownInterval);
-                qrCountdownInterval = null;
-            }
-
-            // 1. Cập nhật trạng thái đơn hàng trong localStorage sang "Đã nhận tiền"
-            try {
-                let orders = JSON.parse(localStorage.getItem('baco_orders') || '[]');
-                const idx = orders.findIndex(o => o.orderCode === currentOrderCode);
-                if (idx !== -1) {
-                    orders[idx].status = 'Đã nhận tiền';
-                    localStorage.setItem('baco_orders', JSON.stringify(orders));
-                }
-            } catch(e) {}
-
-            // 2. Chuyển sang màn hình xác nhận thành công
-            document.getElementById('qrWaitingState').classList.add('hidden');
-            document.getElementById('qrSuccessState').classList.remove('hidden');
-
-            document.getElementById('successOrderCode').innerText = '#' + currentOrderCode;
-            document.getElementById('smsPhoneDisplay').innerText = 'Gửi đến: ' + currentPhone;
-            document.getElementById('smsMessageContent').innerText = 
-                `"Ba Co Khanh Hoa: Cam on quy khach ${currentCustomerName || ''} da thanh toan don hang #${currentOrderCode} so tiền ${Number(currentAmount).toLocaleString('vi-VN')}d. Don hang dang duoc dong goi va se giao som nhat!"`;
-
-            showToast('Tài khoản ngân hàng đã nhận tiền! Đơn hàng được duyệt thành công 🎉', 'success');
-            setTimeout(() => {
-                closeQrModal();
-            }, 3500);
         }
 
         function submitOrder(e) {

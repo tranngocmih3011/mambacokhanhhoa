@@ -429,11 +429,25 @@
                 <div class="flex justify-between"><span>Ngân hàng nhận:</span><strong class="text-slate-900">VietinBank - 109872383459 (TRAN NGOC MINH)</strong></div>
             </div>
 
+            <!-- Trạng thái tự động kiểm tra SePay -->
+            <div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 text-emerald-950 border border-emerald-200 rounded-2xl p-3.5 text-center space-y-1.5 shadow-xs">
+                <div class="flex items-center justify-center space-x-2">
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600"></span>
+                    </span>
+                    <span class="text-xs font-bold text-emerald-900">Đang tự động kiểm tra biến động số dư VietinBank...</span>
+                </div>
+                <p class="text-[11px] text-slate-600">
+                    Chuyển tiền xong hệ thống sẽ <strong>tự động duyệt đơn ngay trong 1-3 giây</strong> mà không cần bạn phải bấm gì!
+                </p>
+            </div>
+
             <!-- Các nút hành động chính -->
             <div class="space-y-2 pt-1">
-                <button type="button" id="btnConfirmQrPaidProducts" onclick="confirmProductsQrPaymentDone()" 
-                        class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center space-x-2 text-sm">
-                    <span>✅ Tôi Đã Chuyển Khoản Thành Công</span>
+                <button type="button" id="btnManualCheckProductsQr" onclick="manualCheckProductsQrPayment()" 
+                        class="w-full bg-slate-900 hover:bg-slate-800 active:scale-95 text-white font-bold py-2.5 px-4 rounded-xl shadow transition flex items-center justify-center space-x-2 text-xs">
+                    <span>🔄 Kiểm tra lại nếu bạn đã chuyển khoản</span>
                 </button>
                 <button type="button" onclick="switchProductsPendingToCod()" 
                         class="w-full bg-slate-100 hover:bg-amber-50 hover:border-amber-300 text-slate-700 hover:text-amber-900 border border-slate-200 font-semibold py-2.5 px-4 rounded-xl transition flex items-center justify-center space-x-1.5 text-xs">
@@ -666,18 +680,46 @@
             document.getElementById('cartDrawer').classList.toggle('hidden');
         }
 
+        function syncProductsCartWithCatalog() {
+            if (!cart || cart.length === 0) return;
+            const prods = (catalogProducts && catalogProducts.length > 0) ? catalogProducts : (JSON.parse(localStorage.getItem('baco_products') || '[]'));
+            if (!prods || prods.length === 0) return;
+            cart.forEach(item => {
+                const found = prods.find(p => p.name.trim().toLowerCase() === item.name.trim().toLowerCase() || item.name.includes(p.name));
+                if (found && Number(found.price) > 0) {
+                    item.price = Number(found.price);
+                }
+            });
+        }
+
         function addToCart(name, price) {
+            const prods = (catalogProducts && catalogProducts.length > 0) ? catalogProducts : (JSON.parse(localStorage.getItem('baco_products') || '[]'));
+            const found = (prods || []).find(p => p.name.trim().toLowerCase() === name.trim().toLowerCase() || name.includes(p.name));
+            const activePrice = found ? Number(found.price) : Number(price);
+
             const existing = cart.find(i => i.name === name);
-            if (existing) existing.quantity += 1;
-            else cart.push({ name, price, quantity: 1 });
+            if (existing) {
+                existing.quantity += 1;
+                existing.price = activePrice;
+            } else {
+                cart.push({ name, price: activePrice, quantity: 1 });
+            }
             updateCartUI();
             showToast(`Đã thêm "${name}" vào giỏ hàng!`);
         }
 
         function buyNow(name, price) {
+            const prods = (catalogProducts && catalogProducts.length > 0) ? catalogProducts : (JSON.parse(localStorage.getItem('baco_products') || '[]'));
+            const found = (prods || []).find(p => p.name.trim().toLowerCase() === name.trim().toLowerCase() || name.includes(p.name));
+            const activePrice = found ? Number(found.price) : Number(price);
+
             const existing = cart.find(i => i.name === name);
-            if (existing) existing.quantity += 1;
-            else cart.push({ name, price, quantity: 1 });
+            if (existing) {
+                existing.quantity += 1;
+                existing.price = activePrice;
+            } else {
+                cart.push({ name, price: activePrice, quantity: 1 });
+            }
             updateCartUI();
             openCheckoutModal();
         }
@@ -695,6 +737,7 @@
         }
 
         function updateCartUI() {
+            syncProductsCartWithCatalog();
             try { localStorage.setItem('baco_cart', JSON.stringify(cart)); } catch(e) {}
             const container = document.getElementById('cartItemsContainer');
             const badgeNav = document.getElementById('cartNavBadge');
@@ -906,8 +949,35 @@
             pendingQrOrder = null;
         }
 
+        async function manualCheckProductsQrPayment() {
+            if (!pendingQrOrder || !pendingQrOrder.orderCode) return;
+            const btn = document.getElementById('btnManualCheckProductsQr');
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = "Đang kiểm tra biến động số dư...";
+            }
+            try {
+                const sRes = await fetch(`/api/sepay-webhook?checkOrder=${encodeURIComponent(pendingQrOrder.orderCode)}`, { cache: 'no-store' });
+                if (sRes.ok) {
+                    const sData = await sRes.json();
+                    if (sData && sData.paid) {
+                        confirmProductsQrPaymentDone();
+                        return;
+                    }
+                }
+                showToast(`⚠️ Chưa nhận được tiền cho đơn #${pendingQrOrder.orderCode}. Quý khách vui lòng kiểm tra lại app ngân hàng hoặc đợi trong giây lát!`, 'warning');
+            } catch(e) {
+                showToast('Đang kết nối kiểm tra ngân hàng, vui lòng thử lại sau vài giây!', 'info');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = "🔄 Kiểm tra lại nếu bạn đã chuyển khoản";
+                }
+            }
+        }
+
         async function confirmProductsQrPaymentDone() {
-            const btn = document.getElementById('btnConfirmQrPaidProducts');
+            const btn = document.getElementById('btnManualCheckProductsQr');
             if (btn) {
                 btn.disabled = true;
                 btn.textContent = "Đang ghi nhận đơn hàng...";
@@ -1046,10 +1116,10 @@
                 document.getElementById('modalOrderAmount').textContent = totalAmount.toLocaleString('vi-VN') + ' đ';
                 document.getElementById('vietQrImage').src = `https://img.vietqr.io/image/ICB-109872383459-compact2.png?amount=${totalAmount}&addInfo=${orderCode}&accountName=TRAN%20NGOC%20MINH`;
                 document.getElementById('qrPaymentModal').classList.remove('hidden');
-                const btnConfirm = document.getElementById('btnConfirmQrPaidProducts');
-                if (btnConfirm) {
-                    btnConfirm.disabled = false;
-                    btnConfirm.textContent = "✅ Tôi Đã Chuyển Khoản Thành Công";
+                const btnManual = document.getElementById('btnManualCheckProductsQr');
+                if (btnManual) {
+                    btnManual.disabled = false;
+                    btnManual.textContent = "🔄 Kiểm tra lại nếu bạn đã chuyển khoản";
                 }
                 startProductsQrCountdown(15 * 60);
                 return;
@@ -1272,6 +1342,19 @@
             updateCartUI();
             applyBrandInfo();
             syncCatalogFromGoogleSheet();
+        });
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'baco_products') {
+                loadCatalogProducts();
+                updateCartUI();
+            }
+            if (e.key === 'baco_cart') {
+                try {
+                    cart = JSON.parse(localStorage.getItem('baco_cart') || '[]');
+                    updateCartUI();
+                } catch(err) {}
+            }
         });
     </script>
 </body>
