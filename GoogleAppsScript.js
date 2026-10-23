@@ -261,6 +261,40 @@ function doPost(e) {
       return jsonSuccess({ saved: "NoiDungWeb", count: keys.length });
     }
 
+    // 0.5 Lưu & Cập nhật toàn bộ bảng Đánh Giá (Tab "DanhGia")
+    if (action === "save_reviews" && Array.isArray(data.reviews)) {
+      var revSheet = ss.getSheetByName("DanhGia");
+      if (!revSheet) {
+        revSheet = ss.insertSheet("DanhGia");
+      } else {
+        revSheet.clear();
+      }
+      khoiTaoBangDanhGia(revSheet);
+
+      var revList = data.reviews || [];
+      for (var rIdx = 0; rIdx < revList.length; rIdx++) {
+        var r = revList[rIdx];
+        var targetRowRev = 3 + rIdx;
+        var sttRev = rIdx + 1;
+        var rowRev = [
+          sttRev,
+          r.date || nowStr,
+          r.id || ("REV-" + (rIdx + 1)),
+          r.name || "Khách mua online",
+          "'" + (r.phone || ""),
+          r.location || "Toàn quốc",
+          r.product || "Nước mắm Ba Cô",
+          Number(r.rating) || 5,
+          Array.isArray(r.tags) ? r.tags.join(", ") : (r.tags || ""),
+          r.comment || "",
+          r.status || "approved"
+        ];
+        revSheet.getRange(targetRowRev, 1, 1, rowRev.length).setValues([rowRev]);
+        dinhDangDongDanhGia(revSheet, targetRowRev);
+      }
+      return jsonSuccess({ saved: "DanhGia", count: revList.length });
+    }
+
     // ========================================================
     // NHÁNH 1: CÁC LỆNH ĐỒNG BỘ ĐƠN HÀNG & KHÁCH SỈ TỪ ADMIN
     // ========================================================
@@ -442,33 +476,41 @@ function doPost(e) {
     }
 
     // 2.3 Đơn hàng bán lẻ từ B7 (Tab 1)
-    var sheet = ss.getSheets()[0];
-    var targetRow = timDongTrong(sheet);
-    var orderCode = data.orderCode || ("#BC" + Math.floor(Math.random()*899999 + 100000));
+    // CHỈ TẠO ĐƠN KHI ĐÚNG LÀ ĐƠN HÀNG HỢP LỆ (Có mã đơn BC hoặc có sản phẩm + SĐT)
+    var isRealOrder = (data.orderCode && String(data.orderCode).startsWith("BC")) ||
+                      (data.product && (data.phone || data.totalAmount));
 
-    var rowData = [
-      nowStr,
-      orderCode,
-      data.name || "",
-      "'" + (data.phone || ""),
-      data.address || "",
-      data.product || "",
-      Number(data.quantity) || 1,
-      Number(data.totalAmount) || 0,
-      data.paymentMethod || "COD",
-      data.note || "",
-      data.status || "Chờ xác nhận"
-    ];
+    if (isRealOrder) {
+      var sheet = ss.getSheets()[0];
+      var targetRow = timDongTrong(sheet);
+      var orderCode = data.orderCode || ("#BC" + Math.floor(Math.random()*899999 + 100000));
 
-    sheet.getRange(targetRow, 2, 1, rowData.length).setValues([rowData]);
-    dinhDangDongDonHang(sheet, targetRow);
+      var rowData = [
+        nowStr,
+        orderCode,
+        data.name || "",
+        "'" + (data.phone || ""),
+        data.address || "",
+        data.product || "",
+        Number(data.quantity) || 1,
+        Number(data.totalAmount) || 0,
+        data.paymentMethod || "COD",
+        data.note || "",
+        data.status || "Chờ xác nhận"
+      ];
 
-    // 🔔 GỬI EMAIL THÔNG BÁO ĐƠN HÀNG MỚI TỨC THÌ KÈM NÚT MỞ ZALO CHAT
-    sendOrderEmail(data, orderCode, nowStr);
-    sendTelegramNotification(data, orderCode, nowStr);
-    sendServerWebPush(data, orderCode, "orders");
+      sheet.getRange(targetRow, 2, 1, rowData.length).setValues([rowData]);
+      dinhDangDongDonHang(sheet, targetRow);
 
-    return jsonSuccess({ type: "retail", row: targetRow });
+      // 🔔 GỬI EMAIL THÔNG BÁO ĐƠN HÀNG MỚI TỨC THÌ KÈM NÚT MỞ ZALO CHAT
+      sendOrderEmail(data, orderCode, nowStr);
+      sendTelegramNotification(data, orderCode, nowStr);
+      sendServerWebPush(data, orderCode, "orders");
+
+      return jsonSuccess({ type: "retail", row: targetRow });
+    }
+
+    return jsonSuccess({ msg: "Action processed without order creation", action: action });
 
   } catch (error) {
     return jsonError(error.toString());
