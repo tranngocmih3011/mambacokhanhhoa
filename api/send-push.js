@@ -117,7 +117,7 @@ module.exports = async (req, res) => {
                        `💬 ${msgBody || 'Vui lòng kiểm tra trang quản trị!'}\n\n` +
                        `🔗 Mã tra cứu: <code>#${code || 'MỚI'}</code>\n` +
                        `⏰ Thời gian: ${new Date().toLocaleString('vi-VN')}\n` +
-                       `👉 <a href="https://mambacokhanhhoa.vercel.app/admin.html?viewNotif=${encodeURIComponent(code || '')}">Nhấn vào đây để xem chi tiết đơn hàng</a>`;
+                       `👉 <a href="https://mambacokhanhhoa.pages.dev/admin.html?viewNotif=${encodeURIComponent(code || '')}">Nhấn vào đây để xem chi tiết đơn hàng</a>`;
 
         const tgRes = await fetch(`https://api.telegram.org/bot${telegramConfig.botToken}/sendMessage`, {
           method: 'POST',

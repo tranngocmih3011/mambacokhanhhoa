@@ -853,7 +853,7 @@ function sendTelegramNotification(d, code, timeStr) {
               "🛒 *Sản phẩm:* " + (d.product || "Nước mắm") + " (x" + (d.quantity || 1) + ")\n" +
               "💰 *Tổng tiền:* *" + totalFormatted + "* (" + (d.paymentMethod || "COD") + ")\n" +
               "⏰ *Thời gian:* " + timeStr + "\n\n" +
-              "👉 [Bấm Vào Đây Để Mở Trang Quản Trị](https://mambacokhanhhoa.vercel.app/admin.html)";
+              "👉 [Bấm Vào Đây Để Mở Trang Quản Trị](https://mambacokhanhhoa.pages.dev/admin.html)";
 
     var url = "https://api.telegram.org/bot" + TELEGRAM_BOT_TOKEN + "/sendMessage";
     UrlFetchApp.fetch(url, {
@@ -881,7 +881,7 @@ function sendTelegramWholesale(d, code, timeStr) {
               "🏢 *Mô hình:* " + (d.businessModel || "Đại lý") + "\n" +
               "📝 *Nhu cầu:* " + (d.note || "Tư vấn bảng giá") + "\n" +
               "⏰ *Thời gian:* " + timeStr + "\n\n" +
-              "👉 [Bấm Vào Đây Để Mở Trang Quản Trị](https://mambacokhanhhoa.vercel.app/admin.html)";
+              "👉 [Bấm Vào Đây Để Mở Trang Quản Trị](https://mambacokhanhhoa.pages.dev/admin.html)";
 
     var url = "https://api.telegram.org/bot" + TELEGRAM_BOT_TOKEN + "/sendMessage";
     UrlFetchApp.fetch(url, {
