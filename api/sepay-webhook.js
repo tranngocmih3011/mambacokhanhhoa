@@ -179,6 +179,10 @@ module.exports = async (req, res) => {
       if (m4) return ('BC' + m4[1]).toUpperCase();
       const m5 = s.match(/SEVQR\s*(?:DH|DON)?\s*(\d{4,9})/i);
       if (m5) return ('BC' + m5[1]).toUpperCase();
+      const m6 = s.match(/BC\s*(\d{5,9})/i);
+      if (m6) return ('BC' + m6[1]).toUpperCase();
+      const m7 = s.match(/(?:SEVQR|SEPAY|BACO)\s*(\d{5,9})/i);
+      if (m7) return ('BC' + m7[1]).toUpperCase();
       return '';
     };
 

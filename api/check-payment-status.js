@@ -77,7 +77,19 @@ module.exports = async (req, res) => {
       console.warn('Lỗi đọc storage:', e.message);
     }
 
+    const parsedUrl = req.method !== 'POST' ? new URL(req.url, `https://${req.headers.host || 'localhost'}`) : null;
+    const sinceParam = req.method === 'POST' ? (req.body?.since || 0) : (req.query?.since || (parsedUrl ? parsedUrl.searchParams.get('since') : 0));
+    const since = Number(sinceParam || 0);
+
     // 2. Nếu tìm thấy giao dịch đã thanh toán
+    if (match) {
+      const paidTimestamp = match.paidAt ? new Date(match.paidAt).getTime() : 0;
+      // Nếu có truyền since (thời gian tạo đơn) và thời điểm thanh toán cũ hơn thời điểm tạo đơn quá 1 phút -> Bỏ qua vì là đơn cũ
+      if (since > 0 && paidTimestamp > 0 && paidTimestamp < (since - 60000)) {
+        match = null;
+      }
+    }
+
     if (match) {
       return res.status(200).json({
         payment_status: 'Paid',

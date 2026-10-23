@@ -3265,7 +3265,7 @@ function dinhDangDongKhachSi(sheet, row) {
                     const matchesDate = isDateInRange(parseItemDate(o.timestamp), orderDateFilter);
                     if (!matchesDate) return false;
 
-                    if (currentFilter === 'pending') return o.status === 'Chờ xác nhận' || o.status === 'Đang chờ xử lý';
+                    if (currentFilter === 'pending') return o.status === 'Chờ xác nhận' || o.status === 'Đang chờ xử lý' || o.status === 'Chờ thanh toán QR';
                     if (currentFilter === 'shipping') return o.status === 'Đang giao';
                     if (currentFilter === 'completed') return o.status === 'Hoàn tất' || o.status === 'Đã nhận tiền';
                     return true;
@@ -3296,7 +3296,7 @@ function dinhDangDongKhachSi(sheet, row) {
 
             const dateScopedOrders = orders.filter(o => isDateInRange(parseItemDate(o.timestamp), orderDateFilter));
             const countAll = dateScopedOrders.length;
-            const countPending = dateScopedOrders.filter(o => o.status === 'Chờ xác nhận' || o.status === 'Đang chờ xử lý').length;
+            const countPending = dateScopedOrders.filter(o => o.status === 'Chờ xác nhận' || o.status === 'Đang chờ xử lý' || o.status === 'Chờ thanh toán QR').length;
             const countShipping = dateScopedOrders.filter(o => o.status === 'Đang giao').length;
             const countCompleted = dateScopedOrders.filter(o => o.status === 'Hoàn tất' || o.status === 'Đã nhận tiền').length;
 
@@ -3330,6 +3330,7 @@ function dinhDangDongKhachSi(sheet, row) {
                         const isTargeted = isTargetedMode || (targetedOrderCode && cleanCode.toLowerCase() === String(targetedOrderCode).replace('#', '').trim().toLowerCase());
                         
                         let statusColor = "bg-[#FF9500]/12 text-[#FF9500]";
+                        if (order.status === 'Chờ thanh toán QR') statusColor = "bg-[#AF52DE]/12 text-[#AF52DE]";
                         if (order.status === 'Đang giao') statusColor = "bg-[#007AFF]/12 text-[#007AFF]";
                         if (order.status === 'Hoàn tất' || order.status === 'Đã nhận tiền') statusColor = "bg-[#34C759]/12 text-[#34C759]";
 
@@ -3399,6 +3400,7 @@ function dinhDangDongKhachSi(sheet, row) {
                                     <select onchange="updateOrderStatus(${originalIdx}, this.value)" 
                                             class="text-xs font-medium px-2.5 py-1.5 rounded-lg bg-[#767680]/[0.12] border-0 text-[#1c1c1e] focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
                                         <option value="Chờ xác nhận" ${order.status === 'Chờ xác nhận' ? 'selected' : ''}>Chờ duyệt</option>
+                                        <option value="Chờ thanh toán QR" ${order.status === 'Chờ thanh toán QR' ? 'selected' : ''}>Chờ QR</option>
                                         <option value="Đã nhận tiền" ${order.status === 'Đã nhận tiền' ? 'selected' : ''}>Đã nhận tiền</option>
                                         <option value="Đang giao" ${order.status === 'Đang giao' ? 'selected' : ''}>Đang giao</option>
                                         <option value="Hoàn tất" ${order.status === 'Hoàn tất' ? 'selected' : ''}>Hoàn tất</option>
@@ -3451,6 +3453,7 @@ function dinhDangDongKhachSi(sheet, row) {
                                 <td class="px-4 py-3">
                                     <select onchange="updateOrderStatus(${originalIdx}, this.value)" class="text-xs font-medium px-2 py-1 rounded-lg bg-[#767680]/[0.12] border-0">
                                         <option value="Chờ xác nhận" ${order.status === 'Chờ xác nhận' ? 'selected' : ''}>Chờ duyệt</option>
+                                        <option value="Chờ thanh toán QR" ${order.status === 'Chờ thanh toán QR' ? 'selected' : ''}>Chờ QR</option>
                                         <option value="Đã nhận tiền" ${order.status === 'Đã nhận tiền' ? 'selected' : ''}>Đã nhận tiền</option>
                                         <option value="Đang giao" ${order.status === 'Đang giao' ? 'selected' : ''}>Đang giao</option>
                                         <option value="Hoàn tất" ${order.status === 'Hoàn tất' ? 'selected' : ''}>Hoàn tất</option>
