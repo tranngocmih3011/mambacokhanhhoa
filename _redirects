@@ -1,0 +1,2 @@
+# Cloudflare Pages Redirects & Reverse Proxy
+/api/*  https://mambacokhanhhoa.vercel.app/api/:splat  200
