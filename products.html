@@ -382,19 +382,13 @@
                     <input type="text" id="note" placeholder="Giao giờ hành chính..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm">
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    <div onclick="selectPaymentMethod('cod')" class="flex items-center p-3 border-2 rounded-2xl cursor-pointer border-amber-600 bg-amber-50/60 select-none" id="cardCod">
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-semibold text-slate-700">Phương thức thanh toán</label>
+                    <div class="flex items-center p-3 border-2 border-amber-600 bg-amber-50/70 rounded-2xl select-none">
                         <input type="radio" name="paymentMethod" value="COD (Thanh toán tiền mặt khi nhận hàng)" checked class="w-4 h-4 text-amber-600 pointer-events-none">
                         <div class="ml-2.5">
                             <span class="block font-bold text-xs text-slate-900">💵 Tiền mặt khi nhận hàng (COD)</span>
-                            <span class="block text-[10px] text-slate-500">Kiểm tra hàng trước khi thanh toán</span>
-                        </div>
-                    </div>
-                    <div onclick="selectPaymentMethod('bank')" class="flex items-center p-3 border-2 border-slate-200 rounded-2xl cursor-pointer bg-white select-none" id="cardBank">
-                        <input type="radio" name="paymentMethod" value="Chuyển khoản ngân hàng" class="w-4 h-4 text-amber-600 pointer-events-none">
-                        <div class="ml-2.5">
-                            <span class="block font-bold text-xs text-slate-900">💳 Quét mã VietQR</span>
-                            <span class="block text-[10px] text-emerald-600 font-semibold">✨ Tự động điền số tiền & nội dung</span>
+                            <span class="block text-[10px] text-slate-600">Kiểm tra hàng trước khi thanh toán cho bưu tá</span>
                         </div>
                     </div>
                 </div>
@@ -404,61 +398,6 @@
                 </button>
                 <div id="successMessage" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 p-3.5 rounded-xl text-center text-xs"></div>
             </form>
-        </div>
-    </div>
-
-    <!-- VietQR Payment Modal -->
-    <div id="qrPaymentModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto hidden">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl relative border border-amber-100 my-auto text-center space-y-4">
-            <button onclick="cancelProductsPendingQrOrder()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center font-bold text-slate-500">✕</button>
-            <div>
-                <div class="inline-flex items-center space-x-1.5 bg-amber-100 text-amber-900 text-xs font-semibold px-3 py-1 rounded-full mb-1">
-                    <span>⏱️ Thời gian chờ thanh toán:</span>
-                    <span id="qrCountdownText" class="font-bold text-amber-950 font-mono">15:00</span>
-                </div>
-                <h3 class="font-serif text-xl font-bold text-slate-900">Quét Mã VietQR Thanh Toán</h3>
-                <p class="text-xs text-slate-500 mt-0.5">Mở app ngân hàng quét mã chuyển khoản tự động</p>
-            </div>
-            <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200 inline-block mx-auto shadow-inner">
-                <img id="vietQrImage" src="" alt="VietQR" class="w-56 h-56 object-contain mx-auto rounded-xl bg-white p-2 shadow">
-                <div class="mt-1.5 text-xs text-amber-900 font-semibold">⚡ Tự động điền số tiền & nội dung</div>
-            </div>
-            <div class="bg-slate-50 rounded-2xl p-3.5 text-left space-y-1.5 text-xs border border-slate-100">
-                <div class="flex justify-between"><span>Mã đơn:</span><strong id="modalOrderCode" class="text-amber-700 font-bold"></strong></div>
-                <div class="flex justify-between"><span>Số tiền:</span><strong id="modalOrderAmount" class="text-emerald-700 font-bold"></strong></div>
-                <div class="flex justify-between"><span>Ngân hàng nhận:</span><strong class="text-slate-900">VietinBank - 109872383459 (TRAN NGOC MINH)</strong></div>
-                <div class="flex justify-between"><span>Nội dung chuyển:</span><strong id="modalOrderNote" class="text-amber-800 font-bold">SEVQR ...</strong></div>
-            </div>
-
-            <!-- Trạng thái tự động kiểm tra SePay -->
-            <div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 text-emerald-950 border border-emerald-200 rounded-2xl p-3.5 text-center space-y-1.5 shadow-xs">
-                <div class="flex items-center justify-center space-x-2">
-                    <span class="relative flex h-2.5 w-2.5">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600"></span>
-                    </span>
-                    <span class="text-xs font-bold text-emerald-900">Đang tự động kiểm tra biến động số dư VietinBank...</span>
-                </div>
-                <p class="text-[11px] text-slate-600">
-                    Chuyển tiền xong hệ thống sẽ <strong>tự động duyệt đơn ngay trong 1-3 giây</strong> mà không cần bạn phải bấm gì!
-                </p>
-            </div>
-
-            <!-- Các nút hành động chính -->
-            <div class="space-y-2 pt-1">
-                <button type="button" id="btnManualCheckProductsQr" onclick="manualCheckProductsQrPayment()" 
-                        class="w-full bg-slate-900 hover:bg-slate-800 active:scale-95 text-white font-bold py-2.5 px-4 rounded-xl shadow transition flex items-center justify-center space-x-2 text-xs">
-                    <span>🔄 Kiểm tra lại nếu bạn đã chuyển khoản</span>
-                </button>
-                <button type="button" onclick="switchProductsPendingToCod()" 
-                        class="w-full bg-slate-100 hover:bg-amber-50 hover:border-amber-300 text-slate-700 hover:text-amber-900 border border-slate-200 font-semibold py-2.5 px-4 rounded-xl transition flex items-center justify-center space-x-1.5 text-xs">
-                    <span>💵 Đổi sang nhận hàng thanh toán tiền mặt (COD)</span>
-                </button>
-                <button type="button" onclick="cancelProductsPendingQrOrder()" 
-                        class="w-full text-slate-400 hover:text-rose-600 text-xs py-1 transition">
-                    ✕ Hủy đơn hàng này (Chưa chuyển tiền)
-                </button>
-            </div>
         </div>
     </div>
 
@@ -815,221 +754,14 @@
             document.getElementById('checkoutOrderModal').classList.add('hidden');
         }
 
-        let pendingQrOrder = null;
-        let qrCountdownInterval = null;
         let activePaymentMethod = 'cod';
 
         function selectPaymentMethod(m) {
-            activePaymentMethod = m;
-            const codRadio = document.querySelector('input[name="paymentMethod"][value*="COD"]');
-            const bankRadio = document.querySelector('input[name="paymentMethod"][value*="Chuyển khoản"]');
-            if (m === 'bank') {
-                if (bankRadio) bankRadio.checked = true;
-                if (codRadio) codRadio.checked = false;
-            } else {
-                if (codRadio) codRadio.checked = true;
-                if (bankRadio) bankRadio.checked = false;
-            }
-            togglePaymentMethod(m);
+            activePaymentMethod = 'cod';
         }
 
         function togglePaymentMethod(m) {
-            activePaymentMethod = m;
-            const cCod = document.getElementById('cardCod');
-            const cBank = document.getElementById('cardBank');
-            const submitBtn = document.getElementById('submitBtn');
-            if (m === 'bank') {
-                cBank.className = "flex items-center p-3 border-2 rounded-2xl cursor-pointer border-amber-600 bg-amber-50/60 select-none";
-                cCod.className = "flex items-center p-3 border-2 border-slate-200 rounded-2xl cursor-pointer bg-white select-none";
-                if (submitBtn) submitBtn.textContent = "⚡ Tiếp Tục Quét Mã QR Thanh Toán";
-            } else {
-                cCod.className = "flex items-center p-3 border-2 rounded-2xl cursor-pointer border-amber-600 bg-amber-50/60 select-none";
-                cBank.className = "flex items-center p-3 border-2 border-slate-200 rounded-2xl cursor-pointer bg-white select-none";
-                if (submitBtn) submitBtn.textContent = "⚡ Xác Nhận Đặt Hàng Ngay";
-            }
-        }
-
-        function startProductsQrCountdown(seconds) {
-            if (qrCountdownInterval) clearInterval(qrCountdownInterval);
-            let remain = seconds;
-            const cdText = document.getElementById('qrCountdownText');
-            if (!cdText) return;
-
-            const updateDisplay = () => {
-                const m = Math.floor(remain / 60);
-                const s = remain % 60;
-                cdText.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-            };
-            updateDisplay();
-
-            let pollCounter = 0;
-            qrCountdownInterval = setInterval(async () => {
-                remain--;
-                pollCounter++;
-
-                // Tự động kiểm tra SePay mỗi 1-2 giây chuẩn SePay
-                if (pendingQrOrder && pendingQrOrder.orderCode) {
-                    try {
-                        const sRes = await fetch(`/api/check-payment-status?order_id=${encodeURIComponent(pendingQrOrder.orderCode)}&amount=${encodeURIComponent(pendingQrOrder.totalAmount || 0)}`, { cache: 'no-store' });
-                        if (sRes.ok) {
-                            const sData = await sRes.json();
-                            if (sData && (sData.payment_status === 'Paid' || sData.paid)) {
-                                clearInterval(qrCountdownInterval);
-                                qrCountdownInterval = null;
-                                confirmProductsQrPaymentDone(sData);
-                                return;
-                            }
-                        }
-                    } catch(e) {}
-                }
-
-                if (remain <= 0) {
-                    clearInterval(qrCountdownInterval);
-                    cdText.textContent = "Hết hạn";
-                    showToast('Mã QR đã hết hạn chờ thanh toán. Vui lòng thử lại!', 'warning');
-                    cancelProductsPendingQrOrder();
-                } else {
-                    updateDisplay();
-                }
-            }, 1000);
-        }
-
-        function cancelProductsPendingQrOrder() {
-            const isConfirm = confirm("Bạn chưa hoàn tất chuyển tiền cho đơn hàng này.\n\n• Bấm [OK] để hủy đơn hoàn toàn (không lưu đơn ảo)\n• Bấm [Hủy] để tiếp tục giữ mã QR");
-            if (isConfirm) {
-                if (qrCountdownInterval) {
-                    clearInterval(qrCountdownInterval);
-                    qrCountdownInterval = null;
-                }
-                pendingQrOrder = null;
-                document.getElementById('qrPaymentModal').classList.add('hidden');
-                showToast('Đã hủy thao tác thanh toán QR.', 'info');
-            }
-        }
-
-        async function switchProductsPendingToCod() {
-            if (!pendingQrOrder) {
-                document.getElementById('qrPaymentModal').classList.add('hidden');
-                return;
-            }
-
-            const codOrder = { ...pendingQrOrder };
-            codOrder.paymentMethod = 'COD (Thanh toán tiền mặt khi nhận hàng)';
-            codOrder.status = 'Chờ xác nhận';
-
-            try {
-                const existing = JSON.parse(localStorage.getItem('baco_orders') || '[]');
-                existing.unshift(Object.assign({}, codOrder, { status: 'Chờ xác nhận', createdAt: Date.now() }));
-                localStorage.setItem('baco_orders', JSON.stringify(existing));
-            } catch(err) {}
-
-            fetch('/api/send-push', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    title: `🛒 Đơn Hàng COD Mới #${codOrder.orderCode} - ${Number(codOrder.totalAmount).toLocaleString('vi-VN')}đ`,
-                    body: `${codOrder.name} (${codOrder.phone}) vừa đặt COD: ${codOrder.product} - ${codOrder.address}`,
-                    url: './admin.html',
-                    code: codOrder.orderCode,
-                    type: 'orders'
-                })
-            }).catch(err => console.warn('Push error:', err));
-
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(codOrder)
-            }).catch(() => {});
-
-            if (qrCountdownInterval) clearInterval(qrCountdownInterval);
-            document.getElementById('qrPaymentModal').classList.add('hidden');
-            showToast(`Đã chuyển đơn #${codOrder.orderCode} sang thanh toán COD thành công!`, 'success');
-            cart = [];
-            updateCartUI();
-            pendingQrOrder = null;
-        }
-
-        async function manualCheckProductsQrPayment() {
-            if (!pendingQrOrder || !pendingQrOrder.orderCode) return;
-            const btn = document.getElementById('btnManualCheckProductsQr');
-            if (btn) {
-                btn.disabled = true;
-                btn.textContent = "Đang kiểm tra biến động số dư...";
-            }
-            try {
-                const sRes = await fetch(`/api/check-payment-status?order_id=${encodeURIComponent(pendingQrOrder.orderCode)}&amount=${encodeURIComponent(pendingQrOrder.totalAmount || 0)}`, { cache: 'no-store' });
-                if (sRes.ok) {
-                    const sData = await sRes.json();
-                    if (sData && (sData.payment_status === 'Paid' || sData.paid)) {
-                        confirmProductsQrPaymentDone(sData);
-                        return;
-                    }
-                }
-                showToast(`⚠️ Chưa nhận được tiền cho đơn #${pendingQrOrder.orderCode}. Quý khách vui lòng kiểm tra lại app ngân hàng hoặc đợi trong giây lát!`, 'warning');
-            } catch(e) {
-                showToast('Đang kết nối kiểm tra ngân hàng, vui lòng thử lại sau vài giây!', 'info');
-            } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.textContent = "🔄 Kiểm tra lại nếu bạn đã chuyển khoản";
-                }
-            }
-        }
-
-        async function confirmProductsQrPaymentDone(sepayData = null) {
-            const btn = document.getElementById('btnManualCheckProductsQr');
-            if (btn) {
-                btn.disabled = true;
-                btn.textContent = "Đang ghi nhận đơn hàng...";
-            }
-
-            if (!pendingQrOrder) {
-                document.getElementById('qrPaymentModal').classList.add('hidden');
-                return;
-            }
-
-            const codeToUse = (sepayData && sepayData.orderCode) || pendingQrOrder.orderCode;
-            const amountToUse = (sepayData && sepayData.amount) || pendingQrOrder.totalAmount;
-
-            const paidOrder = { ...pendingQrOrder };
-            paidOrder.orderCode = codeToUse;
-            paidOrder.totalAmount = amountToUse;
-            paidOrder.status = 'Đã nhận tiền';
-
-            try {
-                const existing = JSON.parse(localStorage.getItem('baco_orders') || '[]');
-                existing.unshift(Object.assign({}, paidOrder, { status: 'Đã nhận tiền', createdAt: Date.now() }));
-                localStorage.setItem('baco_orders', JSON.stringify(existing));
-            } catch(err) {}
-
-            fetch('/api/send-push', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    title: `💰 Đơn QR Đã Thanh Toán #${paidOrder.orderCode} - ${Number(paidOrder.totalAmount).toLocaleString('vi-VN')}đ`,
-                    body: `${paidOrder.name} (${paidOrder.phone}) đã quét QR chuyển khoản: ${paidOrder.product}`,
-                    url: './admin.html',
-                    code: paidOrder.orderCode,
-                    type: 'orders'
-                })
-            }).catch(err => console.warn('Push error:', err));
-
-            try {
-                await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(paidOrder)
-                });
-            } catch(err) {}
-
-            if (qrCountdownInterval) clearInterval(qrCountdownInterval);
-            document.getElementById('qrPaymentModal').classList.add('hidden');
-            showToast(`🎉 Thanh toán đơn hàng #${paidOrder.orderCode} thành công! Cảm ơn bạn.`, 'success');
-            cart = [];
-            updateCartUI();
-            pendingQrOrder = null;
+            activePaymentMethod = 'cod';
         }
 
         function submitOrder(e) {
@@ -1074,12 +806,7 @@
                 return;
             }
 
-            const radioChecked = document.querySelector('input[name="paymentMethod"]:checked');
-            const checkedVal = radioChecked ? radioChecked.value : '';
-            const isBankPayment = (activePaymentMethod === 'bank') || 
-                                  checkedVal.toLowerCase().includes('chuyển khoản') || 
-                                  checkedVal.toLowerCase().includes('vietqr');
-            const selectedPayment = isBankPayment ? 'Chuyển khoản ngân hàng (VietQR)' : 'COD (Thanh toán tiền mặt khi nhận hàng)';
+            const selectedPayment = 'COD (Thanh toán tiền mặt khi nhận hàng)';
             const orderCode = 'BC' + Math.floor(100000 + Math.random() * 900000);
             let productSummary = '';
             let totalQuantity = 1;
@@ -1114,26 +841,7 @@
 
             localStorage.setItem('baco_last_order_submit', Date.now().toString());
 
-            // NẾU CHỌN THANH TOÁN QR -> MỞ POP-UP VIETQR VÀ CHƯA GỬI ĐƠN/CHƯA BẮN THÔNG BÁO CHO ADMIN
-            if (isBankPayment) {
-                pendingQrOrder = formData;
-                closeCheckoutModal();
-                document.getElementById('modalOrderCode').textContent = '#' + orderCode;
-                document.getElementById('modalOrderAmount').textContent = totalAmount.toLocaleString('vi-VN') + ' đ';
-                document.getElementById('modalOrderNote').textContent = 'SEVQR ' + orderCode;
-                const sepayContent = `SEVQR ${orderCode}`;
-                document.getElementById('vietQrImage').src = `https://img.vietqr.io/image/ICB-109872383459-compact2.png?amount=${totalAmount}&addInfo=${encodeURIComponent(sepayContent)}&accountName=TRAN%20NGOC%20MINH`;
-                document.getElementById('qrPaymentModal').classList.remove('hidden');
-                const btnManual = document.getElementById('btnManualCheckProductsQr');
-                if (btnManual) {
-                    btnManual.disabled = false;
-                    btnManual.textContent = "🔄 Kiểm tra lại nếu bạn đã chuyển khoản";
-                }
-                startProductsQrCountdown(15 * 60);
-                return;
-            }
-
-            // NẾU CHỌN COD -> ĐÂY LÀ ĐƠN TIỀN MẶT ĐÃ XÁC NHẬN MUA
+            // ĐƠN TIỀN MẶT COD ĐÃ XÁC NHẬN MUA
             btn.disabled = true;
             btn.textContent = "Đang gửi đơn hàng...";
 
