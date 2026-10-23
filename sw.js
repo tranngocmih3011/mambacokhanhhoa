@@ -1,5 +1,5 @@
 // Service Worker cho Nước Mắm Ba Cô Admin (Hỗ trợ PWA & Web Push Notification trên iOS 16.4+, Android & PC)
-const CACHE_NAME = 'baco-admin-v8';
+const CACHE_NAME = 'baco-admin-v9';
 
 self.addEventListener('install', (event) => {
     self.skipWaiting();

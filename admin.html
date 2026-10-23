@@ -2717,11 +2717,11 @@ function dinhDangDongKhachSi(sheet, row) {
             fetchOrdersFromGoogleSheet(true);
             fetchSiteAndProductsFromSheet(true);
 
-            // Tự động kiểm tra và cập nhật đơn hàng mới từ Google Sheet mỗi 8 giây
+            // Tự động kiểm tra và cập nhật đơn hàng mới từ Google Sheet mỗi 5 giây
             if (!adminSheetSyncTimer) {
                 adminSheetSyncTimer = setInterval(() => {
                     fetchOrdersFromGoogleSheet(true);
-                }, 8000);
+                }, 5000);
             }
         }
 
@@ -2885,16 +2885,16 @@ function dinhDangDongKhachSi(sheet, row) {
                     const gRows = data.table.rows || [];
                     
                     const sheetOrders = [];
-                    for (let i = 2; i < gRows.length; i++) {
+                    for (let i = 0; i < gRows.length; i++) {
                         const c = gRows[i].c;
                         if (!c) continue;
                         
                         const getVal = idx => (c[idx] && (c[idx].v !== null && c[idx].v !== undefined)) ? (c[idx].f || c[idx].v) : '';
                         
                         const time = getVal(1);      // Cột B: Thời Gian
-                        const orderCode = String(getVal(2) || '').replace('#', ''); // Cột C: Mã Đơn
-                        const name = getVal(3);      // Cột D: Họ Và Tên
-                        const phone = getVal(4);     // Cột E: Số Điện Thoại
+                        const orderCode = String(getVal(2) || '').replace('#', '').trim(); // Cột C: Mã Đơn
+                        const name = String(getVal(3) || '').trim();      // Cột D: Họ Và Tên
+                        const phone = String(getVal(4) || '').trim();     // Cột E: Số Điện Thoại
                         const address = getVal(5);   // Cột F: Địa Chỉ
                         const product = getVal(6);   // Cột G: Sản Phẩm
                         const qty = Number(getVal(7)) || 1; // Cột H: Số Lượng
@@ -2903,9 +2903,17 @@ function dinhDangDongKhachSi(sheet, row) {
                         const note = getVal(10);     // Cột K: Ghi Chú
                         const status = getVal(11) || 'Chờ xác nhận'; // Cột L: Trạng Thái
 
+                        // Bỏ qua dòng tiêu đề nếu lọt vào dữ liệu từ Google Sheet
+                        const orderUpper = orderCode.toUpperCase();
+                        const nameUpper = name.toUpperCase();
+                        const timeUpper = String(time || '').toUpperCase();
+                        if (orderUpper.includes('MÃ ĐƠN') || orderUpper.includes('MÃ') || nameUpper.includes('HỌ VÀ TÊN') || nameUpper.includes('HỌ TÊN') || timeUpper.includes('THỜI GIAN') || nameUpper.includes('BẢNG QUẢN LÝ')) {
+                            continue;
+                        }
+
                         if (orderCode || phone || name) {
                             sheetOrders.push({
-                                orderCode: orderCode || ('BC' + (i - 1)),
+                                orderCode: orderCode || ('BC' + (i + 1)),
                                 name: name || 'Khách hàng',
                                 phone: phone || '',
                                 address: address || '',
