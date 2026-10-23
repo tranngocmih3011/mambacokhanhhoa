@@ -2182,6 +2182,10 @@
         let qrAutoCheckInterval = null;
         let qrCountdownInterval = null;
         let pendingQrOrder = null;
+        let isQrPaymentCompleted = false;
+        let orderAlreadySubmitted = false;
+        let completedPaidOrder = null;
+        let autoCloseSuccessTimer = null;
 
         function openQrModal(orderCode, amount, phone, name, orderData = null) {
             currentOrderCode = orderCode;
@@ -2189,6 +2193,13 @@
             currentAmount = amount;
             currentCustomerName = name;
             pendingQrOrder = orderData;
+            isQrPaymentCompleted = false;
+            orderAlreadySubmitted = false;
+            completedPaidOrder = null;
+            if (autoCloseSuccessTimer) {
+                clearTimeout(autoCloseSuccessTimer);
+                autoCloseSuccessTimer = null;
+            }
 
             document.getElementById('modalOrderCode').innerText = '#' + orderCode;
             document.getElementById('modalOrderAmount').innerText = Number(amount).toLocaleString('vi-VN') + ' đ';
@@ -2255,33 +2266,88 @@
                 clearInterval(qrCountdownInterval);
                 qrCountdownInterval = null;
             }
+            if (autoCloseSuccessTimer) {
+                clearTimeout(autoCloseSuccessTimer);
+                autoCloseSuccessTimer = null;
+            }
+
+            // CHỈ KHI KHÁCH ĐÃ THANH TOÁN XONG VÀ ẤN NÚT (✕) HOẶC [HOÀN TẤT & ĐÓNG] THÌ MỚI GỬI ĐƠN VÀ BẮN MAIL:
+            if (isQrPaymentCompleted && !orderAlreadySubmitted && (completedPaidOrder || pendingQrOrder)) {
+                orderAlreadySubmitted = true;
+                const finalOrder = Object.assign({}, pendingQrOrder || {}, completedPaidOrder || {}, {
+                    status: 'Đã nhận tiền (SePay QR)',
+                    paymentMethod: 'Chuyển khoản VietQR (SePay)',
+                    timestamp: new Date().toLocaleString('vi-VN'),
+                    createdAt: Date.now()
+                });
+
+                // 1. Lưu vào baco_orders trong localStorage
+                try {
+                    const existingOrders = JSON.parse(localStorage.getItem('baco_orders') || '[]');
+                    const idx = existingOrders.findIndex(o => o.orderCode === finalOrder.orderCode);
+                    if (idx !== -1) {
+                        existingOrders[idx] = finalOrder;
+                    } else {
+                        existingOrders.unshift(finalOrder);
+                    }
+                    localStorage.setItem('baco_orders', JSON.stringify(existingOrders));
+                } catch(err) {}
+
+                // 2. GỬI ĐƠN LÊN GOOGLE SHEET TAB 1 (Kích hoạt ghi nhận đơn và tự động bắn Gmail thông báo tới admin)
+                const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
+                try {
+                    fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(finalOrder)
+                    }).catch(err => console.warn('Lỗi gửi Google Sheet:', err));
+                } catch(err) {
+                    console.warn('Lỗi fetch Google Sheet:', err);
+                }
+
+                // 3. Gửi Web Push Notification cho Admin
+                fetch('/api/send-push', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: `💰 ĐÃ NHẬN TIỀN QR #${finalOrder.orderCode} - ${Number(finalOrder.totalAmount).toLocaleString('vi-VN')}đ`,
+                        body: `${finalOrder.name} (${finalOrder.phone}) đã chuyển tiền và chốt đơn: ${finalOrder.product}`,
+                        url: './admin.html?viewNotif=' + encodeURIComponent(finalOrder.orderCode),
+                        code: finalOrder.orderCode,
+                        type: 'orders'
+                    })
+                }).catch(err => console.warn('Push error:', err));
+
+                // 4. Xóa giỏ hàng và reset form
+                try {
+                    const orderForm = document.getElementById('orderForm');
+                    if (orderForm) orderForm.reset();
+                    selectPaymentMethod('cod');
+                    cart = [];
+                    updateCartUI();
+                } catch(e) {}
+
+                showToast(`Đã gửi đơn hàng #${finalOrder.orderCode} thành công! Cảm ơn quý khách 🎉`, 'success');
+            }
+
             document.getElementById('qrPaymentModal').classList.add('hidden');
+            pendingQrOrder = null;
+            completedPaidOrder = null;
+            isQrPaymentCompleted = false;
         }
 
         function cancelPendingQrOrder() {
-            const isConfirm = confirm("Bạn chưa hoàn tất chuyển tiền cho đơn hàng này.\n\n• Bấm [OK] để hủy đơn hoàn toàn\n• Bấm [Hủy] để tiếp tục giữ mã QR thanh toán");
+            const isConfirm = confirm("Bạn chưa hoàn tất chuyển tiền cho đơn hàng này.\n\n• Bấm [OK] để hủy\n• Bấm [Hủy] để tiếp tục giữ mã QR thanh toán");
             if (isConfirm) {
                 stopQrAutoCheck();
                 if (qrCountdownInterval) {
                     clearInterval(qrCountdownInterval);
                     qrCountdownInterval = null;
                 }
-                if (currentOrderCode) {
-                    try {
-                        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
-                        fetch(GOOGLE_SCRIPT_URL, {
-                            method: 'POST',
-                            mode: 'no-cors',
-                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                            body: JSON.stringify({
-                                action: 'update_order_status',
-                                orderCode: currentOrderCode,
-                                status: 'Đã hủy'
-                            })
-                        });
-                    } catch(e) {}
-                }
                 pendingQrOrder = null;
+                completedPaidOrder = null;
+                isQrPaymentCompleted = false;
                 document.getElementById('qrPaymentModal').classList.add('hidden');
                 showToast('Đã hủy thao tác thanh toán QR.', 'info');
             }
@@ -2296,14 +2362,17 @@
             const codOrder = { ...pendingQrOrder };
             codOrder.paymentMethod = 'COD (Thanh toán tiền mặt khi nhận hàng)';
             codOrder.status = 'Chờ xác nhận';
+            codOrder.timestamp = new Date().toLocaleString('vi-VN');
+            codOrder.createdAt = Date.now();
 
             // 1. Cập nhật baco_orders trong localStorage
             try {
                 const existingOrders = JSON.parse(localStorage.getItem('baco_orders') || '[]');
                 const idx = existingOrders.findIndex(o => o.orderCode === codOrder.orderCode);
                 if (idx !== -1) {
-                    existingOrders[idx].paymentMethod = codOrder.paymentMethod;
-                    existingOrders[idx].status = 'Chờ xác nhận';
+                    existingOrders[idx] = codOrder;
+                } else {
+                    existingOrders.unshift(codOrder);
                 }
                 localStorage.setItem('baco_orders', JSON.stringify(existingOrders));
             } catch(err) {}
@@ -2321,18 +2390,14 @@
                 })
             }).catch(err => console.warn('Push error:', err));
 
-            // 3. Đồng bộ cập nhật lên Google Sheet
+            // 3. Ghi đơn hàng COD lên Google Sheet (Gửi mail báo COD)
             const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
             try {
                 fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({
-                        action: 'update_order_status',
-                        orderCode: codOrder.orderCode,
-                        status: 'Chờ xác nhận'
-                    })
+                    body: JSON.stringify(codOrder)
                 });
             } catch(err) {}
 
@@ -2456,6 +2521,8 @@
         }
 
         async function finalizePaidOrder(sepayData = null) {
+            if (isQrPaymentCompleted) return;
+
             stopQrAutoCheck();
             if (qrCountdownInterval) {
                 clearInterval(qrCountdownInterval);
@@ -2463,97 +2530,59 @@
             }
 
             const codeToUse = (sepayData && sepayData.orderCode) || currentOrderCode;
-            const amountToUse = (sepayData && sepayData.amount) || currentAmount;
+            const amountToUse = (sepayData && (sepayData.amount || sepayData.totalAmount)) || currentAmount;
 
-            const paidOrder = pendingQrOrder ? { ...pendingQrOrder } : {
+            isQrPaymentCompleted = true;
+            completedPaidOrder = Object.assign({}, pendingQrOrder || {}, {
                 orderCode: codeToUse,
-                name: currentCustomerName,
-                phone: currentPhone,
+                name: (pendingQrOrder && pendingQrOrder.name) || currentCustomerName,
+                phone: (pendingQrOrder && pendingQrOrder.phone) || currentPhone,
+                address: (pendingQrOrder && pendingQrOrder.address) || '',
+                product: (pendingQrOrder && pendingQrOrder.product) || 'Nước mắm Ba Cô',
+                quantity: (pendingQrOrder && pendingQrOrder.quantity) || 1,
                 totalAmount: amountToUse,
-                product: 'Nước mắm Ba Cô',
-                quantity: 1
-            };
-            paidOrder.orderCode = codeToUse;
-            paidOrder.totalAmount = amountToUse;
-            paidOrder.status = 'Đã nhận tiền (SePay QR)';
-            paidOrder.paymentMethod = 'Chuyển khoản VietQR (SePay)';
-            paidOrder.createdAt = Date.now();
+                paymentMethod: 'Chuyển khoản VietQR (SePay)',
+                status: 'Đã nhận tiền (SePay QR)',
+                paidAt: (sepayData && sepayData.paidAt) || new Date().toISOString()
+            });
 
-            // 1. Cập nhật baco_orders trong localStorage
-            try {
-                const existingOrders = JSON.parse(localStorage.getItem('baco_orders') || '[]');
-                const idx = existingOrders.findIndex(o => o.orderCode === paidOrder.orderCode);
-                if (idx !== -1) {
-                    existingOrders[idx].status = 'Đã nhận tiền (SePay QR)';
-                    existingOrders[idx].paymentMethod = 'Chuyển khoản VietQR (SePay)';
-                } else {
-                    existingOrders.unshift({
-                        orderCode: paidOrder.orderCode,
-                        name: paidOrder.name,
-                        phone: paidOrder.phone,
-                        address: paidOrder.address || '',
-                        product: paidOrder.product,
-                        quantity: paidOrder.quantity,
-                        totalAmount: paidOrder.totalAmount,
-                        paymentMethod: 'Chuyển khoản VietQR (SePay)',
-                        status: 'Đã nhận tiền (SePay QR)',
-                        timestamp: new Date().toLocaleDateString('vi-VN'),
-                        createdAt: Date.now()
-                    });
-                }
-                localStorage.setItem('baco_orders', JSON.stringify(existingOrders));
-            } catch(err) {}
-
-            // 2. Gửi Web Push Notification cho Admin
-            fetch('/api/send-push', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    title: `💰 ĐÃ NHẬN TIỀN QR #${paidOrder.orderCode} - ${Number(paidOrder.totalAmount).toLocaleString('vi-VN')}đ`,
-                    body: `${paidOrder.name} (${paidOrder.phone}) đã chuyển tiền thành công qua SePay: ${paidOrder.product}`,
-                    url: './admin.html?viewNotif=' + encodeURIComponent(paidOrder.orderCode),
-                    code: paidOrder.orderCode,
-                    type: 'orders'
-                })
-            }).catch(err => console.warn('Push error:', err));
-
-            // 3. Đồng bộ lên Google Sheet: Đổi trạng thái sang "Đã nhận tiền (SePay QR)"
-            const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
-            try {
-                fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({
-                        action: 'update_order_status',
-                        orderCode: paidOrder.orderCode,
-                        status: 'Đã nhận tiền (SePay QR)'
-                    })
-                });
-            } catch(err) {
-                console.warn('Lỗi ghi sheet:', err);
-            }
-
-            // 4. Chuyển sang màn hình xác nhận thành công
+            // Chuyển sang màn hình xác nhận thành công
             document.getElementById('qrWaitingState').classList.add('hidden');
             document.getElementById('qrSuccessState').classList.remove('hidden');
 
-            document.getElementById('successOrderCode').innerText = '#' + paidOrder.orderCode;
-            document.getElementById('smsPhoneDisplay').innerText = 'Gửi đến: ' + (paidOrder.phone || currentPhone);
+            document.getElementById('successOrderCode').innerText = '#' + completedPaidOrder.orderCode;
+            document.getElementById('smsPhoneDisplay').innerText = 'Gửi đến: ' + (completedPaidOrder.phone || currentPhone);
             document.getElementById('smsMessageContent').innerText = 
-                `"Ba Co Khanh Hoa: Cam on quy khach ${paidOrder.name || currentCustomerName || ''} da thanh toan don hang #${paidOrder.orderCode} so tien ${Number(paidOrder.totalAmount || currentAmount).toLocaleString('vi-VN')}d qua SePay. Don hang dang duoc dong goi va se giao som nhat!"`;
+                `"Ba Co Khanh Hoa: Cam on quy khach ${completedPaidOrder.name || currentCustomerName || ''} da thanh toan don hang #${completedPaidOrder.orderCode} so tien ${Number(completedPaidOrder.totalAmount || currentAmount).toLocaleString('vi-VN')}d qua SePay. Don hang dang duoc dong goi va se giao som nhat!"`;
 
-            showToast('Tài khoản VietinBank đã nhận tiền! Đơn hàng được duyệt tự động 🎉', 'success');
+            showToast('Tài khoản VietinBank đã nhận tiền! Vui lòng bấm [Hoàn Tất & Đóng] để gửi đơn hàng.', 'success');
 
-            try {
-                document.getElementById('orderForm').reset();
-                selectPaymentMethod('cod');
-                cart = [];
-                updateCartUI();
-            } catch(e) {}
-
-            pendingQrOrder = null;
+            // Dự phòng: Sau 60s nếu khách quên không ấn nút thì tự động gửi đơn và đóng modal
+            if (autoCloseSuccessTimer) clearTimeout(autoCloseSuccessTimer);
+            autoCloseSuccessTimer = setTimeout(() => {
+                if (isQrPaymentCompleted && !orderAlreadySubmitted) {
+                    closeQrModal();
+                }
+            }, 60000);
         }
+
+        window.addEventListener('pagehide', function() {
+            if (isQrPaymentCompleted && !orderAlreadySubmitted && (completedPaidOrder || pendingQrOrder)) {
+                orderAlreadySubmitted = true;
+                const finalOrder = Object.assign({}, pendingQrOrder || {}, completedPaidOrder || {}, {
+                    status: 'Đã nhận tiền (SePay QR)',
+                    paymentMethod: 'Chuyển khoản VietQR (SePay)',
+                    timestamp: new Date().toLocaleString('vi-VN')
+                });
+                const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
+                const payload = JSON.stringify(finalOrder);
+                if (navigator.sendBeacon) {
+                    navigator.sendBeacon(GOOGLE_SCRIPT_URL, payload);
+                } else {
+                    fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', keepalive: true, body: payload });
+                }
+            }
+        });
 
         async function downloadQrImage() {
             const img = document.getElementById('vietQrImage');
@@ -2660,7 +2689,16 @@
             // Lưu mốc thời gian chống spam liên tục
             localStorage.setItem('baco_last_order_submit', Date.now().toString());
 
-            // 1. Lưu đơn hàng vào baco_orders
+            // NẾU CHỌN THANH TOÁN VIETQR SEPAY:
+            // Chưa gửi đơn lên Google Sheet và chưa gửi mail. Chỉ mở pop-up mã QR SePay để khách quét mã thanh toán.
+            if (isBankPayment) {
+                closeCheckoutModal();
+                openQrModal(orderCode, totalAmount, cleanPhone, rawName, formData);
+                return;
+            }
+
+            // NẾU CHỌN THANH TOÁN COD:
+            // 1. Lưu đơn hàng COD vào baco_orders trong localStorage
             try {
                 const existingOrders = JSON.parse(localStorage.getItem('baco_orders') || '[]');
                 existingOrders.unshift({
@@ -2672,7 +2710,7 @@
                     quantity: formData.quantity,
                     totalAmount: formData.totalAmount,
                     paymentMethod: formData.paymentMethod,
-                    status: isBankPayment ? 'Chờ thanh toán QR' : 'Chờ xác nhận',
+                    status: 'Chờ xác nhận',
                     timestamp: new Date().toLocaleDateString('vi-VN'),
                     createdAt: formData.createdAt
                 });
@@ -2681,36 +2719,16 @@
 
             const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
 
-            // 2. Ghi đơn hàng lên Google Sheet Tab 1
+            // 2. Ghi đơn hàng COD lên Google Sheet Tab 1 (Tự động gửi mail thông báo COD)
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({
                     ...formData,
-                    status: isBankPayment ? 'Chờ thanh toán QR' : 'Chờ xác nhận'
+                    status: 'Chờ xác nhận'
                 })
             }).catch(e => console.warn('Lỗi fetch Google Sheet:', e));
-
-            // NẾU CHỌN THANH TOÁN VIETQR SEPAY:
-            if (isBankPayment) {
-                // Bắn push nhẹ báo admin có khách đang quét mã
-                fetch('/api/send-push', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        title: `📱 Khách Quét Mã QR #${orderCode} - ${Number(totalAmount).toLocaleString('vi-VN')}đ`,
-                        body: `${rawName} (${cleanPhone}) đang quét mã VietQR: ${productSummary}`,
-                        url: './admin.html',
-                        code: orderCode,
-                        type: 'orders'
-                    })
-                }).catch(err => console.warn('Push error:', err));
-
-                closeCheckoutModal();
-                openQrModal(orderCode, totalAmount, cleanPhone, rawName, formData);
-                return;
-            }
 
             // NẾU CHỌN THANH TOÁN COD:
             btn.disabled = true;
