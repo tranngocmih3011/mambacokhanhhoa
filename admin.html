@@ -1400,7 +1400,86 @@ function khoiTaoBangSanPhamVaNoiDung() {
 }
 
 function doGet(e) {
-  return ContentService.createTextOutput(&quot;Google Apps Script 2-Way Sync (5 Bảng) &amp; Thông báo Gmail/Zalo đang hoạt động tốt!&quot;);
+  var param = (e &amp;&amp; e.parameter) || {};
+
+  // KIỂM TRA TRẠNG THÁI THANH TOÁN TỨC THÌ (CHO KHÁCH QUÉT QR SEPAY)
+  if (param.action === &quot;check_payment&quot; || param.action === &quot;check_payment_status&quot;) {
+    var checkCode = chuanHoa(param.orderCode || param.order_id || param.code);
+    if (!checkCode) return jsonSuccess({ paid: false, payment_status: &quot;Unpaid&quot;, message: &quot;Thiếu orderCode&quot; });
+
+    // 1. Kiểm tra trong Script Properties
+    try {
+      var props = PropertiesService.getScriptProperties();
+      var pVal = props.getProperty(&quot;PAID_&quot; + checkCode);
+      if (pVal) {
+        var pData = JSON.parse(pVal);
+        return jsonSuccess({
+          paid: true,
+          payment_status: &quot;Paid&quot;,
+          orderCode: checkCode,
+          amount: pData.amount || 0,
+          paidAt: pData.time || &quot;&quot;,
+          source: &quot;script_properties&quot;
+        });
+      }
+    } catch(errProp) {}
+
+    // 2. Kiểm tra trong Tab 1 (Đơn bán lẻ)
+    try {
+      var ss = layBangTinh();
+      if (ss) {
+        var sheet = ss.getSheets()[0];
+        var lastRow = sheet.getLastRow();
+        if (lastRow &gt;= 3) {
+          var rows = sheet.getRange(&quot;C3:L&quot; + lastRow).getValues();
+          for (var i = 0; i &lt; rows.length; i++) {
+            var rCode = chuanHoa(rows[i][0]);
+            var rStatus = String(rows[i][9] || &quot;&quot;).toLowerCase();
+            if (rCode === checkCode || (rCode &amp;&amp; checkCode &amp;&amp; (rCode.indexOf(checkCode) !== -1 || checkCode.indexOf(rCode) !== -1))) {
+              if (rStatus.indexOf(&quot;nhận&quot;) !== -1 || rStatus.indexOf(&quot;thanh toán&quot;) !== -1 || rStatus.indexOf(&quot;paid&quot;) !== -1) {
+                return jsonSuccess({
+                  paid: true,
+                  payment_status: &quot;Paid&quot;,
+                  orderCode: checkCode,
+                  status: rows[i][9],
+                  source: &quot;google_sheet&quot;
+                });
+              }
+            }
+          }
+        }
+      }
+    } catch(errSheet) {}
+
+    return jsonSuccess({ paid: false, payment_status: &quot;Unpaid&quot;, orderCode: checkCode });
+  }
+
+  if (param.action === &quot;get_push_subscriptions&quot;) {
+    var ss = layBangTinh();
+    if (!ss) return jsonSuccess({ subscriptions: [] });
+    var sheet = ss.getSheetByName(&quot;PushTokens&quot;);
+    if (!sheet) return jsonSuccess({ subscriptions: [] });
+    var lastRow = sheet.getLastRow();
+    if (lastRow &lt; 2) return jsonSuccess({ subscriptions: [] });
+    var values = sheet.getRange(2, 1, lastRow - 1, 5).getValues();
+    var list = [];
+    for (var i = 0; i &lt; values.length; i++) {
+      var endpoint = String(values[i][1] || &#x27;&#x27;).trim();
+      var p256dh = String(values[i][2] || &#x27;&#x27;).trim();
+      var auth = String(values[i][3] || &#x27;&#x27;).trim();
+      if (endpoint &amp;&amp; p256dh &amp;&amp; auth) {
+        list.push({
+          endpoint: endpoint,
+          keys: {
+            p256dh: p256dh,
+            auth: auth
+          }
+        });
+      }
+    }
+    return jsonSuccess({ subscriptions: list });
+  }
+  return ContentService.createTextOutput(&quot;Google Apps Script 2-Way Sync (5 Bảng) &amp; Thông báo Gmail/Zalo/Telegram/Push đang hoạt động tốt!&quot;);
 }
 
 function doPost(e) {
@@ -1566,10 +1645,92 @@ function doPost(e) {
     // NHÁNH 1: CÁC LỆNH ĐỒNG BỘ ĐƠN HÀNG &amp; KHÁCH SỈ TỪ ADMIN
     // ========================================================
 
+    // ========================================================
+    // NHÁNH SEPAY: NHẬN WEBHOOK TỰ ĐỘNG &amp; CẬP NHẬT TRẠNG THÁI THANH TOÁN
+    // ========================================================
+    var isSepayDirect = data.transferType || data.transferAmount || (data.content &amp;&amp; String(data.content).indexOf(&quot;SEVQR&quot;) !== -1);
+    if (action === &quot;sepay_webhook&quot; || isSepayDirect) {
+      var rawContent = String(data.content || data.description || &quot;&quot;);
+      var rawCode = String(data.orderCode || data.code || &quot;&quot;);
+      var matchedCode = &quot;&quot;;
+
+      var m = (rawCode + &quot; &quot; + rawContent).match(/BC\d{4,9}/i);
+      if (m) matchedCode = chuanHoa(m[0]);
+      if (!matchedCode &amp;&amp; rawCode) matchedCode = chuanHoa(rawCode);
+
+      var paidAmount = Number(data.amount || data.transferAmount || 0);
+
+      if (matchedCode) {
+        // Lưu vào Script Properties để client query tức thì
+        try {
+          var props = PropertiesService.getScriptProperties();
+          props.setProperty(&quot;PAID_&quot; + matchedCode, JSON.stringify({
+            paid: true,
+            amount: paidAmount,
+            time: nowStr,
+            gateway: data.gateway || &quot;VietinBank&quot;
+          }));
+        } catch(pErr) {}
+
+        // Cập nhật dòng đơn hàng nếu đã có trong Tab 1
+        var sheet = ss.getSheets()[0];
+        var lastRow = sheet.getLastRow();
+        var rowUpdated = -1;
+        if (lastRow &gt;= 3) {
+          var codes = sheet.getRange(&quot;C3:C&quot; + lastRow).getValues();
+          for (var i = 0; i &lt; codes.length; i++) {
+            if (chuanHoa(codes[i][0]) === matchedCode) {
+              rowUpdated = 3 + i;
+              var cell = sheet.getRange(rowUpdated, 12);
+              var newStatus = &quot;Đã nhận tiền (SePay QR)&quot;;
+              cell.setValue(newStatus);
+              dinhDangTrangThaiDonHang(cell, newStatus);
+
+              // Gửi email thông báo đơn đã nhận tiền
+              try {
+                sendOrderEmail({
+                  orderCode: codes[i][0],
+                  name: sheet.getRange(rowUpdated, 4).getValue(),
+                  phone: sheet.getRange(rowUpdated, 5).getValue(),
+                  address: sheet.getRange(rowUpdated, 6).getValue(),
+                  product: sheet.getRange(rowUpdated, 7).getValue(),
+                  quantity: sheet.getRange(rowUpdated, 8).getValue(),
+                  totalAmount: sheet.getRange(rowUpdated, 9).getValue() || paidAmount,
+                  paymentMethod: &quot;Chuyển khoản VietQR (SePay)&quot;,
+                  status: newStatus
+                }, codes[i][0], nowStr);
+              } catch(eMail) {}
+              break;
+            }
+          }
+        }
+
+        return jsonSuccess({
+          success: true,
+          orderCode: matchedCode,
+          amount: paidAmount,
+          rowUpdated: rowUpdated
+        });
+      }
+    }
+
     // 1.1 Cập nhật trạng thái đơn bán lẻ (Tab 1)
     if (action === &quot;update_order_status&quot;) {
       var sheet = ss.getSheets()[0];
       var cleanCode = chuanHoa(data.orderCode);
+
+      // Nếu trạng thái là đã nhận tiền, lưu vào Script Properties để client query tức thì
+      if (String(data.status || &quot;&quot;).toLowerCase().indexOf(&quot;nhận&quot;) !== -1) {
+        try {
+          var props = PropertiesService.getScriptProperties();
+          props.setProperty(&quot;PAID_&quot; + cleanCode, JSON.stringify({
+            paid: true,
+            amount: Number(data.amount || 0),
+            time: nowStr
+          }));
+        } catch(pErr) {}
+      }
+
       var lastRow = sheet.getLastRow();
       if (lastRow &gt;= 3) {
         var codes = sheet.getRange(&quot;C3:C&quot; + lastRow).getValues();
@@ -1583,7 +1744,7 @@ function doPost(e) {
           }
         }
       }
-      return jsonError(&quot;Không tìm thấy mã đơn: &quot; + data.orderCode);
+      return jsonSuccess({ status: data.status, msg: &quot;Đã cập nhật trạng thái: &quot; + cleanCode });
     }
 
     // 1.2 Xóa đơn hàng bán lẻ (Tab 1)
@@ -1767,10 +1928,13 @@ function doPost(e) {
       sheet.getRange(targetRow, 2, 1, rowData.length).setValues([rowData]);
       dinhDangDongDonHang(sheet, targetRow);
 
-      // 🔔 GỬI EMAIL THÔNG BÁO ĐƠN HÀNG MỚI TỨC THÌ KÈM NÚT MỞ ZALO CHAT
-      sendOrderEmail(data, orderCode, nowStr);
-      sendTelegramNotification(data, orderCode, nowStr);
-      sendServerWebPush(data, orderCode, &quot;orders&quot;);
+      // 🔔 GỬI EMAIL THÔNG BÁO ĐƠN HÀNG MỚI (Trừ khi khách đang ở trạng thái 'Chờ thanh toán QR' để tránh báo sớm)
+      var currentStatus = String(data.status || &quot;Chờ xác nhận&quot;);
+      if (currentStatus !== &quot;Chờ thanh toán QR&quot;) {
+        sendOrderEmail(data, orderCode, nowStr);
+        sendTelegramNotification(data, orderCode, nowStr);
+        sendServerWebPush(data, orderCode, &quot;orders&quot;);
+      }
 
       return jsonSuccess({ type: &quot;retail&quot;, row: targetRow });
     }

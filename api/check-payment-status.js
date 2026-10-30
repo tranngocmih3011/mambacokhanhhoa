@@ -84,8 +84,8 @@ module.exports = async (req, res) => {
     // 2. Nếu tìm thấy giao dịch đã thanh toán
     if (match) {
       const paidTimestamp = match.paidAt ? new Date(match.paidAt).getTime() : 0;
-      // Nếu có truyền since (thời gian tạo đơn) và thời điểm thanh toán cũ hơn thời điểm tạo đơn quá 1 phút -> Bỏ qua vì là đơn cũ
-      if (since > 0 && paidTimestamp > 0 && paidTimestamp < (since - 60000)) {
+      // Chỉ bỏ qua nếu thời điểm thanh toán cũ hơn thời điểm tạo đơn quá 24h (tránh lỗi lệch đồng hồ thiết bị)
+      if (since > 0 && paidTimestamp > 0 && paidTimestamp < (since - 86400000)) {
         match = null;
       }
     }
@@ -101,10 +101,29 @@ module.exports = async (req, res) => {
       });
     }
 
-    // 3. Fallback: Kiểm tra trực tiếp trên Google Sheet nếu lưu trữ chưa kịp cập nhật
+    // 3. Fallback 1: Kiểm tra trực tiếp qua Google Apps Script API (Script Properties)
     try {
-      const gvizUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
-      const gRes = await fetch(gvizUrl, { headers: STORAGE_HEADERS });
+      const gasUrl = `https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec?action=check_payment&orderCode=${encodeURIComponent(cleanOrder)}&_t=${Date.now()}`;
+      const gasRes = await fetch(gasUrl, { headers: STORAGE_HEADERS, redirect: 'follow' });
+      if (gasRes.ok) {
+        const gasData = await gasRes.json();
+        if (gasData && (gasData.paid || gasData.payment_status === 'Paid')) {
+          return res.status(200).json({
+            payment_status: 'Paid',
+            paid: true,
+            order_id: cleanOrder,
+            orderCode: cleanOrder,
+            amount: gasData.amount || amount,
+            source: 'google_apps_script'
+          });
+        }
+      }
+    } catch (e) {}
+
+    // 4. Fallback 2: Kiểm tra trực tiếp trên Google Sheet nếu lưu trữ chưa kịp cập nhật
+    try {
+      const gvizUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&_t=${Date.now()}`;
+      const gRes = await fetch(gvizUrl, { headers: STORAGE_HEADERS, cache: 'no-store' });
       if (gRes.ok) {
         const gText = await gRes.text();
         const jsonMatch = gText.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
@@ -115,7 +134,8 @@ module.exports = async (req, res) => {
             const cells = (r && r.c) || [];
             const rCode = cells[2] && cells[2].v ? String(cells[2].v) : '';
             const rStatus = cells[11] && cells[11].v ? String(cells[11].v) : '';
-            if (isOrderCodeMatch(rCode, cleanOrder) && rStatus.toLowerCase().includes('đã nhận tiền')) {
+            const statusLower = rStatus.toLowerCase();
+            if (isOrderCodeMatch(rCode, cleanOrder) && (statusLower.includes('nhận') || statusLower.includes('thanh toán') || statusLower.includes('paid'))) {
               return res.status(200).json({
                 payment_status: 'Paid',
                 paid: true,

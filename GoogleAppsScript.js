@@ -53,6 +53,59 @@ function khoiTaoBangSanPhamVaNoiDung() {
 
 function doGet(e) {
   var param = (e && e.parameter) || {};
+
+  // KIỂM TRA TRẠNG THÁI THANH TOÁN TỨC THÌ (CHO KHÁCH QUÉT QR SEPAY)
+  if (param.action === "check_payment" || param.action === "check_payment_status") {
+    var checkCode = chuanHoa(param.orderCode || param.order_id || param.code);
+    if (!checkCode) return jsonSuccess({ paid: false, payment_status: "Unpaid", message: "Thiếu orderCode" });
+
+    // 1. Kiểm tra trong Script Properties
+    try {
+      var props = PropertiesService.getScriptProperties();
+      var pVal = props.getProperty("PAID_" + checkCode);
+      if (pVal) {
+        var pData = JSON.parse(pVal);
+        return jsonSuccess({
+          paid: true,
+          payment_status: "Paid",
+          orderCode: checkCode,
+          amount: pData.amount || 0,
+          paidAt: pData.time || "",
+          source: "script_properties"
+        });
+      }
+    } catch(errProp) {}
+
+    // 2. Kiểm tra trong Tab 1 (Đơn bán lẻ)
+    try {
+      var ss = layBangTinh();
+      if (ss) {
+        var sheet = ss.getSheets()[0];
+        var lastRow = sheet.getLastRow();
+        if (lastRow >= 3) {
+          var rows = sheet.getRange("C3:L" + lastRow).getValues();
+          for (var i = 0; i < rows.length; i++) {
+            var rCode = chuanHoa(rows[i][0]);
+            var rStatus = String(rows[i][9] || "").toLowerCase();
+            if (rCode === checkCode || (rCode && checkCode && (rCode.indexOf(checkCode) !== -1 || checkCode.indexOf(rCode) !== -1))) {
+              if (rStatus.indexOf("nhận") !== -1 || rStatus.indexOf("thanh toán") !== -1 || rStatus.indexOf("paid") !== -1) {
+                return jsonSuccess({
+                  paid: true,
+                  payment_status: "Paid",
+                  orderCode: checkCode,
+                  status: rows[i][9],
+                  source: "google_sheet"
+                });
+              }
+            }
+          }
+        }
+      }
+    } catch(errSheet) {}
+
+    return jsonSuccess({ paid: false, payment_status: "Unpaid", orderCode: checkCode });
+  }
+
   if (param.action === "get_push_subscriptions") {
     var ss = layBangTinh();
     if (!ss) return jsonSuccess({ subscriptions: [] });
@@ -299,10 +352,92 @@ function doPost(e) {
     // NHÁNH 1: CÁC LỆNH ĐỒNG BỘ ĐƠN HÀNG & KHÁCH SỈ TỪ ADMIN
     // ========================================================
 
+    // ========================================================
+    // NHÁNH SEPAY: NHẬN WEBHOOK TỰ ĐỘNG & CẬP NHẬT TRẠNG THÁI THANH TOÁN
+    // ========================================================
+    var isSepayDirect = data.transferType || data.transferAmount || (data.content && String(data.content).indexOf("SEVQR") !== -1);
+    if (action === "sepay_webhook" || isSepayDirect) {
+      var rawContent = String(data.content || data.description || "");
+      var rawCode = String(data.orderCode || data.code || "");
+      var matchedCode = "";
+
+      var m = (rawCode + " " + rawContent).match(/BC\d{4,9}/i);
+      if (m) matchedCode = chuanHoa(m[0]);
+      if (!matchedCode && rawCode) matchedCode = chuanHoa(rawCode);
+
+      var paidAmount = Number(data.amount || data.transferAmount || 0);
+
+      if (matchedCode) {
+        // Lưu vào Script Properties để client query tức thì
+        try {
+          var props = PropertiesService.getScriptProperties();
+          props.setProperty("PAID_" + matchedCode, JSON.stringify({
+            paid: true,
+            amount: paidAmount,
+            time: nowStr,
+            gateway: data.gateway || "VietinBank"
+          }));
+        } catch(pErr) {}
+
+        // Cập nhật dòng đơn hàng nếu đã có trong Tab 1
+        var sheet = ss.getSheets()[0];
+        var lastRow = sheet.getLastRow();
+        var rowUpdated = -1;
+        if (lastRow >= 3) {
+          var codes = sheet.getRange("C3:C" + lastRow).getValues();
+          for (var i = 0; i < codes.length; i++) {
+            if (chuanHoa(codes[i][0]) === matchedCode) {
+              rowUpdated = 3 + i;
+              var cell = sheet.getRange(rowUpdated, 12);
+              var newStatus = "Đã nhận tiền (SePay QR)";
+              cell.setValue(newStatus);
+              dinhDangTrangThaiDonHang(cell, newStatus);
+
+              // Gửi email thông báo đơn đã nhận tiền
+              try {
+                sendOrderEmail({
+                  orderCode: codes[i][0],
+                  name: sheet.getRange(rowUpdated, 4).getValue(),
+                  phone: sheet.getRange(rowUpdated, 5).getValue(),
+                  address: sheet.getRange(rowUpdated, 6).getValue(),
+                  product: sheet.getRange(rowUpdated, 7).getValue(),
+                  quantity: sheet.getRange(rowUpdated, 8).getValue(),
+                  totalAmount: sheet.getRange(rowUpdated, 9).getValue() || paidAmount,
+                  paymentMethod: "Chuyển khoản VietQR (SePay)",
+                  status: newStatus
+                }, codes[i][0], nowStr);
+              } catch(eMail) {}
+              break;
+            }
+          }
+        }
+
+        return jsonSuccess({
+          success: true,
+          orderCode: matchedCode,
+          amount: paidAmount,
+          rowUpdated: rowUpdated
+        });
+      }
+    }
+
     // 1.1 Cập nhật trạng thái đơn bán lẻ (Tab 1)
     if (action === "update_order_status") {
       var sheet = ss.getSheets()[0];
       var cleanCode = chuanHoa(data.orderCode);
+
+      // Nếu trạng thái là đã nhận tiền, lưu vào Script Properties để client query tức thì
+      if (String(data.status || "").toLowerCase().indexOf("nhận") !== -1) {
+        try {
+          var props = PropertiesService.getScriptProperties();
+          props.setProperty("PAID_" + cleanCode, JSON.stringify({
+            paid: true,
+            amount: Number(data.amount || 0),
+            time: nowStr
+          }));
+        } catch(pErr) {}
+      }
+
       var lastRow = sheet.getLastRow();
       if (lastRow >= 3) {
         var codes = sheet.getRange("C3:C" + lastRow).getValues();
@@ -316,7 +451,7 @@ function doPost(e) {
           }
         }
       }
-      return jsonError("Không tìm thấy mã đơn: " + data.orderCode);
+      return jsonSuccess({ status: data.status, msg: "Đã cập nhật trạng thái: " + cleanCode });
     }
 
     // 1.2 Xóa đơn hàng bán lẻ (Tab 1)
@@ -502,10 +637,13 @@ function doPost(e) {
       sheet.getRange(targetRow, 2, 1, rowData.length).setValues([rowData]);
       dinhDangDongDonHang(sheet, targetRow);
 
-      // 🔔 GỬI EMAIL THÔNG BÁO ĐƠN HÀNG MỚI TỨC THÌ KÈM NÚT MỞ ZALO CHAT
-      sendOrderEmail(data, orderCode, nowStr);
-      sendTelegramNotification(data, orderCode, nowStr);
-      sendServerWebPush(data, orderCode, "orders");
+      // 🔔 GỬI EMAIL THÔNG BÁO ĐƠN HÀNG MỚI (Trừ khi khách đang ở trạng thái 'Chờ thanh toán QR' để tránh báo sớm)
+      var currentStatus = String(data.status || "Chờ xác nhận");
+      if (currentStatus !== "Chờ thanh toán QR") {
+        sendOrderEmail(data, orderCode, nowStr);
+        sendTelegramNotification(data, orderCode, nowStr);
+        sendServerWebPush(data, orderCode, "orders");
+      }
 
       return jsonSuccess({ type: "retail", row: targetRow });
     }

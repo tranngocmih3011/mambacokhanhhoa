@@ -231,18 +231,25 @@ module.exports = async (req, res) => {
     const saveSuccess = await savePaidData(paidData);
     console.log('Cập nhật Storage SePay thành công:', saveSuccess);
 
-    // 3. Cập nhật trạng thái đơn hàng trên Google Sheet thành "Đã nhận tiền"
+    // 3. Cập nhật trạng thái thanh toán lên Google Apps Script & Google Sheet
     try {
-      fetch(GOOGLE_SCRIPT_URL, {
+      await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
-          action: 'update_order_status',
+          action: 'sepay_webhook',
           orderCode: matchedOrderCode,
-          status: 'Đã nhận tiền'
+          status: 'Đã nhận tiền (SePay QR)',
+          amount: amount,
+          gateway: body.gateway || 'VietinBank',
+          content: rawContent,
+          transferType: transferType,
+          referenceCode: body.referenceCode || ''
         })
-      }).catch(e => console.warn('Lỗi gửi Google Sheet:', e));
-    } catch(errSheet) {}
+      });
+    } catch(errSheet) {
+      console.warn('Lỗi gửi Google Sheet:', errSheet.message);
+    }
 
     // 4. Bắn Thông Báo Đẩy (Web Push) về iPhone của Admin
     const subData = await getSubsAndTelegram();

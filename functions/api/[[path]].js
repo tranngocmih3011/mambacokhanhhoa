@@ -21,17 +21,25 @@ export async function onRequest(context) {
   }
 
   const url = new URL(request.url);
-  const targetUrl = `https://mambacokhanhhoa.vercel.app/api/${apiPath}${url.search}`;
+  let normalizedPath = String(apiPath || '');
+  if (normalizedPath.toLowerCase().includes('sepay') && normalizedPath.toLowerCase().includes('webhook')) {
+    normalizedPath = 'sepay-webhook';
+  } else if (normalizedPath.toLowerCase().includes('check-payment-status') || normalizedPath.toLowerCase().includes('check_payment_status')) {
+    normalizedPath = 'check-payment-status';
+  }
+
+  const targetUrl = `https://mambacokhanhhoa.vercel.app/api/${normalizedPath}${url.search}`;
 
   try {
     const forwardHeaders = new Headers();
-    const contentType = request.headers.get('Content-Type');
-    if (contentType) {
-      forwardHeaders.set('Content-Type', contentType);
+    for (const [key, value] of request.headers.entries()) {
+      const lower = key.toLowerCase();
+      if (!['host', 'cf-connecting-ip', 'cf-ray', 'cf-visitor', 'connection'].includes(lower)) {
+        forwardHeaders.set(key, value);
+      }
     }
-    const userAgent = request.headers.get('User-Agent');
-    if (userAgent) {
-      forwardHeaders.set('User-Agent', userAgent);
+    if (!forwardHeaders.has('User-Agent')) {
+      forwardHeaders.set('User-Agent', 'Cloudflare-Pages-Proxy');
     }
 
     const fetchInit = {

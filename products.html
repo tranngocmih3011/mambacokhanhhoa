@@ -1243,6 +1243,20 @@
                     }
                 }
 
+                // 2. Kiểm tra trực tiếp qua Google Apps Script
+                try {
+                    const gasUrl = `https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec?action=check_payment&orderCode=${encodeURIComponent(currentOrderCode)}&_t=${Date.now()}`;
+                    const gasRes = await fetch(gasUrl, { cache: 'no-store' });
+                    if (gasRes.ok) {
+                        const gasData = await gasRes.json();
+                        if (gasData && (gasData.payment_status === 'Paid' || gasData.paid)) {
+                            finalizePaidOrder(gasData);
+                            return;
+                        }
+                    }
+                } catch(e) {}
+
+                // 3. Kiểm tra Google Sheet
                 const isPaidOnSheet = await checkGoogleSheetPayment(currentOrderCode);
                 if (isPaidOnSheet) {
                     finalizePaidOrder();
@@ -1269,6 +1283,7 @@
             qrAutoCheckInterval = setInterval(async () => {
                 attempts++;
 
+                // 1. Kiểm tra tức thì qua SePay Endpoint chuẩn check-payment-status
                 try {
                     const sepayRes = await fetch(`/api/check-payment-status?order_id=${encodeURIComponent(orderCode)}&amount=${encodeURIComponent(currentAmount || 0)}&since=${encodeURIComponent(since)}`, { cache: 'no-store' });
                     if (sepayRes.ok) {
@@ -1280,6 +1295,20 @@
                     }
                 } catch(e) {}
 
+                // 2. Kiểm tra trực tiếp qua Google Apps Script (Script Properties)
+                try {
+                    const gasUrl = `https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec?action=check_payment&orderCode=${encodeURIComponent(orderCode)}&_t=${Date.now()}`;
+                    const gasRes = await fetch(gasUrl, { cache: 'no-store' });
+                    if (gasRes.ok) {
+                        const gasData = await gasRes.json();
+                        if (gasData && (gasData.payment_status === 'Paid' || gasData.paid)) {
+                            finalizePaidOrder(gasData);
+                            return;
+                        }
+                    }
+                } catch(e) {}
+
+                // 3. Kiểm tra trạng thái đơn hàng trong baco_orders (nếu admin xác nhận thủ công)
                 try {
                     const orders = JSON.parse(localStorage.getItem('baco_orders') || '[]');
                     const found = orders.find(o => o.orderCode === orderCode);
@@ -1289,6 +1318,7 @@
                     }
                 } catch(e) {}
 
+                // 4. Kiểm tra trực tiếp trên Google Sheet mỗi 4 giây (chống gọi dồn dập)
                 if (attempts % 2 === 0) {
                     const isPaidOnSheet = await checkGoogleSheetPayment(orderCode);
                     if (isPaidOnSheet) {
