@@ -788,7 +788,217 @@
 
             <!-- Lưới sản phẩm: 2 cột trên điện thoại (tối ưu thị giác), 3 cột trên máy tính -->
             <div id="productsGridContainer" class="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6">
-                <!-- Sẽ được nạp động bằng loadDynamicProducts() -->
+                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group">
+                    <div>
+                        <div onclick="openProductQuickView('prod_1')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
+                            <img src="./pictrure/1.jpg" alt="Nước Mắm Nhĩ Thượng Hạng 40° Đạm" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
+                            <span class="absolute top-2.5 left-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-md font-mono tracking-wide">
+                                Bán Chạy
+                            </span>
+                            <div class="absolute bottom-2.5 left-3 right-3 flex justify-between items-center text-white text-[9px] sm:text-xs">
+                                <span class="font-medium truncate opacity-95 font-mono drop-shadow">Chai Thủy Tinh 500ml</span>
+                                <span onclick="event.stopPropagation(); openReviewModal('Nước Mắm Nhĩ Thượng Hạng 40° Đạm')" class="text-amber-300 font-bold hover:underline transition cursor-pointer select-none drop-shadow">★ 4.9</span>
+                            </div>
+                        </div>
+                        <div class="p-3.5 sm:p-5 space-y-1.5">
+                            <div class="text-[10px] font-mono font-bold text-sky-700 uppercase tracking-widest truncate">
+                                Mắm Nhĩ Thượng Hạng
+                            </div>
+                            <h3 onclick="openProductQuickView('prod_1')" class="font-display font-bold text-xs sm:text-base text-slate-900 group-hover:text-sky-700 transition line-clamp-2 min-h-[2.1rem] sm:min-h-[2.8rem] leading-snug cursor-pointer">
+                                Nước Mắm Nhĩ Thượng Hạng 40° Đạm
+                            </h3>
+                            <div class="pt-1 flex items-baseline justify-between whitespace-nowrap">
+                                <span class="text-sm sm:text-lg font-black text-amber-600 font-mono shrink-0">180.000 đ</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3.5 sm:p-5 pt-0 flex gap-2">
+                        <button type="button" onclick="addToCart('Nước Mắm Nhĩ Thượng Hạng 40° Đạm', 180000)" class="bg-sky-50 hover:bg-sky-100 text-sky-800 font-bold px-2.5 sm:px-3 py-2 rounded-xl transition active:scale-95 text-xs flex items-center justify-center shrink-0 border border-sky-200" title="Thêm vào giỏ">
+                           <span>🛒</span>
+                           <span class="hidden sm:inline ml-1 text-[11px]">Giỏ</span>
+                       </button>
+                       <button type="button" onclick="buyNow('Nước Mắm Nhĩ Thượng Hạng 40° Đạm', 180000)" class="btn-order-cta flex-1 text-white font-bold py-2.5 px-3 rounded-xl transition shadow-md active:scale-95 text-xs sm:text-sm text-center flex items-center justify-center">
+                           Đặt Mua
+                       </button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group">
+                    <div>
+                        <div onclick="openProductQuickView('prod_2')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
+                            <img src="./pictrure/1.jpg" alt="Nước Mắm Truyền Thống 35° Đạm" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
+                            <span class="absolute top-2.5 left-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-md font-mono tracking-wide">
+                                Phổ Biến
+                            </span>
+                            <div class="absolute bottom-2.5 left-3 right-3 flex justify-between items-center text-white text-[9px] sm:text-xs">
+                                <span class="font-medium truncate opacity-95 font-mono drop-shadow">Chai 500ml</span>
+                                <span onclick="event.stopPropagation(); openReviewModal('Nước Mắm Truyền Thống 35° Đạm')" class="text-amber-300 font-bold hover:underline transition cursor-pointer select-none drop-shadow">★ 4.9</span>
+                            </div>
+                        </div>
+                        <div class="p-3.5 sm:p-5 space-y-1.5">
+                            <div class="text-[10px] font-mono font-bold text-sky-700 uppercase tracking-widest truncate">
+                                Mắm Truyền Thống
+                            </div>
+                            <h3 onclick="openProductQuickView('prod_2')" class="font-display font-bold text-xs sm:text-base text-slate-900 group-hover:text-sky-700 transition line-clamp-2 min-h-[2.1rem] sm:min-h-[2.8rem] leading-snug cursor-pointer">
+                                Nước Mắm Truyền Thống 35° Đạm
+                            </h3>
+                            <div class="pt-1 flex items-baseline justify-between whitespace-nowrap">
+                                <span class="text-sm sm:text-lg font-black text-amber-600 font-mono shrink-0">120.000 đ</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3.5 sm:p-5 pt-0 flex gap-2">
+                        <button type="button" onclick="addToCart('Nước Mắm Truyền Thống 35° Đạm', 120000)" class="bg-sky-50 hover:bg-sky-100 text-sky-800 font-bold px-2.5 sm:px-3 py-2 rounded-xl transition active:scale-95 text-xs flex items-center justify-center shrink-0 border border-sky-200" title="Thêm vào giỏ">
+                           <span>🛒</span>
+                           <span class="hidden sm:inline ml-1 text-[11px]">Giỏ</span>
+                       </button>
+                       <button type="button" onclick="buyNow('Nước Mắm Truyền Thống 35° Đạm', 120000)" class="btn-order-cta flex-1 text-white font-bold py-2.5 px-3 rounded-xl transition shadow-md active:scale-95 text-xs sm:text-sm text-center flex items-center justify-center">
+                           Đặt Mua
+                       </button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group">
+                    <div>
+                        <div onclick="openProductQuickView('prod_3')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
+                            <img src="./pictrure/1.jpg" alt="Hộp Quà Tặng Đôi 2 Chai 40° Đạm" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
+                            <span class="absolute top-2.5 left-2.5 bg-gradient-to-r from-rose-500 to-rose-600 text-white text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-md font-mono tracking-wide">
+                                Combo Quà Biếu
+                            </span>
+                            <div class="absolute bottom-2.5 left-3 right-3 flex justify-between items-center text-white text-[9px] sm:text-xs">
+                                <span class="font-medium truncate opacity-95 font-mono drop-shadow">Hộp 2 chai 500ml</span>
+                                <span onclick="event.stopPropagation(); openReviewModal('Hộp Quà Tặng Đôi 2 Chai 40° Đạm')" class="text-amber-300 font-bold hover:underline transition cursor-pointer select-none drop-shadow">★ 4.9</span>
+                            </div>
+                        </div>
+                        <div class="p-3.5 sm:p-5 space-y-1.5">
+                            <div class="text-[10px] font-mono font-bold text-sky-700 uppercase tracking-widest truncate">
+                                Quà Biếu VIP
+                            </div>
+                            <h3 onclick="openProductQuickView('prod_3')" class="font-display font-bold text-xs sm:text-base text-slate-900 group-hover:text-sky-700 transition line-clamp-2 min-h-[2.1rem] sm:min-h-[2.8rem] leading-snug cursor-pointer">
+                                Hộp Quà Tặng Đôi 2 Chai 40° Đạm
+                            </h3>
+                            <div class="pt-1 flex items-baseline justify-between whitespace-nowrap">
+                                <span class="text-sm sm:text-lg font-black text-amber-600 font-mono shrink-0">380.000 đ</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3.5 sm:p-5 pt-0 flex gap-2">
+                        <button type="button" onclick="addToCart('Hộp Quà Tặng Đôi 2 Chai 40° Đạm', 380000)" class="bg-sky-50 hover:bg-sky-100 text-sky-800 font-bold px-2.5 sm:px-3 py-2 rounded-xl transition active:scale-95 text-xs flex items-center justify-center shrink-0 border border-sky-200" title="Thêm vào giỏ">
+                           <span>🛒</span>
+                           <span class="hidden sm:inline ml-1 text-[11px]">Giỏ</span>
+                       </button>
+                       <button type="button" onclick="buyNow('Hộp Quà Tặng Đôi 2 Chai 40° Đạm', 380000)" class="btn-order-cta flex-1 text-white font-bold py-2.5 px-3 rounded-xl transition shadow-md active:scale-95 text-xs sm:text-sm text-center flex items-center justify-center">
+                           Đặt Mua
+                       </button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group">
+                    <div>
+                        <div onclick="openProductQuickView('prod_4')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
+                            <img src="./pictrure/1.jpg" alt="Mắm Nhĩ Cốt Đặc Biệt 43°N Ủ Thùng Gỗ" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
+                            <span class="absolute top-2.5 left-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-md font-mono tracking-wide">
+                                Đặc Biệt
+                            </span>
+                            <div class="absolute bottom-2.5 left-3 right-3 flex justify-between items-center text-white text-[9px] sm:text-xs">
+                                <span class="font-medium truncate opacity-95 font-mono drop-shadow">Chai Thủy Tinh 500ml</span>
+                                <span onclick="event.stopPropagation(); openReviewModal('Mắm Nhĩ Cốt Đặc Biệt 43°N Ủ Thùng Gỗ')" class="text-amber-300 font-bold hover:underline transition cursor-pointer select-none drop-shadow">★ 4.9</span>
+                            </div>
+                        </div>
+                        <div class="p-3.5 sm:p-5 space-y-1.5">
+                            <div class="text-[10px] font-mono font-bold text-sky-700 uppercase tracking-widest truncate">
+                                Mắm Nhĩ Thượng Hạng
+                            </div>
+                            <h3 onclick="openProductQuickView('prod_4')" class="font-display font-bold text-xs sm:text-base text-slate-900 group-hover:text-sky-700 transition line-clamp-2 min-h-[2.1rem] sm:min-h-[2.8rem] leading-snug cursor-pointer">
+                                Mắm Nhĩ Cốt Đặc Biệt 43°N Ủ Thùng Gỗ
+                            </h3>
+                            <div class="pt-1 flex items-baseline justify-between whitespace-nowrap">
+                                <span class="text-sm sm:text-lg font-black text-amber-600 font-mono shrink-0">245.000 đ</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3.5 sm:p-5 pt-0 flex gap-2">
+                        <button type="button" onclick="addToCart('Mắm Nhĩ Cốt Đặc Biệt 43°N Ủ Thùng Gỗ', 245000)" class="bg-sky-50 hover:bg-sky-100 text-sky-800 font-bold px-2.5 sm:px-3 py-2 rounded-xl transition active:scale-95 text-xs flex items-center justify-center shrink-0 border border-sky-200" title="Thêm vào giỏ">
+                           <span>🛒</span>
+                           <span class="hidden sm:inline ml-1 text-[11px]">Giỏ</span>
+                       </button>
+                       <button type="button" onclick="buyNow('Mắm Nhĩ Cốt Đặc Biệt 43°N Ủ Thùng Gỗ', 245000)" class="btn-order-cta flex-1 text-white font-bold py-2.5 px-3 rounded-xl transition shadow-md active:scale-95 text-xs sm:text-sm text-center flex items-center justify-center">
+                           Đặt Mua
+                       </button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group">
+                    <div>
+                        <div onclick="openProductQuickView('prod_5')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
+                            <img src="./pictrure/1.jpg" alt="Combo Tiết Kiệm 2 Chai Truyền Thống 35°N" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
+                            <span class="absolute top-2.5 left-2.5 bg-gradient-to-r from-teal-500 to-teal-600 text-white text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-md font-mono tracking-wide">
+                                Tiết Kiệm
+                            </span>
+                            <div class="absolute bottom-2.5 left-3 right-3 flex justify-between items-center text-white text-[9px] sm:text-xs">
+                                <span class="font-medium truncate opacity-95 font-mono drop-shadow">Lốc 2 chai 500ml</span>
+                                <span onclick="event.stopPropagation(); openReviewModal('Combo Tiết Kiệm 2 Chai Truyền Thống 35°N')" class="text-amber-300 font-bold hover:underline transition cursor-pointer select-none drop-shadow">★ 4.9</span>
+                            </div>
+                        </div>
+                        <div class="p-3.5 sm:p-5 space-y-1.5">
+                            <div class="text-[10px] font-mono font-bold text-sky-700 uppercase tracking-widest truncate">
+                                Mắm Truyền Thống
+                            </div>
+                            <h3 onclick="openProductQuickView('prod_5')" class="font-display font-bold text-xs sm:text-base text-slate-900 group-hover:text-sky-700 transition line-clamp-2 min-h-[2.1rem] sm:min-h-[2.8rem] leading-snug cursor-pointer">
+                                Combo Tiết Kiệm 2 Chai Truyền Thống 35°N
+                            </h3>
+                            <div class="pt-1 flex items-baseline justify-between whitespace-nowrap">
+                                <span class="text-sm sm:text-lg font-black text-amber-600 font-mono shrink-0">225.000 đ</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3.5 sm:p-5 pt-0 flex gap-2">
+                        <button type="button" onclick="addToCart('Combo Tiết Kiệm 2 Chai Truyền Thống 35°N', 225000)" class="bg-sky-50 hover:bg-sky-100 text-sky-800 font-bold px-2.5 sm:px-3 py-2 rounded-xl transition active:scale-95 text-xs flex items-center justify-center shrink-0 border border-sky-200" title="Thêm vào giỏ">
+                           <span>🛒</span>
+                           <span class="hidden sm:inline ml-1 text-[11px]">Giỏ</span>
+                       </button>
+                       <button type="button" onclick="buyNow('Combo Tiết Kiệm 2 Chai Truyền Thống 35°N', 225000)" class="btn-order-cta flex-1 text-white font-bold py-2.5 px-3 rounded-xl transition shadow-md active:scale-95 text-xs sm:text-sm text-center flex items-center justify-center">
+                           Đặt Mua
+                       </button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group">
+                    <div>
+                        <div onclick="openProductQuickView('prod_6')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
+                            <img src="./pictrure/1.jpg" alt="Can Gia Đình 2 Lít Kho Nấu Đậm Đà 30°N" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
+                            <span class="absolute top-2.5 left-2.5 bg-gradient-to-r from-teal-500 to-teal-600 text-white text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-md font-mono tracking-wide">
+                                Tiết Kiệm
+                            </span>
+                            <div class="absolute bottom-2.5 left-3 right-3 flex justify-between items-center text-white text-[9px] sm:text-xs">
+                                <span class="font-medium truncate opacity-95 font-mono drop-shadow">Can 2 Lít</span>
+                                <span onclick="event.stopPropagation(); openReviewModal('Can Gia Đình 2 Lít Kho Nấu Đậm Đà 30°N')" class="text-amber-300 font-bold hover:underline transition cursor-pointer select-none drop-shadow">★ 4.9</span>
+                            </div>
+                        </div>
+                        <div class="p-3.5 sm:p-5 space-y-1.5">
+                            <div class="text-[10px] font-mono font-bold text-sky-700 uppercase tracking-widest truncate">
+                                Can Lớn Gia Đình
+                            </div>
+                            <h3 onclick="openProductQuickView('prod_6')" class="font-display font-bold text-xs sm:text-base text-slate-900 group-hover:text-sky-700 transition line-clamp-2 min-h-[2.1rem] sm:min-h-[2.8rem] leading-snug cursor-pointer">
+                                Can Gia Đình 2 Lít Kho Nấu Đậm Đà 30°N
+                            </h3>
+                            <div class="pt-1 flex items-baseline justify-between whitespace-nowrap">
+                                <span class="text-sm sm:text-lg font-black text-amber-600 font-mono shrink-0">290.000 đ</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3.5 sm:p-5 pt-0 flex gap-2">
+                        <button type="button" onclick="addToCart('Can Gia Đình 2 Lít Kho Nấu Đậm Đà 30°N', 290000)" class="bg-sky-50 hover:bg-sky-100 text-sky-800 font-bold px-2.5 sm:px-3 py-2 rounded-xl transition active:scale-95 text-xs flex items-center justify-center shrink-0 border border-sky-200" title="Thêm vào giỏ">
+                           <span>🛒</span>
+                           <span class="hidden sm:inline ml-1 text-[11px]">Giỏ</span>
+                       </button>
+                       <button type="button" onclick="buyNow('Can Gia Đình 2 Lít Kho Nấu Đậm Đà 30°N', 290000)" class="btn-order-cta flex-1 text-white font-bold py-2.5 px-3 rounded-xl transition shadow-md active:scale-95 text-xs sm:text-sm text-center flex items-center justify-center">
+                           Đặt Mua
+                       </button>
+                    </div>
+                </div>
+
             </div>
 
             <!-- Nút Xem Toàn Bộ Kho Sản Phẩm & Xem Tất Cả Ngay Tại Đây -->
@@ -2300,12 +2510,22 @@
             } catch(e) {}
         }
 
+        try {
+            loadDynamicProducts();
+            updateCartUI();
+        } catch(err) {}
+
         window.addEventListener('DOMContentLoaded', () => {
             updateCartUI();
             loadDynamicProducts();
             syncSiteAndProductsFromSheetOnHome();
         });
+        window.addEventListener('pageshow', () => {
+            loadDynamicProducts();
+            updateCartUI();
+        });
         window.addEventListener('storage', (e) => {
+            if (!e) return;
             if (e.key === 'baco_products') loadDynamicProducts();
             if (e.key === 'baco_cart') {
                 try { cart = JSON.parse(localStorage.getItem('baco_cart') || '[]'); updateCartUI(); } catch(err) {}
