@@ -100,10 +100,25 @@
                     <button onclick="toggleCart()" class="w-9 h-9 rounded-full bg-white hover:bg-amber-100 flex items-center justify-center text-slate-700 font-bold transition shadow-sm">✕</button>
                 </div>
                 <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 divide-y divide-slate-100"></div>
-                <div class="p-5 sm:p-6 border-t border-slate-100 bg-[#faf8f5] space-y-4">
-                    <div class="flex justify-between items-center text-base sm:text-lg font-bold text-slate-900">
-                        <span>Tổng tiền:</span>
-                        <span id="cartTotalPrice" class="text-amber-700">0 đ</span>
+                <div class="p-4 sm:p-6 border-t border-slate-100 bg-slate-50 space-y-3">
+                    <!-- Thông báo Freeship thông minh -->
+                    <div id="cartFreeshipNotice" class="hidden"></div>
+
+                    <!-- Chi tiết tiền hàng & phí ship -->
+                    <div class="space-y-1.5 text-xs text-slate-600">
+                        <div class="flex justify-between items-center">
+                            <span>Tiền hàng:</span>
+                            <span id="cartSubtotalPrice" class="font-bold text-slate-800">0 đ</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>Phí vận chuyển:</span>
+                            <span id="cartShippingFee" class="font-bold text-emerald-700">Miễn phí (0đ)</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center text-base sm:text-lg font-bold border-t border-slate-200/80 pt-2 text-slate-900">
+                        <span>Tổng thanh toán:</span>
+                        <span id="cartTotalPrice" class="text-amber-700 font-mono text-xl sm:text-2xl font-black">0 đ</span>
                     </div>
                     <button onclick="openCheckoutModal()" class="btn-order-cta w-full text-white font-bold py-3.5 rounded-xl shadow-lg transition text-center block text-base active:scale-95">
                         Tiến Hành Đặt Hàng Ngay
@@ -285,7 +300,7 @@
             <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-lg transition-all duration-300 overflow-hidden border border-slate-200/80 flex flex-col justify-between group">
                 <div>
                     <div onclick="openProductQuickView('prod_3')" class="h-36 sm:h-52 relative overflow-hidden bg-slate-100 cursor-pointer">
-                        <img src="./pictrure/1.jpg" alt="Hộp Quà Tặng Đôi 2 Chai 40° Đạm" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <img src="./pictrure/prod_hopqua.jpg" alt="Hộp Quà Tặng Đôi 2 Chai 40° Đạm" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                         <span class="absolute top-2.5 left-2.5 bg-rose-500 text-white text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-xs">
                             Combo Quà Biếu
@@ -319,7 +334,7 @@
             <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-lg transition-all duration-300 overflow-hidden border border-slate-200/80 flex flex-col justify-between group">
                 <div>
                     <div onclick="openProductQuickView('prod_4')" class="h-36 sm:h-52 relative overflow-hidden bg-slate-100 cursor-pointer">
-                        <img src="./pictrure/1.jpg" alt="Mắm Nhĩ Cốt Đặc Biệt 43°N Ủ Thùng Gỗ" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <img src="./pictrure/prod_mamnhi43.jpg" alt="Mắm Nhĩ Cốt Đặc Biệt 43°N Ủ Thùng Gỗ" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                         <span class="absolute top-2.5 left-2.5 bg-amber-500 text-slate-950 font-bold text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-xs">
                             Đặc Biệt
@@ -387,7 +402,7 @@
             <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-lg transition-all duration-300 overflow-hidden border border-slate-200/80 flex flex-col justify-between group">
                 <div>
                     <div onclick="openProductQuickView('prod_6')" class="h-36 sm:h-52 relative overflow-hidden bg-slate-100 cursor-pointer">
-                        <img src="./pictrure/1.jpg" alt="Can Gia Đình 2 Lít Kho Nấu Đậm Đà 30°N" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <img src="./pictrure/prod_can2l.jpg" alt="Can Gia Đình 2 Lít Kho Nấu Đậm Đà 30°N" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                         <span class="absolute top-2.5 left-2.5 bg-teal-600 text-white text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-xs">
                             Tiết Kiệm
@@ -599,20 +614,42 @@
                             <tbody id="checkoutCartItemsBody" class="divide-y divide-slate-100 font-medium"></tbody>
                         </table>
                     </div>
-                    <div class="flex items-center justify-between pt-2 border-t border-amber-100">
-                        <span class="text-xs text-slate-600">Tổng số lượng: <strong id="checkoutTotalQuantity">0</strong></span>
-                        <span id="checkoutCartTotalPrice" class="text-base sm:text-xl font-black text-emerald-700">0 đ</span>
+                    <!-- Hàng tổng thanh toán giỏ hàng -->
+                    <div class="pt-2.5 border-t border-amber-100 bg-amber-50/70 -mx-3.5 -mb-3.5 sm:-mx-5 sm:-mb-5 p-3 sm:p-4 rounded-b-2xl space-y-2">
+                        <div id="checkoutFreeshipBanner" class="hidden"></div>
+                        <div class="flex items-center justify-between text-xs text-slate-600">
+                            <span>Số lượng: <strong id="checkoutTotalQuantity" class="text-slate-900 font-bold">0</strong> chai/hộp</span>
+                            <span>Phí vận chuyển: <strong id="checkoutShippingFeeText" class="text-emerald-700">Miễn phí (0đ)</strong></span>
+                        </div>
+                        <div class="flex items-center justify-between pt-1 border-t border-amber-200/60">
+                            <span class="text-xs sm:text-sm font-bold text-slate-900">Tổng thanh toán:</span>
+                            <span id="checkoutCartTotalPrice" class="text-lg sm:text-2xl font-black text-amber-600 font-mono">0 đ</span>
+                        </div>
                     </div>
                 </div>
 
-                <div id="singleProductSelector" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Chọn sản phẩm *</label>
-                        <select id="product" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white"></select>
+                <!-- KHUNG CHỌN SẢN PHẨM ĐƠN LẺ -->
+                <div id="singleProductSelector" class="space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Chọn sản phẩm *</label>
+                            <select id="product" onchange="updateSingleProductPricePreview()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Số lượng *</label>
+                            <input type="number" id="quantity" min="1" value="1" oninput="updateSingleProductPricePreview()" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-center">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Số lượng *</label>
-                        <input type="number" id="quantity" min="1" value="1" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-center">
+
+                    <!-- Thông báo phí ship & gợi ý freeship khi mua đơn lẻ -->
+                    <div id="singleShippingNotice" class="bg-sky-50 border border-sky-200 text-sky-900 p-2.5 rounded-xl text-xs flex items-center justify-between">
+                        <span id="singleShippingNoticeText">🚚 Phí ship: <strong>30.000đ</strong> (Mua từ 2 chai để được <strong>FREESHIP</strong>)</span>
+                        <button type="button" id="btnSingleBoostFreeship" onclick="document.getElementById('quantity').value = 2; updateSingleProductPricePreview();" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-2.5 py-1 rounded-lg text-[11px] shrink-0">+ Mua 2 chai Freeship</button>
+                    </div>
+
+                    <div class="flex items-center justify-between bg-slate-50 border border-slate-200 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-900">
+                        <span>Tạm tính đơn hàng:</span>
+                        <span id="singleProductTotalPricePreview" class="text-amber-600 font-mono text-base sm:text-lg font-black">210.000 đ</span>
                     </div>
                 </div>
 
@@ -805,6 +842,88 @@
         </div>
     </div>
 
+    <!-- Modal Biên Nhận Đơn Hàng Thành Công (Order Success Receipt) -->
+    <div id="orderSuccessReceiptModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="fixed inset-0" onclick="closeOrderSuccessReceipt()"></div>
+        <div class="relative bg-white rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl border border-sky-100 text-slate-800 z-10 max-h-[92vh] overflow-y-auto">
+            <button onclick="closeOrderSuccessReceipt()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm transition">✕</button>
+            
+            <div class="text-center space-y-1.5 mb-5">
+                <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl mx-auto shadow-inner">✓</div>
+                <h3 class="font-display font-bold text-xl sm:text-2xl text-slate-900">Đặt Hàng Thành Công!</h3>
+                <p class="text-xs text-slate-500">Cảm ơn bạn đã tin chọn giọt nước mắm truyền thống Ba Cô Khánh Hòa</p>
+            </div>
+
+            <!-- Khung biên nhận hóa đơn -->
+            <div class="bg-slate-50 border border-slate-200/90 rounded-2xl p-4 sm:p-5 space-y-2.5 text-xs sm:text-sm">
+                <div class="flex justify-between items-center pb-2 border-b border-slate-200">
+                    <span class="text-slate-500 font-medium">Mã đơn hàng:</span>
+                    <div class="flex items-center space-x-1.5">
+                        <span id="receiptOrderCode" class="font-mono font-black text-sky-800 text-sm sm:text-base">#BC...</span>
+                        <button type="button" onclick="copyReceiptOrderCode()" class="bg-sky-100 hover:bg-sky-200 text-sky-800 px-2 py-0.5 rounded text-[10px] font-bold">Chép</button>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-500 font-medium">Khách hàng:</span>
+                    <span id="receiptCustomerName" class="font-bold text-slate-900">...</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-500 font-medium">Số điện thoại:</span>
+                    <span id="receiptCustomerPhone" class="font-bold text-slate-900 font-mono">...</span>
+                </div>
+                <div class="flex justify-between items-start gap-2">
+                    <span class="text-slate-500 font-medium shrink-0">Địa chỉ giao:</span>
+                    <span id="receiptCustomerAddress" class="font-medium text-slate-800 text-right">...</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-500 font-medium">Phương thức:</span>
+                    <span id="receiptPaymentMethod" class="font-bold text-slate-900">...</span>
+                </div>
+
+                <!-- Danh sách sản phẩm -->
+                <div class="pt-2 border-t border-slate-200">
+                    <span class="text-slate-500 block mb-1 font-medium">Chi tiết sản phẩm:</span>
+                    <div id="receiptItemsList" class="bg-white p-2.5 rounded-xl border border-slate-200/70 text-xs font-semibold text-slate-800">
+                        <!-- Dynamic items -->
+                    </div>
+                </div>
+
+                <!-- Tổng kết tiền -->
+                <div class="pt-2 border-t border-slate-200 space-y-1">
+                    <div class="flex justify-between items-center text-slate-600">
+                        <span>Tiền hàng:</span>
+                        <span id="receiptSubtotal" class="font-medium text-slate-900">0 đ</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-600">
+                        <span>Phí vận chuyển:</span>
+                        <span id="receiptShippingFee" class="text-emerald-700 font-bold">Miễn phí (0đ)</span>
+                    </div>
+                    <div class="flex justify-between items-center text-base sm:text-lg font-black text-slate-900 pt-1.5 border-t border-dashed border-slate-200">
+                        <span>Tổng thanh toán:</span>
+                        <span id="receiptTotalAmount" class="text-amber-600 font-mono">0 đ</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cam kết giao hàng -->
+            <div class="mt-4 bg-sky-50 border border-sky-200 rounded-2xl p-3 text-[11px] sm:text-xs text-sky-900 flex items-start space-x-2">
+                <span class="text-base shrink-0">📦</span>
+                <p class="leading-relaxed">Đơn hàng đã được chuyển tới xưởng đóng gói chống sốc 3 lớp. Xưởng sẽ liên hệ trước khi giao hàng để bạn tiện nhận.</p>
+            </div>
+
+            <!-- Nút hành động -->
+            <div class="mt-5 flex flex-col sm:flex-row gap-2.5">
+                <a id="receiptZaloBtn" href="https://zalo.me/0985520678" target="_blank" class="flex-1 py-3 px-4 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-center font-bold text-xs sm:text-sm flex items-center justify-center space-x-1.5">
+                    <span>💬</span>
+                    <span>Nhắn Zalo xác nhận</span>
+                </a>
+                <button type="button" onclick="closeOrderSuccessReceipt()" class="btn-order-cta flex-1 text-white font-bold py-3 px-4 rounded-xl shadow-md text-xs sm:text-sm text-center">
+                    Tiếp Tục Mua Sắm
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="mt-20 bg-sky-950 text-slate-300 py-12 border-t border-sky-900">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-400">
@@ -848,7 +967,7 @@
                 price: 380000,
                 unit: "Hộp 2 chai 500ml",
                 tag: "Combo Quà Biếu",
-                image: "./pictrure/1.jpg",
+                image: "./pictrure/prod_hopqua.jpg",
                 desc: "Hộp quà thiết kế sang trọng kèm túi xách lịch sự, món quà sức khỏe ý nghĩa tặng đối tác và người thân.",
                 inStock: true
             },
@@ -859,7 +978,7 @@
                 price: 245000,
                 unit: "Chai Thủy Tinh 500ml",
                 tag: "Đặc Biệt",
-                image: "./pictrure/1.jpg",
+                image: "./pictrure/prod_mamnhi43.jpg",
                 desc: "Ủ chượp ròng rã 15 tháng trong thùng gỗ bời lời, đạm cá tự nhiên cao kỷ lục 43°N, thơm dịu sánh quyện.",
                 inStock: true
             },
@@ -881,7 +1000,7 @@
                 price: 290000,
                 unit: "Can 2 Lít",
                 tag: "Tiết Kiệm",
-                image: "./pictrure/1.jpg",
+                image: "./pictrure/prod_can2l.jpg",
                 desc: "Dung tích lớn siêu tiết kiệm chuyên dùng kho thịt, kho cá, nấu canh giúp món ăn dậy mùi thơm nức.",
                 inStock: true
             }
@@ -943,6 +1062,20 @@
                 catalogProducts = DEFAULT_PRODUCTS;
                 localStorage.setItem('baco_products', JSON.stringify(catalogProducts));
             }
+
+            // Tự động cập nhật hình ảnh chuẩn riêng cho từng sản phẩm
+            if (Array.isArray(catalogProducts)) {
+                let changed = false;
+                catalogProducts.forEach(p => {
+                    if (p.id === 'prod_3' && (!p.image || p.image === './pictrure/1.jpg')) { p.image = './pictrure/prod_hopqua.jpg'; changed = true; }
+                    if (p.id === 'prod_4' && (!p.image || p.image === './pictrure/1.jpg')) { p.image = './pictrure/prod_mamnhi43.jpg'; changed = true; }
+                    if (p.id === 'prod_6' && (!p.image || p.image === './pictrure/1.jpg')) { p.image = './pictrure/prod_can2l.jpg'; changed = true; }
+                });
+                if (changed) {
+                    try { localStorage.setItem('baco_products', JSON.stringify(catalogProducts)); } catch(e) {}
+                }
+            }
+
             updateCategoryPillsUI();
             handleCatalogFilter();
             const selectEl = document.getElementById('product');
@@ -950,6 +1083,7 @@
                 selectEl.innerHTML = catalogProducts.filter(p => p.inStock).map(p => `
                     <option value="${p.name} (${Number(p.price).toLocaleString('vi-VN')}đ)">${p.name} (${Number(p.price).toLocaleString('vi-VN')}đ)</option>
                 `).join('');
+                updateSingleProductPricePreview();
             }
         }
 
@@ -1126,25 +1260,90 @@
             updateCartUI();
         }
 
+        function calculateOrderAmount(productText, quantity) {
+            const qty = parseInt(quantity || 1, 10) || 1;
+            let list = catalogProducts;
+            if (!list || list.length === 0) {
+                try { list = JSON.parse(localStorage.getItem('baco_products') || '[]'); } catch(e) {}
+            }
+            if (list && list.length > 0) {
+                const found = list.find(p => (productText && (productText.includes(p.name) || p.name.includes(productText))));
+                if (found && Number(found.price) > 0) return Number(found.price) * qty;
+            }
+            const priceMatch = (productText || '').match(/\(([\d\.]+)\s*đ\)/);
+            if (priceMatch && priceMatch[1]) {
+                const num = parseInt(priceMatch[1].replace(/\./g, ''), 10);
+                if (!isNaN(num) && num > 0) return num * qty;
+            }
+            let unitPrice = 180000;
+            if (productText.includes('35°')) unitPrice = 120000;
+            else if (productText.includes('Hộp Quà')) unitPrice = 380000;
+            return unitPrice * qty;
+        }
+
+        function updateSingleProductPricePreview() {
+            const prodVal = document.getElementById('product') ? document.getElementById('product').value : '';
+            const qtyInput = document.getElementById('quantity');
+            const qty = parseInt(qtyInput ? qtyInput.value : 1, 10) || 1;
+            const subtotal = calculateOrderAmount(prodVal, qty);
+            const shipping = (qty >= 2 || subtotal >= 250000) ? 0 : 30000;
+            const total = subtotal + shipping;
+
+            const noticeEl = document.getElementById('singleShippingNotice');
+            const noticeText = document.getElementById('singleShippingNoticeText');
+            const btnBoost = document.getElementById('btnSingleBoostFreeship');
+            const previewEl = document.getElementById('singleProductTotalPricePreview');
+
+            if (noticeEl && noticeText) {
+                if (shipping === 0) {
+                    noticeEl.className = "bg-emerald-50 border border-emerald-200 text-emerald-800 p-2.5 rounded-xl text-xs flex items-center justify-between";
+                    noticeText.innerHTML = "🎉 Đơn từ 2 chai: <strong>MIỄN PHÍ VẬN CHUYỂN TOÀN QUỐC (0đ)!</strong>";
+                    if (btnBoost) btnBoost.classList.add('hidden');
+                } else {
+                    noticeEl.className = "bg-sky-50 border border-sky-200 text-sky-900 p-2.5 rounded-xl text-xs flex items-center justify-between";
+                    noticeText.innerHTML = "🚚 Phí ship: <strong>30.000đ</strong> (Mua từ 2 chai để được <strong>FREESHIP</strong>)";
+                    if (btnBoost) btnBoost.classList.remove('hidden');
+                }
+            }
+
+            if (previewEl) {
+                previewEl.innerHTML = `${total.toLocaleString('vi-VN')} đ <span class="text-xs text-slate-500 font-normal">(${subtotal.toLocaleString('vi-VN')}đ + ${shipping === 0 ? 'Freeship' : '30k ship'})</span>`;
+            }
+        }
+
         function updateCartUI() {
             syncProductsCartWithCatalog();
             try { localStorage.setItem('baco_cart', JSON.stringify(cart)); } catch(e) {}
             const container = document.getElementById('cartItemsContainer');
             const badgeNav = document.getElementById('cartNavBadge');
             const badgeMob = document.getElementById('cartMobileBadge');
+            const subtotalEl = document.getElementById('cartSubtotalPrice');
+            const shippingFeeEl = document.getElementById('cartShippingFee');
             const totalEl = document.getElementById('cartTotalPrice');
+            const freeshipNotice = document.getElementById('cartFreeshipNotice');
+
             const checkoutSection = document.getElementById('checkoutCartSection');
             const checkoutBody = document.getElementById('checkoutCartItemsBody');
             const singleSelector = document.getElementById('singleProductSelector');
+            const checkoutTotalQtyEl = document.getElementById('checkoutTotalQuantity');
+            const checkoutShippingFeeText = document.getElementById('checkoutShippingFeeText');
+            const checkoutTotalPriceEl = document.getElementById('checkoutCartTotalPrice');
+            const checkoutFreeshipBanner = document.getElementById('checkoutFreeshipBanner');
+            const checkoutBadge = document.getElementById('checkoutCartBadge');
 
             let totalCount = 0;
-            let totalPrice = 0;
+            let subtotalPrice = 0;
 
             if (cart.length === 0) {
                 if (container) container.innerHTML = `<div class="text-center py-12 text-slate-400">Giỏ hàng đang trống 🛒</div>`;
                 if (checkoutSection) checkoutSection.classList.add('hidden');
                 if (singleSelector) singleSelector.classList.remove('hidden');
+                if (freeshipNotice) freeshipNotice.classList.add('hidden');
+                updateSingleProductPricePreview();
             } else {
+                if (checkoutSection) checkoutSection.classList.remove('hidden');
+                if (singleSelector) singleSelector.classList.add('hidden');
+
                 if (container) {
                     container.innerHTML = cart.map((item, i) => `
                         <div class="py-3.5 flex justify-between items-center">
@@ -1163,9 +1362,7 @@
                         </div>
                     `).join('');
                 }
-                if (checkoutSection && checkoutBody) {
-                    checkoutSection.classList.remove('hidden');
-                    if (singleSelector) singleSelector.classList.add('hidden');
+                if (checkoutBody) {
                     checkoutBody.innerHTML = cart.map((item, i) => `
                         <tr>
                             <td class="py-2 px-2 font-semibold">${item.name}</td>
@@ -1182,15 +1379,60 @@
                 }
                 cart.forEach(item => {
                     totalCount += item.quantity;
-                    totalPrice += item.price * item.quantity;
+                    subtotalPrice += item.price * item.quantity;
                 });
             }
+
+            const shippingFee = (totalCount >= 2 || subtotalPrice >= 250000 || totalCount === 0) ? 0 : 30000;
+            const finalPrice = subtotalPrice + shippingFee;
+
             if (badgeNav) badgeNav.textContent = totalCount;
             if (badgeMob) badgeMob.textContent = totalCount;
-            if (totalEl) totalEl.textContent = totalPrice.toLocaleString('vi-VN') + ' đ';
-            if (document.getElementById('checkoutTotalQuantity')) document.getElementById('checkoutTotalQuantity').textContent = totalCount;
-            if (document.getElementById('checkoutCartTotalPrice')) document.getElementById('checkoutCartTotalPrice').textContent = totalPrice.toLocaleString('vi-VN') + ' đ';
-            if (document.getElementById('checkoutCartBadge')) document.getElementById('checkoutCartBadge').textContent = `${cart.length} món`;
+
+            if (subtotalEl) subtotalEl.textContent = subtotalPrice.toLocaleString('vi-VN') + ' đ';
+            if (shippingFeeEl) {
+                shippingFeeEl.innerHTML = (shippingFee === 0)
+                    ? '<span class="text-emerald-700 font-bold">Miễn phí (0đ) 🎉</span>'
+                    : '<span class="text-slate-800 font-bold">30.000 đ</span>';
+            }
+            if (totalEl) totalEl.textContent = finalPrice.toLocaleString('vi-VN') + ' đ';
+
+            if (freeshipNotice) {
+                if (totalCount === 1) {
+                    freeshipNotice.className = "bg-amber-50 border border-amber-200 text-amber-900 p-2.5 rounded-xl text-xs flex items-center justify-between";
+                    freeshipNotice.innerHTML = `<span>🚚 Mua thêm <strong>1 sản phẩm</strong> để nhận <strong>FREESHIP toàn quốc!</strong></span><button type="button" onclick="changeCartQty(0, 1)" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-2.5 py-1 rounded-lg text-[11px] shrink-0">+ Thêm 1 chai</button>`;
+                    freeshipNotice.classList.remove('hidden');
+                } else if (totalCount >= 2) {
+                    freeshipNotice.className = "bg-emerald-50 border border-emerald-200 text-emerald-800 p-2.5 rounded-xl text-xs flex items-center space-x-1.5 font-medium";
+                    freeshipNotice.innerHTML = `<span>🎉</span><span>Đơn hàng đủ điều kiện <strong>MIỄN PHÍ VẬN CHUYỂN TOÀN QUỐC (0đ)!</strong></span>`;
+                    freeshipNotice.classList.remove('hidden');
+                } else {
+                    freeshipNotice.classList.add('hidden');
+                }
+            }
+
+            if (checkoutTotalQtyEl) checkoutTotalQtyEl.textContent = totalCount;
+            if (checkoutShippingFeeText) {
+                checkoutShippingFeeText.innerHTML = (shippingFee === 0)
+                    ? '<span class="text-emerald-700 font-bold">Miễn phí (0đ) 🎉</span>'
+                    : '<span class="text-slate-800 font-bold">30.000 đ</span>';
+            }
+            if (checkoutTotalPriceEl) checkoutTotalPriceEl.textContent = finalPrice.toLocaleString('vi-VN') + ' đ';
+            if (checkoutBadge) checkoutBadge.textContent = `${cart.length} món (${totalCount} chai/hộp)`;
+
+            if (checkoutFreeshipBanner) {
+                if (totalCount === 1) {
+                    checkoutFreeshipBanner.className = "bg-amber-50 border border-amber-200 text-amber-900 p-2 rounded-xl text-xs flex items-center justify-between";
+                    checkoutFreeshipBanner.innerHTML = `<span>🚚 Mua thêm <strong>1 chai nữa</strong> để được <strong>FREESHIP toàn quốc</strong> (Tiết kiệm 30k)</span><button type="button" onclick="changeCartQty(0, 1)" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-2 py-0.5 rounded text-[11px] shrink-0">+ Thêm 1</button>`;
+                    checkoutFreeshipBanner.classList.remove('hidden');
+                } else if (totalCount >= 2) {
+                    checkoutFreeshipBanner.className = "bg-emerald-50 border border-emerald-200 text-emerald-800 p-2 rounded-xl text-xs font-medium text-center";
+                    checkoutFreeshipBanner.innerHTML = `🎉 Đơn hàng của bạn được <strong>MIỄN PHÍ GIAO HÀNG TOÀN QUỐC!</strong>`;
+                    checkoutFreeshipBanner.classList.remove('hidden');
+                } else {
+                    checkoutFreeshipBanner.classList.add('hidden');
+                }
+            }
         }
 
         function openCheckoutModal() {
@@ -1202,6 +1444,65 @@
 
         function closeCheckoutModal() {
             document.getElementById('checkoutOrderModal').classList.add('hidden');
+        }
+
+        function openOrderSuccessReceipt(order) {
+            if (!order) return;
+            closeCheckoutModal();
+            const modal = document.getElementById('orderSuccessReceiptModal');
+            if (!modal) return;
+
+            const codeEl = document.getElementById('receiptOrderCode');
+            if (codeEl) codeEl.textContent = '#' + (order.orderCode || 'BC123456');
+            const nameEl = document.getElementById('receiptCustomerName');
+            if (nameEl) nameEl.textContent = order.name || 'Quý khách';
+            const phoneEl = document.getElementById('receiptCustomerPhone');
+            if (phoneEl) phoneEl.textContent = order.phone || '';
+            const addrEl = document.getElementById('receiptCustomerAddress');
+            if (addrEl) addrEl.textContent = order.address || '';
+
+            const isBank = (order.paymentMethod && order.paymentMethod.includes('VietQR'));
+            const payEl = document.getElementById('receiptPaymentMethod');
+            if (payEl) {
+                payEl.innerHTML = isBank 
+                    ? '<span class="text-emerald-700 font-bold">💳 Đã thanh toán VietQR (SePay)</span>'
+                    : '<span class="text-slate-800 font-bold">💵 Thanh toán khi nhận hàng (COD)</span>';
+            }
+
+            const itemsEl = document.getElementById('receiptItemsList');
+            if (itemsEl) {
+                itemsEl.innerHTML = `<div class="font-medium text-slate-800">${order.product || ''} (Số lượng: ${order.quantity || 1})</div>`;
+            }
+
+            const subtotal = order.subtotal || order.totalAmount || 0;
+            const shipping = order.shippingFee !== undefined ? order.shippingFee : ((order.quantity >= 2 || order.totalAmount >= 250000) ? 0 : 30000);
+            const finalTotal = order.totalAmount || (subtotal + shipping);
+
+            const subEl = document.getElementById('receiptSubtotal');
+            if (subEl) subEl.textContent = Number(subtotal).toLocaleString('vi-VN') + ' đ';
+
+            const shipEl = document.getElementById('receiptShippingFee');
+            if (shipEl) {
+                shipEl.innerHTML = (shipping === 0)
+                    ? '<span class="text-emerald-700 font-bold">Miễn phí (0đ) 🎉</span>'
+                    : `<span class="text-slate-800 font-bold">${Number(shipping).toLocaleString('vi-VN')} đ</span>`;
+            }
+
+            const totalAmountEl = document.getElementById('receiptTotalAmount');
+            if (totalAmountEl) totalAmountEl.textContent = Number(finalTotal).toLocaleString('vi-VN') + ' đ';
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeOrderSuccessReceipt() {
+            const modal = document.getElementById('orderSuccessReceiptModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function copyReceiptOrderCode() {
+            const codeEl = document.getElementById('receiptOrderCode');
+            const code = codeEl ? codeEl.textContent.replace('#', '') : '';
+            copyToClipboard(code, `Đã sao chép mã đơn hàng: #${code}!`);
         }
 
         let activePaymentMethod = 'cod';
@@ -1426,6 +1727,7 @@
                 } catch(e) {}
 
                 showToast(`Đã gửi đơn hàng #${finalOrder.orderCode} thành công! Cảm ơn quý khách 🎉`);
+                openOrderSuccessReceipt(finalOrder);
             }
 
             document.getElementById('qrPaymentModal').classList.add('hidden');
@@ -1749,17 +2051,17 @@
 
             // 3. Kiểm tra tính hợp lệ
             if (rawName.length < 2) {
-                alert('Vui lòng nhập họ và tên hợp lệ (tối thiểu 2 ký tự)!');
+                showToast('Vui lòng nhập họ và tên hợp lệ (tối thiểu 2 ký tự)!', 'error');
                 return;
             }
             if (rawAddress.length < 5) {
-                alert('Vui lòng nhập địa chỉ nhận hàng chi tiết (tối thiểu 5 ký tự)!');
+                showToast('Vui lòng nhập địa chỉ nhận hàng chi tiết (tối thiểu 5 ký tự)!', 'error');
                 return;
             }
             const cleanPhone = rawPhone.replace(/[\s\.\-\(\)]/g, '');
             const vnPhoneRegex = /^(03|05|07|08|09)\d{8}$/;
             if (!vnPhoneRegex.test(cleanPhone)) {
-                alert('Số điện thoại không hợp lệ! Vui lòng nhập số điện thoại Việt Nam gồm 10 chữ số (VD: 0985520678)');
+                showToast('Số điện thoại không hợp lệ! Vui lòng nhập số điện thoại Việt Nam gồm 10 chữ số (VD: 0985520678)', 'error');
                 return;
             }
 
@@ -1768,20 +2070,22 @@
             const orderCode = 'BC' + Math.floor(100000 + Math.random() * 900000);
             let productSummary = '';
             let totalQuantity = 1;
-            let totalAmount = 0;
+            let subtotal = 0;
 
             if (cart.length > 0) {
                 productSummary = cart.map(i => `${i.name} (x${i.quantity})`).join(', ');
                 totalQuantity = cart.reduce((s, i) => s + i.quantity, 0);
-                totalAmount = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+                subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
             } else {
                 const prodVal = document.getElementById('product').value;
                 const qtyVal = parseInt(document.getElementById('quantity').value) || 1;
                 productSummary = prodVal;
                 totalQuantity = qtyVal;
-                const found = catalogProducts.find(p => prodVal.includes(p.name));
-                totalAmount = (found ? Number(found.price) : 180000) * qtyVal;
+                subtotal = calculateOrderAmount(prodVal, qtyVal);
             }
+
+            const shippingFee = (totalQuantity >= 2 || subtotal >= 250000) ? 0 : 30000;
+            const totalAmount = subtotal + shippingFee;
 
             const formData = {
                 orderCode,
@@ -1790,7 +2094,9 @@
                 address: rawAddress,
                 product: productSummary,
                 quantity: totalQuantity,
-                totalAmount,
+                subtotal: subtotal,
+                shippingFee: shippingFee,
+                totalAmount: totalAmount,
                 paymentMethod: selectedPayment,
                 note: (document.getElementById('note').value || '').trim(),
                 website_trap_hp: (trapField ? trapField.value : ''),
@@ -1846,17 +2152,15 @@
             setTimeout(() => {
                 btn.disabled = false;
                 btn.innerHTML = `<span id="submitBtnIcon">⚡</span><span id="submitBtnText">Xác Nhận Đặt Hàng (COD)</span>`;
-                cart = [];
-                updateCartUI();
+                showToast('Gửi đơn hàng COD thành công!', 'success');
+                openOrderSuccessReceipt(formData);
 
-                const box = document.getElementById('successMessage');
-                box.innerHTML = `🎉 Đặt hàng thành công mã <strong>#${orderCode}</strong>! Tổng: <strong>${totalAmount.toLocaleString('vi-VN')} đ</strong>.`;
-                box.classList.remove('hidden');
-                showToast('Đặt hàng thành công!');
-                setTimeout(() => {
-                    if (box) box.classList.add('hidden');
-                    closeCheckoutModal();
-                }, 3500);
+                try {
+                    document.getElementById('orderForm').reset();
+                    selectPaymentMethod('cod');
+                    cart = [];
+                    updateCartUI();
+                } catch(e) {}
             }, 600);
         }
 
