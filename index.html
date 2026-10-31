@@ -2,7 +2,7 @@
 <html lang="vi" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -11,54 +11,65 @@
     <script src="./security.js"></script>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: 100% Thuần Việt (Be Vietnam Pro & Playfair Display Vietnamese Subset) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600;1,700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
+                        oceanBlue: '#0284c7',
+                        deepOcean: '#0369a1',
+                        navyOcean: '#0c4a6e',
+                        skyLight: '#f0f9ff',
                         amberGold: '#d97706',
-                        deepAmber: '#b45309',
-                        warmSand: '#fef3c7',
-                        darkNavy: '#070c18',
-                        liquidSlate: '#0a1222',
-                        seaTeal: '#0d9488',
-                        seaCyan: '#0284c7',
-                        seaMist: '#f0fdfa'
+                        warmAmber: '#f59e0b',
+                        ctaOrange: '#ea580c'
                     },
                     fontFamily: {
-                        display: ['"Cinzel"', '"Playfair Display"', 'serif'],
+                        display: ['"Playfair Display"', 'Georgia', 'serif'],
                         serif: ['"Playfair Display"', 'Georgia', 'serif'],
-                        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif']
+                        sans: ['"Be Vietnam Pro"', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
                     }
                 }
             }
         }
     </script>
-    <!-- Custom CSS Styles & Liquid Glass Animations -->
+    <!-- Custom CSS Styles: Tone Tươi Sáng Trắng & Xanh Dương Đại Dương -->
     <style>
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            position: relative;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Chống lỗi iOS Safari tự động phóng to màn hình khi bấm vào ô nhập liệu */
+        @media screen and (max-width: 768px) {
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+        }
+
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
+            50% { transform: translateY(-6px); }
         }
         @keyframes floatSlow {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-12px) rotate(1.5deg); }
+            50% { transform: translateY(-8px) rotate(1deg); }
         }
         @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 20px rgba(217, 119, 6, 0.35); }
-            50% { box-shadow: 0 0 35px rgba(245, 158, 11, 0.7); }
+            0%, 100% { box-shadow: 0 0 15px rgba(2, 132, 199, 0.25); }
+            50% { box-shadow: 0 0 25px rgba(2, 132, 199, 0.5); }
         }
         @keyframes shimmer {
             0% { transform: translateX(-150%); }
             100% { transform: translateX(200%); }
-        }
-        @keyframes orbBreathing {
-            0% { transform: scale(0.95) translate(0, 0); opacity: 0.45; }
-            50% { transform: scale(1.12) translate(15px, -15px); opacity: 0.75; }
-            100% { transform: scale(0.95) translate(0, 0); opacity: 0.45; }
         }
         .animate-float {
             animation: float 4s ease-in-out infinite;
@@ -81,95 +92,110 @@
             animation: shimmer 3s infinite;
         }
 
-        /* LIQUID GLASS DESIGN SYSTEM (Phong cách Âu - Mỹ Cao Cấp) */
+        /* TONE MÀU TƯƠI SÁNG: NỀN TRẮNG & XANH DƯƠNG (LIQUID GLASS LIGHT) */
         .liquid-canvas {
-            background-color: #070c18;
+            background-color: #ffffff;
             background-image: 
-                radial-gradient(at 10% 20%, rgba(217, 119, 6, 0.12) 0px, transparent 50%),
-                radial-gradient(at 90% 10%, rgba(13, 148, 136, 0.14) 0px, transparent 50%),
-                radial-gradient(at 50% 60%, rgba(2, 132, 199, 0.08) 0px, transparent 60%),
-                radial-gradient(at 20% 90%, rgba(217, 119, 6, 0.1) 0px, transparent 50%);
+                radial-gradient(at 10% 10%, rgba(2, 132, 199, 0.07) 0px, transparent 40%),
+                radial-gradient(at 90% 15%, rgba(14, 165, 233, 0.08) 0px, transparent 40%),
+                radial-gradient(at 30% 50%, rgba(245, 158, 11, 0.04) 0px, transparent 50%),
+                radial-gradient(at 80% 85%, rgba(2, 132, 199, 0.06) 0px, transparent 45%);
             background-attachment: fixed;
-            color: #f1f5f9;
+            color: #0f172a;
         }
 
         .liquid-glass {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
-            backdrop-filter: blur(24px) saturate(160%);
-            -webkit-backdrop-filter: blur(24px) saturate(160%);
-            border: 1px solid rgba(255, 255, 255, 0.13);
-            box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.45), inset 0 1px 1px 0 rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(2, 132, 199, 0.16);
+            box-shadow: 0 8px 28px -4px rgba(2, 132, 199, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.9);
         }
 
-        .liquid-glass-amber {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.14) 0%, rgba(217, 119, 6, 0.03) 100%);
-            backdrop-filter: blur(24px) saturate(170%);
-            -webkit-backdrop-filter: blur(24px) saturate(170%);
-            border: 1px solid rgba(245, 158, 11, 0.32);
-            box-shadow: 0 16px 44px -10px rgba(217, 119, 6, 0.28), inset 0 1px 2px rgba(251, 191, 36, 0.35);
+        .liquid-glass-blue {
+            background: linear-gradient(135deg, rgba(240, 249, 255, 0.96) 0%, rgba(224, 242, 254, 0.88) 100%);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(2, 132, 199, 0.28);
+            box-shadow: 0 10px 32px -4px rgba(2, 132, 199, 0.12);
         }
 
         .liquid-glass-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
-            backdrop-filter: blur(20px) saturate(160%);
-            -webkit-backdrop-filter: blur(20px) saturate(160%);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 12px 36px -4px rgba(0, 0, 0, 0.45), inset 0 1px 1px 0 rgba(255, 255, 255, 0.16);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            background: #ffffff;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 6px 20px -3px rgba(15, 23, 42, 0.05);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .liquid-glass-card:hover {
-            border-color: rgba(245, 158, 11, 0.45);
-            box-shadow: 0 20px 48px -10px rgba(217, 119, 6, 0.32), inset 0 1px 2px rgba(255, 255, 255, 0.28);
-            transform: translateY(-4px);
+            border-color: rgba(2, 132, 199, 0.4);
+            box-shadow: 0 16px 36px -6px rgba(2, 132, 199, 0.14);
+            transform: translateY(-2px);
         }
 
         .liquid-pill {
-            background: rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #cbd5e1;
-            transition: all 0.3s ease;
+            background: #ffffff;
+            border: 1px solid rgba(2, 132, 199, 0.25);
+            color: #0369a1;
+            box-shadow: 0 2px 6px rgba(2, 132, 199, 0.05);
+            transition: all 0.2s ease;
         }
 
         .liquid-pill:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(251, 191, 36, 0.4);
-            color: #ffffff;
+            background: #f0f9ff;
+            border-color: #0284c7;
+            color: #0284c7;
         }
 
         .liquid-pill-active {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
-            color: #020617 !important;
-            font-weight: 800 !important;
-            border: 1px solid rgba(251, 191, 36, 0.7) !important;
-            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            border: 1px solid #0284c7 !important;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+        }
+
+        /* Nút đặt hàng siêu nổi bật, thu hút khách bấm vào */
+        .btn-order-cta {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 50%, #c2410c 100%);
+            color: #ffffff !important;
+            font-weight: 800;
+            box-shadow: 0 8px 24px -2px rgba(234, 88, 12, 0.45);
+            transition: all 0.25s ease;
+        }
+        .btn-order-cta:hover {
+            background: linear-gradient(135deg, #fb923c 0%, #ea580c 50%, #9a3412 100%);
+            box-shadow: 0 12px 28px -2px rgba(234, 88, 12, 0.6);
+            transform: translateY(-2px);
+        }
+        .btn-order-cta:active {
+            transform: scale(0.96);
         }
 
         .ambient-orb {
             position: absolute;
             border-radius: 9999px;
-            filter: blur(120px);
+            filter: blur(80px);
             pointer-events: none;
             z-index: 0;
-            animation: orbBreathing 10s ease-in-out infinite alternate;
         }
 
-        /* Custom Scrollbar - Sleek Dark Amber */
+        /* Thanh cuộn tinh tế */
         ::-webkit-scrollbar {
-            width: 8px;
+            width: 7px;
             height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #070c18;
+            background: #f1f5f9;
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(217, 119, 6, 0.6);
+            background: #0284c7;
             border-radius: 9999px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #d97706;
+            background: #0369a1;
         }
         .no-scrollbar::-webkit-scrollbar {
             display: none;
@@ -192,7 +218,7 @@
             animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        /* Đảm bảo chữ trong ô nhập liệu và tính năng tự động điền luôn đậm rõ nét */
+        /* Đảm bảo chữ trong ô nhập liệu luôn đậm rõ nét */
         input, textarea, select {
             color: #0f172a !important;
         }
@@ -208,41 +234,41 @@
         }
     </style>
 </head>
-<body class="font-sans liquid-canvas text-slate-100 antialiased selection:bg-amber-500 selection:text-slate-950 pb-24 lg:pb-0 relative min-h-screen overflow-x-hidden">
+<body class="font-sans liquid-canvas text-slate-800 antialiased selection:bg-sky-500 selection:text-white pb-24 lg:pb-0 relative min-h-screen overflow-x-hidden">
 
     <!-- Ambient Atmospheric Glow Emitters (Tạo chiều sâu ánh sáng cho Liquid Glass) -->
-    <div class="ambient-orb w-[28rem] h-[28rem] sm:w-[45rem] sm:h-[45rem] bg-amber-500/12 top-0 -left-20"></div>
-    <div class="ambient-orb w-[26rem] h-[26rem] sm:w-[40rem] sm:h-[40rem] bg-teal-500/12 top-[650px] -right-20" style="animation-delay: -3s;"></div>
-    <div class="ambient-orb w-[32rem] h-[32rem] bg-amber-600/10 top-[1700px] -left-20" style="animation-delay: -6s;"></div>
-    <div class="ambient-orb w-[28rem] h-[28rem] bg-cyan-600/10 top-[2900px] right-0" style="animation-delay: -2s;"></div>
+    <!-- Ambient Atmospheric Glow Emitters (Tươi sáng phong vị biển Cam Ranh) -->
+    <div class="ambient-orb w-[28rem] h-[28rem] sm:w-[45rem] sm:h-[45rem] bg-sky-400/10 top-0 -left-20"></div>
+    <div class="ambient-orb w-[26rem] h-[26rem] sm:w-[40rem] sm:h-[40rem] bg-amber-400/10 top-[650px] -right-20"></div>
+    <div class="ambient-orb w-[32rem] h-[32rem] bg-sky-500/10 top-[1700px] -left-20"></div>
 
-    <!-- Top Luxury Announcement Banner (Liquid Glass) -->
-    <div class="liquid-glass border-b border-white/10 text-amber-200/90 text-xs sm:text-sm font-medium py-2 px-3 sm:py-2.5 sm:px-4 text-center tracking-wider flex items-center justify-center space-x-2 relative z-30">
-        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
-        <span class="tracking-wide">✨ Tinh hoa ẩm thực biển Khánh Hòa • Miễn phí vận chuyển toàn quốc từ 2 sản phẩm</span>
+    <!-- Top Luxury Announcement Banner (Tươi Sáng Biển Xanh) -->
+    <div class="bg-gradient-to-r from-sky-50 via-white to-sky-50 border-b border-sky-100 text-sky-900 text-xs sm:text-sm font-semibold py-2 px-3 sm:py-2.5 sm:px-4 text-center tracking-wide flex items-center justify-center space-x-2 relative z-30">
+        <span class="w-2 h-2 rounded-full bg-sky-600 animate-ping"></span>
+        <span>✨ Tinh hoa ẩm thực biển Khánh Hòa • Miễn phí vận chuyển toàn quốc từ 2 sản phẩm</span>
     </div>
 
     <!-- Toast Notification Container -->
     <div id="toastContainer" class="fixed bottom-24 lg:bottom-6 right-4 sm:right-6 z-50 flex flex-col space-y-3 pointer-events-none"></div>
 
-    <!-- Floating Liquid Glass Dock (Tối ưu hóa tối đa cho Smartphone - Thiết kế chuẩn Apple/Âu Mỹ) -->
-    <div class="fixed bottom-3 inset-x-3.5 z-40 max-w-md mx-auto liquid-glass bg-slate-950/85 backdrop-blur-2xl rounded-2xl px-3 py-2 flex items-center justify-between shadow-[0_16px_40px_rgba(0,0,0,0.65)] border border-white/15 lg:hidden">
+    <!-- Floating Liquid Glass Dock (Tối ưu tuyệt đối cho Smartphone - Không giật lag, cố định êm ái) -->
+    <div class="fixed bottom-3 inset-x-3.5 z-40 max-w-md mx-auto bg-white/95 backdrop-blur-xl rounded-2xl px-3 py-2 flex items-center justify-between shadow-[0_12px_36px_rgba(2,132,199,0.18)] border border-sky-200/90 lg:hidden">
         <div class="flex items-center space-x-1.5">
-            <a href="tel:0985520678" class="flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-white/5 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-400 text-[10px] font-semibold transition active:scale-95 border border-white/5" title="Hotline">
+            <a href="tel:0985520678" class="flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-slate-50 hover:bg-sky-50 text-slate-700 hover:text-sky-700 text-[10px] font-semibold transition active:scale-95 border border-slate-100" title="Hotline">
                 <span class="text-base leading-none">📞</span>
-                <span class="mt-0.5 text-[9px] tracking-tight text-slate-300">Gọi</span>
+                <span class="mt-0.5 text-[9px] tracking-tight text-slate-600 font-medium">Gọi</span>
             </a>
-            <a href="https://zalo.me/0985520678" target="_blank" class="flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-white/5 hover:bg-blue-500/20 text-slate-300 hover:text-blue-400 text-[10px] font-semibold transition active:scale-95 border border-white/5" title="Zalo">
-                <span class="text-xs font-black text-blue-400 leading-none">Zalo</span>
-                <span class="mt-0.5 text-[9px] tracking-tight text-slate-300">Tư vấn</span>
+            <a href="https://zalo.me/0985520678" target="_blank" class="flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-600 text-[10px] font-semibold transition active:scale-95 border border-slate-100" title="Zalo">
+                <span class="text-xs font-black text-blue-600 leading-none">Zalo</span>
+                <span class="mt-0.5 text-[9px] tracking-tight text-slate-600 font-medium">Tư vấn</span>
             </a>
-            <button onclick="toggleCart()" class="relative flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-white/5 hover:bg-amber-500/20 text-slate-300 hover:text-amber-400 text-[10px] font-semibold transition active:scale-95 border border-white/5" title="Giỏ hàng">
+            <button onclick="toggleCart()" class="relative flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-slate-50 hover:bg-amber-50 text-slate-700 hover:text-amber-700 text-[10px] font-semibold transition active:scale-95 border border-slate-100" title="Giỏ hàng">
                 <span class="text-base leading-none">🛒</span>
-                <span id="cartMobileBadge" class="absolute -top-1 -right-1 bg-amber-500 text-slate-950 text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow">0</span>
-                <span class="mt-0.5 text-[9px] tracking-tight text-slate-300">Giỏ</span>
+                <span id="cartMobileBadge" class="absolute -top-1 -right-1 bg-amber-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow">0</span>
+                <span class="mt-0.5 text-[9px] tracking-tight text-slate-600 font-medium">Giỏ</span>
             </button>
         </div>
-        <button onclick="openCheckoutModal()" class="shimmer-btn bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 active:scale-95 text-slate-950 font-black text-xs px-4 sm:px-5 py-2.5 rounded-xl shadow-lg flex items-center space-x-1.5 transition ml-2">
+        <button onclick="openCheckoutModal()" class="btn-order-cta shimmer-btn text-white font-extrabold text-xs px-4 sm:px-5 py-2.5 rounded-xl shadow-md flex items-center space-x-1.5 transition ml-2">
             <span>⚡</span>
             <span>Đặt Mua Nhanh</span>
         </button>
@@ -250,41 +276,41 @@
 
     <!-- Floating Contact Widgets (Dành riêng cho màn hình Desktop) -->
     <div class="hidden lg:flex fixed bottom-6 left-6 z-40 flex-col space-y-3">
-        <button onclick="toggleCart()" class="w-14 h-14 liquid-glass-amber text-amber-300 rounded-full flex items-center justify-center shadow-2xl transition transform hover:scale-110 group relative" title="Giỏ hàng">
+        <button onclick="toggleCart()" class="w-14 h-14 bg-white text-sky-700 hover:text-amber-600 border border-sky-200 rounded-full flex items-center justify-center shadow-xl transition transform hover:scale-110 group relative" title="Giỏ hàng">
             <span class="text-2xl">🛒</span>
-            <span id="cartBadge" class="absolute -top-1 -right-1 bg-amber-500 text-slate-950 text-xs font-black w-6 h-6 rounded-full flex items-center justify-center shadow-md">0</span>
-            <span class="absolute left-16 bg-slate-950 text-white text-xs px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition whitespace-nowrap shadow-md pointer-events-none border border-white/10">Mở giỏ hàng</span>
+            <span id="cartBadge" class="absolute -top-1 -right-1 bg-amber-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow">0</span>
+            <span class="absolute left-16 bg-slate-900 text-white text-xs px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition whitespace-nowrap shadow pointer-events-none">Mở giỏ hàng</span>
         </button>
-        <a href="tel:0985520678" class="w-14 h-14 liquid-glass text-emerald-400 rounded-full flex items-center justify-center shadow-2xl transition transform hover:scale-110 group relative" title="Gọi Hotline">
+        <a href="tel:0985520678" class="w-14 h-14 bg-white text-emerald-600 border border-emerald-200 rounded-full flex items-center justify-center shadow-xl transition transform hover:scale-110 group relative" title="Gọi Hotline">
             <span class="text-2xl">📞</span>
-            <span class="absolute left-16 bg-slate-950 text-white text-xs px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition whitespace-nowrap shadow-md pointer-events-none border border-white/10">Hotline: 0985.520.678</span>
+            <span class="absolute left-16 bg-slate-900 text-white text-xs px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition whitespace-nowrap shadow pointer-events-none">Hotline: 0985.520.678</span>
         </a>
-        <a href="https://zalo.me/0985520678" target="_blank" class="w-14 h-14 liquid-glass text-blue-400 rounded-full flex items-center justify-center shadow-2xl transition transform hover:scale-110 group relative" title="Chat Zalo">
+        <a href="https://zalo.me/0985520678" target="_blank" class="w-14 h-14 bg-white text-blue-600 border border-blue-200 rounded-full flex items-center justify-center shadow-xl transition transform hover:scale-110 group relative" title="Chat Zalo">
             <span class="text-base font-black">Zalo</span>
-            <span class="absolute left-16 bg-slate-950 text-white text-xs px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition whitespace-nowrap shadow-md pointer-events-none border border-white/10">Nhắn tin Zalo tư vấn</span>
+            <span class="absolute left-16 bg-slate-900 text-white text-xs px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition whitespace-nowrap shadow pointer-events-none">Nhắn tin Zalo tư vấn</span>
         </a>
     </div>
 
-    <!-- Cart Sidebar Drawer (Liquid Glass Luxury) -->
+    <!-- Cart Sidebar Drawer (Sạch Sẽ & Tươi Sáng) -->
     <div id="cartDrawer" class="fixed inset-0 z-50 overflow-hidden hidden">
-        <div class="absolute inset-0 bg-black/70 backdrop-blur-md transition-opacity" onclick="toggleCart()"></div>
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="toggleCart()"></div>
         <div class="absolute inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10 w-full sm:w-auto">
-            <div class="w-full sm:w-screen max-w-md liquid-glass bg-slate-950/95 shadow-2xl flex flex-col border-l border-white/15">
-                <div class="flex items-center justify-between px-5 sm:px-6 py-5 sm:py-6 border-b border-white/10 bg-white/5">
-                    <h2 class="text-lg sm:text-xl font-serif font-bold text-amber-300 flex items-center space-x-2">
+            <div class="w-full sm:w-screen max-w-md bg-white shadow-2xl flex flex-col border-l border-slate-200">
+                <div class="flex items-center justify-between px-5 sm:px-6 py-5 border-b border-sky-100 bg-sky-50/70">
+                    <h2 class="text-lg sm:text-xl font-display font-bold text-sky-950 flex items-center space-x-2">
                         <span>🛒</span> <span>Giỏ Hàng Của Bạn</span>
                     </h2>
-                    <button onclick="toggleCart()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 font-bold transition shadow-sm border border-white/10">✕</button>
+                    <button onclick="toggleCart()" class="w-9 h-9 rounded-full bg-white hover:bg-slate-100 flex items-center justify-center text-slate-600 font-bold transition shadow-xs border border-slate-200">✕</button>
                 </div>
-                <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 divide-y divide-white/10 text-slate-200">
+                <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 divide-y divide-slate-100 text-slate-800">
                     <!-- Danh sách sản phẩm trong giỏ -->
                 </div>
-                <div class="p-5 sm:p-6 border-t border-white/10 bg-white/5 space-y-4">
+                <div class="p-5 sm:p-6 border-t border-slate-100 bg-slate-50 space-y-4">
                     <div class="flex justify-between items-center text-base sm:text-lg font-bold">
-                        <span class="text-slate-300">Tổng tiền:</span>
-                        <span id="cartTotalPrice" class="text-amber-400 font-display text-xl">0 đ</span>
+                        <span class="text-slate-600">Tổng tiền:</span>
+                        <span id="cartTotalPrice" class="text-amber-600 font-mono text-xl sm:text-2xl font-black">0 đ</span>
                     </div>
-                    <button onclick="scrollToCheckout()" class="shimmer-btn w-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-bold py-3.5 rounded-xl shadow-lg transition text-center block text-base active:scale-95">
+                    <button onclick="scrollToCheckout()" class="btn-order-cta shimmer-btn w-full text-white font-extrabold py-3.5 rounded-xl shadow-lg transition text-center block text-base">
                         Tiến Hành Đặt Hàng Ngay
                     </button>
                 </div>
@@ -292,144 +318,140 @@
         </div>
     </div>
 
-    <!-- Header / Navbar (Liquid Glass Sticky) -->
-    <header id="navbar" class="sticky top-0 z-40 bg-slate-950/75 backdrop-blur-2xl border-b border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300">
+    <!-- Header / Navbar (Tone Trắng & Xanh Dương Tươi Sáng) -->
+    <header id="navbar" class="sticky top-0 z-40 bg-white/92 backdrop-blur-xl border-b border-sky-100/90 shadow-[0_4px_20px_rgba(2,132,199,0.06)] transition-all duration-300">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2">
-            <a href="#" onclick="window.scrollTo({ top: 0, behavior: 'smooth' }); return false;" class="flex items-center space-x-2 sm:space-x-3 cursor-pointer group shrink-0" title="Cuộn lên đầu trang">
+            <a href="#" onclick="window.scrollTo({ top: 0, behavior: 'smooth' }); return false;" class="flex items-center space-x-2.5 sm:space-x-3 cursor-pointer group shrink-0" title="Cuộn lên đầu trang">
                 <div class="relative group shrink-0">
-                    <img src="./pictrure/logo.JPG" alt="Logo Ba Cô Khánh Hòa" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shadow-lg ring-2 ring-amber-400/80 group-hover:ring-amber-300 transition">
-                    <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-slate-950 rounded-full"></span>
+                    <img src="./pictrure/logo.JPG" alt="Logo Ba Cô Khánh Hòa" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shadow-sm ring-2 ring-sky-500/80 group-hover:ring-sky-600 transition">
+                    <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
                 </div>
                 <div class="shrink-0">
-                    <span class="site-brand-name font-display font-bold text-base sm:text-lg lg:text-xl text-white tracking-wider block leading-tight group-hover:text-amber-400 transition">Ba Cô Khánh Hòa</span>
-                    <span class="site-brand-slogan block text-[9px] sm:text-[10px] lg:text-[11px] text-amber-300/80 font-medium tracking-[0.2em] uppercase">Mắm Nhĩ Truyền Thống</span>
+                    <span class="site-brand-name font-display font-bold text-base sm:text-lg lg:text-xl text-slate-900 tracking-wide block leading-tight group-hover:text-sky-700 transition">Ba Cô Khánh Hòa</span>
+                    <span class="site-brand-slogan block text-[9px] sm:text-[10px] lg:text-[11px] text-sky-700 font-semibold tracking-wider uppercase">Mắm Nhĩ Truyền Thống</span>
                 </div>
             </a>
-            <!-- Menu Desktop: Sang trọng, tối giản phong cách Âu - Mỹ -->
-            <nav class="hidden lg:flex items-center justify-center flex-nowrap whitespace-nowrap gap-1.5 xl:gap-2.5 2xl:gap-3.5 font-medium text-slate-300 text-xs xl:text-sm shrink min-w-0">
-                <a href="#about" class="px-3 py-1.5 rounded-full hover:bg-white/10 hover:text-amber-300 transition py-1 shrink-0">Câu chuyện</a>
-                <a href="#process" class="px-3 py-1.5 rounded-full hover:bg-white/10 hover:text-amber-300 transition py-1 shrink-0">Quy trình</a>
-                <a href="#gallery" class="px-3 py-1.5 rounded-full hover:bg-white/10 hover:text-amber-300 transition py-1 shrink-0">Bộ sưu tập</a>
-                <a href="#products" class="px-3 py-1.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/30 font-bold transition py-1 shrink-0">Sản phẩm</a>
-                <a href="#wholesale" class="px-3 py-1.5 rounded-full hover:bg-white/10 hover:text-amber-300 transition py-1 shrink-0">Mua sỉ & Đại lý</a>
-                <a href="#recipes" class="px-3 py-1.5 rounded-full hover:bg-white/10 hover:text-amber-300 transition py-1 shrink-0">Ẩm thực</a>
-                <a href="#reviews" class="px-3 py-1.5 rounded-full hover:bg-white/10 hover:text-amber-300 transition py-1 shrink-0">Đánh giá</a>
-                <a href="#faq" class="px-3 py-1.5 rounded-full hover:bg-white/10 hover:text-amber-300 transition py-1 shrink-0">Hỏi đáp</a>
+            <!-- Menu Desktop: Tươi sáng, thanh lịch -->
+            <nav class="hidden lg:flex items-center justify-center flex-nowrap whitespace-nowrap gap-1.5 xl:gap-2.5 font-medium text-slate-600 text-xs xl:text-sm shrink min-w-0">
+                <a href="#about" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Câu chuyện</a>
+                <a href="#process" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Quy trình</a>
+                <a href="#gallery" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Bộ sưu tập</a>
+                <a href="#products" class="px-3.5 py-1.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200/80 font-bold transition">Sản phẩm</a>
+                <a href="#wholesale" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Mua sỉ & Đại lý</a>
+                <a href="#recipes" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Ẩm thực</a>
+                <a href="#reviews" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Đánh giá</a>
+                <a href="#faq" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Hỏi đáp</a>
             </nav>
             <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
-                <button onclick="toggleCart()" class="relative p-2 sm:p-2.5 rounded-xl liquid-glass hover:bg-white/15 text-white transition flex items-center space-x-1.5 px-3 sm:px-3.5 text-xs sm:text-sm font-bold border border-white/15 shadow-sm active:scale-95 shrink-0">
+                <button onclick="toggleCart()" class="relative p-2 sm:p-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-900 transition flex items-center space-x-1.5 px-3 sm:px-3.5 text-xs sm:text-sm font-bold border border-sky-200 shadow-2xs active:scale-95 shrink-0">
                     <span>🛒</span>
                     <span class="hidden sm:inline">Giỏ hàng</span>
-                    <span id="cartNavBadge" class="bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 text-xs font-black px-1.5 py-0.5 rounded-full shadow-sm">0</span>
+                    <span id="cartNavBadge" class="bg-amber-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow-2xs">0</span>
                 </button>
-                <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-xl liquid-glass text-slate-200 hover:text-white transition focus:outline-none shrink-0" aria-label="Mở Menu">
+                <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-xl bg-slate-100 text-slate-700 hover:text-sky-700 transition focus:outline-none shrink-0" aria-label="Mở Menu">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                     </svg>
                 </button>
             </div>
         </div>
-        <!-- Mobile Dropdown Menu (Liquid Glass Drawer) -->
-        <div id="mobileMenu" class="hidden lg:hidden liquid-glass bg-slate-950/90 backdrop-blur-2xl border-b border-white/10 shadow-2xl px-4 py-3 space-y-1.5 font-medium text-slate-200 text-xs sm:text-sm">
-            <a href="#about" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-white/10 hover:text-amber-300 transition">1. Câu chuyện thương hiệu</a>
-            <a href="#process" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-white/10 hover:text-amber-300 transition">2. Quy trình 365 ngày</a>
-            <a href="#gallery" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-white/10 hover:text-amber-300 transition">3. Bộ sưu tập hình ảnh</a>
-            <a href="#products" onclick="toggleMobileMenu()" class="block py-2.5 px-3 rounded-xl liquid-glass-amber text-amber-300 font-bold flex items-center justify-between">
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobileMenu" class="hidden lg:hidden bg-white/98 backdrop-blur-xl border-b border-sky-100 shadow-xl px-4 py-3 space-y-1.5 font-medium text-slate-700 text-xs sm:text-sm">
+            <a href="#about" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition">1. Câu chuyện thương hiệu</a>
+            <a href="#process" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition">2. Quy trình 365 ngày</a>
+            <a href="#gallery" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition">3. Bộ sưu tập hình ảnh</a>
+            <a href="#products" onclick="toggleMobileMenu()" class="block py-2.5 px-3 rounded-xl bg-sky-50 text-sky-800 font-bold flex items-center justify-between border border-sky-200/80">
                 <span>🛍️ 4. Sản phẩm đặc sản</span>
-                <span class="text-[10px] bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded-full">Trực tuyến</span>
+                <span class="text-[10px] bg-sky-600 text-white font-bold px-2 py-0.5 rounded-full">Trực tuyến</span>
             </a>
-            <a href="#wholesale" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-white/10 hover:text-amber-300 transition">5. Mua sỉ & Đại lý toàn quốc</a>
-            <a href="#recipes" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-white/10 hover:text-amber-300 transition">6. Góc ẩm thực gia đình</a>
-            <a href="#reviews" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-white/10 hover:text-amber-300 transition">7. Đánh giá khách hàng</a>
-            <a href="#faq" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-white/10 hover:text-amber-300 transition">8. Hỏi đáp thường gặp</a>
+            <a href="#wholesale" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition">5. Mua sỉ & Đại lý toàn quốc</a>
+            <a href="#recipes" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition">6. Góc ẩm thực gia đình</a>
+            <a href="#reviews" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition">7. Đánh giá khách hàng</a>
+            <a href="#faq" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition">8. Hỏi đáp thường gặp</a>
             <div class="pt-2 flex gap-2">
-                <button onclick="openCheckoutModal(); toggleMobileMenu();" class="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 text-slate-950 text-center font-black shadow-md active:scale-95 text-xs">⚡ Đặt mua ngay</button>
-                <a href="./products.html" class="py-2.5 px-3 rounded-xl liquid-glass text-slate-200 text-center font-bold active:scale-95 text-xs">Xem catalog ➔</a>
+                <button onclick="openCheckoutModal(); toggleMobileMenu();" class="btn-order-cta flex-1 py-2.5 px-3 rounded-xl text-white text-center font-bold shadow-md text-xs">⚡ Đặt mua ngay</button>
+                <a href="./products.html" class="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-700 text-center font-bold text-xs border border-slate-200">Xem catalog ➔</a>
             </div>
         </div>
     </header>
 
-    <!-- Hero Section (Phong cách Âu - Mỹ: Tinh Tế, Sang Trọng, Liền Mạch) -->
-    <section class="relative min-h-[540px] sm:min-h-[660px] lg:min-h-[740px] flex items-center justify-center text-white py-12 sm:py-20 overflow-hidden">
-        <!-- Ảnh nền đại dương rạng đông mờ ảo nghệ thuật -->
-        <div id="heroBgImg" class="absolute inset-0 bg-[url('./pictrure/banner_khanhhoa.jpg')] bg-cover bg-center opacity-35 scale-105 transition-transform duration-1000"></div>
-        <!-- Lớp phủ Liquid Ambient Gradient kết nối thông suốt với phần dưới -->
-        <div class="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/60 to-[#070c18]"></div>
+    <!-- Hero Section (Phong cách Tươi Sáng Biển Xanh Khánh Hòa) -->
+    <section class="relative min-h-[540px] sm:min-h-[640px] lg:min-h-[700px] flex items-center justify-center text-white py-12 sm:py-20 overflow-hidden bg-gradient-to-b from-sky-900 via-sky-800 to-sky-950">
+        <!-- Ảnh nền đại dương Cam Ranh rực rỡ -->
+        <div id="heroBgImg" class="absolute inset-0 bg-[url('./pictrure/banner_khanhhoa.jpg')] bg-cover bg-center opacity-30 scale-105 transition-transform duration-1000"></div>
+        <!-- Lớp phủ ánh sáng biển xanh -->
+        <div class="absolute inset-0 bg-gradient-to-t from-sky-950/90 via-sky-900/40 to-sky-900/70"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
-            <!-- Nội dung chữ phong cách Editorial Luxury -->
+            <!-- Nội dung chữ phong cách Editorial Luxury Thuần Việt -->
             <div class="lg:col-span-7 space-y-4 sm:space-y-6 text-center lg:text-left">
-                <div class="inline-flex items-center space-x-2 liquid-pill px-4 py-1.5 rounded-full text-xs font-semibold">
+                <div class="inline-flex items-center space-x-2 bg-white/15 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-semibold border border-white/25">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span class="tracking-[0.2em] text-amber-300 font-mono text-[10px] sm:text-xs uppercase">CAM RANH HERITAGE • SINCE 100+ YEARS</span>
+                    <span class="tracking-wider text-amber-300 font-medium text-[11px] sm:text-xs uppercase">ĐẶC SẢN VỊNH CAM RANH • Ủ TRUYỀN THỐNG</span>
                 </div>
                 
-                <h1 class="font-display text-3xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] tracking-tight" id="heroMainTitle">
+                <h1 class="font-display text-3xl sm:text-5xl lg:text-6xl font-bold leading-[1.18] tracking-tight text-white" id="heroMainTitle">
                     Giọt Ngọc Biển Khơi<br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-yellow-200 font-serif italic" id="heroSubTitle">
+                    <span class="text-amber-400 font-serif italic" id="heroSubTitle">
                         Nước Mắm Nhĩ Thượng Hạng
                     </span>
                 </h1>
 
-                <p class="text-sm sm:text-base lg:text-lg text-slate-300/90 max-w-xl mx-auto lg:mx-0 leading-relaxed font-light" id="heroDesc">
-                    Chắt lọc giọt nước mắm nhĩ đầu tiên sánh vàng như mật ong biển, hương thơm dịu nhẹ nồng ấm, hậu vị ngọt sâu từ đạm cá tự nhiên qua 12 tháng ủ gỗ bời lời.
+                <p class="text-sm sm:text-base lg:text-lg text-sky-100/95 max-w-xl mx-auto lg:mx-0 leading-relaxed font-light" id="heroDesc">
+                    Chắt lọc từng giọt nước mắm nhĩ đầu tiên sánh vàng như mật ong biển, hương thơm dịu ấm, hậu vị ngọt sâu từ đạm cá tự nhiên qua 12 tháng ủ gỗ bời lời phơi nắng.
                 </p>
 
                 <div class="flex flex-row justify-center lg:justify-start gap-3 pt-2">
-                    <button onclick="openCheckoutModal()" class="shimmer-btn bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black px-6 sm:px-9 py-3 sm:py-3.5 rounded-2xl shadow-xl text-center transition transform hover:-translate-y-0.5 active:scale-95 text-xs sm:text-base flex items-center justify-center space-x-2">
-                        <span>⚡</span>
+                    <button onclick="openCheckoutModal()" class="btn-order-cta shimmer-btn text-white font-extrabold px-7 sm:px-10 py-3.5 sm:py-4 rounded-2xl shadow-xl text-center transition active:scale-95 text-sm sm:text-base flex items-center justify-center space-x-2">
+                        <span class="text-lg">⚡</span>
                         <span>Đặt Mua Ngay</span>
                     </button>
-                    <a href="#products" class="liquid-glass hover:bg-white/15 text-slate-200 hover:text-white font-semibold px-5 sm:px-8 py-3 sm:py-3.5 rounded-2xl text-center transition border border-white/20 text-xs sm:text-base active:scale-95 flex items-center justify-center space-x-1.5">
+                    <a href="#products" class="bg-white/15 hover:bg-white/25 text-white font-bold px-5 sm:px-8 py-3.5 sm:py-4 rounded-2xl text-center transition border border-white/30 text-xs sm:text-sm active:scale-95 flex items-center justify-center space-x-1.5 backdrop-blur-md">
                         <span>Khám Phá Dòng Mắm</span>
                         <span>↓</span>
                     </a>
                 </div>
             </div>
 
-            <!-- Khung ảnh trung tâm: Tủ Kính Liquid Glass Luxury Showcase -->
+            <!-- Khung ảnh trung tâm: Tủ Kính Trưng Bày Tươi Sáng -->
             <div class="lg:col-span-5 relative flex justify-center items-center mt-2 sm:mt-0">
-                <!-- Vầng hào quang ánh sáng hổ phách -->
-                <div class="absolute w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-tr from-amber-500/25 to-teal-400/20 rounded-full blur-3xl -z-10 animate-pulse"></div>
-
-                <div class="w-full max-w-[290px] sm:max-w-md liquid-glass-amber p-4 sm:p-6 rounded-3xl relative">
+                <div class="w-full max-w-[290px] sm:max-w-md bg-white/95 backdrop-blur-xl p-4 sm:p-6 rounded-3xl relative border border-white/60 shadow-2xl text-slate-800">
                     <!-- Huy hiệu nổi 1 (Góc trên phải) -->
-                    <div class="absolute -top-3 -right-2 sm:-right-4 animate-float liquid-glass bg-slate-950/90 text-white px-3 py-1.5 rounded-2xl shadow-xl border border-amber-400/40 flex items-center space-x-2 z-20">
+                    <div class="absolute -top-3 -right-2 sm:-right-4 animate-float bg-white text-slate-900 px-3.5 py-1.5 rounded-2xl shadow-xl border border-sky-100 flex items-center space-x-2 z-20">
                         <span class="text-base">🏆</span>
                         <div>
-                            <div class="text-[9px] uppercase font-bold text-amber-300 tracking-wider">Độ Đạm Cốt</div>
-                            <div class="text-[11px] sm:text-xs font-black text-white">40°N Tự Nhiên</div>
+                            <div class="text-[9px] uppercase font-bold text-amber-600 tracking-wider">Độ Đạm Cốt</div>
+                            <div class="text-[11px] sm:text-xs font-black text-slate-900">40°N Tự Nhiên</div>
                         </div>
                     </div>
 
                     <!-- Huy hiệu nổi 2 (Góc dưới trái) -->
-                    <div class="absolute -bottom-3 -left-2 sm:-left-4 animate-float-slow liquid-glass bg-slate-950/90 text-white px-3 py-1.5 rounded-2xl shadow-xl border border-teal-400/40 flex items-center space-x-2 z-20">
+                    <div class="absolute -bottom-3 -left-2 sm:-left-4 animate-float-slow bg-white text-slate-900 px-3.5 py-1.5 rounded-2xl shadow-xl border border-sky-100 flex items-center space-x-2 z-20">
                         <span class="text-base">⏳</span>
                         <div>
-                            <div class="text-[9px] uppercase font-bold text-teal-300 tracking-wider">Lên Men Nắng</div>
-                            <div class="text-[11px] sm:text-xs font-black text-white">12+ Tháng Tự Nhiên</div>
+                            <div class="text-[9px] uppercase font-bold text-sky-700 tracking-wider">Lên Men Nắng</div>
+                            <div class="text-[11px] sm:text-xs font-black text-slate-900">12+ Tháng Gỗ</div>
                         </div>
                     </div>
 
                     <!-- Khung ảnh sản phẩm chính -->
-                    <div class="h-56 sm:h-76 rounded-2xl flex items-center justify-center relative overflow-hidden group shadow-inner bg-slate-950/50">
+                    <div class="h-56 sm:h-76 rounded-2xl flex items-center justify-center relative overflow-hidden group shadow-inner bg-slate-50">
                         <img id="heroProductImg" src="./pictrure/1.jpg" alt="Nước Mắm Nhĩ Thượng Hạng Ba Cô" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
                     </div>
 
-                    <!-- 3 thông số mini (Liquid Glass Pills) -->
+                    <!-- 3 thông số mini -->
                     <div class="grid grid-cols-3 gap-2 pt-3.5 text-center">
-                        <div class="liquid-glass p-2 rounded-xl border border-white/10">
-                            <span class="block text-amber-400 font-black text-sm sm:text-base font-display">40°N</span>
-                            <span class="text-[9px] sm:text-[10px] text-slate-300">Đạm Cốt</span>
+                        <div class="bg-sky-50/80 p-2 rounded-xl border border-sky-100">
+                            <span class="block text-amber-600 font-black text-sm sm:text-base font-mono">40°N</span>
+                            <span class="text-[10px] text-slate-600 font-medium">Đạm Cốt</span>
                         </div>
-                        <div class="liquid-glass p-2 rounded-xl border border-white/10">
-                            <span class="block text-cyan-300 font-black text-sm sm:text-base font-display">12+</span>
-                            <span class="text-[9px] sm:text-[10px] text-slate-300">Tháng Gỗ</span>
+                        <div class="bg-sky-50/80 p-2 rounded-xl border border-sky-100">
+                            <span class="block text-sky-700 font-black text-sm sm:text-base font-mono">12+</span>
+                            <span class="text-[10px] text-slate-600 font-medium">Tháng Gỗ</span>
                         </div>
-                        <div class="liquid-glass p-2 rounded-xl border border-white/10">
-                            <span class="block text-emerald-400 font-black text-sm sm:text-base font-display">100%</span>
-                            <span class="text-[9px] sm:text-[10px] text-slate-300">Cá Than</span>
+                        <div class="bg-sky-50/80 p-2 rounded-xl border border-sky-100">
+                            <span class="block text-emerald-600 font-black text-sm sm:text-base font-mono">100%</span>
+                            <span class="text-[10px] text-slate-600 font-medium">Cá Than</span>
                         </div>
                     </div>
                 </div>
@@ -437,80 +459,80 @@
         </div>
     </section>
 
-    <!-- Dải thanh biểu tượng đặc quyền (Feature Heritage Ribbon - Thiết kế Liquid Glass Liền Mạch) -->
-    <section class="py-4 sm:py-6 relative z-10">
+    <!-- Dải thanh biểu tượng đặc quyền (Feature Heritage Ribbon) -->
+    <section class="py-4 sm:py-6 relative z-10 -mt-6 sm:-mt-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5">
-                <div class="flex items-center space-x-3 p-3.5 rounded-2xl liquid-glass hover:border-amber-400/40 transition">
-                    <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center text-lg shrink-0 border border-amber-400/30">🐟</div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                <div class="flex items-center space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-sky-300 transition">
+                    <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center text-lg shrink-0 border border-sky-100 font-bold">🐟</div>
                     <div>
-                        <h4 class="font-bold text-slate-100 text-xs sm:text-sm leading-tight">Cá Cơm Than Sớm</h4>
-                        <p class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">Tươi xanh • Muối boong tàu</p>
+                        <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight">Cá Cơm Than Sớm</h4>
+                        <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Tươi xanh • Muối boong tàu</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-3 p-3.5 rounded-2xl liquid-glass hover:border-amber-400/40 transition">
-                    <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center text-lg shrink-0 border border-amber-400/30">🪵</div>
+                <div class="flex items-center space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-sky-300 transition">
+                    <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center text-lg shrink-0 border border-amber-100 font-bold">🪵</div>
                     <div>
-                        <h4 class="font-bold text-slate-100 text-xs sm:text-sm leading-tight">Ủ Gỗ 12-15 Tháng</h4>
-                        <p class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">Lên men tự nhiên phơi nắng</p>
+                        <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight">Ủ Gỗ 12-15 Tháng</h4>
+                        <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Lên men tự nhiên phơi nắng</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-3 p-3.5 rounded-2xl liquid-glass hover:border-amber-400/40 transition">
-                    <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center text-lg shrink-0 border border-amber-400/30">🛡️</div>
+                <div class="flex items-center space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-sky-300 transition">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-lg shrink-0 border border-emerald-100 font-bold">🛡️</div>
                     <div>
-                        <h4 class="font-bold text-slate-100 text-xs sm:text-sm leading-tight">An Toàn Tuyệt Đối</h4>
-                        <p class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">0% hóa chất • 0% bảo quản</p>
+                        <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight">An Toàn Tuyệt Đối</h4>
+                        <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">0% hóa chất • 0% bảo quản</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-3 p-3.5 rounded-2xl liquid-glass hover:border-amber-400/40 transition">
-                    <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center text-lg shrink-0 border border-amber-400/30">🚚</div>
+                <div class="flex items-center space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-sky-300 transition">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center text-lg shrink-0 border border-blue-100 font-bold">🚚</div>
                     <div>
-                        <h4 class="font-bold text-slate-100 text-xs sm:text-sm leading-tight">Ship COD Toàn Quốc</h4>
-                        <p class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">Được kiểm tra mắm trước</p>
+                        <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight">Ship COD Toàn Quốc</h4>
+                        <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Được kiểm tra mắm trước</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- About Section (3 Trụ Cột Tinh Hoa - Thiết kế Liquid Glass Bento Grid) -->
+    <!-- About Section (3 Trụ Cột Tinh Hoa - Thiết kế Bento Grid Sáng Trong) -->
     <section id="about" class="py-12 sm:py-20 relative z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-12 gap-4">
                 <div class="space-y-2 max-w-xl">
-                    <div class="inline-flex items-center space-x-2 liquid-pill px-3.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] text-amber-300">
+                    <div class="inline-flex items-center space-x-2 bg-sky-50 text-sky-800 border border-sky-200/90 px-3.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-[0.2em]">
                         <span>✨ Tinh Hoa Nghề Biển Cam Ranh</span>
                     </div>
-                    <h2 class="font-display text-2xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight">
+                    <h2 class="font-display text-2xl sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight">
                         3 Trụ Cột Tạo Nên Giọt Ngọc
                     </h2>
                 </div>
-                <p class="text-slate-300/80 text-xs sm:text-sm max-w-md leading-relaxed font-light">
+                <p class="text-slate-600 text-xs sm:text-sm max-w-md leading-relaxed font-normal">
                     Không cầu kỳ hóa chất phụ gia, hương vị độc bản của Nước Mắm Ba Cô được kết tinh từ sự kiên định với 3 yếu tố tinh khiết nhất của đất trời biển đảo miền Trung.
                 </p>
             </div>
 
-            <!-- Bento Grid 3 Trụ Cột (Liquid Glass Cards) -->
+            <!-- Bento Grid 3 Trụ Cột (Clean White & Ocean Blue Cards) -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
                 <!-- Trụ Cột 1: Cá Cơm Than (Hero Bento Card - 7 Cột) -->
-                <div class="lg:col-span-7 group relative liquid-glass-card rounded-3xl overflow-hidden flex flex-col justify-between min-h-[360px] sm:min-h-[440px] border border-white/15">
+                <div class="lg:col-span-7 group relative bg-white rounded-3xl overflow-hidden flex flex-col justify-between min-h-[360px] sm:min-h-[440px] border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition duration-500">
                     <div class="absolute inset-0 overflow-hidden">
-                        <img id="pillar1Img" src="./pictrure/1.jpg" alt="Cá Cơm Than Cam Ranh" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out opacity-75">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent"></div>
+                        <img id="pillar1Img" src="./pictrure/1.jpg" alt="Cá Cơm Than Cam Ranh" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out opacity-90">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent"></div>
                     </div>
                     <div class="relative z-10 p-5 sm:p-7 flex justify-between items-start">
-                        <span class="inline-flex items-center space-x-1.5 liquid-pill text-amber-300 text-[11px] font-bold px-3 py-1 rounded-full border border-white/20">
+                        <span class="inline-flex items-center space-x-1.5 bg-white/95 backdrop-blur-md text-sky-800 text-[11px] font-bold px-3 py-1 rounded-full border border-sky-200 shadow-sm">
                             <span>01</span>
                             <span>•</span>
                             <span>Biển Cam Ranh</span>
                         </span>
-                        <span class="w-10 h-10 rounded-full liquid-glass text-amber-300 flex items-center justify-center text-sm font-display font-bold border border-amber-400/30">Ⅰ</span>
+                        <span class="w-10 h-10 rounded-full bg-white/95 backdrop-blur-md text-sky-800 flex items-center justify-center text-sm font-display font-bold border border-sky-200 shadow-sm">Ⅰ</span>
                     </div>
                     <div class="relative z-10 p-5 sm:p-7 space-y-2 text-white">
                         <h3 id="pillar1Title" class="font-display font-bold text-xl sm:text-3xl text-white leading-tight">
                             Cá Cơm Than Tươi
                         </h3>
-                        <p id="pillar1Desc" class="text-slate-200 text-xs sm:text-sm leading-relaxed max-w-lg font-light">
+                        <p id="pillar1Desc" class="text-slate-100 text-xs sm:text-sm leading-relaxed max-w-lg font-light">
                             Đánh bắt rạng đông, chọn lọc từng mẻ cá cơm than béo múp, óng ánh tươi xanh và ướp muối ngay trên tàu để bảo toàn độ đạm nguyên bản.
                         </p>
                     </div>
@@ -519,20 +541,20 @@
                 <!-- 2 Card Phụ (5 Cột) -->
                 <div class="lg:col-span-5 flex flex-col gap-4 sm:gap-6">
                     <!-- Trụ Cột 2: Muối Hạt Tinh Khiết -->
-                    <div class="group relative liquid-glass-card rounded-3xl overflow-hidden p-5 sm:p-6 flex flex-col justify-between min-h-[190px] sm:min-h-[210px] border border-white/15">
+                    <div class="group relative bg-white rounded-3xl overflow-hidden p-5 sm:p-6 flex flex-col justify-between min-h-[190px] sm:min-h-[210px] border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition duration-300">
                         <div class="flex items-center justify-between">
-                            <span class="inline-flex items-center space-x-1.5 liquid-pill text-amber-300 text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full border border-white/15">
+                            <span class="inline-flex items-center space-x-1.5 bg-sky-50 text-sky-800 text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full border border-sky-200">
                                 <span>02</span>
                                 <span>•</span>
                                 <span>Tỉ Lệ Vàng 3:1</span>
                             </span>
-                            <span class="w-8 h-8 rounded-full liquid-glass text-amber-300 flex items-center justify-center text-xs font-display font-bold border border-amber-400/30">Ⅱ</span>
+                            <span class="w-8 h-8 rounded-full bg-sky-100 text-sky-800 flex items-center justify-center text-xs font-display font-bold border border-sky-200">Ⅱ</span>
                         </div>
                         <div class="space-y-1.5 pt-3">
-                            <h3 id="pillar2Title" class="font-display font-bold text-lg sm:text-xl text-white group-hover:text-amber-300 transition">
+                            <h3 id="pillar2Title" class="font-display font-bold text-lg sm:text-xl text-slate-900 group-hover:text-sky-700 transition">
                                 Muối Hạt Trắng Tinh
                             </h3>
-                            <p id="pillar2Desc" class="text-slate-300 text-xs leading-relaxed font-light">
+                            <p id="pillar2Desc" class="text-slate-600 text-xs leading-relaxed font-normal">
                                 Hạt muối tinh kết tinh từ nắng gắt miền Trung, lưu kho 12 tháng để xả hết vị chát gắt, giúp nước mắm có vị mặn đằm thắm dịu êm.
                             </p>
                         </div>
@@ -540,20 +562,20 @@
                     </div>
 
                     <!-- Trụ Cột 3: Thùng Gỗ Bời Lời -->
-                    <div class="group relative liquid-glass-card rounded-3xl overflow-hidden p-5 sm:p-6 flex flex-col justify-between min-h-[190px] sm:min-h-[210px] border border-white/15">
+                    <div class="group relative bg-white rounded-3xl overflow-hidden p-5 sm:p-6 flex flex-col justify-between min-h-[190px] sm:min-h-[210px] border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition duration-300">
                         <div class="flex items-center justify-between">
-                            <span class="inline-flex items-center space-x-1.5 liquid-pill text-teal-300 text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full border border-white/15">
+                            <span class="inline-flex items-center space-x-1.5 bg-emerald-50 text-emerald-800 text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full border border-emerald-200">
                                 <span>03</span>
                                 <span>•</span>
-                                <span>Gia Truyền 100 Năm</span>
+                                <span>Gia Truyền Lâu Đời</span>
                             </span>
-                            <span class="w-8 h-8 rounded-full liquid-glass text-teal-300 flex items-center justify-center text-xs font-display font-bold border border-teal-400/30">Ⅲ</span>
+                            <span class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs font-display font-bold border border-emerald-200">Ⅲ</span>
                         </div>
                         <div class="space-y-1.5 pt-3">
-                            <h3 id="pillar3Title" class="font-display font-bold text-lg sm:text-xl text-white group-hover:text-teal-300 transition">
+                            <h3 id="pillar3Title" class="font-display font-bold text-lg sm:text-xl text-slate-900 group-hover:text-emerald-700 transition">
                                 Ủ Nắng 12 Tháng
                             </h3>
-                            <p id="pillar3Desc" class="text-slate-300 text-xs leading-relaxed font-light">
+                            <p id="pillar3Desc" class="text-slate-600 text-xs leading-relaxed font-normal">
                                 Gỗ bời lời giữ nhiệt hoàn hảo, kích thích men vi sinh tự nhiên hoạt động suốt 365 ngày dưới nắng ấm để chắt ra những giọt mắm nhĩ vàng óng.
                             </p>
                         </div>
@@ -564,101 +586,97 @@
         </div>
     </section>
 
-    <!-- Process Section (Connected Architectural Timeline: Quy Trình 4 Bước - Liquid Glass Liền Mạch) -->
-    <section id="process" class="py-12 sm:py-20 relative z-10">
+    <!-- Process Section (Quy Trình 4 Bước Đúc Kết Giọt Ngọc - Giao Diện Sáng Tinh Tế) -->
+    <section id="process" class="py-12 sm:py-20 relative z-10 bg-gradient-to-b from-sky-50/50 via-white to-sky-50/30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto space-y-2.5 mb-8 sm:mb-14">
-                <span class="liquid-pill text-teal-300 font-bold tracking-[0.2em] uppercase text-[10px] sm:text-xs px-4 py-1 rounded-full inline-block">
+                <span class="bg-sky-100 text-sky-800 font-bold tracking-[0.2em] uppercase text-[10px] sm:text-xs px-4 py-1.5 rounded-full inline-block border border-sky-200">
                     Hành Trình Tinh Lọc 365 Ngày
                 </span>
-                <h2 class="font-display text-2xl sm:text-4xl font-bold text-white tracking-tight">
+                <h2 class="font-display text-2xl sm:text-4xl font-bold text-slate-900 tracking-tight">
                     Quy Trình 4 Bước Đúc Kết Giọt Ngọc
                 </h2>
-                <p class="text-slate-300 text-xs sm:text-sm font-light">
+                <p class="text-slate-600 text-xs sm:text-sm font-normal">
                     Mỗi mẻ mắm là sự hòa quyện giữa nắng, gió và sự kiên định bền bỉ của nghệ nhân làm mắm
                 </p>
             </div>
 
             <div class="relative">
                 <!-- Đường Beam Ánh Sáng Kết Nối Trên Desktop -->
-                <div class="hidden lg:block absolute top-1/2 left-4 right-4 h-0.5 bg-gradient-to-r from-amber-400/20 via-teal-400/40 to-amber-400/20 -translate-y-12 z-0"></div>
+                <div class="hidden lg:block absolute top-1/2 left-4 right-4 h-0.5 bg-gradient-to-r from-sky-200 via-sky-400 to-sky-200 -translate-y-12 z-0"></div>
 
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 relative z-10">
                     <!-- Bước 1 -->
-                    <div class="group liquid-glass-card rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col justify-between border border-white/10 hover:border-amber-400/40">
+                    <div class="group bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-sky-400 transition duration-300">
                         <div>
                             <div class="flex items-center justify-between mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center shadow-md">01</span>
-                                <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Rạng đông</span>
+                                <span class="w-8 h-8 rounded-xl bg-sky-600 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-md">01</span>
+                                <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Rạng đông</span>
                             </div>
-                            <div class="h-28 sm:h-38 rounded-xl overflow-hidden mb-3 relative bg-slate-950/60">
-                                <img src="./pictrure/1.jpg" alt="Đánh Bắt Cá Sớm" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 opacity-85">
-                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
+                            <div class="h-28 sm:h-38 rounded-xl overflow-hidden mb-3 relative bg-slate-100">
+                                <img src="./pictrure/1.jpg" alt="Đánh Bắt Cá Sớm" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
                             </div>
-                            <h3 class="font-display font-bold text-xs sm:text-base text-white leading-snug mb-1">
+                            <h3 class="font-display font-bold text-xs sm:text-base text-slate-900 leading-snug mb-1 group-hover:text-sky-700 transition">
                                 Đánh Bắt Cá Sớm
                             </h3>
-                            <p class="text-slate-300 text-[11px] sm:text-xs leading-relaxed line-clamp-2 sm:line-clamp-3 font-light">
+                            <p class="text-slate-600 text-[11px] sm:text-xs leading-relaxed line-clamp-2 sm:line-clamp-3 font-normal">
                                 Cá cơm than vừa cập bến Cam Ranh lúc sáng sớm, tuyển lựa từng con tươi roi rói.
                             </p>
                         </div>
                     </div>
 
                     <!-- Bước 2 -->
-                    <div class="group liquid-glass-card rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col justify-between border border-white/10 hover:border-amber-400/40">
+                    <div class="group bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-sky-400 transition duration-300">
                         <div>
                             <div class="flex items-center justify-between mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center shadow-md">02</span>
-                                <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Tỉ lệ 3:1</span>
+                                <span class="w-8 h-8 rounded-xl bg-sky-600 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-md">02</span>
+                                <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Tỉ lệ 3:1</span>
                             </div>
-                            <div class="h-28 sm:h-38 rounded-xl overflow-hidden mb-3 relative bg-slate-950/60">
-                                <img src="./pictrure/1.jpg" alt="Ướp Muối Boong Tàu" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 opacity-85">
-                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
+                            <div class="h-28 sm:h-38 rounded-xl overflow-hidden mb-3 relative bg-slate-100">
+                                <img src="./pictrure/1.jpg" alt="Ướp Muối Boong Tàu" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
                             </div>
-                            <h3 class="font-display font-bold text-xs sm:text-base text-white leading-snug mb-1">
+                            <h3 class="font-display font-bold text-xs sm:text-base text-slate-900 leading-snug mb-1 group-hover:text-sky-700 transition">
                                 Ướp Muối Boong Tàu
                             </h3>
-                            <p class="text-slate-300 text-[11px] sm:text-xs leading-relaxed line-clamp-2 sm:line-clamp-3 font-light">
+                            <p class="text-slate-600 text-[11px] sm:text-xs leading-relaxed line-clamp-2 sm:line-clamp-3 font-normal">
                                 Trộn muối hạt lưu kho 12 tháng ngay trên boong tàu để giữ trọn vẹn đạm tự nhiên.
                             </p>
                         </div>
                     </div>
 
                     <!-- Bước 3 -->
-                    <div class="group liquid-glass-card rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col justify-between border border-white/10 hover:border-amber-400/40">
+                    <div class="group bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-sky-400 transition duration-300">
                         <div>
                             <div class="flex items-center justify-between mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center shadow-md">03</span>
-                                <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">365 ngày</span>
+                                <span class="w-8 h-8 rounded-xl bg-sky-600 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-md">03</span>
+                                <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">365 ngày</span>
                             </div>
-                            <div class="h-28 sm:h-38 rounded-xl overflow-hidden mb-3 relative bg-slate-950/60">
-                                <img src="./pictrure/1.jpg" alt="Ủ Gỗ Tự Nhiên" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 opacity-85">
-                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
+                            <div class="h-28 sm:h-38 rounded-xl overflow-hidden mb-3 relative bg-slate-100">
+                                <img src="./pictrure/1.jpg" alt="Ủ Gỗ Tự Nhiên" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
                             </div>
-                            <h3 class="font-display font-bold text-xs sm:text-base text-white leading-snug mb-1">
+                            <h3 class="font-display font-bold text-xs sm:text-base text-slate-900 leading-snug mb-1 group-hover:text-sky-700 transition">
                                 Ủ Gỗ Tự Nhiên
                             </h3>
-                            <p class="text-slate-300 text-[11px] sm:text-xs leading-relaxed line-clamp-2 sm:line-clamp-3 font-light">
+                            <p class="text-slate-600 text-[11px] sm:text-xs leading-relaxed line-clamp-2 sm:line-clamp-3 font-normal">
                                 Ủ ròng rã 12-15 tháng trong thùng gỗ bời lời, hấp thụ tinh hoa nắng ấm biển đảo.
                             </p>
                         </div>
                     </div>
 
                     <!-- Bước 4 -->
-                    <div class="group liquid-glass-card rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col justify-between border border-white/10 hover:border-amber-400/40">
+                    <div class="group bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-sky-400 transition duration-300">
                         <div>
                             <div class="flex items-center justify-between mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center shadow-md">04</span>
-                                <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Giọt nhĩ đầu</span>
+                                <span class="w-8 h-8 rounded-xl bg-sky-600 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-md">04</span>
+                                <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Giọt nhĩ đầu</span>
                             </div>
-                            <div class="h-28 sm:h-38 rounded-xl overflow-hidden mb-3 relative bg-slate-950/60">
-                                <img src="./pictrure/1.jpg" alt="Chắt Lọc Đóng Chai" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 opacity-85">
-                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
+                            <div class="h-28 sm:h-38 rounded-xl overflow-hidden mb-3 relative bg-slate-100">
+                                <img src="./pictrure/1.jpg" alt="Chắt Lọc Đóng Chai" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
                             </div>
-                            <h3 class="font-display font-bold text-xs sm:text-base text-white leading-snug mb-1">
+                            <h3 class="font-display font-bold text-xs sm:text-base text-slate-900 leading-snug mb-1 group-hover:text-sky-700 transition">
                                 Chắt Lọc Đóng Chai
                             </h3>
-                            <p class="text-slate-300 text-[11px] sm:text-xs leading-relaxed line-clamp-2 sm:line-clamp-3 font-light">
+                            <p class="text-slate-600 text-[11px] sm:text-xs leading-relaxed line-clamp-2 sm:line-clamp-3 font-normal">
                                 Kéo rút dòng nhĩ đầu tiên sánh đặc màu cánh gián, kiểm nghiệm và đóng chai thủy tinh.
                             </p>
                         </div>
@@ -668,55 +686,55 @@
         </div>
     </section>
 
-    <!-- Asymmetric Lookbook Mosaic (Khoảnh Khắc Tinh Hoa - Liquid Glass Gallery) -->
+    <!-- Lookbook Mosaic (Khoảnh Khắc Tinh Hoa - Sang Trọng & Tươi Mới) -->
     <section id="gallery" class="py-12 sm:py-20 relative z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-12 gap-3">
                 <div>
-                    <span class="liquid-pill text-amber-300 font-bold uppercase tracking-[0.2em] text-[10px] sm:text-xs px-3.5 py-1 rounded-full">
+                    <span class="bg-sky-100 text-sky-800 font-bold uppercase tracking-[0.2em] text-[10px] sm:text-xs px-3.5 py-1.5 rounded-full border border-sky-200">
                         Thực Tế & Trải Nghiệm
                     </span>
-                    <h2 class="font-display text-2xl sm:text-4xl font-bold text-white mt-2">
+                    <h2 class="font-display text-2xl sm:text-4xl font-bold text-slate-900 mt-2.5">
                         Khoảnh Khắc Tinh Hoa Ba Cô
                     </h2>
                 </div>
-                <p class="text-slate-300/80 text-xs sm:text-sm max-w-sm font-light">
+                <p class="text-slate-600 text-xs sm:text-sm max-w-sm font-normal">
                     Ghi dấu trọn vẹn nét văn hóa ẩm thực và sự mộc mạc của làng nghề mắm truyền thống Khánh Hòa
                 </p>
             </div>
 
-            <!-- Asymmetric Grid: 4 Thẻ Phối Hợp Tinh Tế (Liquid Glass Lookbook) -->
+            <!-- Asymmetric Grid: 4 Thẻ Phối Hợp Tinh Tế -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
-                <div class="group relative liquid-glass-card rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-white/10">
-                    <img src="https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=600&q=80" alt="Chén Mắm Tỏi Ớt" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700 opacity-85">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+                <div class="group relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-slate-200/90 shadow-sm hover:shadow-xl transition duration-500">
+                    <img src="https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=600&q=80" alt="Chén Mắm Tỏi Ớt" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
                     <div class="absolute bottom-3 left-3 right-3 text-white">
                         <span class="text-[9px] font-bold text-amber-300 uppercase tracking-widest block font-mono">Bữa cơm Việt</span>
                         <h4 class="font-display font-bold text-xs sm:text-sm">Chén Mắm Tỏi Ớt Đậm Vị</h4>
                     </div>
                 </div>
 
-                <div class="group relative liquid-glass-card rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-white/10">
-                    <img src="https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=600&q=80" alt="Thịt Kho Tộ" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700 opacity-85">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+                <div class="group relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-slate-200/90 shadow-sm hover:shadow-xl transition duration-500">
+                    <img src="https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=600&q=80" alt="Thịt Kho Tộ" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
                     <div class="absolute bottom-3 left-3 right-3 text-white">
                         <span class="text-[9px] font-bold text-amber-300 uppercase tracking-widest block font-mono">Món ngon gia đình</span>
                         <h4 class="font-display font-bold text-xs sm:text-sm">Thịt Kho Tộ Cánh Gián</h4>
                     </div>
                 </div>
 
-                <div class="group relative liquid-glass-card rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-white/10">
-                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80" alt="Vịnh Biển Cam Ranh" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700 opacity-85">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+                <div class="group relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-slate-200/90 shadow-sm hover:shadow-xl transition duration-500">
+                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80" alt="Vịnh Biển Cam Ranh" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
                     <div class="absolute bottom-3 left-3 right-3 text-white">
-                        <span class="text-[9px] font-bold text-cyan-300 uppercase tracking-widest block font-mono">Nguồn nguyên liệu</span>
+                        <span class="text-[9px] font-bold text-sky-300 uppercase tracking-widest block font-mono">Nguồn nguyên liệu</span>
                         <h4 class="font-display font-bold text-xs sm:text-sm">Biển Cam Ranh Trong Vắt</h4>
                     </div>
                 </div>
 
-                <div class="group relative liquid-glass-card rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-white/10">
-                    <img src="./pictrure/1.jpg" alt="Mắm Nhĩ Thượng Hạng" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700 opacity-85">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+                <div class="group relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-slate-200/90 shadow-sm hover:shadow-xl transition duration-500">
+                    <img src="./pictrure/1.jpg" alt="Mắm Nhĩ Thượng Hạng" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
                     <div class="absolute bottom-3 left-3 right-3 text-white">
                         <span class="text-[9px] font-bold text-amber-300 uppercase tracking-widest block font-mono">Thương hiệu</span>
                         <h4 class="font-display font-bold text-xs sm:text-sm">Mắm Nhĩ Ba Cô</h4>
@@ -726,47 +744,44 @@
         </div>
     </section>
 
-    <!-- Products Section (Liquid Glass Luxury Showcase - Optimized 2-column mobile experience) -->
-    <section id="products" class="relative py-12 sm:py-24 overflow-hidden">
-        <div class="ambient-orb w-96 h-96 bg-amber-500/10 top-1/4 -left-20"></div>
-        <div class="ambient-orb w-96 h-96 bg-teal-500/10 bottom-10 -right-20"></div>
-
+    <!-- Products Section (Luxury Showcase Trắng & Xanh Biển) -->
+    <section id="products" class="relative py-12 sm:py-24 bg-gradient-to-b from-sky-50/60 via-white to-sky-50/40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 sm:mb-10">
                 <div class="space-y-2 text-center md:text-left">
-                    <span class="liquid-pill px-4 py-1.5 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase text-amber-300">
-                        COLLECTION • 2026
+                    <span class="bg-sky-100 text-sky-800 border border-sky-200 px-4 py-1.5 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase rounded-full inline-block">
+                        BỘ SƯU TẬP 2026
                     </span>
-                    <h2 class="font-display text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white">
+                    <h2 class="font-display text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900">
                         Dòng Sản Phẩm Thượng Hạng
                     </h2>
-                    <p class="text-slate-400 text-xs sm:text-sm max-w-xl font-light">
-                        Chạm vào sản phẩm để thưởng lãm chi tiết • Đóng gói chống vỡ an toàn toàn quốc
+                    <p class="text-slate-600 text-xs sm:text-sm max-w-xl font-normal">
+                        Chạm vào sản phẩm để xem chi tiết • Đóng gói chống sốc an toàn toàn quốc
                     </p>
                 </div>
                 <div class="flex justify-center md:justify-end">
-                    <a href="./products.html" class="liquid-pill inline-flex items-center space-x-2 text-xs sm:text-sm font-semibold text-amber-300 hover:text-white px-5 py-2.5 transition active:scale-95 group">
+                    <a href="./products.html" class="inline-flex items-center space-x-2 text-xs sm:text-sm font-bold text-sky-800 bg-white hover:bg-sky-50 border border-sky-200 px-5 py-2.5 rounded-full shadow-sm transition active:scale-95 group">
                         <span>Toàn Bộ Kho Sản Phẩm</span>
                         <span class="group-hover:translate-x-1 transition-transform">→</span>
                     </a>
                 </div>
             </div>
 
-            <!-- Thanh Lọc Nhanh Theo Dòng Sản Phẩm (Liquid Glass Filter Pills) -->
+            <!-- Thanh Lọc Nhanh Theo Dòng Sản Phẩm (White & Sky Blue Filter Pills) -->
             <div class="flex items-center gap-2 overflow-x-auto pb-4 mb-4 sm:mb-8 no-scrollbar" id="homeCategoryBar">
-                <button type="button" onclick="filterHomeProducts('all')" data-cat="all" class="home-cat-btn shrink-0 liquid-pill-active px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition">
+                <button type="button" onclick="filterHomeProducts('all')" data-cat="all" class="home-cat-btn shrink-0 bg-sky-600 text-white shadow-md px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition">
                     Tất cả
                 </button>
-                <button type="button" onclick="filterHomeProducts('Mắm Nhĩ Thượng Hạng')" data-cat="Mắm Nhĩ Thượng Hạng" class="home-cat-btn shrink-0 liquid-pill px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition">
+                <button type="button" onclick="filterHomeProducts('Mắm Nhĩ Thượng Hạng')" data-cat="Mắm Nhĩ Thượng Hạng" class="home-cat-btn shrink-0 bg-white text-slate-700 hover:text-sky-700 hover:bg-sky-50 border border-slate-200 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition">
                     🌟 Mắm Nhĩ Thượng Hạng
                 </button>
-                <button type="button" onclick="filterHomeProducts('Mắm Truyền Thống')" data-cat="Mắm Truyền Thống" class="home-cat-btn shrink-0 liquid-pill px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition">
+                <button type="button" onclick="filterHomeProducts('Mắm Truyền Thống')" data-cat="Mắm Truyền Thống" class="home-cat-btn shrink-0 bg-white text-slate-700 hover:text-sky-700 hover:bg-sky-50 border border-slate-200 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition">
                     🍳 Mắm Truyền Thống
                 </button>
-                <button type="button" onclick="filterHomeProducts('Quà Biếu VIP')" data-cat="Quà Biếu VIP" class="home-cat-btn shrink-0 liquid-pill px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition">
+                <button type="button" onclick="filterHomeProducts('Quà Biếu VIP')" data-cat="Quà Biếu VIP" class="home-cat-btn shrink-0 bg-white text-slate-700 hover:text-sky-700 hover:bg-sky-50 border border-slate-200 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition">
                     🎁 Quà Biếu VIP
                 </button>
-                <button type="button" onclick="filterHomeProducts('Can Lớn Gia Đình')" data-cat="Can Lớn Gia Đình" class="home-cat-btn shrink-0 liquid-pill px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition">
+                <button type="button" onclick="filterHomeProducts('Can Lớn Gia Đình')" data-cat="Can Lớn Gia Đình" class="home-cat-btn shrink-0 bg-white text-slate-700 hover:text-sky-700 hover:bg-sky-50 border border-slate-200 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition">
                     🏡 Can Lớn Gia Đình
                 </button>
             </div>
@@ -776,27 +791,30 @@
                 <!-- Sẽ được nạp động bằng loadDynamicProducts() -->
             </div>
 
-            <!-- Nút Xem Toàn Bộ Kho Sản Phẩm -->
-            <div class="mt-8 sm:mt-12 text-center">
-                <a href="./products.html" class="liquid-glass-amber inline-flex items-center justify-center space-x-2 text-white hover:text-amber-300 font-display font-semibold text-xs sm:text-base px-6 sm:px-10 py-3.5 sm:py-4 rounded-2xl transition active:scale-95 shadow-xl">
-                    <span>Khám Phá Toàn Bộ Dòng Sản Phẩm & Tìm Kiếm Nhanh</span>
+            <!-- Nút Xem Toàn Bộ Kho Sản Phẩm & Xem Tất Cả Ngay Tại Đây -->
+            <div class="mt-8 sm:mt-12 text-center flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button type="button" onclick="filterHomeProducts('all'); document.getElementById('products').scrollIntoView({behavior:'smooth'});" class="btn-order-cta inline-flex items-center justify-center space-x-2 text-white font-bold text-xs sm:text-base px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl shadow-xl transition active:scale-95">
+                    <span>🌟 Xem Tất Cả Sản Phẩm Tại Đây</span>
+                </button>
+                <a href="./products.html" class="inline-flex items-center justify-center space-x-2 text-sky-700 bg-white hover:bg-sky-50 border border-sky-200 font-bold text-xs sm:text-base px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl shadow-sm transition active:scale-95">
+                    <span>Mở Bộ Lọc Nâng Cao & Tìm Kiếm</span>
                     <span>→</span>
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- Modal Xem Nhanh Chi Tiết Sản Phẩm (Liquid Glass Sheet) -->
-    <div id="productQuickViewModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+    <!-- Modal Xem Nhanh Chi Tiết Sản Phẩm (White & Sky Blue Theme) -->
+    <div id="productQuickViewModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
         <div class="fixed inset-0" onclick="closeProductQuickView()"></div>
-        <div class="relative liquid-glass-card bg-slate-900/95 rounded-t-[28px] sm:rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-white/20 z-10 max-h-[90vh] flex flex-col text-slate-100">
-            <button onclick="closeProductQuickView()" class="absolute top-3.5 right-3.5 z-20 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center font-bold text-sm transition">✕</button>
-            <div class="h-56 sm:h-64 bg-slate-950 relative shrink-0">
+        <div class="relative bg-white rounded-t-[28px] sm:rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 z-10 max-h-[90vh] flex flex-col text-slate-800">
+            <button onclick="closeProductQuickView()" class="absolute top-3.5 right-3.5 z-20 w-8 h-8 rounded-full bg-slate-900/60 hover:bg-slate-900 text-white flex items-center justify-center font-bold text-sm transition">✕</button>
+            <div class="h-56 sm:h-64 bg-slate-100 relative shrink-0">
                 <img id="qvImage" src="./pictrure/1.jpg" alt="Chi tiết sản phẩm" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-                <span id="qvTag" class="absolute top-3.5 left-3.5 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 text-xs font-black px-3 py-1 rounded-full shadow">Đặc Biệt</span>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
+                <span id="qvTag" class="absolute top-3.5 left-3.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 text-xs font-black px-3 py-1 rounded-full shadow">Đặc Biệt</span>
                 <div class="absolute bottom-3 left-4 right-4 flex items-center justify-between text-white text-xs">
-                    <span id="qvCategory" class="liquid-pill px-3 py-0.5 rounded-full font-semibold text-[11px]">Mắm Nhĩ Thượng Hạng</span>
+                    <span id="qvCategory" class="bg-white/90 backdrop-blur-md text-sky-900 px-3 py-0.5 rounded-full font-bold text-[11px] shadow">Mắm Nhĩ Thượng Hạng</span>
                     <button type="button" onclick="const name = document.getElementById('qvName').textContent; closeProductQuickView(); openReviewModal(name);" class="text-amber-300 font-bold hover:underline transition flex items-center space-x-1" title="Bấm để viết đánh giá">
                         <span>★★★★★ 4.9/5</span>
                         <span class="text-[10px] text-white/80">✍️</span>
@@ -804,24 +822,24 @@
                 </div>
             </div>
             <div class="p-5 sm:p-6 space-y-3.5 overflow-y-auto">
-                <h3 id="qvName" class="font-display font-bold text-lg sm:text-2xl text-white leading-snug">Nước Mắm Nhĩ Thượng Hạng 40° Đạm</h3>
+                <h3 id="qvName" class="font-display font-bold text-lg sm:text-2xl text-slate-900 leading-snug">Nước Mắm Nhĩ Thượng Hạng 40° Đạm</h3>
                 <div class="flex items-baseline space-x-2">
-                    <span id="qvPrice" class="text-xl sm:text-2xl font-black text-amber-400 font-mono">180.000 đ</span>
-                    <span id="qvUnit" class="text-xs sm:text-sm text-slate-400">/ Chai Thủy Tinh 500ml</span>
+                    <span id="qvPrice" class="text-xl sm:text-2xl font-black text-amber-600 font-mono">180.000 đ</span>
+                    <span id="qvUnit" class="text-xs sm:text-sm text-slate-500">/ Chai Thủy Tinh 500ml</span>
                 </div>
-                <p id="qvDesc" class="text-xs sm:text-sm text-slate-300 leading-relaxed liquid-glass p-3.5 rounded-2xl border border-white/10">
+                <p id="qvDesc" class="text-xs sm:text-sm text-slate-600 leading-relaxed bg-sky-50/60 p-3.5 rounded-2xl border border-sky-100">
                     Nước mắm nhĩ kéo rút đợt đầu tiên, sánh đặc hổ phách, hậu vị ngọt sâu.
                 </p>
                 <div class="grid grid-cols-3 gap-2 text-center text-[11px] pt-1">
-                    <div class="liquid-glass text-teal-300 p-2.5 rounded-xl border border-teal-500/20 font-semibold">🐟 100% Cá Cơm</div>
-                    <div class="liquid-glass text-amber-300 p-2.5 rounded-xl border border-amber-500/20 font-semibold">🪵 Ủ Gỗ 12+ Tháng</div>
-                    <div class="liquid-glass text-emerald-300 p-2.5 rounded-xl border border-emerald-500/20 font-semibold">🛡️ Không Hóa Chất</div>
+                    <div class="bg-sky-50 text-sky-800 p-2.5 rounded-xl border border-sky-200/80 font-bold">🐟 100% Cá Cơm</div>
+                    <div class="bg-amber-50 text-amber-800 p-2.5 rounded-xl border border-amber-200/80 font-bold">🪵 Ủ Gỗ 12+ Tháng</div>
+                    <div class="bg-emerald-50 text-emerald-800 p-2.5 rounded-xl border border-emerald-200/80 font-bold">🛡️ Không Hóa Chất</div>
                 </div>
                 <div id="qvActionBtns" class="pt-2 flex gap-2.5">
                     <!-- Nạp động nút Thêm Giỏ & Mua Ngay -->
                 </div>
                 <div class="pt-1 text-center">
-                    <button type="button" onclick="const name = document.getElementById('qvName').textContent; closeProductQuickView(); openReviewModal(name);" class="text-xs font-semibold text-amber-400 hover:text-amber-300 hover:underline inline-flex items-center space-x-1">
+                    <button type="button" onclick="const name = document.getElementById('qvName').textContent; closeProductQuickView(); openReviewModal(name);" class="text-xs font-semibold text-sky-700 hover:text-sky-900 hover:underline inline-flex items-center space-x-1">
                         <span>⭐ Bạn đã từng dùng mắm này? Viết cảm nhận & đánh giá ngay</span>
                         <span>➔</span>
                     </button>
@@ -830,94 +848,92 @@
         </div>
     </div>
 
-    <!-- Wholesale Policy Section (Seamless Liquid Glass Luxury Partnership) -->
-    <section id="wholesale" class="relative py-12 sm:py-24 overflow-hidden">
-        <div class="ambient-orb w-96 h-96 bg-amber-500/10 top-1/3 -right-20"></div>
-
+    <!-- Wholesale Policy Section (Đại Lý & Khách Sỉ - White & Ocean Blue Theme) -->
+    <section id="wholesale" class="relative py-12 sm:py-24 bg-gradient-to-b from-white via-sky-50/40 to-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
             <div class="lg:col-span-7 space-y-6">
-                <span class="liquid-pill px-4 py-1.5 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase text-amber-300">
-                    PARTNERSHIP • ĐẠI LÝ & KHÁCH SỈ
+                <span class="bg-sky-100 text-sky-800 border border-sky-200 px-4 py-1.5 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase rounded-full inline-block">
+                    HỢP TÁC • ĐẠI LÝ & KHÁCH SỈ
                 </span>
-                <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-white">
+                <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-slate-900">
                     Hợp Tác Phân Phối Bền Vững Toàn Quốc
                 </h2>
-                <p class="text-slate-300 text-sm sm:text-base leading-relaxed font-light">
+                <p class="text-slate-600 text-sm sm:text-base leading-relaxed font-normal">
                     Ba Cô Khánh Hòa hân hạnh đồng hành cùng nhà hàng, chuỗi quán ăn và đại lý đặc sản trên khắp 63 tỉnh thành với chiết khấu vượt trội, hỗ trợ bao bì đóng gói và bảo vệ thị trường độc quyền.
                 </p>
                 
-                <!-- 4 Lợi Ích Khách Sỉ Liquid Glass -->
+                <!-- 4 Lợi Ích Khách Sỉ -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
-                    <div class="liquid-glass p-4 rounded-2xl border border-white/10 hover:border-amber-400/30 transition flex items-start space-x-3.5">
-                        <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center text-amber-300 shrink-0 text-lg">💰</div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm hover:border-sky-300 transition flex items-start space-x-3.5">
+                        <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 shrink-0 text-lg font-bold">💰</div>
                         <div>
-                            <h4 class="font-display font-bold text-sm text-white">Chiết Khấu Đến 35%</h4>
-                            <p class="text-xs text-slate-400 mt-0.5">Bảng giá sỉ phân cấp linh hoạt từ đơn số lượng nhỏ.</p>
+                            <h4 class="font-display font-bold text-sm text-slate-900">Chiết Khấu Đến 35%</h4>
+                            <p class="text-xs text-slate-500 mt-0.5">Bảng giá sỉ phân cấp linh hoạt từ đơn số lượng nhỏ.</p>
                         </div>
                     </div>
-                    <div class="liquid-glass p-4 rounded-2xl border border-white/10 hover:border-amber-400/30 transition flex items-start space-x-3.5">
-                        <div class="w-10 h-10 rounded-xl bg-teal-500/15 border border-teal-400/30 flex items-center justify-center text-teal-300 shrink-0 text-lg">🚚</div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm hover:border-sky-300 transition flex items-start space-x-3.5">
+                        <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-700 shrink-0 text-lg font-bold">🚚</div>
                         <div>
-                            <h4 class="font-display font-bold text-sm text-white">Vận Chuyển Toàn Quốc</h4>
-                            <p class="text-xs text-slate-400 mt-0.5">Đóng thùng chống sốc cẩn thận, hỗ trợ cước vận chuyển.</p>
+                            <h4 class="font-display font-bold text-sm text-slate-900">Vận Chuyển Toàn Quốc</h4>
+                            <p class="text-xs text-slate-500 mt-0.5">Đóng thùng chống sốc cẩn thận, hỗ trợ cước vận chuyển.</p>
                         </div>
                     </div>
-                    <div class="liquid-glass p-4 rounded-2xl border border-white/10 hover:border-amber-400/30 transition flex items-start space-x-3.5">
-                        <div class="w-10 h-10 rounded-xl bg-rose-500/15 border border-rose-400/30 flex items-center justify-center text-rose-300 shrink-0 text-lg">📸</div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm hover:border-sky-300 transition flex items-start space-x-3.5">
+                        <div class="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-700 shrink-0 text-lg font-bold">📸</div>
                         <div>
-                            <h4 class="font-display font-bold text-sm text-white">Ấn Phẩm & Trưng Bày</h4>
-                            <p class="text-xs text-slate-400 mt-0.5">Cung cấp bộ media chất lượng cao và tài liệu điểm bán.</p>
+                            <h4 class="font-display font-bold text-sm text-slate-900">Ấn Phẩm & Trưng Bày</h4>
+                            <p class="text-xs text-slate-500 mt-0.5">Cung cấp bộ media chất lượng cao và tài liệu điểm bán.</p>
                         </div>
                     </div>
-                    <div class="liquid-glass p-4 rounded-2xl border border-white/10 hover:border-amber-400/30 transition flex items-start space-x-3.5">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center text-emerald-300 shrink-0 text-lg">🛡️</div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm hover:border-sky-300 transition flex items-start space-x-3.5">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0 text-lg font-bold">🛡️</div>
                         <div>
-                            <h4 class="font-display font-bold text-sm text-white">Bảo Vệ Thị Trường</h4>
-                            <p class="text-xs text-slate-400 mt-0.5">Chính sách độc quyền khu vực theo cam kết sản lượng.</p>
+                            <h4 class="font-display font-bold text-sm text-slate-900">Bảo Vệ Thị Trường</h4>
+                            <p class="text-xs text-slate-500 mt-0.5">Chính sách độc quyền khu vực theo cam kết sản lượng.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Form đăng ký nhận báo giá sỉ Liquid Glass -->
-            <div class="lg:col-span-5 liquid-glass-amber p-6 sm:p-8 rounded-3xl border border-amber-400/30 shadow-2xl space-y-4">
+            <!-- Form đăng ký nhận báo giá sỉ -->
+            <div class="lg:col-span-5 bg-white p-6 sm:p-8 rounded-3xl border border-sky-200 shadow-xl space-y-4">
                 <div class="space-y-1">
-                    <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-300">DÀNH CHO ĐỐI TÁC THƯƠNG MẠI</span>
-                    <h3 class="font-display text-xl sm:text-2xl font-bold text-white">Nhận Bảng Giá Chiết Khấu Sỉ</h3>
-                    <p class="text-xs text-slate-300 font-light">Điền thông tin, bộ phận kinh doanh Ba Cô sẽ gửi bảng giá trong 15 phút.</p>
+                    <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-sky-700">DÀNH CHO ĐỐI TÁC THƯƠNG MẠI</span>
+                    <h3 class="font-display text-xl sm:text-2xl font-bold text-slate-900">Nhận Bảng Giá Chiết Khấu Sỉ</h3>
+                    <p class="text-xs text-slate-500 font-normal">Điền thông tin, bộ phận kinh doanh Ba Cô sẽ gửi bảng giá trong 15 phút.</p>
                 </div>
                 <form onsubmit="handleWholesaleSubmit(event)" class="space-y-3.5">
                     <!-- Invisible Honeypot Trap for Spam Bots -->
                     <input type="text" id="wholesale_trap_hp" name="website_trap_hp" class="hidden" style="display:none!important;position:absolute!important;left:-9999px!important;opacity:0!important;pointer-events:none!important;" tabindex="-1" autocomplete="off">
                     <div class="space-y-1">
-                        <label class="block text-xs font-semibold text-slate-200">Họ và tên của bạn *</label>
-                        <input type="text" id="wholesaleName" required placeholder="Ví dụ: Anh Tuấn" class="w-full px-4 py-2.5 rounded-xl bg-slate-900/90 border border-white/20 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+                        <label class="block text-xs font-semibold text-slate-700">Họ và tên của bạn *</label>
+                        <input type="text" id="wholesaleName" required placeholder="Ví dụ: Anh Tuấn" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="space-y-1">
-                            <label class="block text-xs font-semibold text-slate-200">SĐT / Zalo *</label>
-                            <input type="tel" id="wholesalePhone" required placeholder="0912345678" class="w-full px-4 py-2.5 rounded-xl bg-slate-900/90 border border-white/20 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+                            <label class="block text-xs font-semibold text-slate-700">SĐT / Zalo *</label>
+                            <input type="tel" id="wholesalePhone" required placeholder="0912345678" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
                         </div>
                         <div class="space-y-1">
-                            <label class="block text-xs font-semibold text-slate-200">Khu vực *</label>
-                            <input type="text" id="wholesaleArea" required placeholder="TP.HCM, Hà Nội..." class="w-full px-4 py-2.5 rounded-xl bg-slate-900/90 border border-white/20 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+                            <label class="block text-xs font-semibold text-slate-700">Khu vực *</label>
+                            <input type="text" id="wholesaleArea" required placeholder="TP.HCM, Hà Nội..." class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
                         </div>
                     </div>
                     <div class="space-y-1">
-                        <label class="block text-xs font-semibold text-slate-200">Mô hình kinh doanh</label>
-                        <select id="wholesaleModel" class="w-full px-4 py-2.5 rounded-xl bg-slate-900/95 border border-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
-                            <option value="Quán ăn / Nhà hàng" class="bg-slate-900 text-white">Quán ăn / Nhà hàng</option>
-                            <option value="Cửa hàng tạp hóa / Đặc sản" class="bg-slate-900 text-white">Cửa hàng tạp hóa / Đặc sản</option>
-                            <option value="Đại lý phân phối sỉ" class="bg-slate-900 text-white">Đại lý phân phối sỉ</option>
-                            <option value="Cộng tác viên bán lẻ" class="bg-slate-900 text-white">Cộng tác viên bán lẻ</option>
-                            <option value="Khác" class="bg-slate-900 text-white">Nhu cầu khác</option>
+                        <label class="block text-xs font-semibold text-slate-700">Mô hình kinh doanh</label>
+                        <select id="wholesaleModel" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            <option value="Quán ăn / Nhà hàng">Quán ăn / Nhà hàng</option>
+                            <option value="Cửa hàng tạp hóa / Đặc sản">Cửa hàng tạp hóa / Đặc sản</option>
+                            <option value="Đại lý phân phối sỉ">Đại lý phân phối sỉ</option>
+                            <option value="Cộng tác viên bán lẻ">Cộng tác viên bán lẻ</option>
+                            <option value="Khác">Nhu cầu khác</option>
                         </select>
                     </div>
                     <div class="space-y-1">
-                        <label class="block text-xs font-semibold text-slate-200">Ghi chú nhu cầu</label>
-                        <input type="text" id="wholesaleNote" placeholder="Cần nhập thử 3 - 5 thùng..." class="w-full px-4 py-2.5 rounded-xl bg-slate-900/90 border border-white/20 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+                        <label class="block text-xs font-semibold text-slate-700">Ghi chú nhu cầu</label>
+                        <input type="text" id="wholesaleNote" placeholder="Cần nhập thử 3 - 5 thùng..." class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
                     </div>
-                    <button type="submit" id="wholesaleSubmitBtn" class="shimmer-btn w-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 active:scale-95 text-slate-950 font-bold py-3.5 rounded-2xl shadow-xl transition text-sm sm:text-base flex items-center justify-center space-x-2 mt-2">
+                    <button type="submit" id="wholesaleSubmitBtn" class="btn-order-cta w-full text-white font-bold py-3.5 rounded-2xl shadow-xl transition text-sm sm:text-base flex items-center justify-center space-x-2 mt-2">
                         <span>🤝</span>
                         <span>Gửi Yêu Cầu Nhận Báo Giá Sỉ</span>
                     </button>
@@ -926,20 +942,18 @@
         </div>
     </section>
 
-    <!-- Recipes Section (Liquid Glass Culinary Masterpieces - Horizontal Touch Carousel) -->
-    <section id="recipes" class="relative py-12 sm:py-24 overflow-hidden">
-        <div class="ambient-orb w-96 h-96 bg-amber-500/10 top-1/4 -left-20"></div>
-
+    <!-- Recipes Section (Gian Bếp Gia Đình - White & Sky Blue Theme) -->
+    <section id="recipes" class="relative py-12 sm:py-24 bg-gradient-to-b from-sky-50/50 via-white to-sky-50/30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="text-center max-w-2xl mx-auto space-y-2 mb-8 sm:mb-14">
-                <span class="liquid-pill px-4 py-1.5 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase text-amber-300">
-                    CULINARY SECRETS • GIAN BẾP GIA ĐÌNH
+                <span class="bg-sky-100 text-sky-800 border border-sky-200 px-4 py-1.5 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase rounded-full inline-block">
+                    MÓN NGON GIA ĐÌNH
                 </span>
-                <h2 class="font-display text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white">
+                <h2 class="font-display text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900">
                     Gợi Ý Món Ngon Chuẩn Vị Mắm Ba Cô
                 </h2>
-                <div class="w-16 h-0.5 bg-gradient-to-r from-amber-400 to-teal-400 mx-auto rounded-full mt-2"></div>
-                <p class="text-slate-400 text-xs sm:text-base font-light pt-1">
+                <div class="w-16 h-0.5 bg-gradient-to-r from-sky-400 to-amber-400 mx-auto rounded-full mt-2"></div>
+                <p class="text-slate-600 text-xs sm:text-base font-normal pt-1">
                     Nước mắm nhĩ ngon làm thăng hoa mọi món ăn gia đình, thơm nức mũi và dậy vị sâu lắng.
                 </p>
             </div>
@@ -947,11 +961,11 @@
             <!-- 3 Thẻ Món Ăn - Vuốt ngang tiện lợi trên mobile, 3 cột trên máy tính -->
             <div class="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-4 px-4 no-scrollbar sm:grid sm:grid-cols-3 sm:gap-8 sm:mx-0 sm:px-0 sm:pb-0">
                 <!-- Món 1: Thịt Kho Tộ -->
-                <div class="min-w-[82vw] sm:min-w-0 snap-center group liquid-glass-card rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 hover:border-amber-400/40 transition-all duration-500 flex flex-col justify-between">
+                <div class="min-w-[82vw] sm:min-w-0 snap-center group bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition-all duration-300 flex flex-col justify-between">
                     <div class="h-48 sm:h-60 overflow-hidden relative">
-                        <img id="recipe1Img" src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80" alt="Thịt Ba Chỉ Kho Tộ Cánh Gián" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700 opacity-90">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
-                        <span class="absolute top-3.5 left-3.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full shadow">
+                        <img id="recipe1Img" src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80" alt="Thịt Ba Chỉ Kho Tộ Cánh Gián" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+                        <span class="absolute top-3.5 left-3.5 bg-amber-500 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full shadow">
                             Món Kho Đậm Đà
                         </span>
                         <div class="absolute bottom-3 left-3.5 right-3.5">
@@ -959,18 +973,18 @@
                         </div>
                     </div>
                     <div class="p-4 sm:p-6 space-y-2">
-                        <p id="recipe1Desc" class="text-slate-300 text-xs sm:text-sm leading-relaxed font-light">
+                        <p id="recipe1Desc" class="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
                             Mắm nhĩ 40° đạm giúp thịt săn chắc, lên màu cánh gián tự nhiên không cần nước màu, thơm lừng bốc khói ngút ngàn.
                         </p>
                     </div>
                 </div>
 
                 <!-- Món 2: Nước Mắm Tỏi Ớt -->
-                <div class="min-w-[82vw] sm:min-w-0 snap-center group liquid-glass-card rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 hover:border-amber-400/40 transition-all duration-500 flex flex-col justify-between">
+                <div class="min-w-[82vw] sm:min-w-0 snap-center group bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition-all duration-300 flex flex-col justify-between">
                     <div class="h-48 sm:h-60 overflow-hidden relative">
-                        <img id="recipe2Img" src="https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=800&q=80" alt="Chén Nước Mắm Chua Ngọt Tỏi Ớt Nổi" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700 opacity-90">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
-                        <span class="absolute top-3.5 left-3.5 bg-gradient-to-r from-rose-500 to-rose-600 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full shadow">
+                        <img id="recipe2Img" src="https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=800&q=80" alt="Chén Nước Mắm Chua Ngọt Tỏi Ớt Nổi" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+                        <span class="absolute top-3.5 left-3.5 bg-rose-500 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full shadow">
                             Nước Chấm Tuyệt Đỉnh
                         </span>
                         <div class="absolute bottom-3 left-3.5 right-3.5">
@@ -978,18 +992,18 @@
                         </div>
                     </div>
                     <div class="p-4 sm:p-6 space-y-2">
-                        <p id="recipe2Desc" class="text-slate-300 text-xs sm:text-sm leading-relaxed font-light">
+                        <p id="recipe2Desc" class="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
                             Mắm nhĩ cốt sánh vàng làm tỏi ớt nổi bồng bềnh đẹp mắt, vị chua cay mặn ngọt đằm thắm chấm gỏi cuốn hay bánh xèo đều đỉnh.
                         </p>
                     </div>
                 </div>
 
                 <!-- Món 3: Hải Sản Hấp -->
-                <div class="min-w-[82vw] sm:min-w-0 snap-center group liquid-glass-card rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 hover:border-amber-400/40 transition-all duration-500 flex flex-col justify-between">
+                <div class="min-w-[82vw] sm:min-w-0 snap-center group bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition-all duration-300 flex flex-col justify-between">
                     <div class="h-48 sm:h-60 overflow-hidden relative">
-                        <img id="recipe3Img" src="https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=800&q=80" alt="Hải Sản Hấp Gừng Chấm Mắm Cốt" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700 opacity-90">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
-                        <span class="absolute top-3.5 left-3.5 bg-gradient-to-r from-teal-500 to-teal-600 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full shadow">
+                        <img id="recipe3Img" src="https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=800&q=80" alt="Hải Sản Hấp Gừng Chấm Mắm Cốt" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+                        <span class="absolute top-3.5 left-3.5 bg-sky-600 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full shadow">
                             Vị Ngon Biển Khơi
                         </span>
                         <div class="absolute bottom-3 left-3.5 right-3.5">
@@ -997,7 +1011,7 @@
                         </div>
                     </div>
                     <div class="p-4 sm:p-6 space-y-2">
-                        <p id="recipe3Desc" class="text-slate-300 text-xs sm:text-sm leading-relaxed font-light">
+                        <p id="recipe3Desc" class="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
                             Chấm trực tiếp giọt mắm nhĩ nguyên chất dằm thêm quả ớt xiêm rừng, tôn trọn vẹn vị tươi ngọt tự nhiên của tôm cá mực biển.
                         </p>
                     </div>
@@ -1006,85 +1020,83 @@
         </div>
     </section>
 
-    <!-- Reviews Section (Liquid Glass Customer Testimonials - Touch Carousel) -->
-    <section id="reviews" class="relative py-12 sm:py-24 overflow-hidden">
-        <div class="ambient-orb w-96 h-96 bg-teal-500/10 top-1/4 -right-20"></div>
-
+    <!-- Reviews Section (Đánh Giá & Cảm Nhận Thực Tế - White & Sky Blue Theme) -->
+    <section id="reviews" class="relative py-12 sm:py-24 bg-gradient-to-b from-white via-sky-50/40 to-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="text-center max-w-2xl mx-auto space-y-2 mb-8 sm:mb-12">
-                <span class="liquid-pill px-4 py-1.5 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase text-teal-300">
-                    TESTIMONIALS • CẢM NHẬN THỰC TẾ
+                <span class="bg-sky-100 text-sky-800 border border-sky-200 px-4 py-1.5 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase rounded-full inline-block">
+                    CẢM NHẬN THỰC TẾ
                 </span>
-                <h2 class="font-display text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white">
+                <h2 class="font-display text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900">
                     Tri Kỷ Ẩm Thực Nói Gì Về Ba Cô
                 </h2>
-                <div class="w-16 h-0.5 bg-gradient-to-r from-teal-400 to-amber-400 mx-auto rounded-full mt-2"></div>
-                <p class="text-slate-400 text-xs sm:text-base font-light pt-1">
+                <div class="w-16 h-0.5 bg-gradient-to-r from-sky-400 to-amber-400 mx-auto rounded-full mt-2"></div>
+                <p class="text-slate-600 text-xs sm:text-base font-normal pt-1">
                     Hàng ngàn gia đình và đầu bếp khắp cả nước đã tin yêu lựa chọn mắm nhĩ Ba Cô cho bữa cơm ấm nồng.
                 </p>
 
                 <!-- Nút Viết Đánh Giá & Điểm Đánh Giá Tổng Quan -->
                 <div class="flex flex-wrap items-center justify-center gap-3 pt-3">
-                    <button type="button" onclick="openReviewModal()" class="liquid-glass-amber text-slate-950 font-bold text-xs sm:text-sm px-5 py-2.5 rounded-full shadow-lg transition active:scale-95 flex items-center space-x-2">
+                    <button type="button" onclick="openReviewModal()" class="btn-order-cta text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-full shadow-lg transition active:scale-95 flex items-center space-x-2">
                         <span>⭐</span>
                         <span>Viết Đánh Giá Của Bạn</span>
                     </button>
-                    <div class="liquid-glass flex items-center space-x-2 text-xs font-semibold text-slate-300 px-4 py-2 rounded-full border border-white/15">
-                        <span class="text-amber-400 font-black">★ 4.9 / 5.0</span>
-                        <span class="text-slate-500">•</span>
-                        <span id="reviewsTotalCountLabel" class="text-slate-300">120+ Đánh giá thực tế</span>
+                    <div class="bg-white flex items-center space-x-2 text-xs font-semibold text-slate-700 px-4 py-2 rounded-full border border-slate-200 shadow-sm">
+                        <span class="text-amber-500 font-black">★ 4.9 / 5.0</span>
+                        <span class="text-slate-300">•</span>
+                        <span id="reviewsTotalCountLabel" class="text-slate-600">120+ Đánh giá thực tế</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Danh sách đánh giá nạp động từ JS (Hỗ trợ vuốt ngang mượt trên mobile) -->
+            <!-- Danh sách đánh giá nạp động từ JS (Vuốt ngang mượt trên mobile) -->
             <div id="reviewsListContainer" class="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-4 px-4 no-scrollbar sm:grid sm:grid-cols-3 sm:gap-6 sm:mx-0 sm:px-0 sm:pb-0">
                 <!-- Nạp qua renderReviews() -->
             </div>
         </div>
     </section>
 
-    <!-- FAQ Section (Liquid Glass Accordion) -->
-    <section id="faq" class="relative py-12 sm:py-24 overflow-hidden">
+    <!-- FAQ Section (Hỏi Đáp Thường Gặp - White & Sky Blue Accordion) -->
+    <section id="faq" class="relative py-12 sm:py-24 bg-gradient-to-b from-sky-50/50 via-white to-sky-50/30">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="text-center max-w-2xl mx-auto space-y-2 mb-8 sm:mb-12">
-                <span class="liquid-pill px-4 py-1.5 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase text-amber-300">
-                    HELP & SUPPORT • HỎI ĐÁP
+                <span class="bg-sky-100 text-sky-800 border border-sky-200 px-4 py-1.5 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase rounded-full inline-block">
+                    HỎI ĐÁP & HỖ TRỢ
                 </span>
-                <h2 class="font-display text-2xl sm:text-4xl font-bold tracking-tight text-white">
+                <h2 class="font-display text-2xl sm:text-4xl font-bold tracking-tight text-slate-900">
                     Câu Hỏi Thường Gặp
                 </h2>
-                <div class="w-16 h-0.5 bg-gradient-to-r from-amber-400 to-teal-400 mx-auto rounded-full mt-2"></div>
+                <div class="w-16 h-0.5 bg-gradient-to-r from-sky-400 to-amber-400 mx-auto rounded-full mt-2"></div>
             </div>
 
             <div class="space-y-3 sm:space-y-4">
                 <!-- FAQ Item 1 -->
-                <div class="liquid-glass rounded-2xl overflow-hidden border border-white/10 hover:border-amber-400/40 transition">
-                    <button onclick="toggleFaq(this)" class="w-full px-5 sm:px-6 py-4 sm:py-5 text-left font-display font-semibold text-white flex justify-between items-center focus:outline-none">
+                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm hover:border-sky-300 transition">
+                    <button onclick="toggleFaq(this)" class="w-full px-5 sm:px-6 py-4 sm:py-5 text-left font-display font-semibold text-slate-900 flex justify-between items-center focus:outline-none">
                         <span class="text-xs sm:text-base">Nước mắm truyền thống để lâu có bị sậm màu hay đóng cặn không?</span>
-                        <span class="transform transition duration-300 text-amber-400 text-lg sm:text-xl font-bold ml-2">⌄</span>
+                        <span class="transform transition duration-300 text-sky-600 text-lg sm:text-xl font-bold ml-2">⌄</span>
                     </button>
-                    <div class="hidden px-5 sm:px-6 pb-4 sm:pb-5 text-slate-300 text-xs sm:text-sm leading-relaxed border-t border-white/10 pt-3 font-light">
+                    <div class="hidden px-5 sm:px-6 pb-4 sm:pb-5 text-slate-600 text-xs sm:text-sm leading-relaxed border-t border-slate-100 pt-3 font-normal">
                         Nước mắm nguyên chất 100% tự nhiên khi tiếp xúc với không khí có thể sậm màu hơn một chút (do quá trình oxy hóa tự nhiên của đạm cá) và đôi khi có lắng hạt muối tinh khiết ở đáy chai. Đây là hiện tượng hoàn toàn tự nhiên, chứng minh nước mắm chuẩn nguyên cốt không hóa chất tẩy màu.
                     </div>
                 </div>
                 <!-- FAQ Item 2 -->
-                <div class="liquid-glass rounded-2xl overflow-hidden border border-white/10 hover:border-amber-400/40 transition">
-                    <button onclick="toggleFaq(this)" class="w-full px-5 sm:px-6 py-4 sm:py-5 text-left font-display font-semibold text-white flex justify-between items-center focus:outline-none">
+                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm hover:border-sky-300 transition">
+                    <button onclick="toggleFaq(this)" class="w-full px-5 sm:px-6 py-4 sm:py-5 text-left font-display font-semibold text-slate-900 flex justify-between items-center focus:outline-none">
                         <span class="text-xs sm:text-base">Bảo quản nước mắm như thế nào là tốt nhất?</span>
-                        <span class="transform transition duration-300 text-amber-400 text-lg sm:text-xl font-bold ml-2">⌄</span>
+                        <span class="transform transition duration-300 text-sky-600 text-lg sm:text-xl font-bold ml-2">⌄</span>
                     </button>
-                    <div class="hidden px-5 sm:px-6 pb-4 sm:pb-5 text-slate-300 text-xs sm:text-sm leading-relaxed border-t border-white/10 pt-3 font-light">
+                    <div class="hidden px-5 sm:px-6 pb-4 sm:pb-5 text-slate-600 text-xs sm:text-sm leading-relaxed border-t border-slate-100 pt-3 font-normal">
                         Bạn chỉ cần để chai nước mắm ở nơi khô ráo, thoáng mát, tránh ánh nắng trực tiếp. Sau khi mở nắp sử dụng, đậy kín nắp và không cần phải bảo quản trong tủ lạnh để tránh muối bị đông kết lại.
                     </div>
                 </div>
                 <!-- FAQ Item 3 -->
-                <div class="liquid-glass rounded-2xl overflow-hidden border border-white/10 hover:border-amber-400/40 transition">
-                    <button onclick="toggleFaq(this)" class="w-full px-5 sm:px-6 py-4 sm:py-5 text-left font-display font-semibold text-white flex justify-between items-center focus:outline-none">
+                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm hover:border-sky-300 transition">
+                    <button onclick="toggleFaq(this)" class="w-full px-5 sm:px-6 py-4 sm:py-5 text-left font-display font-semibold text-slate-900 flex justify-between items-center focus:outline-none">
                         <span class="text-xs sm:text-base">Shop có giao hàng toàn quốc và kiểm tra hàng trước khi thanh toán không?</span>
-                        <span class="transform transition duration-300 text-amber-400 text-lg sm:text-xl font-bold ml-2">⌄</span>
+                        <span class="transform transition duration-300 text-sky-600 text-lg sm:text-xl font-bold ml-2">⌄</span>
                     </button>
-                    <div class="hidden px-5 sm:px-6 pb-4 sm:pb-5 text-slate-300 text-xs sm:text-sm leading-relaxed border-t border-white/10 pt-3 font-light">
+                    <div class="hidden px-5 sm:px-6 pb-4 sm:pb-5 text-slate-600 text-xs sm:text-sm leading-relaxed border-t border-slate-100 pt-3 font-normal">
                         Dạ có! Ba Cô đóng gói chống sốc nhiều lớp cực kỳ cẩn thận và giao tận nhà trên toàn quốc. Quý khách hoàn toàn được quyền mở bưu kiện kiểm tra hàng nguyên vẹn trước khi nhận và thanh toán.
                     </div>
                 </div>
@@ -1092,21 +1104,21 @@
         </div>
     </section>
 
-    <!-- Modal Viết Đánh Giá & Cảm Nhận Sản Phẩm (Liquid Glass Review Pop-up) -->
-    <div id="reviewModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
+    <!-- Modal Viết Đánh Giá & Cảm Nhận Sản Phẩm (White & Sky Blue Theme) -->
+    <div id="reviewModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto hidden">
         <div class="fixed inset-0" onclick="closeReviewModal()"></div>
-        <div class="relative liquid-glass-card bg-slate-900/95 rounded-t-[28px] sm:rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl border border-white/20 my-0 sm:my-auto z-10 max-h-[92vh] overflow-y-auto text-slate-100 space-y-4">
-            <div class="w-10 h-1.5 bg-white/20 rounded-full mx-auto sm:hidden mb-1"></div>
+        <div class="relative bg-white rounded-t-[28px] sm:rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl border border-slate-200 my-0 sm:my-auto z-10 max-h-[92vh] overflow-y-auto text-slate-800 space-y-4">
+            <div class="w-10 h-1.5 bg-slate-300 rounded-full mx-auto sm:hidden mb-1"></div>
             
-            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div class="flex items-center space-x-2.5">
-                    <span class="w-10 h-10 rounded-2xl liquid-glass text-amber-400 flex items-center justify-center text-xl shadow-xs border border-amber-400/30">⭐</span>
+                    <span class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shadow-xs border border-amber-200">⭐</span>
                     <div>
-                        <h3 class="font-display text-lg sm:text-xl font-bold text-white leading-tight">Đánh Giá & Cảm Nhận</h3>
-                        <p class="text-[11px] text-slate-400">Góp ý của bạn giúp Nước Mắm Ba Cô ngày càng hoàn thiện</p>
+                        <h3 class="font-display text-lg sm:text-xl font-bold text-slate-900 leading-tight">Đánh Giá & Cảm Nhận</h3>
+                        <p class="text-[11px] text-slate-500">Góp ý của bạn giúp Nước Mắm Ba Cô ngày càng hoàn thiện</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeReviewModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 font-bold flex items-center justify-center transition">✕</button>
+                <button type="button" onclick="closeReviewModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold flex items-center justify-center transition">✕</button>
             </div>
 
             <form id="reviewForm" onsubmit="submitProductReview(event)" class="space-y-3.5">
@@ -1114,15 +1126,15 @@
                 <input type="text" id="review_trap_hp" name="website_trap_hp" class="hidden" style="display:none!important;position:absolute!important;left:-9999px!important;opacity:0!important;pointer-events:none!important;" tabindex="-1" autocomplete="off">
                 <!-- Chọn sản phẩm đánh giá -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Sản phẩm bạn muốn đánh giá *</label>
-                    <select id="reviewProductSelect" required class="w-full px-3.5 py-2.5 rounded-xl border border-white/20 text-xs sm:text-sm font-semibold text-white bg-slate-900/95 focus:ring-2 focus:ring-amber-400 focus:outline-none">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Sản phẩm bạn muốn đánh giá *</label>
+                    <select id="reviewProductSelect" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-900 bg-slate-50 focus:ring-2 focus:ring-sky-500 focus:outline-none">
                         <!-- Nạp động qua JS -->
                     </select>
                 </div>
 
                 <!-- Chấm điểm số sao tương tác 1 - 5 sao -->
-                <div class="liquid-glass p-3.5 rounded-2xl border border-amber-400/30 text-center space-y-1.5">
-                    <label class="block text-xs font-semibold text-amber-300">Mức độ hài lòng của bạn *</label>
+                <div class="bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200 text-center space-y-1.5">
+                    <label class="block text-xs font-semibold text-amber-900">Mức độ hài lòng của bạn *</label>
                     <div class="flex items-center justify-center space-x-2 text-3xl sm:text-4xl cursor-pointer select-none" id="starRatingGroup">
                         <span class="star-btn transition transform hover:scale-125 text-amber-400" data-star="1" onclick="setStarRating(1)">★</span>
                         <span class="star-btn transition transform hover:scale-125 text-amber-400" data-star="2" onclick="setStarRating(2)">★</span>
@@ -1131,49 +1143,49 @@
                         <span class="star-btn transition transform hover:scale-125 text-amber-400" data-star="5" onclick="setStarRating(5)">★</span>
                     </div>
                     <input type="hidden" id="reviewRatingInput" value="5">
-                    <div id="starRatingLabel" class="text-xs font-semibold text-amber-300">
+                    <div id="starRatingLabel" class="text-xs font-semibold text-amber-800">
                         ⭐⭐⭐⭐⭐ Tuyệt vời - Chuẩn vị cá cơm truyền thống!
                     </div>
                 </div>
 
                 <!-- Tiêu chí nổi bật (Chọn nhanh dạng tags) -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Tiêu chí bạn ưng ý nhất (Chọn nhanh):</label>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Tiêu chí bạn ưng ý nhất (Chọn nhanh):</label>
                     <div class="flex flex-wrap gap-1.5" id="reviewCriteriaTags">
-                        <button type="button" onclick="toggleReviewTag(this)" class="review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-white/15 bg-white/5 text-slate-300 transition hover:border-amber-400 active:scale-95">🐟 Mùi thơm cá cơm thật</button>
-                        <button type="button" onclick="toggleReviewTag(this)" class="review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-white/15 bg-white/5 text-slate-300 transition hover:border-amber-400 active:scale-95">🍯 Hậu vị ngọt sâu đậm đà</button>
-                        <button type="button" onclick="toggleReviewTag(this)" class="review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-white/15 bg-white/5 text-slate-300 transition hover:border-amber-400 active:scale-95">✨ Màu hổ phách sánh óng</button>
-                        <button type="button" onclick="toggleReviewTag(this)" class="review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-white/15 bg-white/5 text-slate-300 transition hover:border-amber-400 active:scale-95">📦 Đóng thùng chống sốc kỹ</button>
-                        <button type="button" onclick="toggleReviewTag(this)" class="review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-white/15 bg-white/5 text-slate-300 transition hover:border-amber-400 active:scale-95">⚡ Giao hàng nhanh cẩn thận</button>
-                        <button type="button" onclick="toggleReviewTag(this)" class="review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-white/15 bg-white/5 text-slate-300 transition hover:border-amber-400 active:scale-95">🎁 Đẹp mắt để làm quà biếu</button>
+                        <button type="button" onclick="toggleReviewTag(this)" class="review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-amber-400 active:scale-95">🐟 Mùi thơm cá cơm thật</button>
+                        <button type="button" onclick="toggleReviewTag(this)" class="review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-amber-400 active:scale-95">🍯 Hậu vị ngọt sâu đậm đà</button>
+                        <button type="button" onclick="toggleReviewTag(this)" class="review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-amber-400 active:scale-95">✨ Màu hổ phách sánh óng</button>
+                        <button type="button" onclick="toggleReviewTag(this)" class="review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-amber-400 active:scale-95">📦 Đóng thùng chống sốc kỹ</button>
+                        <button type="button" onclick="toggleReviewTag(this)" class="review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-amber-400 active:scale-95">⚡ Giao hàng nhanh cẩn thận</button>
+                        <button type="button" onclick="toggleReviewTag(this)" class="review-tag-btn px-2.5 py-1.5 rounded-full text-[11px] font-semibold border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-amber-400 active:scale-95">🎁 Đẹp mắt để làm quà biếu</button>
                     </div>
                 </div>
 
                 <!-- Họ tên & SĐT -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Họ và tên bạn *</label>
-                        <input type="text" id="reviewAuthorName" required placeholder="Ví dụ: Chị Lan Anh" class="w-full px-3.5 py-2 rounded-xl bg-slate-900/90 border border-white/20 text-white placeholder-slate-500 text-xs sm:text-sm focus:ring-2 focus:ring-amber-400 focus:outline-none">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Họ và tên bạn *</label>
+                        <input type="text" id="reviewAuthorName" required placeholder="Ví dụ: Chị Lan Anh" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Số điện thoại *</label>
-                        <input type="tel" id="reviewAuthorPhone" required placeholder="0985520678" class="w-full px-3.5 py-2 rounded-xl bg-slate-900/90 border border-white/20 text-white placeholder-slate-500 text-xs sm:text-sm focus:ring-2 focus:ring-amber-400 focus:outline-none">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Số điện thoại *</label>
+                        <input type="tel" id="reviewAuthorPhone" required placeholder="0985520678" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Tỉnh / Thành phố bạn sinh sống</label>
-                    <input type="text" id="reviewAuthorLocation" placeholder="Ví dụ: TP. Hồ Chí Minh, Hà Nội, Nha Trang..." class="w-full px-3.5 py-2 rounded-xl bg-slate-900/90 border border-white/20 text-white placeholder-slate-500 text-xs sm:text-sm focus:ring-2 focus:ring-amber-400 focus:outline-none">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Tỉnh / Thành phố bạn sinh sống</label>
+                    <input type="text" id="reviewAuthorLocation" placeholder="Ví dụ: TP. Hồ Chí Minh, Hà Nội, Nha Trang..." class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
                 </div>
 
                 <!-- Lời nhận xét -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Cảm nhận chi tiết của bạn *</label>
-                    <textarea id="reviewComment" required rows="2.5" placeholder="Chia sẻ cảm nhận về hương vị, độ sánh, bao bì hoặc trải nghiệm sử dụng..." class="w-full px-3.5 py-2 rounded-xl bg-slate-900/90 border border-white/20 text-white placeholder-slate-500 text-xs sm:text-sm focus:ring-2 focus:ring-amber-400 focus:outline-none"></textarea>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Cảm nhận chi tiết của bạn *</label>
+                    <textarea id="reviewComment" required rows="2.5" placeholder="Chia sẻ cảm nhận về hương vị, độ sánh, bao bì hoặc trải nghiệm sử dụng..." class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
                 </div>
 
                 <!-- Nút gửi -->
-                <button type="submit" id="submitReviewBtn" class="liquid-glass-amber w-full text-slate-950 font-display font-bold py-3.5 rounded-xl shadow-lg transition active:scale-95 text-xs sm:text-sm flex items-center justify-center space-x-2">
+                <button type="submit" id="submitReviewBtn" class="btn-order-cta w-full text-white font-bold py-3.5 rounded-xl shadow-lg transition active:scale-95 text-xs sm:text-sm flex items-center justify-center space-x-2">
                     <span>⭐</span>
                     <span>Gửi Đánh Giá Ngay</span>
                 </button>
@@ -1315,7 +1327,7 @@
                     </div>
                 </div>
 
-                <button type="submit" id="submitBtn" class="shimmer-btn w-full bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-slate-950 font-black py-3.5 sm:py-4 rounded-2xl shadow-xl transition transform hover:-translate-y-0.5 active:scale-95 text-sm sm:text-base flex items-center justify-center space-x-2">
+                <button type="submit" id="submitBtn" class="btn-order-cta w-full text-white font-black py-4 rounded-2xl shadow-xl transition transform hover:-translate-y-0.5 active:scale-95 text-base sm:text-lg flex items-center justify-center space-x-2">
                     <span id="submitBtnIcon">⚡</span>
                     <span id="submitBtnText">Xác Nhận Đặt Hàng (COD)</span>
                 </button>
@@ -1486,34 +1498,33 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-10 relative z-10">
             <div class="space-y-3.5">
                 <span class="site-brand-name font-display font-bold text-white text-xl sm:text-2xl tracking-tight block">Nước Mắm Ba Cô Khánh Hòa</span>
-                <p class="site-brand-slogan text-xs sm:text-sm text-slate-400 font-light leading-relaxed">
+                <p class="site-brand-slogan text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
                     Đặc sản mắm nhĩ cốt truyền thống ủ chượp tự nhiên từ cá cơm than vịnh Cam Ranh. Đậm đà bản sắc, trọn vị tình thân.
                 </p>
                 <div class="pt-1">
-                    <span class="liquid-pill px-3 py-1 text-[10px] font-mono font-bold text-amber-300">TRADITION • SINCE GENERATIONS</span>
+                    <span class="bg-sky-900/80 text-sky-200 border border-sky-700 px-3 py-1 text-[10px] font-mono font-bold rounded-full">TRUYỀN THỐNG TRĂM NĂM</span>
                 </div>
             </div>
             <div class="space-y-3.5">
                 <h4 class="font-display font-bold text-white text-sm sm:text-base tracking-wider uppercase">Thông Tin Liên Hệ</h4>
-                <div class="space-y-2 text-xs sm:text-sm font-light text-slate-300">
+                <div class="space-y-2 text-xs sm:text-sm font-normal text-slate-200">
                     <p class="flex items-center space-x-2"><span>📍</span><span>Cơ sở: <strong class="site-address font-medium text-white">Phường Cam Ranh, Tỉnh Khánh Hòa</strong></span></p>
                     <p class="flex items-center space-x-2"><span>📞</span><span>Hotline / Zalo: <a href="tel:0985520678" class="site-hotline-link text-amber-300 hover:text-amber-200 font-bold transition"><span class="site-hotline">0985 520 678</span></a></span></p>
-                    <p class="flex items-center space-x-2"><span>✉️</span><span>Email: <a href="mailto:contact@bacokhanhhoa.vn" class="site-email-link text-slate-300 hover:text-white transition"><span class="site-email">contact@bacokhanhhoa.vn</span></a></span></p>
+                    <p class="flex items-center space-x-2"><span>✉️</span><span>Email: <a href="mailto:contact@bacokhanhhoa.vn" class="site-email-link text-slate-200 hover:text-white transition"><span class="site-email">contact@bacokhanhhoa.vn</span></a></span></p>
                 </div>
             </div>
             <div class="space-y-3.5">
                 <h4 class="font-display font-bold text-white text-sm sm:text-base tracking-wider uppercase">Kết Nối Với Chúng Tôi</h4>
-                <p class="text-xs sm:text-sm text-slate-400 font-light leading-relaxed">Theo dõi trang chính thức để nhận các chương trình ưu đãi tri ân đối tác và gia đình hàng tháng.</p>
+                <p class="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">Theo dõi trang chính thức để nhận các chương trình ưu đãi tri ân đối tác và gia đình hàng tháng.</p>
                 <div class="flex space-x-3 pt-1">
-                    <a href="https://facebook.com" target="_blank" class="w-10 h-10 liquid-glass rounded-xl flex items-center justify-center text-white hover:text-amber-300 hover:border-amber-400/40 transition active:scale-95 text-sm font-bold">f</a>
-                    <a href="https://zalo.me/0985520678" target="_blank" class="site-zalo-link w-10 h-10 liquid-glass rounded-xl flex items-center justify-center text-white hover:text-amber-300 hover:border-amber-400/40 transition active:scale-95 text-sm font-bold">z</a>
+                    <a href="https://facebook.com" target="_blank" class="w-10 h-10 bg-sky-900/70 border border-sky-700 rounded-xl flex items-center justify-center text-white hover:text-sky-300 transition active:scale-95 text-sm font-bold">f</a>
+                    <a href="https://zalo.me/0985520678" target="_blank" class="site-zalo-link w-10 h-10 bg-sky-900/70 border border-sky-700 rounded-xl flex items-center justify-center text-white hover:text-sky-300 transition active:scale-95 text-sm font-bold">z</a>
                 </div>
             </div>
         </div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-3 relative z-10">
-            <span>© 2026 Nước Mắm Ba Cô Khánh Hòa. All rights reserved.</span>
-            <a href="./admin.html?lock=1" target="_blank" class="text-slate-400 hover:text-amber-300 transition flex items-center space-x-1.5 font-semibold">
-                <span>🔒 Trang Quản Trị</span>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-sky-900 flex items-center justify-center text-center text-xs text-slate-400 relative z-10">
+            <a href="./admin.html?lock=1" class="text-slate-400 hover:text-sky-300 transition cursor-pointer select-none">
+                © 2026 Nước Mắm Ba Cô Khánh Hòa. All rights reserved.
             </a>
         </div>
     </footer>
@@ -1530,11 +1541,11 @@
             const navbar = document.getElementById('navbar');
             if (!navbar) return;
             if (window.scrollY > 40) {
-                navbar.classList.add('bg-slate-950/90', 'border-amber-400/20', 'shadow-2xl');
-                navbar.classList.remove('bg-slate-950/75');
+                navbar.classList.add('bg-white/95', 'border-sky-200/90', 'shadow-md');
+                navbar.classList.remove('bg-white/92');
             } else {
-                navbar.classList.remove('bg-slate-950/90', 'border-amber-400/20', 'shadow-2xl');
-                navbar.classList.add('bg-slate-950/75');
+                navbar.classList.remove('bg-white/95', 'border-sky-200/90', 'shadow-md');
+                navbar.classList.add('bg-white/92');
             }
         });
 
@@ -2053,7 +2064,10 @@
             if (stored) {
                 try {
                     prods = JSON.parse(stored);
-                    if (!localStorage.getItem('baco_products_v2_upgraded') && prods.length <= 3) {
+                    if (!prods || !Array.isArray(prods) || prods.length === 0) {
+                        prods = DEFAULT_PRODUCTS;
+                        localStorage.setItem('baco_products', JSON.stringify(prods));
+                    } else if (!localStorage.getItem('baco_products_v2_upgraded') && prods.length <= 3) {
                         const existingIds = new Set(prods.map(p => p.id));
                         prods.forEach(p => {
                             if (!p.category) {
@@ -2068,11 +2082,19 @@
                         localStorage.setItem('baco_products', JSON.stringify(prods));
                         localStorage.setItem('baco_products_v2_upgraded', 'true');
                     }
-                } catch(e) { prods = DEFAULT_PRODUCTS; }
+                } catch(e) { 
+                    prods = DEFAULT_PRODUCTS; 
+                    localStorage.setItem('baco_products', JSON.stringify(prods));
+                }
             } else {
                 prods = DEFAULT_PRODUCTS;
                 localStorage.setItem('baco_products', JSON.stringify(prods));
                 localStorage.setItem('baco_products_v2_upgraded', 'true');
+            }
+
+            if (!prods || !Array.isArray(prods) || prods.length === 0) {
+                prods = DEFAULT_PRODUCTS;
+                localStorage.setItem('baco_products', JSON.stringify(prods));
             }
 
             homeProductsList = prods;
@@ -2092,9 +2114,9 @@
             document.querySelectorAll('.home-cat-btn').forEach(btn => {
                 const isSelected = btn.getAttribute('data-cat') === cat;
                 if (isSelected) {
-                    btn.className = "home-cat-btn shrink-0 liquid-pill-active px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition";
+                    btn.className = "home-cat-btn shrink-0 bg-sky-600 text-white shadow-md px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition";
                 } else {
-                    btn.className = "home-cat-btn shrink-0 liquid-pill px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition";
+                    btn.className = "home-cat-btn shrink-0 bg-white text-slate-700 hover:text-sky-700 hover:bg-sky-50 border border-slate-200 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition";
                 }
             });
             renderHomeProductsGrid();
@@ -2109,7 +2131,7 @@
                 : homeProductsList.filter(p => (p.category || 'Mắm Nhĩ Thượng Hạng') === activeHomeCategory);
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="col-span-2 md:col-span-3 text-center py-12 text-slate-400 text-sm font-light">Chưa có sản phẩm trong danh mục này.</div>`;
+                container.innerHTML = `<div class="col-span-2 md:col-span-3 text-center py-12 text-slate-500 text-sm font-normal">Chưa có sản phẩm trong danh mục này.</div>`;
                 return;
             }
 
@@ -2117,41 +2139,41 @@
                 const safeName = (p.name || '').replace(/'/g, "\\'");
                 const tagColor = (p.tag === 'Combo Quà Biếu') ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white'
                                : (p.tag === 'Tiết Kiệm') ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white'
-                               : 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-bold';
+                               : 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold';
 
                 const stockBtn = p.inStock
-                    ? `<button type="button" onclick="addToCart('${safeName}', ${p.price})" class="liquid-glass hover:bg-amber-400/20 text-amber-300 font-semibold px-2.5 sm:px-3.5 py-2 rounded-xl transition active:scale-95 text-xs flex items-center justify-center shrink-0 border border-amber-400/30" title="Thêm vào giỏ">
+                    ? `<button type="button" onclick="addToCart('${safeName}', ${p.price})" class="bg-sky-50 hover:bg-sky-100 text-sky-800 font-bold px-2.5 sm:px-3 py-2 rounded-xl transition active:scale-95 text-xs flex items-center justify-center shrink-0 border border-sky-200" title="Thêm vào giỏ">
                            <span>🛒</span>
                            <span class="hidden sm:inline ml-1 text-[11px]">Giỏ</span>
                        </button>
-                       <button type="button" onclick="buyNow('${safeName}', ${p.price})" class="flex-1 liquid-glass-amber text-slate-950 font-display font-bold py-2 px-2.5 rounded-xl transition shadow-md active:scale-95 text-[11px] sm:text-xs text-center">
+                       <button type="button" onclick="buyNow('${safeName}', ${p.price})" class="btn-order-cta flex-1 text-white font-bold py-2.5 px-3 rounded-xl transition shadow-md active:scale-95 text-xs sm:text-sm text-center flex items-center justify-center">
                            Đặt Mua
                        </button>`
-                    : `<button disabled class="w-full liquid-glass text-slate-500 font-medium py-2 rounded-xl text-[11px] sm:text-xs cursor-not-allowed">Tạm Hết</button>`;
+                    : `<button disabled class="w-full bg-slate-100 text-slate-400 font-medium py-2 rounded-xl text-[11px] sm:text-xs cursor-not-allowed">Tạm Hết</button>`;
 
                 return `
-                    <div class="liquid-glass-card rounded-2xl sm:rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-white/10 hover:border-amber-400/50 flex flex-col justify-between group">
+                    <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group">
                         <div>
-                            <div onclick="openProductQuickView('${p.id}')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-950 cursor-pointer">
-                                <img src="${p.image || './pictrure/1.jpg'}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700 opacity-90">
-                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+                            <div onclick="openProductQuickView('${p.id}')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
+                                <img src="${p.image || './pictrure/1.jpg'}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                                 <span class="absolute top-2.5 left-2.5 ${tagColor} text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-md font-mono tracking-wide">
                                     ${p.tag || 'Đặc Biệt'}
                                 </span>
                                 <div class="absolute bottom-2.5 left-3 right-3 flex justify-between items-center text-white text-[9px] sm:text-xs">
-                                    <span class="font-medium truncate opacity-90 font-mono">${p.unit || 'Chai 500ml'}</span>
-                                    <span onclick="event.stopPropagation(); openReviewModal('${safeName}')" class="text-amber-300 font-bold hover:underline transition cursor-pointer select-none">★ 4.9</span>
+                                    <span class="font-medium truncate opacity-95 font-mono drop-shadow">${p.unit || 'Chai 500ml'}</span>
+                                    <span onclick="event.stopPropagation(); openReviewModal('${safeName}')" class="text-amber-300 font-bold hover:underline transition cursor-pointer select-none drop-shadow">★ 4.9</span>
                                 </div>
                             </div>
                             <div class="p-3.5 sm:p-5 space-y-1.5">
-                                <div class="text-[10px] font-mono font-bold text-amber-300 uppercase tracking-widest truncate">
+                                <div class="text-[10px] font-mono font-bold text-sky-700 uppercase tracking-widest truncate">
                                     ${p.category || 'Mắm Nhĩ'}
                                 </div>
-                                <h3 onclick="openProductQuickView('${p.id}')" class="font-display font-bold text-xs sm:text-base text-white group-hover:text-amber-300 transition line-clamp-2 min-h-[2.1rem] sm:min-h-[2.8rem] leading-snug cursor-pointer">
+                                <h3 onclick="openProductQuickView('${p.id}')" class="font-display font-bold text-xs sm:text-base text-slate-900 group-hover:text-sky-700 transition line-clamp-2 min-h-[2.1rem] sm:min-h-[2.8rem] leading-snug cursor-pointer">
                                     ${p.name}
                                 </h3>
                                 <div class="pt-1 flex items-baseline justify-between whitespace-nowrap">
-                                    <span class="text-sm sm:text-lg font-black text-amber-400 font-mono shrink-0">${Number(p.price).toLocaleString('vi-VN')} đ</span>
+                                    <span class="text-sm sm:text-lg font-black text-amber-600 font-mono shrink-0">${Number(p.price).toLocaleString('vi-VN')} đ</span>
                                 </div>
                             </div>
                         </div>
@@ -2178,15 +2200,15 @@
             const actionEl = document.getElementById('qvActionBtns');
             if (p.inStock) {
                 actionEl.innerHTML = `
-                    <button type="button" onclick="addToCart('${safeName}', ${p.price}); closeProductQuickView();" class="flex-1 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold py-3 rounded-2xl text-xs sm:text-sm transition active:scale-95">
+                    <button type="button" onclick="addToCart('${safeName}', ${p.price}); closeProductQuickView();" class="flex-1 bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 font-bold py-3 rounded-2xl text-xs sm:text-sm transition active:scale-95">
                         🛒 Thêm Vào Giỏ
                     </button>
-                    <button type="button" onclick="closeProductQuickView(); buyNow('${safeName}', ${p.price});" class="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black py-3 rounded-2xl text-xs sm:text-sm shadow-md transition active:scale-95">
+                    <button type="button" onclick="closeProductQuickView(); buyNow('${safeName}', ${p.price});" class="btn-order-cta flex-1 text-white font-black py-3 rounded-2xl text-xs sm:text-sm shadow-md transition active:scale-95">
                         ⚡ Mua Ngay
                     </button>
                 `;
             } else {
-                actionEl.innerHTML = `<button disabled class="w-full bg-slate-200 text-slate-500 font-bold py-3 rounded-2xl text-xs sm:text-sm">🔴 Sản phẩm tạm hết hàng</button>`;
+                actionEl.innerHTML = `<button disabled class="w-full bg-slate-100 text-slate-400 font-bold py-3 rounded-2xl text-xs sm:text-sm">🔴 Sản phẩm tạm hết hàng</button>`;
             }
             document.getElementById('productQuickViewModal').classList.remove('hidden');
         }
@@ -3078,35 +3100,35 @@
                 const initial = (r.name || 'KH').trim().split(' ').pop().substring(0, 2).toUpperCase();
                 const tagsHtml = (r.tags && r.tags.length > 0)
                     ? `<div class="flex flex-wrap gap-1.5 pt-1">
-                         ${r.tags.map(t => `<span class="text-[10px] font-mono liquid-glass text-amber-300 border border-amber-400/20 px-2.5 py-0.5 rounded-full">${t}</span>`).join('')}
+                         ${r.tags.map(t => `<span class="text-[10px] font-mono bg-sky-50 text-sky-800 border border-sky-200/80 px-2.5 py-0.5 rounded-full">${t}</span>`).join('')}
                        </div>`
                     : '';
 
                 return `
-                    <div class="min-w-[82vw] sm:min-w-0 snap-center liquid-glass-card p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-white/10 hover:border-amber-400/40 space-y-3.5 shadow-xl transition-all duration-500 flex flex-col justify-between">
+                    <div class="min-w-[82vw] sm:min-w-0 snap-center bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/90 hover:border-sky-300 space-y-3.5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between text-slate-800">
                         <div class="space-y-2.5">
                             <div class="flex items-center justify-between">
-                                <div class="text-amber-400 text-sm tracking-wider font-bold">${stars}</div>
+                                <div class="text-amber-500 text-sm tracking-wider font-bold">${stars}</div>
                                 <span class="text-[10px] text-slate-400 font-mono">${r.date || ''}</span>
                             </div>
-                            <div class="liquid-pill text-amber-300 text-[10px] font-mono font-medium px-3 py-0.5 rounded-full inline-block truncate max-w-full">
+                            <div class="bg-sky-50 text-sky-800 border border-sky-200/80 text-[10px] font-medium px-3 py-0.5 rounded-full inline-block truncate max-w-full">
                                 🛍️ ${r.product || 'Nước mắm Ba Cô'}
                             </div>
-                            <p class="text-slate-300 italic text-xs sm:text-sm leading-relaxed font-light">
+                            <p class="text-slate-600 italic text-xs sm:text-sm leading-relaxed font-normal">
                                 "${r.comment}"
                             </p>
                             ${tagsHtml}
                         </div>
-                        <div class="flex items-center space-x-3 pt-3.5 border-t border-white/10">
-                            <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-400 to-amber-600 text-slate-950 font-bold flex items-center justify-center text-xs shadow-md shrink-0">
+                        <div class="flex items-center space-x-3 pt-3.5 border-t border-slate-100">
+                            <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-sky-600 to-sky-700 text-white font-bold flex items-center justify-center text-xs shadow-sm shrink-0">
                                 ${initial}
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="font-display font-bold text-white text-xs sm:text-sm flex items-center space-x-1.5">
+                                <div class="font-display font-bold text-slate-900 text-xs sm:text-sm flex items-center space-x-1.5">
                                     <span class="truncate">${r.name}</span>
-                                    <span class="text-emerald-400 text-xs shrink-0" title="Đã xác thực mua hàng">✓</span>
+                                    <span class="text-emerald-500 text-xs shrink-0" title="Đã xác thực mua hàng">✓</span>
                                 </div>
-                                <span class="text-[10px] text-slate-400 block truncate font-light">${r.location || 'Khách hàng thân thiết'}</span>
+                                <span class="text-[10px] text-slate-500 block truncate font-normal">${r.location || 'Khách hàng thân thiết'}</span>
                             </div>
                         </div>
                     </div>
