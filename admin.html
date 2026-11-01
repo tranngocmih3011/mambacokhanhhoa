@@ -756,13 +756,13 @@
                     </div>
                 </div>
 
-                <!-- Segmented Control chọn mục nội dung -->
+                <!-- Segmented Control chọn mục nội dung (Ưu tiên Banner và Header lên đầu) -->
                 <div class="ios-segmented grid grid-cols-5 gap-1 sticky top-[49px] z-20">
-                    <button type="button" onclick="switchCmsFolder('header')" id="cmsFolderBtn-header" class="cms-folder-btn active py-2 px-1 sm:px-2 rounded-lg text-xs font-semibold transition text-center ios-press">
-                        Header
-                    </button>
-                    <button type="button" onclick="switchCmsFolder('hero')" id="cmsFolderBtn-hero" class="cms-folder-btn py-2 px-1 sm:px-2 rounded-lg text-xs font-semibold transition text-center ios-press">
+                    <button type="button" onclick="switchCmsFolder('hero')" id="cmsFolderBtn-hero" class="cms-folder-btn active py-2 px-1 sm:px-2 rounded-lg text-xs font-semibold transition text-center ios-press">
                         Banner
+                    </button>
+                    <button type="button" onclick="switchCmsFolder('header')" id="cmsFolderBtn-header" class="cms-folder-btn py-2 px-1 sm:px-2 rounded-lg text-xs font-semibold transition text-center ios-press">
+                        Header
                     </button>
                     <button type="button" onclick="switchCmsFolder('brand')" id="cmsFolderBtn-brand" class="cms-folder-btn py-2 px-1 sm:px-2 rounded-lg text-xs font-semibold transition text-center ios-press">
                         Liên hệ
@@ -776,21 +776,167 @@
                 </div>
 
                 <form id="cmsForm" onsubmit="event.preventDefault(); saveSiteContentFromAdmin();" class="space-y-3">
-                    <!-- THƯ MỤC 0: HEADER / THANH ĐẦU TRANG & MENU -->
-                    <div id="cmsFolderPanel-header" class="ios-card p-4 space-y-4">
+                    <!-- THƯ MỤC 1: HERO BANNER ĐẦU TRANG (ĐẦY ĐỦ TÙY CHỈNH THEO YÊU CẦU) -->
+                    <div id="cmsFolderPanel-hero" class="ios-card p-4 space-y-4">
+                        <div class="border-b border-black/[0.06] pb-3">
+                            <h3 class="text-xs font-bold text-[#1c1c1e] uppercase tracking-wider flex items-center space-x-1.5">
+                                <span>🌊</span>
+                                <span>Banner Đầu Trang (Hero Banner)</span>
+                            </h3>
+                            <p class="text-[11px] text-[#8E8E93] mt-0.5">Tùy biến toàn bộ nội dung, ảnh chai nước mắm, cam kết và thông số nổi bật trên banner.</p>
+                        </div>
+
+                        <!-- Huy hiệu nhỏ trên cùng & Tiêu đề -->
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Huy hiệu nhỏ trên cùng (Tagline)</label>
+                                <input type="text" id="cms_heroTag" placeholder="ĐẶC SẢN VỊNH CAM RANH • Ủ TRUYỀN THỐNG" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none font-semibold">
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-medium text-[#8E8E93] mb-1">Tiêu đề chính dòng 1</label>
+                                    <input type="text" id="cms_heroMainTitle" placeholder="Giọt Ngọc Biển Khơi" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none font-bold">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-[#8E8E93] mb-1">Tiêu đề phụ ánh vàng dòng 2</label>
+                                    <input type="text" id="cms_heroSubTitle" placeholder="Nước Mắm Nhĩ Thượng Hạng" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none font-bold text-amber-600">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Đoạn mô tả ngắn banner</label>
+                                <textarea id="cms_heroDesc" rows="2" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Khối hình ảnh Banner: Ảnh nền & Ảnh chai mắm packshot -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                            <div class="bg-[#F2F2F7]/70 p-3 rounded-xl space-y-2">
+                                <label class="block text-xs font-semibold text-[#1c1c1e]">Ảnh nền biển đảo Cam Ranh</label>
+                                <div class="flex items-center space-x-3">
+                                    <img id="preview_cms_heroBgImg" src="./pictrure/banner_khanhhoa.jpg" alt="Preview" class="w-16 h-14 rounded-lg object-cover border border-black/[0.08] shrink-0">
+                                    <div class="flex-1 space-y-1.5">
+                                        <input type="file" id="file_cms_heroBgImg" accept="image/*" class="hidden" onchange="handleCmsImageSelect(event, 'heroBgImg')">
+                                        <div class="flex gap-1.5">
+                                            <button type="button" onclick="document.getElementById('file_cms_heroBgImg').click()" class="flex-1 bg-white border border-black/[0.1] text-[#1c1c1e] text-xs font-medium px-2 py-1.5 rounded-lg transition ios-press">
+                                                Chọn ảnh
+                                            </button>
+                                            <button type="button" onclick="setPresetCmsImage('heroBgImg', './pictrure/banner_khanhhoa.jpg')" class="bg-white border border-black/[0.1] text-[#8E8E93] text-xs font-medium px-2 py-1.5 rounded-lg transition ios-press" title="Ảnh gốc">
+                                                Ảnh gốc
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="text" id="cms_heroBgImg" oninput="updateCmsPreviewFromInput('heroBgImg')" placeholder="Đường dẫn ảnh nền..." class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-black/[0.06] text-[11px] text-[#8E8E93]">
+                            </div>
+
+                            <div class="bg-[#F2F2F7]/70 p-3 rounded-xl space-y-2">
+                                <label class="block text-xs font-semibold text-[#1c1c1e]">Ảnh chai mắm & chén mắm tách nền (Bên phải)</label>
+                                <div class="flex items-center space-x-3">
+                                    <img id="preview_cms_heroProductImg" src="./pictrure/hero_bottle_dish.png" alt="Preview" class="w-16 h-14 rounded-lg object-contain bg-slate-900/10 p-1 border border-black/[0.08] shrink-0">
+                                    <div class="flex-1 space-y-1.5">
+                                        <input type="file" id="file_cms_heroProductImg" accept="image/*" class="hidden" onchange="handleCmsImageSelect(event, 'heroProductImg')">
+                                        <div class="flex gap-1.5">
+                                            <button type="button" onclick="document.getElementById('file_cms_heroProductImg').click()" class="flex-1 bg-white border border-black/[0.1] text-[#1c1c1e] text-xs font-medium px-2 py-1.5 rounded-lg transition ios-press">
+                                                Chọn ảnh
+                                            </button>
+                                            <button type="button" onclick="setPresetCmsImage('heroProductImg', './pictrure/hero_bottle_dish.png')" class="bg-white border border-black/[0.1] text-[#8E8E93] text-xs font-medium px-2 py-1.5 rounded-lg transition ios-press" title="Ảnh gốc">
+                                                Ảnh gốc
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="text" id="cms_heroProductImg" oninput="updateCmsPreviewFromInput('heroProductImg')" placeholder="Đường dẫn ảnh tách nền..." class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-black/[0.06] text-[11px] text-[#8E8E93]">
+                            </div>
+                        </div>
+
+                        <!-- 4 Cam kết uy tín nhanh trên Banner -->
+                        <div class="border-t border-black/[0.06] pt-3 space-y-2">
+                            <label class="block text-xs font-bold text-[#1c1c1e] flex items-center space-x-1.5">
+                                <span>✓</span>
+                                <span>4 Cam kết nhanh (Hiển thị góc trái dưới mô tả)</span>
+                            </label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <input type="text" id="cms_heroCommit1" placeholder="Cam kết 1: 100% Cá cơm than & muối hạt Phan Rang" class="w-full px-2.5 py-2 rounded-lg bg-[#767680]/[0.08] border-0 text-xs">
+                                <input type="text" id="cms_heroCommit2" placeholder="Cam kết 2: Không phẩm màu, không chất bảo quản" class="w-full px-2.5 py-2 rounded-lg bg-[#767680]/[0.08] border-0 text-xs">
+                                <input type="text" id="cms_heroCommit3" placeholder="Cam kết 3: Freeship toàn quốc từ 2 chai" class="w-full px-2.5 py-2 rounded-lg bg-[#767680]/[0.08] border-0 text-xs">
+                                <input type="text" id="cms_heroCommit4" placeholder="Cam kết 4: Đóng gói 3 lớp, đổi mới 100% nếu nứt vỡ" class="w-full px-2.5 py-2 rounded-lg bg-[#767680]/[0.08] border-0 text-xs">
+                            </div>
+                        </div>
+
+                        <!-- 2 Nút CTA Banner -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                            <div>
+                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Chữ nút mua hàng chính</label>
+                                <input type="text" id="cms_heroCta1" placeholder="⚡ Đặt Mua Ngay" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Chữ nút khám phá phụ</label>
+                                <input type="text" id="cms_heroCta2" placeholder="Khám Phá Dòng Mắm ↓" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm font-semibold">
+                            </div>
+                        </div>
+
+                        <!-- 2 Huy hiệu nổi & 3 Thông số vàng gắn quanh chai mắm -->
+                        <div class="border-t border-black/[0.06] pt-3 space-y-2.5">
+                            <label class="block text-xs font-bold text-[#1c1c1e] flex items-center space-x-1.5">
+                                <span>🏆</span>
+                                <span>Huy hiệu nổi & Thông số gắn trên chai mắm (Bên phải)</span>
+                            </label>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="bg-[#F2F2F7]/70 p-2.5 rounded-xl space-y-1.5">
+                                    <span class="text-[10px] text-amber-700 font-bold block uppercase">Huy hiệu nổi 1 (Cạnh cổ chai)</span>
+                                    <div class="grid grid-cols-2 gap-1.5">
+                                        <input type="text" id="cms_heroBadge1Title" placeholder="Độ Đạm Cốt" class="w-full px-2 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs">
+                                        <input type="text" id="cms_heroBadge1Value" placeholder="40°N Tự Nhiên" class="w-full px-2 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs font-bold">
+                                    </div>
+                                </div>
+
+                                <div class="bg-[#F2F2F7]/70 p-2.5 rounded-xl space-y-1.5">
+                                    <span class="text-[10px] text-sky-800 font-bold block uppercase">Huy hiệu nổi 2 (Thân chai)</span>
+                                    <div class="grid grid-cols-2 gap-1.5">
+                                        <input type="text" id="cms_heroBadge2Title" placeholder="Lên Men Gỗ" class="w-full px-2 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs">
+                                        <input type="text" id="cms_heroBadge2Value" placeholder="12 - 18 Tháng Nắng" class="w-full px-2 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs font-bold">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="bg-amber-50/70 border border-amber-200/80 p-2 rounded-xl text-center space-y-1">
+                                    <span class="text-[10px] text-amber-800 font-semibold block">Thẻ 1</span>
+                                    <input type="text" id="cms_heroStat1Val" placeholder="40°N" class="w-full px-1.5 py-1 rounded bg-white text-xs font-black text-center text-amber-600">
+                                    <input type="text" id="cms_heroStat1Label" placeholder="Đạm Cốt" class="w-full px-1.5 py-1 rounded bg-white text-[11px] text-center">
+                                </div>
+                                <div class="bg-sky-50/70 border border-sky-200/80 p-2 rounded-xl text-center space-y-1">
+                                    <span class="text-[10px] text-sky-800 font-semibold block">Thẻ 2</span>
+                                    <input type="text" id="cms_heroStat2Val" placeholder="12+" class="w-full px-1.5 py-1 rounded bg-white text-xs font-black text-center text-sky-700">
+                                    <input type="text" id="cms_heroStat2Label" placeholder="Tháng Gỗ" class="w-full px-1.5 py-1 rounded bg-white text-[11px] text-center">
+                                </div>
+                                <div class="bg-emerald-50/70 border border-emerald-200/80 p-2 rounded-xl text-center space-y-1">
+                                    <span class="text-[10px] text-emerald-800 font-semibold block">Thẻ 3</span>
+                                    <input type="text" id="cms_heroStat3Val" placeholder="100%" class="w-full px-1.5 py-1 rounded bg-white text-xs font-black text-center text-emerald-600">
+                                    <input type="text" id="cms_heroStat3Label" placeholder="Cá Than" class="w-full px-1.5 py-1 rounded bg-white text-[11px] text-center">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- THƯ MỤC 2: HEADER & THANH ĐIỀU HƯỚNG (GỌN GÀNG, KHÔNG TRÙNG LẶP) -->
+                    <div id="cmsFolderPanel-header" class="hidden ios-card p-4 space-y-4">
                         <div class="border-b border-black/[0.06] pb-3">
                             <h3 class="text-xs font-bold text-[#1c1c1e] uppercase tracking-wider flex items-center space-x-1.5">
                                 <span>🏷️</span>
-                                <span>Logo & Nhận diện Header</span>
+                                <span>Logo & Menu Header</span>
                             </h3>
-                            <p class="text-[11px] text-[#8E8E93] mt-0.5">Tùy biến logo hình ảnh, tên thương hiệu và khẩu hiệu hiển thị trên thanh menu.</p>
+                            <p class="text-[11px] text-[#8E8E93] mt-0.5">Tùy biến logo thương hiệu, tên hiển thị và 8 nút menu trên thanh điều hướng đầu trang.</p>
                         </div>
 
                         <!-- Khối ảnh Logo -->
                         <div class="bg-[#F2F2F7]/70 p-3 rounded-xl space-y-2.5">
                             <div class="flex items-center justify-between">
                                 <label class="block text-xs font-semibold text-[#1c1c1e]">Ảnh Logo thương hiệu</label>
-                                <span class="text-[10px] text-[#8E8E93]">Khuyên dùng: Ảnh vuông hoặc tròn PNG/JPG</span>
+                                <span class="text-[10px] text-[#8E8E93]">Tự động đồng bộ toàn website</span>
                             </div>
                             <div class="flex items-center space-x-3">
                                 <img id="preview_cms_headerLogo" src="./pictrure/logo.JPG" alt="Logo Preview" class="w-14 h-14 rounded-full object-cover border-2 border-sky-500/80 shadow-xs bg-white shrink-0">
@@ -810,53 +956,29 @@
                             </div>
                         </div>
 
-                        <!-- Tên thương hiệu & Slogan Header -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Tên thương hiệu & Slogan Header & Chữ nút Giỏ Hàng -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div>
-                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Tên thương hiệu trên Header</label>
+                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Tên thương hiệu Header</label>
                                 <input type="text" id="cms_headerBrandName" placeholder="Ba Cô Khánh Hòa" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none font-semibold">
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Dòng chữ phụ / Slogan Header</label>
+                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Dòng chữ phụ / Slogan</label>
                                 <input type="text" id="cms_headerBrandSlogan" placeholder="Mắm Nhĩ Truyền Thống" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
-                            </div>
-                        </div>
-
-                        <!-- Thanh thông báo ưu đãi trên cùng -->
-                        <div class="bg-amber-50/70 border border-amber-200/80 p-3 rounded-xl space-y-2">
-                            <div class="flex items-center justify-between">
-                                <label class="block text-xs font-bold text-amber-900 flex items-center space-x-1.5">
-                                    <span>📢</span>
-                                    <span>Thanh thông báo ưu đãi trên đỉnh (Top Announcement Bar)</span>
-                                </label>
-                                <span class="text-[10px] text-amber-700/80 italic">Xóa trống nếu muốn ẩn</span>
-                            </div>
-                            <input type="text" id="cms_headerTopNotice" placeholder="🎉 Miễn phí giao hàng toàn quốc từ 2 chai • Cam kết đền bù 100% nếu nứt vỡ • Hotline: 0985.520.678" class="w-full px-3 py-2 rounded-xl bg-white border border-amber-200 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none text-slate-800">
-                        </div>
-
-                        <!-- Hotline & Nút mua sắm trên Header -->
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            <div>
-                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Hotline Header (hiển thị cạnh giỏ)</label>
-                                <input type="text" id="cms_headerHotline" placeholder="0985 520 678" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none font-mono font-bold">
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-[#8E8E93] mb-1">Chữ nút Giỏ Hàng</label>
-                                <input type="text" id="cms_headerCartText" placeholder="Giỏ hàng" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Chữ nút Đặt Mua Nhanh</label>
-                                <input type="text" id="cms_headerCtaText" placeholder="⚡ Đặt mua ngay" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
+                                <input type="text" id="cms_headerCartText" placeholder="Giỏ hàng" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none font-semibold">
                             </div>
                         </div>
 
-                        <!-- 8 Mục Menu Điều Hướng -->
+                        <!-- 8 Mục Menu Điều Hướng (Desktop & Mobile) -->
                         <div class="border-t border-black/[0.06] pt-3 space-y-2">
                             <label class="block text-xs font-bold text-[#1c1c1e] flex items-center space-x-1.5">
                                 <span>🧭</span>
-                                <span>Tùy chỉnh 8 mục Menu điều hướng (Desktop & Mobile)</span>
+                                <span>Tùy chỉnh tên 8 mục Menu điều hướng (Desktop & Mobile)</span>
                             </label>
-                            <p class="text-[11px] text-[#8E8E93]">Bạn có thể đổi tên hiển thị các mục menu cho phù hợp với chiến dịch bán hàng:</p>
+                            <p class="text-[11px] text-[#8E8E93]">Thay đổi tên hiển thị các nút điều hướng trên thanh menu:</p>
 
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
                                 <div class="bg-[#F2F2F7]/70 p-2.5 rounded-xl space-y-1">
@@ -891,55 +1013,6 @@
                                     <span class="text-[10px] text-[#8E8E93] font-bold block">8. Mục #faq</span>
                                     <input type="text" id="cms_headerNav8" placeholder="Hỏi đáp" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs font-medium">
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- THƯ MỤC 1: HERO BANNER -->
-                    <div id="cmsFolderPanel-hero" class="hidden ios-card p-4 space-y-3.5">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Tiêu đề chính</label>
-                                <input type="text" id="cms_heroMainTitle" placeholder="Giọt Ngọc Biển Khơi" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Tiêu đề phụ</label>
-                                <input type="text" id="cms_heroSubTitle" placeholder="Nước Mắm Nhĩ Truyền Thống" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-medium text-[#8E8E93] mb-1">Mô tả ngắn</label>
-                            <textarea id="cms_heroDesc" rows="2" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none"></textarea>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                            <div class="bg-[#F2F2F7]/70 p-3 rounded-xl space-y-2">
-                                <label class="block text-xs font-semibold text-[#1c1c1e]">Ảnh nền đầu trang</label>
-                                <div class="flex items-center space-x-3">
-                                    <img id="preview_cms_heroBgImg" src="./pictrure/banner_khanhhoa.jpg" alt="Preview" class="w-16 h-14 rounded-lg object-cover border border-black/[0.08] shrink-0">
-                                    <div class="flex-1 space-y-1.5">
-                                        <input type="file" id="file_cms_heroBgImg" accept="image/*" class="hidden" onchange="handleCmsImageSelect(event, 'heroBgImg')">
-                                        <button type="button" onclick="document.getElementById('file_cms_heroBgImg').click()" class="w-full bg-white border border-black/[0.1] text-[#1c1c1e] text-xs font-medium px-3 py-1.5 rounded-lg transition ios-press">
-                                            Chọn ảnh
-                                        </button>
-                                    </div>
-                                </div>
-                                <input type="text" id="cms_heroBgImg" oninput="updateCmsPreviewFromInput('heroBgImg')" placeholder="Đường dẫn ảnh..." class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-black/[0.06] text-[11px] text-[#8E8E93]">
-                            </div>
-
-                            <div class="bg-[#F2F2F7]/70 p-3 rounded-xl space-y-2">
-                                <label class="block text-xs font-semibold text-[#1c1c1e]">Ảnh sản phẩm nổi bật</label>
-                                <div class="flex items-center space-x-3">
-                                    <img id="preview_cms_heroProductImg" src="./pictrure/hero_bottle_dish.png" alt="Preview" class="w-16 h-14 rounded-lg object-contain bg-slate-900/10 p-1 border border-black/[0.08] shrink-0">
-                                    <div class="flex-1 space-y-1.5">
-                                        <input type="file" id="file_cms_heroProductImg" accept="image/*" class="hidden" onchange="handleCmsImageSelect(event, 'heroProductImg')">
-                                        <button type="button" onclick="document.getElementById('file_cms_heroProductImg').click()" class="w-full bg-white border border-black/[0.1] text-[#1c1c1e] text-xs font-medium px-3 py-1.5 rounded-lg transition ios-press">
-                                            Chọn ảnh
-                                        </button>
-                                    </div>
-                                </div>
-                                <input type="text" id="cms_heroProductImg" oninput="updateCmsPreviewFromInput('heroProductImg')" placeholder="Đường dẫn ảnh..." class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-black/[0.06] text-[11px] text-[#8E8E93]">
                             </div>
                         </div>
                     </div>
@@ -5448,11 +5521,28 @@ function dinhDangDongKhachSi(sheet, row) {
             headerNav8: 'Hỏi đáp',
 
             // 🌊 HERO BANNER
+            heroTag: 'ĐẶC SẢN VỊNH CAM RANH • Ủ TRUYỀN THỐNG 12 THÁNG',
             heroMainTitle: 'Giọt Ngọc Biển Khơi',
             heroSubTitle: 'Nước Mắm Nhĩ Thượng Hạng',
             heroDesc: 'Chắt lọc từng giọt nước mắm nhĩ đầu tiên sánh vàng như mật ong biển, hương thơm dịu ấm, hậu vị ngọt sâu từ đạm cá tự nhiên qua 12 tháng ủ gỗ bời lời phơi nắng.',
             heroBgImg: './pictrure/banner_khanhhoa.jpg',
             heroProductImg: './pictrure/hero_bottle_dish.png',
+            heroCommit1: '100% Cá cơm than & muối hạt tinh khiết',
+            heroCommit2: 'Ủ chượp thùng gỗ bời lời tự nhiên 12 tháng',
+            heroCommit3: 'Không phẩm màu, không chất bảo quản nhân tạo',
+            heroCommit4: 'Freeship toàn quốc từ 2 chai • Đổi mới nếu nứt vỡ',
+            heroCta1: '⚡ Đặt Mua Ngay',
+            heroCta2: 'Khám Phá Dòng Mắm ↓',
+            heroBadge1Title: 'Độ Đạm Cốt',
+            heroBadge1Value: '40°N Tự Nhiên',
+            heroBadge2Title: 'Lên Men Gỗ',
+            heroBadge2Value: '12 - 18 Tháng Nắng',
+            heroStat1Val: '40°N',
+            heroStat1Label: 'Đạm Cốt',
+            heroStat2Val: '12+',
+            heroStat2Label: 'Tháng Gỗ',
+            heroStat3Val: '100%',
+            heroStat3Label: 'Cá Than',
 
             // 📞 BRAND & LIÊN HỆ
             brandName: 'Ba Cô Khánh Hòa',

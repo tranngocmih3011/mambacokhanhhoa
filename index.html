@@ -407,16 +407,10 @@
         </div>
     </div>
 
-    <!-- Header Top Announcement Bar (Thanh thông báo ưu đãi có thể tùy biến / bật / tắt trong Admin) -->
-    <div id="headerTopNoticeBar" class="bg-gradient-to-r from-sky-900 via-blue-900 to-amber-900 text-white text-[11px] sm:text-xs py-1.5 px-3 text-center font-medium tracking-wide shadow-xs relative z-40">
-        <div class="max-w-7xl mx-auto flex items-center justify-center space-x-2">
-            <span id="headerTopNoticeText">🎉 Miễn phí giao hàng toàn quốc từ 2 chai • Cam kết đền bù 100% nếu nứt vỡ • Hotline: 0985.520.678</span>
-        </div>
-    </div>
-
-    <!-- Header / Navbar (Tone Trắng & Xanh Dương Tươi Sáng) -->
-    <header id="navbar" class="sticky top-0 z-40 bg-white/92 backdrop-blur-xl border-b border-sky-100/90 shadow-[0_4px_20px_rgba(2,132,199,0.06)] transition-all duration-300">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2">
+    <!-- Header / Navbar (Tone Trắng & Xanh Dương Tươi Sáng - Chuẩn Responsive Không Đè Lên Nhau) -->
+    <header id="navbar" class="sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b border-sky-100/90 shadow-[0_4px_20px_rgba(2,132,199,0.06)] transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3">
+            <!-- Logo & Tên Thương Hiệu -->
             <a href="#" onclick="window.scrollTo({ top: 0, behavior: 'smooth' }); return false;" class="flex items-center space-x-2.5 sm:space-x-3 cursor-pointer group shrink-0" title="Cuộn lên đầu trang">
                 <div class="relative group shrink-0">
                     <img id="headerLogoImg" src="./pictrure/logo.JPG" alt="Logo Ba Cô Khánh Hòa" class="site-header-logo w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shadow-sm ring-2 ring-sky-500/80 group-hover:ring-sky-600 transition">
@@ -427,8 +421,9 @@
                     <span class="site-brand-slogan block text-[9px] sm:text-[10px] lg:text-[11px] text-sky-700 font-semibold tracking-wider uppercase">Mắm Nhĩ Truyền Thống</span>
                 </div>
             </a>
-            <!-- Menu Desktop: Tươi sáng, thanh lịch -->
-            <nav class="hidden lg:flex items-center justify-center flex-nowrap whitespace-nowrap gap-1.5 xl:gap-2.5 font-medium text-slate-600 text-xs xl:text-sm shrink min-w-0">
+
+            <!-- Menu Desktop: Hiện từ màn hình XL (1280px+) để đảm bảo hoàn toàn không bị tràn hay đè chữ -->
+            <nav class="hidden xl:flex items-center justify-center flex-nowrap whitespace-nowrap gap-1.5 2xl:gap-2.5 font-medium text-slate-600 text-xs xl:text-sm shrink min-w-0">
                 <a href="#about" id="headerNav1" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Câu chuyện</a>
                 <a href="#process" id="headerNav2" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Quy trình</a>
                 <a href="#gallery" id="headerNav3" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Bộ sưu tập</a>
@@ -438,25 +433,24 @@
                 <a href="#reviews" id="headerNav7" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Đánh giá</a>
                 <a href="#faq" id="headerNav8" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Hỏi đáp</a>
             </nav>
+
+            <!-- Nút Giỏ Hàng & Menu Mobile Hamburger -->
             <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
-                <a id="headerHotlineBtn" href="tel:0985520678" class="site-hotline-link hidden sm:inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/90 text-xs font-bold transition shadow-2xs">
-                    <span>📞</span>
-                    <span id="headerHotlineText" class="site-hotline font-mono font-bold">0985 520 678</span>
-                </a>
-                <button onclick="toggleCart()" class="relative p-2 sm:p-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-900 transition flex items-center space-x-1.5 px-3 sm:px-3.5 text-xs sm:text-sm font-bold border border-sky-200 shadow-2xs active:scale-95 shrink-0">
-                    <span>🛒</span>
+                <button onclick="toggleCart()" class="relative p-2 sm:p-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-900 transition flex items-center space-x-2 px-3 sm:px-4 text-xs sm:text-sm font-bold border border-sky-200 shadow-2xs active:scale-95 shrink-0">
+                    <span class="text-base sm:text-lg">🛒</span>
                     <span id="headerCartBtnText" class="hidden sm:inline">Giỏ hàng</span>
                     <span id="cartNavBadge" class="bg-amber-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow-2xs">0</span>
                 </button>
-                <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-xl bg-slate-100 text-slate-700 hover:text-sky-700 transition focus:outline-none shrink-0" aria-label="Mở Menu">
+                <button onclick="toggleMobileMenu()" class="xl:hidden p-2 rounded-xl bg-slate-100 text-slate-700 hover:text-sky-700 transition focus:outline-none shrink-0" aria-label="Mở Menu">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                     </svg>
                 </button>
             </div>
         </div>
-        <!-- Mobile Dropdown Menu -->
-        <div id="mobileMenu" class="hidden lg:hidden bg-white/98 backdrop-blur-xl border-b border-sky-100 shadow-xl px-4 py-3 space-y-1.5 font-medium text-slate-700 text-xs sm:text-sm">
+
+        <!-- Mobile / Tablet Dropdown Menu (Hiển thị mượt mà trên tất cả màn hình < 1280px) -->
+        <div id="mobileMenu" class="hidden xl:hidden bg-white/98 backdrop-blur-xl border-b border-sky-100 shadow-xl px-4 py-3 space-y-1.5 font-medium text-slate-700 text-xs sm:text-sm max-h-[80vh] overflow-y-auto">
             <a href="#about" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav1">1. Câu chuyện thương hiệu</span></a>
             <a href="#process" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav2">2. Quy trình 365 ngày</span></a>
             <a href="#gallery" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav3">3. Bộ sưu tập hình ảnh</span></a>
@@ -492,7 +486,7 @@
             <div class="lg:col-span-6 space-y-4 sm:space-y-6 text-center lg:text-left wow-reveal wow-fade-left">
                 <div class="inline-flex items-center space-x-2 bg-gradient-to-r from-sky-100 via-white to-amber-100 text-sky-950 px-4 py-1.5 rounded-full text-xs font-bold border border-sky-200 shadow-xs backdrop-blur-md">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                    <span class="tracking-wider bg-gradient-to-r from-sky-900 via-blue-900 to-amber-900 bg-clip-text text-transparent font-extrabold text-[11px] sm:text-xs uppercase">ĐẶC SẢN VỊNH CAM RANH • Ủ TRUYỀN THỐNG</span>
+                    <span id="heroTagText" class="tracking-wider bg-gradient-to-r from-sky-900 via-blue-900 to-amber-900 bg-clip-text text-transparent font-extrabold text-[11px] sm:text-xs uppercase">ĐẶC SẢN VỊNH CAM RANH • Ủ TRUYỀN THỐNG</span>
                 </div>
                 
                 <h1 class="font-display text-3xl sm:text-5xl lg:text-6xl font-black leading-[1.15] tracking-tight text-slate-900" id="heroMainTitle">
@@ -510,29 +504,29 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-slate-700 max-w-lg mx-auto lg:mx-0 pt-1">
                     <div class="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-3.5 py-2.5 rounded-2xl border border-sky-100/90 shadow-2xs hover:border-sky-300 transition">
                         <span class="text-amber-600 font-bold text-sm">✓</span>
-                        <span class="font-medium">100% Cá cơm than & muối hạt Phan Rang</span>
+                        <span id="heroCommitText1" class="font-medium">100% Cá cơm than & muối hạt Phan Rang</span>
                     </div>
                     <div class="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-3.5 py-2.5 rounded-2xl border border-sky-100/90 shadow-2xs hover:border-sky-300 transition">
                         <span class="text-amber-600 font-bold text-sm">✓</span>
-                        <span class="font-medium">Không phẩm màu, không chất bảo quản</span>
+                        <span id="heroCommitText2" class="font-medium">Không phẩm màu, không chất bảo quản</span>
                     </div>
                     <div class="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-3.5 py-2.5 rounded-2xl border border-sky-100/90 shadow-2xs hover:border-sky-300 transition">
                         <span class="text-amber-600 font-bold text-sm">✓</span>
-                        <span class="font-medium">Freeship toàn quốc từ 2 chai</span>
+                        <span id="heroCommitText3" class="font-medium">Freeship toàn quốc từ 2 chai</span>
                     </div>
                     <div class="flex items-center space-x-2 bg-white/90 backdrop-blur-md px-3.5 py-2.5 rounded-2xl border border-sky-100/90 shadow-2xs hover:border-sky-300 transition">
                         <span class="text-amber-600 font-bold text-sm">✓</span>
-                        <span class="font-medium">Đóng gói 3 lớp, đổi mới 100% nếu nứt vỡ</span>
+                        <span id="heroCommitText4" class="font-medium">Đóng gói 3 lớp, đổi mới 100% nếu nứt vỡ</span>
                     </div>
                 </div>
 
                 <div class="flex flex-row justify-center lg:justify-start gap-3 pt-2">
                     <button onclick="openCheckoutModal()" class="btn-order-cta shimmer-btn text-white font-extrabold px-7 sm:px-10 py-3.5 sm:py-4 rounded-2xl shadow-xl text-center transition active:scale-95 text-sm sm:text-base flex items-center justify-center space-x-2">
                         <span class="text-lg">⚡</span>
-                        <span>Đặt Mua Ngay</span>
+                        <span id="heroCtaText1">Đặt Mua Ngay</span>
                     </button>
                     <a href="#products" class="bg-white hover:bg-sky-50 text-sky-800 font-bold px-5 sm:px-8 py-3.5 sm:py-4 rounded-2xl text-center transition border border-sky-200 text-xs sm:text-sm active:scale-95 flex items-center justify-center space-x-1.5 shadow-sm">
-                        <span>Khám Phá Dòng Mắm</span>
+                        <span id="heroCtaText2">Khám Phá Dòng Mắm</span>
                         <span>↓</span>
                     </a>
                 </div>
@@ -548,8 +542,8 @@
                     <div class="absolute top-8 sm:top-14 -right-1 sm:-right-4 animate-float bg-white/95 backdrop-blur-md text-slate-900 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl shadow-xl border border-amber-300/90 flex items-center space-x-2.5 z-20">
                         <span class="text-lg sm:text-2xl">🏆</span>
                         <div>
-                            <div class="text-[9px] sm:text-[10px] uppercase font-bold text-amber-700 tracking-wider">Độ Đạm Cốt</div>
-                            <div class="text-xs sm:text-base font-black text-slate-900">40°N Tự Nhiên</div>
+                            <div id="heroBadge1Title" class="text-[9px] sm:text-[10px] uppercase font-bold text-amber-700 tracking-wider">Độ Đạm Cốt</div>
+                            <div id="heroBadge1Value" class="text-xs sm:text-base font-black text-slate-900">40°N Tự Nhiên</div>
                         </div>
                     </div>
 
@@ -557,8 +551,8 @@
                     <div class="absolute top-44 sm:top-60 -left-1 sm:-left-6 animate-float-slow bg-white/95 backdrop-blur-md text-slate-900 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl shadow-xl border border-sky-300/90 flex items-center space-x-2.5 z-20">
                         <span class="text-lg sm:text-2xl">⏳</span>
                         <div>
-                            <div class="text-[9px] sm:text-[10px] uppercase font-bold text-sky-800 tracking-wider">Lên Men Gỗ</div>
-                            <div class="text-xs sm:text-base font-black text-slate-900">12 - 18 Tháng Nắng</div>
+                            <div id="heroBadge2Title" class="text-[9px] sm:text-[10px] uppercase font-bold text-sky-800 tracking-wider">Lên Men Gỗ</div>
+                            <div id="heroBadge2Value" class="text-xs sm:text-base font-black text-slate-900">12 - 18 Tháng Nắng</div>
                         </div>
                     </div>
 
@@ -570,16 +564,16 @@
                     <!-- 3 thông số vàng nguyên chất dưới chân cụm chai và chén mắm -->
                     <div class="grid grid-cols-3 gap-2.5 w-full pt-2 text-center z-10">
                         <div class="bg-gradient-to-b from-amber-50 to-white hover:bg-white backdrop-blur-md p-2.5 rounded-2xl border border-amber-200/80 shadow-sm transition">
-                            <span class="block text-amber-600 font-black text-sm sm:text-base lg:text-lg font-mono">40°N</span>
-                            <span class="text-[10px] sm:text-xs text-slate-600 font-semibold">Đạm Cốt</span>
+                            <span id="heroStat1Val" class="block text-amber-600 font-black text-sm sm:text-base lg:text-lg font-mono">40°N</span>
+                            <span id="heroStat1Label" class="text-[10px] sm:text-xs text-slate-600 font-semibold">Đạm Cốt</span>
                         </div>
                         <div class="bg-gradient-to-b from-sky-50 to-white hover:bg-white backdrop-blur-md p-2.5 rounded-2xl border border-sky-200/80 shadow-sm transition">
-                            <span class="block text-sky-700 font-black text-sm sm:text-base lg:text-lg font-mono">12+</span>
-                            <span class="text-[10px] sm:text-xs text-slate-600 font-semibold">Tháng Gỗ</span>
+                            <span id="heroStat2Val" class="block text-sky-700 font-black text-sm sm:text-base lg:text-lg font-mono">12+</span>
+                            <span id="heroStat2Label" class="text-[10px] sm:text-xs text-slate-600 font-semibold">Tháng Gỗ</span>
                         </div>
                         <div class="bg-gradient-to-b from-emerald-50 to-white hover:bg-white backdrop-blur-md p-2.5 rounded-2xl border border-emerald-200/80 shadow-sm transition">
-                            <span class="block text-emerald-600 font-black text-sm sm:text-base lg:text-lg font-mono">100%</span>
-                            <span class="text-[10px] sm:text-xs text-slate-600 font-semibold">Cá Than</span>
+                            <span id="heroStat3Val" class="block text-emerald-600 font-black text-sm sm:text-base lg:text-lg font-mono">100%</span>
+                            <span id="heroStat3Label" class="text-[10px] sm:text-xs text-slate-600 font-semibold">Cá Than</span>
                         </div>
                     </div>
                 </div>
@@ -2866,11 +2860,19 @@
         async function syncSiteAndProductsFromSheetOnHome() {
             const SHEET_ID = '1ZvX_-wHeoc6fcv43hW_Jj-blOagtsFJiazorJJ8pBBw';
             const VALID_CMS_KEYS = new Set([
-                'headerLogo', 'headerBrandName', 'headerBrandSlogan', 'headerTopNotice', 'headerHotline',
-                'headerCartText', 'headerCtaText',
+                // Header & Menu
+                'headerLogo', 'headerBrandName', 'headerBrandSlogan', 'headerCartText',
                 'headerNav1', 'headerNav2', 'headerNav3', 'headerNav4',
                 'headerNav5', 'headerNav6', 'headerNav7', 'headerNav8',
-                'heroMainTitle', 'heroSubTitle', 'heroDesc', 'heroBgImg', 'heroProductImg',
+
+                // Banner Đầu Trang
+                'heroTag', 'heroMainTitle', 'heroSubTitle', 'heroDesc', 'heroBgImg', 'heroProductImg',
+                'heroCommit1', 'heroCommit2', 'heroCommit3', 'heroCommit4',
+                'heroCta1', 'heroCta2',
+                'heroBadge1Title', 'heroBadge1Value', 'heroBadge2Title', 'heroBadge2Value',
+                'heroStat1Val', 'heroStat1Label', 'heroStat2Val', 'heroStat2Label', 'heroStat3Val', 'heroStat3Label',
+
+                // Brand & Liên hệ
                 'brandName', 'brandSlogan', 'brandPhone', 'brandAddress', 'brandEmail',
                 'pillar1Title', 'pillar1Desc', 'pillar1Img',
                 'pillar2Title', 'pillar2Desc', 'pillar2Img',
@@ -3619,36 +3621,12 @@
                 if (hSlogan) {
                     document.querySelectorAll('.site-brand-slogan').forEach(el => el.textContent = hSlogan);
                 }
-                // 3. Thanh thông báo ưu đãi trên đỉnh (Top Announcement Bar)
-                const topNoticeBar = document.getElementById('headerTopNoticeBar');
-                const topNoticeText = document.getElementById('headerTopNoticeText');
-                if (topNoticeBar && topNoticeText) {
-                    const noticeVal = (c.headerTopNotice !== undefined) ? c.headerTopNotice.trim() : null;
-                    if (noticeVal !== null && noticeVal !== '' && noticeVal.toLowerCase() !== 'ẩn') {
-                        topNoticeText.textContent = noticeVal;
-                        topNoticeBar.classList.remove('hidden');
-                    } else if (noticeVal !== null && (noticeVal === '' || noticeVal.toLowerCase() === 'ẩn')) {
-                        topNoticeBar.classList.add('hidden');
-                    }
-                }
-                // 4. Hotline Header & Quick Links
-                const hPhone = c.headerHotline || c.brandPhone;
-                if (hPhone) {
-                    document.querySelectorAll('.site-hotline').forEach(el => el.textContent = hPhone);
-                    const cleanPhone = String(hPhone).replace(/[^0-9]/g, '');
-                    document.querySelectorAll('.site-hotline-link').forEach(el => el.href = `tel:${cleanPhone}`);
-                    document.querySelectorAll('.site-zalo-link').forEach(el => el.href = `https://zalo.me/${cleanPhone}`);
-                }
-                // 5. Chữ nút Giỏ Hàng
+                // 3. Chữ nút Giỏ Hàng
                 if (c.headerCartText) {
                     const cartTxt = document.getElementById('headerCartBtnText');
                     if (cartTxt) cartTxt.textContent = c.headerCartText;
                 }
-                // 6. Chữ nút Đặt Mua Nhanh Header
-                if (c.headerCtaText) {
-                    document.querySelectorAll('.site-header-cta-text').forEach(el => el.textContent = c.headerCtaText);
-                }
-                // 7. 8 Mục Menu điều hướng
+                // 4. 8 Mục Menu điều hướng
                 for (let i = 1; i <= 8; i++) {
                     const navKey = `headerNav${i}`;
                     if (c[navKey]) {
@@ -3660,18 +3638,27 @@
                 }
 
                 // ================= 1. HERO BANNER =================
+                // 1.1 Huy hiệu nhỏ đầu banner (Tag)
+                if (c.heroTag) {
+                    const el = document.getElementById('heroTagText');
+                    if (el) el.textContent = c.heroTag;
+                }
+                // 1.2 Tiêu đề chính & Tiêu đề phụ ánh vàng hổ phách
                 if (c.heroMainTitle) {
                     const el = document.getElementById('heroMainTitle');
-                    if (el) el.innerHTML = `${c.heroMainTitle} <br><span class="bg-gradient-to-r from-amber-600 via-orange-500 to-amber-700 bg-clip-text text-transparent font-serif italic" id="heroSubTitle">${c.heroSubTitle || ''}</span>`;
+                    if (el) el.innerHTML = `${c.heroMainTitle} <br><span class="bg-gradient-to-r from-amber-600 via-orange-500 to-amber-700 bg-clip-text text-transparent font-serif italic drop-shadow-2xs" id="heroSubTitle">${c.heroSubTitle || ''}</span>`;
                 }
+                // 1.3 Mô tả ngắn
                 if (c.heroDesc) {
                     const el = document.getElementById('heroDesc');
                     if (el) el.textContent = c.heroDesc;
                 }
+                // 1.4 Ảnh nền mờ biển đảo
                 if (c.heroBgImg) {
                     const el = document.getElementById('heroBgImg');
                     if (el) el.style.backgroundImage = `url('${c.heroBgImg}')`;
                 }
+                // 1.5 Ảnh Packshot chai mắm & chén mắm tách nền
                 if (c.heroProductImg) {
                     const el = document.getElementById('heroProductImg');
                     if (el) {
@@ -3681,6 +3668,36 @@
                         el.src = c.heroProductImg;
                     }
                 }
+                // 1.6 4 Cam kết uy tín
+                for (let i = 1; i <= 4; i++) {
+                    const commitVal = c[`heroCommit${i}`];
+                    if (commitVal) {
+                        const el = document.getElementById(`heroCommitText${i}`);
+                        if (el) el.textContent = commitVal;
+                    }
+                }
+                // 1.7 2 Nút kêu gọi hành động CTA
+                if (c.heroCta1) {
+                    const el = document.getElementById('heroCtaText1');
+                    if (el) el.textContent = c.heroCta1;
+                }
+                if (c.heroCta2) {
+                    const el = document.getElementById('heroCtaText2');
+                    if (el) el.textContent = c.heroCta2;
+                }
+                // 1.8 2 Huy hiệu nổi trên chai mắm
+                if (c.heroBadge1Title) { const el = document.getElementById('heroBadge1Title'); if (el) el.textContent = c.heroBadge1Title; }
+                if (c.heroBadge1Value) { const el = document.getElementById('heroBadge1Value'); if (el) el.textContent = c.heroBadge1Value; }
+                if (c.heroBadge2Title) { const el = document.getElementById('heroBadge2Title'); if (el) el.textContent = c.heroBadge2Title; }
+                if (c.heroBadge2Value) { const el = document.getElementById('heroBadge2Value'); if (el) el.textContent = c.heroBadge2Value; }
+                // 1.9 3 Thẻ thông số vàng dưới chân chai
+                if (c.heroStat1Val) { const el = document.getElementById('heroStat1Val'); if (el) el.textContent = c.heroStat1Val; }
+                if (c.heroStat1Label) { const el = document.getElementById('heroStat1Label'); if (el) el.textContent = c.heroStat1Label; }
+                if (c.heroStat2Val) { const el = document.getElementById('heroStat2Val'); if (el) el.textContent = c.heroStat2Val; }
+                if (c.heroStat2Label) { const el = document.getElementById('heroStat2Label'); if (el) el.textContent = c.heroStat2Label; }
+                if (c.heroStat3Val) { const el = document.getElementById('heroStat3Val'); if (el) el.textContent = c.heroStat3Val; }
+                if (c.heroStat3Label) { const el = document.getElementById('heroStat3Label'); if (el) el.textContent = c.heroStat3Label; }
+
                 // Brand Name & Slogan (fallback if not already set)
                 if (c.brandName && !c.headerBrandName) {
                     document.querySelectorAll('.site-brand-name').forEach(el => el.textContent = c.brandName);
@@ -3689,10 +3706,11 @@
                     document.querySelectorAll('.site-brand-slogan').forEach(el => el.textContent = c.brandSlogan);
                 }
                 // Brand Phone & Hotline & Zalo
-                if (c.brandPhone && !c.headerHotline) {
+                if (c.brandPhone) {
                     document.querySelectorAll('.site-hotline').forEach(el => el.textContent = c.brandPhone);
-                    document.querySelectorAll('.site-hotline-link').forEach(el => el.href = `tel:${c.brandPhone}`);
-                    document.querySelectorAll('.site-zalo-link').forEach(el => el.href = `https://zalo.me/${c.brandPhone}`);
+                    const cleanPhone = String(c.brandPhone).replace(/[^0-9]/g, '');
+                    document.querySelectorAll('.site-hotline-link').forEach(el => el.href = `tel:${cleanPhone}`);
+                    document.querySelectorAll('.site-zalo-link').forEach(el => el.href = `https://zalo.me/${cleanPhone}`);
                 }
                 if (c.brandAddress) {
                     document.querySelectorAll('.site-address').forEach(el => el.textContent = c.brandAddress);
