@@ -851,21 +851,7 @@
                             </div>
                         </div>
 
-                        <!-- 4 Cam kết uy tín nhanh trên Banner -->
-                        <div class="border-t border-black/[0.06] pt-3 space-y-2">
-                            <label class="block text-xs font-bold text-[#1c1c1e] flex items-center space-x-1.5">
-                                <span>✓</span>
-                                <span>4 Cam kết nhanh (Hiển thị góc trái dưới mô tả)</span>
-                            </label>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                                <input type="text" id="cms_heroCommit1" placeholder="Cam kết 1: 100% Cá cơm than & muối hạt Phan Rang" class="w-full px-2.5 py-2 rounded-lg bg-[#767680]/[0.08] border-0 text-xs">
-                                <input type="text" id="cms_heroCommit2" placeholder="Cam kết 2: Không phẩm màu, không chất bảo quản" class="w-full px-2.5 py-2 rounded-lg bg-[#767680]/[0.08] border-0 text-xs">
-                                <input type="text" id="cms_heroCommit3" placeholder="Cam kết 3: Freeship toàn quốc từ 2 chai" class="w-full px-2.5 py-2 rounded-lg bg-[#767680]/[0.08] border-0 text-xs">
-                                <input type="text" id="cms_heroCommit4" placeholder="Cam kết 4: Đóng gói 3 lớp, đổi mới 100% nếu nứt vỡ" class="w-full px-2.5 py-2 rounded-lg bg-[#767680]/[0.08] border-0 text-xs">
-                            </div>
-                        </div>
-
-                        <!-- 2 Nút CTA Banner -->
+                        <!-- 3. Nút bấm CTA Banner -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                             <div>
                                 <label class="block text-xs font-medium text-[#8E8E93] mb-1">Chữ nút mua hàng chính</label>
@@ -877,47 +863,35 @@
                             </div>
                         </div>
 
-                        <!-- 2 Huy hiệu nổi & 3 Thông số vàng gắn quanh chai mắm -->
-                        <div class="border-t border-black/[0.06] pt-3 space-y-2.5">
+                        <!-- 4. Huy hiệu bảo chứng chất lượng đính trên chai mắm -->
+                        <div class="border-t border-black/[0.06] pt-3 space-y-2">
                             <label class="block text-xs font-bold text-[#1c1c1e] flex items-center space-x-1.5">
                                 <span>🏆</span>
-                                <span>Huy hiệu nổi & Thông số gắn trên chai mắm (Bên phải)</span>
+                                <span>Huy hiệu chứng nhận chất lượng (Đính góc trên chai mắm)</span>
                             </label>
-                            
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div class="bg-[#F2F2F7]/70 p-2.5 rounded-xl space-y-1.5">
-                                    <span class="text-[10px] text-amber-700 font-bold block uppercase">Huy hiệu nổi 1 (Cạnh cổ chai)</span>
-                                    <div class="grid grid-cols-2 gap-1.5">
-                                        <input type="text" id="cms_heroBadge1Title" placeholder="Độ Đạm Cốt" class="w-full px-2 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs">
-                                        <input type="text" id="cms_heroBadge1Value" placeholder="40°N Tự Nhiên" class="w-full px-2 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs font-bold">
-                                    </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div>
+                                    <label class="block text-[11px] text-[#8E8E93] mb-0.5">Tiêu đề huy hiệu</label>
+                                    <input type="text" id="cms_heroBadgeTitle" placeholder="40° Đạm Tự Nhiên" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm font-bold">
                                 </div>
-
-                                <div class="bg-[#F2F2F7]/70 p-2.5 rounded-xl space-y-1.5">
-                                    <span class="text-[10px] text-sky-800 font-bold block uppercase">Huy hiệu nổi 2 (Thân chai)</span>
-                                    <div class="grid grid-cols-2 gap-1.5">
-                                        <input type="text" id="cms_heroBadge2Title" placeholder="Lên Men Gỗ" class="w-full px-2 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs">
-                                        <input type="text" id="cms_heroBadge2Value" placeholder="12 - 18 Tháng Nắng" class="w-full px-2 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs font-bold">
-                                    </div>
+                                <div>
+                                    <label class="block text-[11px] text-[#8E8E93] mb-0.5">Dòng phụ huy hiệu</label>
+                                    <input type="text" id="cms_heroBadgeSub" placeholder="Ủ gỗ bời lời 12 tháng phơi nắng" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm">
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="grid grid-cols-3 gap-2">
-                                <div class="bg-amber-50/70 border border-amber-200/80 p-2 rounded-xl text-center space-y-1">
-                                    <span class="text-[10px] text-amber-800 font-semibold block">Thẻ 1</span>
-                                    <input type="text" id="cms_heroStat1Val" placeholder="40°N" class="w-full px-1.5 py-1 rounded bg-white text-xs font-black text-center text-amber-600">
-                                    <input type="text" id="cms_heroStat1Label" placeholder="Đạm Cốt" class="w-full px-1.5 py-1 rounded bg-white text-[11px] text-center">
-                                </div>
-                                <div class="bg-sky-50/70 border border-sky-200/80 p-2 rounded-xl text-center space-y-1">
-                                    <span class="text-[10px] text-sky-800 font-semibold block">Thẻ 2</span>
-                                    <input type="text" id="cms_heroStat2Val" placeholder="12+" class="w-full px-1.5 py-1 rounded bg-white text-xs font-black text-center text-sky-700">
-                                    <input type="text" id="cms_heroStat2Label" placeholder="Tháng Gỗ" class="w-full px-1.5 py-1 rounded bg-white text-[11px] text-center">
-                                </div>
-                                <div class="bg-emerald-50/70 border border-emerald-200/80 p-2 rounded-xl text-center space-y-1">
-                                    <span class="text-[10px] text-emerald-800 font-semibold block">Thẻ 3</span>
-                                    <input type="text" id="cms_heroStat3Val" placeholder="100%" class="w-full px-1.5 py-1 rounded bg-white text-xs font-black text-center text-emerald-600">
-                                    <input type="text" id="cms_heroStat3Label" placeholder="Cá Than" class="w-full px-1.5 py-1 rounded bg-white text-[11px] text-center">
-                                </div>
+                        <!-- 5. 4 Cam kết uy tín trong thanh bảo chứng liền khối -->
+                        <div class="border-t border-black/[0.06] pt-3 space-y-2">
+                            <label class="block text-xs font-bold text-[#1c1c1e] flex items-center space-x-1.5">
+                                <span>✓</span>
+                                <span>4 Cam kết chất lượng Ba Cô (Hiển thị trong thanh bảo chứng liền khối dưới nút mua)</span>
+                            </label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <input type="text" id="cms_heroCommit1" placeholder="Cam kết 1: 100% Cá cơm than & muối hạt tinh khiết" class="w-full px-2.5 py-2 rounded-lg bg-[#767680]/[0.08] border-0 text-xs">
+                                <input type="text" id="cms_heroCommit2" placeholder="Cam kết 2: Ủ chượp thùng gỗ bời lời tự nhiên 12 tháng" class="w-full px-2.5 py-2 rounded-lg bg-[#767680]/[0.08] border-0 text-xs">
+                                <input type="text" id="cms_heroCommit3" placeholder="Cam kết 3: Không phẩm màu, không chất bảo quản nhân tạo" class="w-full px-2.5 py-2 rounded-lg bg-[#767680]/[0.08] border-0 text-xs">
+                                <input type="text" id="cms_heroCommit4" placeholder="Cam kết 4: Freeship từ 2 chai • Thử mắm trước khi nhận" class="w-full px-2.5 py-2 rounded-lg bg-[#767680]/[0.08] border-0 text-xs">
                             </div>
                         </div>
                     </div>
@@ -5521,28 +5495,20 @@ function dinhDangDongKhachSi(sheet, row) {
             headerNav8: 'Hỏi đáp',
 
             // 🌊 HERO BANNER
-            heroTag: 'ĐẶC SẢN VỊNH CAM RANH • Ủ TRUYỀN THỐNG 12 THÁNG',
+            heroTag: '✨ ĐẶC SẢN VỊNH CAM RANH • Ủ TRUYỀN THỐNG 12 THÁNG',
             heroMainTitle: 'Giọt Ngọc Biển Khơi',
             heroSubTitle: 'Nước Mắm Nhĩ Thượng Hạng',
-            heroDesc: 'Chắt lọc từng giọt nước mắm nhĩ đầu tiên sánh vàng như mật ong biển, hương thơm dịu ấm, hậu vị ngọt sâu từ đạm cá tự nhiên qua 12 tháng ủ gỗ bời lời phơi nắng.',
+            heroDesc: 'Chắt lọc từng giọt nước mắm nhĩ đầu tiên sánh vàng như mật ong biển, hương thơm dịu ấm, hậu vị ngọt sâu từ đạm cá tự nhiên qua 12 tháng ủ gỗ bời lời phơi nắng Cam Ranh.',
             heroBgImg: './pictrure/banner_khanhhoa.jpg',
             heroProductImg: './pictrure/hero_bottle_dish.png',
+            heroCta1: '⚡ Đặt Mua Ngay',
+            heroCta2: 'Khám Phá Dòng Mắm ↓',
+            heroBadgeTitle: '40° Đạm Tự Nhiên',
+            heroBadgeSub: 'Ủ gỗ bời lời 12 tháng phơi nắng',
             heroCommit1: '100% Cá cơm than & muối hạt tinh khiết',
             heroCommit2: 'Ủ chượp thùng gỗ bời lời tự nhiên 12 tháng',
             heroCommit3: 'Không phẩm màu, không chất bảo quản nhân tạo',
-            heroCommit4: 'Freeship toàn quốc từ 2 chai • Đổi mới nếu nứt vỡ',
-            heroCta1: '⚡ Đặt Mua Ngay',
-            heroCta2: 'Khám Phá Dòng Mắm ↓',
-            heroBadge1Title: 'Độ Đạm Cốt',
-            heroBadge1Value: '40°N Tự Nhiên',
-            heroBadge2Title: 'Lên Men Gỗ',
-            heroBadge2Value: '12 - 18 Tháng Nắng',
-            heroStat1Val: '40°N',
-            heroStat1Label: 'Đạm Cốt',
-            heroStat2Val: '12+',
-            heroStat2Label: 'Tháng Gỗ',
-            heroStat3Val: '100%',
-            heroStat3Label: 'Cá Than',
+            heroCommit4: 'Freeship từ 2 chai • Thử mắm trước khi nhận',
 
             // 📞 BRAND & LIÊN HỆ
             brandName: 'Ba Cô Khánh Hòa',
