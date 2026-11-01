@@ -99,6 +99,73 @@
             animation: shimmer 3s infinite;
         }
 
+        /* ================= HIỆU ỨNG CUỘN DIGITUM (WOW SCROLL REVEAL ANIMATIONS) ================= */
+        .wow-reveal {
+            opacity: 0;
+            transform: translateY(35px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+        .wow-reveal.is-revealed {
+            opacity: 1 !important;
+            transform: translateY(0) scale(1) !important;
+        }
+
+        .wow-fade-left {
+            opacity: 0;
+            transform: translateX(-40px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+        .wow-fade-left.is-revealed {
+            opacity: 1 !important;
+            transform: translateX(0) !important;
+        }
+
+        .wow-fade-right {
+            opacity: 0;
+            transform: translateX(40px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+        .wow-fade-right.is-revealed {
+            opacity: 1 !important;
+            transform: translateX(0) !important;
+        }
+
+        .wow-zoom-in {
+            opacity: 0;
+            transform: scale(0.92);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+        .wow-zoom-in.is-revealed {
+            opacity: 1 !important;
+            transform: scale(1) !important;
+        }
+
+        /* Stagger Delays giống hệt data-wow-delay trong Digitum */
+        .delay-100 { transition-delay: 100ms !important; }
+        .delay-150 { transition-delay: 150ms !important; }
+        .delay-200 { transition-delay: 200ms !important; }
+        .delay-250 { transition-delay: 250ms !important; }
+        .delay-300 { transition-delay: 300ms !important; }
+        .delay-350 { transition-delay: 350ms !important; }
+        .delay-400 { transition-delay: 400ms !important; }
+        .delay-500 { transition-delay: 500ms !important; }
+        .delay-600 { transition-delay: 600ms !important; }
+
+        /* DIGITUM FLOATING AMBIENT SHAPES (ĐỘ LIỀN KHỐI TỰ NHIÊN) */
+        .shape_animate_orb {
+            position: absolute;
+            border-radius: 9999px;
+            filter: blur(60px);
+            pointer-events: none;
+            opacity: 0.3;
+            z-index: 0;
+            animation: floatSlow 8s ease-in-out infinite alternate;
+        }
+
         /* TONE MÀU TƯƠI SÁNG: NỀN TRẮNG & XANH DƯƠNG (LIQUID GLASS LIGHT) */
         .liquid-canvas {
             background-color: #ffffff;
@@ -397,69 +464,68 @@
         </div>
     </header>
 
-    <!-- Hero Section (Phong cách Tươi Sáng Biển Xanh Khánh Hòa) -->
-    <section class="relative min-h-[540px] sm:min-h-[640px] lg:min-h-[700px] flex items-center justify-center text-white py-12 sm:py-20 overflow-hidden bg-gradient-to-b from-sky-900 via-sky-800 to-sky-950">
-        <!-- Ảnh nền đại dương Cam Ranh rực rỡ -->
-        <div id="heroBgImg" class="absolute inset-0 bg-[url('./pictrure/banner_khanhhoa.jpg')] bg-cover bg-center opacity-30 scale-105 transition-transform duration-1000"></div>
-        <!-- Lớp phủ ánh sáng biển xanh -->
-        <div class="absolute inset-0 bg-gradient-to-t from-sky-950/90 via-sky-900/40 to-sky-900/70"></div>
+    <!-- Hero Section (Phong cách Digitum: Tươi Sáng, Liền Khối & Sang Trọng) -->
+    <section class="relative min-h-[560px] sm:min-h-[660px] lg:min-h-[720px] flex items-center justify-center text-white py-12 sm:py-20 overflow-hidden bg-gradient-to-b from-sky-900 via-sky-800 to-sky-950">
+        <!-- Ảnh nền đại dương Cam Ranh mờ ảo -->
+        <div id="heroBgImg" class="absolute inset-0 bg-[url('./pictrure/banner_khanhhoa.jpg')] bg-cover bg-center opacity-25 scale-105 transition-transform duration-1000"></div>
+        <!-- Lớp phủ ánh sáng biển xanh chuyển sắc êm dịu -->
+        <div class="absolute inset-0 bg-gradient-to-t from-sky-950/95 via-sky-900/50 to-sky-900/75"></div>
+
+        <!-- Digitum Ambient Floating Orbs (Độ liền khối & chuyển động bay nhẹ) -->
+        <div class="shape_animate_orb w-72 sm:w-96 h-72 sm:h-96 bg-amber-400/20 top-6 left-6"></div>
+        <div class="shape_animate_orb w-80 sm:w-[480px] h-80 sm:h-[480px] bg-sky-400/20 bottom-0 right-4" style="animation-delay: -3.5s;"></div>
+        <div class="shape_animate_orb w-48 sm:w-64 h-48 sm:h-64 bg-emerald-400/15 top-1/2 left-1/3" style="animation-delay: -5s;"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
-            <!-- CỘT BÊN TRÁI (Desktop): CHAI NƯỚC MẮM KHỔ DỌC ĐỨNG NGHIÊNG NỔI BẬT -->
-            <div class="lg:col-span-5 relative flex justify-center items-center">
-                <!-- Quầng sáng hổ phách ấm áp sau chai mắm -->
-                <div class="absolute -inset-4 sm:-inset-6 bg-gradient-to-tr from-amber-500/25 via-sky-400/20 to-transparent blur-3xl rounded-full pointer-events-none -z-10 animate-pulse" style="animation-duration: 4s;"></div>
+            <!-- CỘT BÊN TRÁI: CHAI NƯỚC MẮM + CHÉN MẮM ỚT TÁCH NỀN TRONG SUỐT (KHÔNG HỀ CÓ KHUNG) -->
+            <div class="lg:col-span-5 relative flex flex-col justify-center items-center wow-reveal wow-fade-left">
+                <!-- Quầng sáng hổ phách ấm áp sau chai mắm và chén mắm -->
+                <div class="absolute -inset-4 sm:-inset-10 bg-gradient-to-tr from-amber-500/35 via-sky-400/25 to-transparent blur-3xl rounded-full pointer-events-none -z-10 animate-pulse" style="animation-duration: 4s;"></div>
 
-                <div class="relative w-full max-w-[260px] sm:max-w-[320px] lg:max-w-[360px] group">
-                    <!-- Huy hiệu nổi 1: Độ đạm 40°N -->
-                    <div class="absolute -top-3 -right-2 sm:-right-4 animate-float bg-white/95 backdrop-blur-md text-slate-900 px-3.5 py-1.5 sm:py-2 rounded-2xl shadow-xl border border-amber-300/80 flex items-center space-x-2 z-20">
-                        <span class="text-base sm:text-lg">🏆</span>
+                <div class="relative w-full max-w-[280px] sm:max-w-[340px] lg:max-w-[420px] flex flex-col items-center group">
+                    <!-- Huy hiệu nổi 1: Độ đạm 40°N (Bên phải cổ chai) -->
+                    <div class="absolute top-6 sm:top-10 -right-2 sm:-right-4 animate-float bg-white/95 backdrop-blur-md text-slate-900 px-3.5 py-1.5 sm:py-2 rounded-2xl shadow-2xl border border-amber-300/90 flex items-center space-x-2 z-20">
+                        <span class="text-base sm:text-xl">🏆</span>
                         <div>
                             <div class="text-[9px] uppercase font-bold text-amber-700 tracking-wider">Độ Đạm Cốt</div>
                             <div class="text-xs sm:text-sm font-black text-slate-900">40°N Tự Nhiên</div>
                         </div>
                     </div>
 
-                    <!-- Huy hiệu nổi 2: Lên men nắng 12+ tháng -->
-                    <div class="absolute -bottom-3 -left-2 sm:-left-4 animate-float-slow bg-white/95 backdrop-blur-md text-slate-900 px-3.5 py-1.5 sm:py-2 rounded-2xl shadow-xl border border-sky-300/80 flex items-center space-x-2 z-20">
-                        <span class="text-base sm:text-lg">⏳</span>
+                    <!-- Huy hiệu nổi 2: Lên men nắng 12+ tháng (Bên trái thân chai) -->
+                    <div class="absolute top-36 sm:top-48 -left-2 sm:-left-6 animate-float-slow bg-white/95 backdrop-blur-md text-slate-900 px-3.5 py-1.5 sm:py-2 rounded-2xl shadow-2xl border border-sky-300/90 flex items-center space-x-2 z-20">
+                        <span class="text-base sm:text-xl">⏳</span>
                         <div>
                             <div class="text-[9px] uppercase font-bold text-sky-800 tracking-wider">Lên Men Gỗ</div>
                             <div class="text-xs sm:text-sm font-black text-slate-900">12 - 18 Tháng Nắng</div>
                         </div>
                     </div>
 
-                    <!-- Khung kính trưng bày Liquid Glass cao cấp -->
-                    <div class="relative rounded-3xl p-3 sm:p-4 bg-gradient-to-b from-white/20 via-white/10 to-sky-950/50 backdrop-blur-xl border border-white/30 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] overflow-hidden">
-                        <!-- Đường line phản chiếu ánh sáng trên đỉnh khung kính -->
-                        <div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-300/70 to-transparent"></div>
+                    <!-- CHAI NƯỚC MẮM VÀ CHÉN NƯỚC MẮM ỚT TÁCH NỀN TRONG SUỐT (HOÀN TOÀN TỰ DO, KHÔNG CÓ BẤT KỲ KHUNG NÀO) -->
+                    <div class="relative flex items-center justify-center w-full">
+                        <img id="heroProductImg" src="./pictrure/hero_bottle_dish.png" alt="Chai Nước Mắm Nhĩ Ba Cô Khánh Hòa và Chén Mắm Ớt Tươi Tách Nền" class="w-full h-[360px] sm:h-[460px] lg:h-[530px] xl:h-[580px] object-contain filter drop-shadow-[0_25px_35px_rgba(0,0,0,0.65)] transform hover:scale-105 hover:-rotate-1 transition-all duration-700 ease-out select-none">
+                    </div>
 
-                        <!-- Vùng ảnh chai mắm đứng nghiêng khổ lớn -->
-                        <div class="relative flex items-center justify-center py-2 sm:py-3 overflow-hidden rounded-2xl">
-                            <img id="heroProductImg" src="./pictrure/hero_bottle_large.jpg" alt="Chai Nước Mắm Nhĩ Ba Cô Khánh Hòa 40° Đạm Tự Nhiên" class="w-full h-[300px] sm:h-[400px] lg:h-[490px] xl:h-[530px] object-cover rounded-2xl transform -rotate-3 hover:rotate-0 transition-all duration-700 ease-out drop-shadow-[0_15px_30px_rgba(0,0,0,0.7)] group-hover:scale-105">
+                    <!-- 3 thông số vàng nguyên chất dưới chân cụm chai và chén mắm -->
+                    <div class="grid grid-cols-3 gap-2 w-full pt-2 text-center z-10">
+                        <div class="bg-white/10 hover:bg-white/15 backdrop-blur-md p-2 rounded-2xl border border-white/20 shadow-lg transition">
+                            <span class="block text-amber-300 font-black text-xs sm:text-sm lg:text-base font-mono">40°N</span>
+                            <span class="text-[9px] sm:text-[10px] text-sky-100 font-medium">Đạm Cốt</span>
                         </div>
-
-                        <!-- 3 thông số vàng nguyên chất dưới chân chai mắm -->
-                        <div class="grid grid-cols-3 gap-2 pt-3 text-center border-t border-white/15">
-                            <div class="bg-white/10 backdrop-blur-md p-1.5 sm:p-2 rounded-xl border border-white/15">
-                                <span class="block text-amber-300 font-black text-xs sm:text-sm lg:text-base font-mono">40°N</span>
-                                <span class="text-[9px] sm:text-[10px] text-sky-100 font-medium">Đạm Cốt</span>
-                            </div>
-                            <div class="bg-white/10 backdrop-blur-md p-1.5 sm:p-2 rounded-xl border border-white/15">
-                                <span class="block text-sky-200 font-black text-xs sm:text-sm lg:text-base font-mono">12+</span>
-                                <span class="text-[9px] sm:text-[10px] text-sky-100 font-medium">Tháng Gỗ</span>
-                            </div>
-                            <div class="bg-white/10 backdrop-blur-md p-1.5 sm:p-2 rounded-xl border border-white/15">
-                                <span class="block text-emerald-300 font-black text-xs sm:text-sm lg:text-base font-mono">100%</span>
-                                <span class="text-[9px] sm:text-[10px] text-sky-100 font-medium">Cá Than</span>
-                            </div>
+                        <div class="bg-white/10 hover:bg-white/15 backdrop-blur-md p-2 rounded-2xl border border-white/20 shadow-lg transition">
+                            <span class="block text-sky-200 font-black text-xs sm:text-sm lg:text-base font-mono">12+</span>
+                            <span class="text-[9px] sm:text-[10px] text-sky-100 font-medium">Tháng Gỗ</span>
+                        </div>
+                        <div class="bg-white/10 hover:bg-white/15 backdrop-blur-md p-2 rounded-2xl border border-white/20 shadow-lg transition">
+                            <span class="block text-emerald-300 font-black text-xs sm:text-sm lg:text-base font-mono">100%</span>
+                            <span class="text-[9px] sm:text-[10px] text-sky-100 font-medium">Cá Than</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- CỘT BÊN PHẢI (Desktop): NỘI DUNG CHỮ & NÚT ĐẶT HÀNG -->
-            <div class="lg:col-span-7 space-y-4 sm:space-y-6 text-center lg:text-left">
+            <!-- CỘT BÊN PHẢI: NỘI DUNG CHỮ & NÚT ĐẶT HÀNG -->
+            <div class="lg:col-span-7 space-y-4 sm:space-y-6 text-center lg:text-left wow-reveal wow-fade-right">
                 <div class="inline-flex items-center space-x-2 bg-white/15 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-semibold border border-white/25">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                     <span class="tracking-wider text-amber-300 font-medium text-[11px] sm:text-xs uppercase">ĐẶC SẢN VỊNH CAM RANH • Ủ TRUYỀN THỐNG</span>
@@ -514,28 +580,28 @@
     <section class="py-4 sm:py-6 relative z-10 -mt-6 sm:-mt-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-                <div class="flex items-center space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-sky-300 transition">
+                <div class="wow-reveal delay-100 flex items-center space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-sky-300 hover:shadow-md transition">
                     <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center text-lg shrink-0 border border-sky-100 font-bold">🐟</div>
                     <div>
                         <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight">Cá Cơm Than Sớm</h4>
                         <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Tươi xanh • Muối boong tàu</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-sky-300 transition">
+                <div class="wow-reveal delay-200 flex items-center space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-sky-300 hover:shadow-md transition">
                     <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center text-lg shrink-0 border border-amber-100 font-bold">🪵</div>
                     <div>
                         <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight">Ủ Gỗ 12-15 Tháng</h4>
                         <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Lên men tự nhiên phơi nắng</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-sky-300 transition">
+                <div class="wow-reveal delay-300 flex items-center space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-sky-300 hover:shadow-md transition">
                     <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-lg shrink-0 border border-emerald-100 font-bold">🛡️</div>
                     <div>
                         <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight">An Toàn Tuyệt Đối</h4>
                         <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">0% hóa chất • 0% bảo quản</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-sky-300 transition">
+                <div class="wow-reveal delay-400 flex items-center space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-sky-300 hover:shadow-md transition">
                     <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center text-lg shrink-0 border border-blue-100 font-bold">🚚</div>
                     <div>
                         <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight">Ship COD Toàn Quốc</h4>
@@ -546,10 +612,11 @@
         </div>
     </section>
 
-    <!-- About Section (3 Trụ Cột Tinh Hoa - Thiết kế Bento Grid Sáng Trong) -->
-    <section id="about" class="py-12 sm:py-20 relative z-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-12 gap-4">
+    <!-- About Section (3 Trụ Cột Tinh Hoa - Thiết kế Bento Grid Sáng Trong & Liền Khối) -->
+    <section id="about" class="py-12 sm:py-20 relative z-10 overflow-hidden">
+        <div class="shape_animate_orb w-80 h-80 bg-sky-200/30 top-1/4 -left-20"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-12 gap-4 wow-reveal">
                 <div class="space-y-2 max-w-xl">
                     <div class="inline-flex items-center space-x-2 bg-sky-50 text-sky-800 border border-sky-200/90 px-3.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-[0.2em]">
                         <span>✨ Tinh Hoa Nghề Biển Cam Ranh</span>
@@ -566,7 +633,7 @@
             <!-- Bento Grid 3 Trụ Cột (Clean White & Ocean Blue Cards) -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
                 <!-- Trụ Cột 1: Cá Cơm Than (Hero Bento Card - 7 Cột) -->
-                <div class="lg:col-span-7 group relative bg-white rounded-3xl overflow-hidden flex flex-col justify-between min-h-[360px] sm:min-h-[440px] border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition duration-500">
+                <div class="lg:col-span-7 group relative bg-white rounded-3xl overflow-hidden flex flex-col justify-between min-h-[360px] sm:min-h-[440px] border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition duration-500 wow-reveal delay-100">
                     <div class="absolute inset-0 overflow-hidden">
                         <img id="pillar1Img" src="./pictrure/1.jpg" alt="Cá Cơm Than Cam Ranh" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out opacity-90">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent"></div>
@@ -592,7 +659,7 @@
                 <!-- 2 Card Phụ (5 Cột) -->
                 <div class="lg:col-span-5 flex flex-col gap-4 sm:gap-6">
                     <!-- Trụ Cột 2: Muối Hạt Tinh Khiết -->
-                    <div class="group relative bg-white rounded-3xl overflow-hidden p-5 sm:p-6 flex flex-col justify-between min-h-[190px] sm:min-h-[210px] border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition duration-300">
+                    <div class="group relative bg-white rounded-3xl overflow-hidden p-5 sm:p-6 flex flex-col justify-between min-h-[190px] sm:min-h-[210px] border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition duration-300 wow-reveal delay-200">
                         <div class="flex items-center justify-between">
                             <span class="inline-flex items-center space-x-1.5 bg-sky-50 text-sky-800 text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full border border-sky-200">
                                 <span>02</span>
@@ -613,7 +680,7 @@
                     </div>
 
                     <!-- Trụ Cột 3: Thùng Gỗ Bời Lời -->
-                    <div class="group relative bg-white rounded-3xl overflow-hidden p-5 sm:p-6 flex flex-col justify-between min-h-[190px] sm:min-h-[210px] border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition duration-300">
+                    <div class="group relative bg-white rounded-3xl overflow-hidden p-5 sm:p-6 flex flex-col justify-between min-h-[190px] sm:min-h-[210px] border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition duration-300 wow-reveal delay-300">
                         <div class="flex items-center justify-between">
                             <span class="inline-flex items-center space-x-1.5 bg-emerald-50 text-emerald-800 text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full border border-emerald-200">
                                 <span>03</span>
@@ -624,7 +691,7 @@
                         </div>
                         <div class="space-y-1.5 pt-3">
                             <h3 id="pillar3Title" class="font-display font-bold text-lg sm:text-xl text-slate-900 group-hover:text-emerald-700 transition">
-                                Ủ Nắng 12 Tháng
+                                Ủy Nắng 12 Tháng
                             </h3>
                             <p id="pillar3Desc" class="text-slate-600 text-xs leading-relaxed font-normal">
                                 Gỗ bời lời giữ nhiệt hoàn hảo, kích thích men vi sinh tự nhiên hoạt động suốt 365 ngày dưới nắng ấm để chắt ra những giọt mắm nhĩ vàng óng.
@@ -637,10 +704,11 @@
         </div>
     </section>
 
-    <!-- Process Section (Quy Trình 4 Bước Đúc Kết Giọt Ngọc - Giao Diện Sáng Tinh Tế) -->
-    <section id="process" class="py-12 sm:py-20 relative z-10 bg-gradient-to-b from-sky-50/50 via-white to-sky-50/30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-2xl mx-auto space-y-2.5 mb-8 sm:mb-14">
+    <!-- Process Section (Quy Trình 4 Bước Đúc Kết Giọt Ngọc - Giao Diện Sáng Tinh Tế & Liền Mạch) -->
+    <section id="process" class="py-12 sm:py-20 relative z-10 bg-gradient-to-b from-sky-50/40 via-white to-sky-50/30 overflow-hidden">
+        <div class="shape_animate_orb w-96 h-96 bg-amber-200/20 bottom-10 -right-20"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-2xl mx-auto space-y-2.5 mb-8 sm:mb-14 wow-reveal">
                 <span class="bg-sky-100 text-sky-800 font-bold tracking-[0.2em] uppercase text-[10px] sm:text-xs px-4 py-1.5 rounded-full inline-block border border-sky-200">
                     Hành Trình Tinh Lọc 365 Ngày
                 </span>
@@ -658,7 +726,7 @@
 
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 relative z-10">
                     <!-- Bước 1 -->
-                    <div class="group bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-sky-400 transition duration-300">
+                    <div class="group bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-sky-400 transition duration-300 wow-reveal delay-100">
                         <div>
                             <div class="flex items-center justify-between mb-3">
                                 <span class="w-8 h-8 rounded-xl bg-sky-600 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-md">01</span>
@@ -677,7 +745,7 @@
                     </div>
 
                     <!-- Bước 2 -->
-                    <div class="group bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-sky-400 transition duration-300">
+                    <div class="group bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-sky-400 transition duration-300 wow-reveal delay-200">
                         <div>
                             <div class="flex items-center justify-between mb-3">
                                 <span class="w-8 h-8 rounded-xl bg-sky-600 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-md">02</span>
@@ -696,7 +764,7 @@
                     </div>
 
                     <!-- Bước 3 -->
-                    <div class="group bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-sky-400 transition duration-300">
+                    <div class="group bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-sky-400 transition duration-300 wow-reveal delay-300">
                         <div>
                             <div class="flex items-center justify-between mb-3">
                                 <span class="w-8 h-8 rounded-xl bg-sky-600 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-md">03</span>
@@ -715,7 +783,7 @@
                     </div>
 
                     <!-- Bước 4 -->
-                    <div class="group bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-sky-400 transition duration-300">
+                    <div class="group bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-sky-400 transition duration-300 wow-reveal delay-400">
                         <div>
                             <div class="flex items-center justify-between mb-3">
                                 <span class="w-8 h-8 rounded-xl bg-sky-600 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-md">04</span>
@@ -737,10 +805,11 @@
         </div>
     </section>
 
-    <!-- Cam Kết Tiêu Chuẩn Chất Lượng & VSATTP Khánh Hòa (Bảo chứng niềm tin 100%) -->
-    <section id="certifications" class="py-10 sm:py-16 relative z-10 bg-gradient-to-b from-white via-sky-50/50 to-white border-y border-sky-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
+    <!-- Cam Kết Tiêu Chuẩn Chất Lượng & VSATTP Khánh Hòa (Bảo chứng niềm tin 100% - Liền mạch) -->
+    <section id="certifications" class="py-10 sm:py-16 relative z-10 bg-gradient-to-b from-sky-50/30 via-white to-sky-50/40 overflow-hidden">
+        <div class="shape_animate_orb w-72 h-72 bg-emerald-200/20 top-0 left-10"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-2xl mx-auto mb-8 sm:mb-12 wow-reveal">
                 <span class="inline-flex items-center space-x-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200/90 px-3.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider">
                     <span>🛡️ Chứng Nhận & Bảo Chứng Chất Lượng</span>
                 </span>
@@ -754,22 +823,22 @@
 
             <!-- 4 Thẻ Cam Kết Vàng -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5">
-                <div class="bg-white p-5 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md transition">
+                <div class="bg-white p-5 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-lg hover:border-sky-300 transition duration-300 wow-reveal delay-100">
                     <div class="w-11 h-11 rounded-2xl bg-sky-50 text-sky-700 flex items-center justify-center text-xl mb-3 border border-sky-100">🌿</div>
                     <h3 class="font-bold text-sm sm:text-base text-slate-900 mb-1">100% Nguyên Bản Tự Nhiên</h3>
                     <p class="text-xs text-slate-600 leading-relaxed">Chỉ gồm cá cơm than và muối biển tinh khiết. Tuyệt đối <strong>không chất bảo quản</strong>, không màu tổng hợp, không đường hóa học.</p>
                 </div>
-                <div class="bg-white p-5 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md transition">
+                <div class="bg-white p-5 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-lg hover:border-amber-300 transition duration-300 wow-reveal delay-200">
                     <div class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center text-xl mb-3 border border-amber-100">⭐</div>
                     <h3 class="font-bold text-sm sm:text-base text-slate-900 mb-1">Độ Đạm Hữu Cơ Tuyển Lựa</h3>
                     <p class="text-xs text-slate-600 leading-relaxed">Độ đạm thật từ <strong>35°N đến 43°N</strong> hoàn toàn từ thịt cá cơm thủy phân tự nhiên, hậu vị ngọt sâu thanh khiết nơi cuống họng.</p>
                 </div>
-                <div class="bg-white p-5 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md transition">
+                <div class="bg-white p-5 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-lg hover:border-emerald-300 transition duration-300 wow-reveal delay-300">
                     <div class="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-xl mb-3 border border-emerald-100">📋</div>
                     <h3 class="font-bold text-sm sm:text-base text-slate-900 mb-1">Chuẩn Vệ Sinh ATTP</h3>
                     <p class="text-xs text-slate-600 leading-relaxed">Cơ sở sản xuất đạt chuẩn đủ điều kiện ATTP tỉnh Khánh Hòa. Quy trình chiết rót, đóng chai thủy tinh vô trùng khép kín.</p>
                 </div>
-                <div class="bg-white p-5 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md transition">
+                <div class="bg-white p-5 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-lg hover:border-rose-300 transition duration-300 wow-reveal delay-400">
                     <div class="w-11 h-11 rounded-2xl bg-rose-50 text-rose-700 flex items-center justify-center text-xl mb-3 border border-rose-100">🛡️</div>
                     <h3 class="font-bold text-sm sm:text-base text-slate-900 mb-1">Bảo Hành Vỡ Hỏng 1 Đổi 1</h3>
                     <p class="text-xs text-slate-600 leading-relaxed">Đóng gói bọc xốp chống sốc 3 lớp. <strong>Khách được mở thùng kiểm tra hàng trước khi thanh toán</strong>. Lỗi vỡ đền mới 100% tận nơi.</p>
@@ -779,9 +848,10 @@
     </section>
 
     <!-- Lookbook Mosaic (Khoảnh Khắc Tinh Hoa - Sang Trọng & Tươi Mới) -->
-    <section id="gallery" class="py-12 sm:py-20 relative z-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-12 gap-3">
+    <section id="gallery" class="py-12 sm:py-20 relative z-10 overflow-hidden">
+        <div class="shape_animate_orb w-80 h-80 bg-sky-200/25 top-10 right-0"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-12 gap-3 wow-reveal">
                 <div>
                     <span class="bg-sky-100 text-sky-800 font-bold uppercase tracking-[0.2em] text-[10px] sm:text-xs px-3.5 py-1.5 rounded-full border border-sky-200">
                         Thực Tế & Trải Nghiệm
@@ -797,7 +867,7 @@
 
             <!-- Asymmetric Grid: 4 Thẻ Phối Hợp Tinh Tế -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
-                <div class="group relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-slate-200/90 shadow-sm hover:shadow-xl transition duration-500">
+                <div class="group relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-slate-200/90 shadow-sm hover:shadow-xl transition duration-500 wow-reveal delay-100">
                     <img src="https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=600&q=80" alt="Chén Mắm Tỏi Ớt" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
                     <div class="absolute bottom-3 left-3 right-3 text-white">
@@ -806,7 +876,7 @@
                     </div>
                 </div>
 
-                <div class="group relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-slate-200/90 shadow-sm hover:shadow-xl transition duration-500">
+                <div class="group relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-slate-200/90 shadow-sm hover:shadow-xl transition duration-500 wow-reveal delay-200">
                     <img src="https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=600&q=80" alt="Thịt Kho Tộ" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
                     <div class="absolute bottom-3 left-3 right-3 text-white">
@@ -815,7 +885,7 @@
                     </div>
                 </div>
 
-                <div class="group relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-slate-200/90 shadow-sm hover:shadow-xl transition duration-500">
+                <div class="group relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-slate-200/90 shadow-sm hover:shadow-xl transition duration-500 wow-reveal delay-300">
                     <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80" alt="Vịnh Biển Cam Ranh" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
                     <div class="absolute bottom-3 left-3 right-3 text-white">
@@ -824,7 +894,7 @@
                     </div>
                 </div>
 
-                <div class="group relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-slate-200/90 shadow-sm hover:shadow-xl transition duration-500">
+                <div class="group relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-slate-200/90 shadow-sm hover:shadow-xl transition duration-500 wow-reveal delay-400">
                     <img src="./pictrure/1.jpg" alt="Mắm Nhĩ Thượng Hạng" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
                     <div class="absolute bottom-3 left-3 right-3 text-white">
@@ -837,9 +907,10 @@
     </section>
 
     <!-- Products Section (Luxury Showcase Trắng & Xanh Biển) -->
-    <section id="products" class="relative py-12 sm:py-24 bg-gradient-to-b from-sky-50/60 via-white to-sky-50/40">
+    <section id="products" class="relative py-12 sm:py-24 bg-gradient-to-b from-sky-50/60 via-white to-sky-50/40 overflow-hidden">
+        <div class="shape_animate_orb w-96 h-96 bg-amber-200/20 -top-10 -left-20"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 sm:mb-10">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 sm:mb-10 wow-reveal">
                 <div class="space-y-2 text-center md:text-left">
                     <span class="bg-sky-100 text-sky-800 border border-sky-200 px-4 py-1.5 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase rounded-full inline-block">
                         BỘ SƯU TẬP 2026
@@ -860,7 +931,7 @@
             </div>
 
             <!-- Thanh Lọc Nhanh Theo Dòng Sản Phẩm (White & Sky Blue Filter Pills) -->
-            <div class="flex items-center gap-2 overflow-x-auto pb-4 mb-4 sm:mb-8 no-scrollbar" id="homeCategoryBar">
+            <div class="flex items-center gap-2 overflow-x-auto pb-4 mb-4 sm:mb-8 no-scrollbar wow-reveal delay-100" id="homeCategoryBar">
                 <button type="button" onclick="filterHomeProducts('all')" data-cat="all" class="home-cat-btn shrink-0 bg-sky-600 text-white shadow-md px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition">
                     Tất cả
                 </button>
@@ -880,7 +951,7 @@
 
             <!-- Lưới sản phẩm: 2 cột trên điện thoại (tối ưu thị giác), 3 cột trên máy tính -->
             <div id="productsGridContainer" class="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6">
-                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group">
+                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group wow-reveal delay-100">
                     <div>
                         <div onclick="openProductQuickView('prod_1')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
                             <img src="./pictrure/1.jpg" alt="Nước Mắm Nhĩ Thượng Hạng 40° Đạm" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
@@ -915,7 +986,7 @@
                        </button>
                     </div>
                 </div>
-                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group">
+                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group wow-reveal delay-200">
                     <div>
                         <div onclick="openProductQuickView('prod_2')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
                             <img src="./pictrure/1.jpg" alt="Nước Mắm Truyền Thống 35° Đạm" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
@@ -950,7 +1021,7 @@
                        </button>
                     </div>
                 </div>
-                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group">
+                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group wow-reveal delay-300">
                     <div>
                         <div onclick="openProductQuickView('prod_3')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
                             <img src="./pictrure/prod_hopqua.jpg" alt="Hộp Quà Tặng Đôi 2 Chai 40° Đạm" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
@@ -985,7 +1056,7 @@
                        </button>
                     </div>
                 </div>
-                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group">
+                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group wow-reveal delay-150">
                     <div>
                         <div onclick="openProductQuickView('prod_4')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
                             <img src="./pictrure/prod_mamnhi43.jpg" alt="Mắm Nhĩ Cốt Đặc Biệt 43°N Ủ Thùng Gỗ" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
@@ -1020,7 +1091,7 @@
                        </button>
                     </div>
                 </div>
-                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group">
+                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group wow-reveal delay-250">
                     <div>
                         <div onclick="openProductQuickView('prod_5')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
                             <img src="./pictrure/1.jpg" alt="Combo Tiết Kiệm 2 Chai Truyền Thống 35°N" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
@@ -1055,7 +1126,7 @@
                        </button>
                     </div>
                 </div>
-                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group">
+                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group wow-reveal delay-350">
                     <div>
                         <div onclick="openProductQuickView('prod_6')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
                             <img src="./pictrure/prod_can2l.jpg" alt="Can Gia Đình 2 Lít Kho Nấu Đậm Đà 30°N" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
@@ -1094,7 +1165,7 @@
             </div>
 
             <!-- Nút Xem Toàn Bộ Kho Sản Phẩm & Xem Tất Cả Ngay Tại Đây -->
-            <div class="mt-8 sm:mt-12 text-center flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div class="mt-8 sm:mt-12 text-center flex flex-col sm:flex-row items-center justify-center gap-3 wow-reveal delay-200">
                 <button type="button" onclick="filterHomeProducts('all'); document.getElementById('products').scrollIntoView({behavior:'smooth'});" class="btn-order-cta inline-flex items-center justify-center space-x-2 text-white font-bold text-xs sm:text-base px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl shadow-xl transition active:scale-95">
                     <span>🌟 Xem Tất Cả Sản Phẩm Tại Đây</span>
                 </button>
@@ -1151,9 +1222,10 @@
     </div>
 
     <!-- Wholesale Policy Section (Đại Lý & Khách Sỉ - White & Ocean Blue Theme) -->
-    <section id="wholesale" class="relative py-12 sm:py-24 bg-gradient-to-b from-white via-sky-50/40 to-white">
+    <section id="wholesale" class="relative py-12 sm:py-24 bg-gradient-to-b from-white via-sky-50/40 to-white overflow-hidden">
+        <div class="shape_animate_orb w-80 h-80 bg-sky-200/30 bottom-10 right-0"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
-            <div class="lg:col-span-7 space-y-6">
+            <div class="lg:col-span-7 space-y-6 wow-reveal wow-fade-left">
                 <span class="bg-sky-100 text-sky-800 border border-sky-200 px-4 py-1.5 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase rounded-full inline-block">
                     HỢP TÁC • ĐẠI LÝ & KHÁCH SỈ
                 </span>
@@ -1166,28 +1238,28 @@
                 
                 <!-- 4 Lợi Ích Khách Sỉ -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
-                    <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm hover:border-sky-300 transition flex items-start space-x-3.5">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm hover:border-sky-300 transition flex items-start space-x-3.5 wow-reveal delay-100">
                         <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 shrink-0 text-lg font-bold">💰</div>
                         <div>
                             <h4 class="font-display font-bold text-sm text-slate-900">Chiết Khấu Đến 35%</h4>
                             <p class="text-xs text-slate-500 mt-0.5">Bảng giá sỉ phân cấp linh hoạt từ đơn số lượng nhỏ.</p>
                         </div>
                     </div>
-                    <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm hover:border-sky-300 transition flex items-start space-x-3.5">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm hover:border-sky-300 transition flex items-start space-x-3.5 wow-reveal delay-200">
                         <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-700 shrink-0 text-lg font-bold">🚚</div>
                         <div>
                             <h4 class="font-display font-bold text-sm text-slate-900">Vận Chuyển Toàn Quốc</h4>
                             <p class="text-xs text-slate-500 mt-0.5">Đóng thùng chống sốc cẩn thận, hỗ trợ cước vận chuyển.</p>
                         </div>
                     </div>
-                    <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm hover:border-sky-300 transition flex items-start space-x-3.5">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm hover:border-sky-300 transition flex items-start space-x-3.5 wow-reveal delay-300">
                         <div class="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-700 shrink-0 text-lg font-bold">📸</div>
                         <div>
                             <h4 class="font-display font-bold text-sm text-slate-900">Ấn Phẩm & Trưng Bày</h4>
                             <p class="text-xs text-slate-500 mt-0.5">Cung cấp bộ media chất lượng cao và tài liệu điểm bán.</p>
                         </div>
                     </div>
-                    <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm hover:border-sky-300 transition flex items-start space-x-3.5">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm hover:border-sky-300 transition flex items-start space-x-3.5 wow-reveal delay-400">
                         <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0 text-lg font-bold">🛡️</div>
                         <div>
                             <h4 class="font-display font-bold text-sm text-slate-900">Bảo Vệ Thị Trường</h4>
@@ -1198,7 +1270,7 @@
             </div>
 
             <!-- Form đăng ký nhận báo giá sỉ -->
-            <div class="lg:col-span-5 bg-white p-6 sm:p-8 rounded-3xl border border-sky-200 shadow-xl space-y-4">
+            <div class="lg:col-span-5 bg-white p-6 sm:p-8 rounded-3xl border border-sky-200 shadow-xl space-y-4 wow-reveal wow-fade-right delay-200">
                 <div class="space-y-1">
                     <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-sky-700">DÀNH CHO ĐỐI TÁC THƯƠNG MẠI</span>
                     <h3 class="font-display text-xl sm:text-2xl font-bold text-slate-900">Nhận Bảng Giá Chiết Khấu Sỉ</h3>
@@ -1245,9 +1317,10 @@
     </section>
 
     <!-- Recipes Section (Gian Bếp Gia Đình - White & Sky Blue Theme) -->
-    <section id="recipes" class="relative py-12 sm:py-24 bg-gradient-to-b from-sky-50/50 via-white to-sky-50/30">
+    <section id="recipes" class="relative py-12 sm:py-24 bg-gradient-to-b from-sky-50/50 via-white to-sky-50/30 overflow-hidden">
+        <div class="shape_animate_orb w-96 h-96 bg-amber-200/25 top-0 -left-10"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="text-center max-w-2xl mx-auto space-y-2 mb-8 sm:mb-14">
+            <div class="text-center max-w-2xl mx-auto space-y-2 mb-8 sm:mb-14 wow-reveal">
                 <span class="bg-sky-100 text-sky-800 border border-sky-200 px-4 py-1.5 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase rounded-full inline-block">
                     MÓN NGON GIA ĐÌNH
                 </span>
@@ -1263,7 +1336,7 @@
             <!-- 3 Thẻ Món Ăn - Vuốt ngang tiện lợi trên mobile, 3 cột trên máy tính -->
             <div class="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-4 px-4 no-scrollbar sm:grid sm:grid-cols-3 sm:gap-8 sm:mx-0 sm:px-0 sm:pb-0">
                 <!-- Món 1: Thịt Kho Tộ -->
-                <div class="min-w-[82vw] sm:min-w-0 snap-center group bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition-all duration-300 flex flex-col justify-between">
+                <div class="min-w-[82vw] sm:min-w-0 snap-center group bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition-all duration-300 flex flex-col justify-between wow-reveal delay-100">
                     <div class="h-48 sm:h-60 overflow-hidden relative">
                         <img id="recipe1Img" src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80" alt="Thịt Ba Chỉ Kho Tộ Cánh Gián" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
@@ -1282,7 +1355,7 @@
                 </div>
 
                 <!-- Món 2: Nước Mắm Tỏi Ớt -->
-                <div class="min-w-[82vw] sm:min-w-0 snap-center group bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition-all duration-300 flex flex-col justify-between">
+                <div class="min-w-[82vw] sm:min-w-0 snap-center group bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition-all duration-300 flex flex-col justify-between wow-reveal delay-200">
                     <div class="h-48 sm:h-60 overflow-hidden relative">
                         <img id="recipe2Img" src="https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=800&q=80" alt="Chén Nước Mắm Chua Ngọt Tỏi Ớt Nổi" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
@@ -1301,7 +1374,7 @@
                 </div>
 
                 <!-- Món 3: Hải Sản Hấp -->
-                <div class="min-w-[82vw] sm:min-w-0 snap-center group bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition-all duration-300 flex flex-col justify-between">
+                <div class="min-w-[82vw] sm:min-w-0 snap-center group bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition-all duration-300 flex flex-col justify-between wow-reveal delay-300">
                     <div class="h-48 sm:h-60 overflow-hidden relative">
                         <img id="recipe3Img" src="https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=800&q=80" alt="Hải Sản Hấp Gừng Chấm Mắm Cốt" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
@@ -1323,9 +1396,10 @@
     </section>
 
     <!-- Reviews Section (Đánh Giá & Cảm Nhận Thực Tế - White & Sky Blue Theme) -->
-    <section id="reviews" class="relative py-12 sm:py-24 bg-gradient-to-b from-white via-sky-50/40 to-white">
+    <section id="reviews" class="relative py-12 sm:py-24 bg-gradient-to-b from-white via-sky-50/40 to-white overflow-hidden">
+        <div class="shape_animate_orb w-80 h-80 bg-sky-300/20 -bottom-10 right-10"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="text-center max-w-2xl mx-auto space-y-2 mb-8 sm:mb-12">
+            <div class="text-center max-w-2xl mx-auto space-y-2 mb-8 sm:mb-12 wow-reveal">
                 <span class="bg-sky-100 text-sky-800 border border-sky-200 px-4 py-1.5 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase rounded-full inline-block">
                     CẢM NHẬN THỰC TẾ
                 </span>
@@ -1352,16 +1426,16 @@
             </div>
 
             <!-- Danh sách đánh giá nạp động từ JS (Vuốt ngang mượt trên mobile) -->
-            <div id="reviewsListContainer" class="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-4 px-4 no-scrollbar sm:grid sm:grid-cols-3 sm:gap-6 sm:mx-0 sm:px-0 sm:pb-0">
+            <div id="reviewsListContainer" class="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-4 px-4 no-scrollbar sm:grid sm:grid-cols-3 sm:gap-6 sm:mx-0 sm:px-0 sm:pb-0 wow-reveal delay-150">
                 <!-- Nạp qua renderReviews() -->
             </div>
         </div>
     </section>
 
     <!-- FAQ Section (Hỏi Đáp Thường Gặp - White & Sky Blue Accordion) -->
-    <section id="faq" class="relative py-12 sm:py-24 bg-gradient-to-b from-sky-50/50 via-white to-sky-50/30">
+    <section id="faq" class="relative py-12 sm:py-24 bg-gradient-to-b from-sky-50/50 via-white to-sky-50/30 overflow-hidden">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="text-center max-w-2xl mx-auto space-y-2 mb-8 sm:mb-12">
+            <div class="text-center max-w-2xl mx-auto space-y-2 mb-8 sm:mb-12 wow-reveal">
                 <span class="bg-sky-100 text-sky-800 border border-sky-200 px-4 py-1.5 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase rounded-full inline-block">
                     HỎI ĐÁP & HỖ TRỢ
                 </span>
@@ -1373,7 +1447,7 @@
 
             <div class="space-y-3 sm:space-y-4">
                 <!-- FAQ Item 1 -->
-                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm hover:border-sky-300 transition">
+                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm hover:border-sky-300 transition wow-reveal delay-100">
                     <button onclick="toggleFaq(this)" class="w-full px-5 sm:px-6 py-4 sm:py-5 text-left font-display font-semibold text-slate-900 flex justify-between items-center focus:outline-none">
                         <span class="text-xs sm:text-base">Nước mắm truyền thống để lâu có bị sậm màu hay đóng cặn không?</span>
                         <span class="transform transition duration-300 text-sky-600 text-lg sm:text-xl font-bold ml-2">⌄</span>
@@ -1383,7 +1457,7 @@
                     </div>
                 </div>
                 <!-- FAQ Item 2 -->
-                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm hover:border-sky-300 transition">
+                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm hover:border-sky-300 transition wow-reveal delay-200">
                     <button onclick="toggleFaq(this)" class="w-full px-5 sm:px-6 py-4 sm:py-5 text-left font-display font-semibold text-slate-900 flex justify-between items-center focus:outline-none">
                         <span class="text-xs sm:text-base">Bảo quản nước mắm như thế nào là tốt nhất?</span>
                         <span class="transform transition duration-300 text-sky-600 text-lg sm:text-xl font-bold ml-2">⌄</span>
@@ -1393,7 +1467,7 @@
                     </div>
                 </div>
                 <!-- FAQ Item 3 -->
-                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm hover:border-sky-300 transition">
+                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm hover:border-sky-300 transition wow-reveal delay-300">
                     <button onclick="toggleFaq(this)" class="w-full px-5 sm:px-6 py-4 sm:py-5 text-left font-display font-semibold text-slate-900 flex justify-between items-center focus:outline-none">
                         <span class="text-xs sm:text-base">Shop có giao hàng toàn quốc và kiểm tra hàng trước khi thanh toán không?</span>
                         <span class="transform transition duration-300 text-sky-600 text-lg sm:text-xl font-bold ml-2">⌄</span>
@@ -1896,7 +1970,7 @@
     <footer class="relative liquid-glass bg-slate-950/90 text-slate-400 py-16 border-t border-white/10 overflow-hidden">
         <div class="ambient-orb w-80 h-80 bg-amber-500/10 -top-20 right-10"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-10 relative z-10">
-            <div class="space-y-3.5">
+            <div class="space-y-3.5 wow-reveal delay-100">
                 <span class="site-brand-name font-display font-bold text-white text-xl sm:text-2xl tracking-tight block">Nước Mắm Ba Cô Khánh Hòa</span>
                 <p class="site-brand-slogan text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
                     Đặc sản mắm nhĩ cốt truyền thống ủ chượp tự nhiên từ cá cơm than vịnh Cam Ranh. Đậm đà bản sắc, trọn vị tình thân.
@@ -1905,7 +1979,7 @@
                     <span class="bg-sky-900/80 text-sky-200 border border-sky-700 px-3 py-1 text-[10px] font-mono font-bold rounded-full">TRUYỀN THỐNG TRĂM NĂM</span>
                 </div>
             </div>
-            <div class="space-y-3.5">
+            <div class="space-y-3.5 wow-reveal delay-200">
                 <h4 class="font-display font-bold text-white text-sm sm:text-base tracking-wider uppercase">Thông Tin Liên Hệ</h4>
                 <div class="space-y-2 text-xs sm:text-sm font-normal text-slate-200">
                     <p class="flex items-center space-x-2"><span>📍</span><span>Cơ sở: <strong class="site-address font-medium text-white">Phường Cam Ranh, Tỉnh Khánh Hòa</strong></span></p>
@@ -1913,16 +1987,16 @@
                     <p class="flex items-center space-x-2"><span>✉️</span><span>Email: <a href="mailto:contact@bacokhanhhoa.vn" class="site-email-link text-slate-200 hover:text-white transition"><span class="site-email">contact@bacokhanhhoa.vn</span></a></span></p>
                 </div>
             </div>
-            <div class="space-y-3.5">
+            <div class="space-y-3.5 wow-reveal delay-300">
                 <h4 class="font-display font-bold text-white text-sm sm:text-base tracking-wider uppercase">Kết Nối Với Chúng Tôi</h4>
-                <p class="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">Theo dõi trang chính thức để nhận các chương trình ưu đãi tri ân đối tác và gia đình hàng tháng.</p>
+                <p class="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">Theo dõi trang chính thức để nhận các chương trình ưu đãi tri anh đối tác và gia đình hàng tháng.</p>
                 <div class="flex space-x-3 pt-1">
                     <a href="https://facebook.com" target="_blank" class="w-10 h-10 bg-sky-900/70 border border-sky-700 rounded-xl flex items-center justify-center text-white hover:text-sky-300 transition active:scale-95 text-sm font-bold">f</a>
                     <a href="https://zalo.me/0985520678" target="_blank" class="site-zalo-link w-10 h-10 bg-sky-900/70 border border-sky-700 rounded-xl flex items-center justify-center text-white hover:text-sky-300 transition active:scale-95 text-sm font-bold">z</a>
                 </div>
             </div>
         </div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-sky-900 flex items-center justify-center text-center text-xs text-slate-400 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-sky-900 flex items-center justify-center text-center text-xs text-slate-400 relative z-10 wow-reveal delay-400">
             <a href="./admin.html?lock=1" class="text-slate-400 hover:text-sky-300 transition cursor-pointer select-none">
                 © 2026 Nước Mắm Ba Cô Khánh Hòa. All rights reserved.
             </a>
@@ -2690,7 +2764,7 @@
                 return;
             }
 
-            container.innerHTML = filtered.map(p => {
+            container.innerHTML = filtered.map((p, idx) => {
                 const safeName = (p.name || '').replace(/'/g, "\\'");
                 const tagColor = (p.tag === 'Combo Quà Biếu') ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white'
                                : (p.tag === 'Tiết Kiệm') ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white'
@@ -2706,8 +2780,10 @@
                        </button>`
                     : `<button disabled class="w-full bg-slate-100 text-slate-400 font-medium py-2 rounded-xl text-[11px] sm:text-xs cursor-not-allowed">Tạm Hết</button>`;
 
+                const delayClass = `delay-${Math.min((idx % 6) * 100 + 100, 500)}`;
+
                 return `
-                    <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group">
+                    <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group wow-reveal ${delayClass}">
                         <div>
                             <div onclick="openProductQuickView('${p.id}')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
                                 <img src="${p.image || './pictrure/1.jpg'}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
@@ -2738,6 +2814,9 @@
                     </div>
                 `;
             }).join('');
+            if (typeof initScrollAnimations === 'function') {
+                initScrollAnimations();
+            }
         }
 
         function openProductQuickView(prodId) {
@@ -2804,8 +2883,8 @@
                         if (k === 'heroBgImg' && v.includes('photo-1507525428034-b723cf961d3e')) {
                             v = './pictrure/banner_khanhhoa.jpg';
                         }
-                        if (k === 'heroProductImg' && (v === './pictrure/1.jpg' || !v)) {
-                            v = './pictrure/hero_bottle_large.jpg';
+                        if (k === 'heroProductImg' && (v === './pictrure/1.jpg' || !v || v.includes('hero_bottle_large'))) {
+                            v = './pictrure/hero_bottle_dish.png';
                         }
                         if (k && VALID_CMS_KEYS.has(k)) {
                             sheetContent[k] = v;
@@ -3525,8 +3604,8 @@
                 if (c.heroProductImg) {
                     const el = document.getElementById('heroProductImg');
                     if (el) {
-                        if (c.heroProductImg === './pictrure/1.jpg') {
-                            c.heroProductImg = './pictrure/hero_bottle_large.jpg';
+                        if (c.heroProductImg === './pictrure/1.jpg' || c.heroProductImg === './pictrure/hero_bottle_large.jpg') {
+                            c.heroProductImg = './pictrure/hero_bottle_dish.png';
                         }
                         el.src = c.heroProductImg;
                     }
@@ -3669,7 +3748,7 @@
                 return;
             }
 
-            container.innerHTML = approvedReviews.map(r => {
+            container.innerHTML = approvedReviews.map((r, idx) => {
                 const stars = '★'.repeat(Math.max(1, Math.min(5, Number(r.rating) || 5)));
                 const initial = (r.name || 'KH').trim().split(' ').pop().substring(0, 2).toUpperCase();
                 const tagsHtml = (r.tags && r.tags.length > 0)
@@ -3678,8 +3757,10 @@
                        </div>`
                     : '';
 
+                const delayClass = `delay-${Math.min((idx % 6) * 100 + 100, 500)}`;
+
                 return `
-                    <div class="min-w-[82vw] sm:min-w-0 snap-center bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/90 hover:border-sky-300 space-y-3.5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between text-slate-800">
+                    <div class="min-w-[82vw] sm:min-w-0 snap-center bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/90 hover:border-sky-300 space-y-3.5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between text-slate-800 wow-reveal ${delayClass}">
                         <div class="space-y-2.5">
                             <div class="flex items-center justify-between">
                                 <div class="text-amber-500 text-sm tracking-wider font-bold">${stars}</div>
@@ -3708,6 +3789,9 @@
                     </div>
                 `;
             }).join('');
+            if (typeof initScrollAnimations === 'function') {
+                initScrollAnimations();
+            }
         }
 
         let selectedReviewRating = 5;
@@ -3863,9 +3947,37 @@
             document.getElementById('reviewForm').reset();
         }
 
+        // ================= HIỆU ỨNG CUỘN DIGITUM (WOW SCROLL REVEAL OBSERVER) =================
+        function initScrollAnimations() {
+            const elements = document.querySelectorAll('.wow-reveal, .wow-fade-left, .wow-fade-right, .wow-zoom-in');
+            if (!('IntersectionObserver' in window)) {
+                elements.forEach(el => el.classList.add('is-revealed'));
+                return;
+            }
+
+            const observer = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-revealed');
+                        obs.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.08,
+                rootMargin: '0px 0px -40px 0px'
+            });
+
+            elements.forEach(el => {
+                if (!el.classList.contains('is-revealed')) {
+                    observer.observe(el);
+                }
+            });
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             applySiteContent();
             loadReviews();
+            initScrollAnimations();
         });
         window.addEventListener('storage', (e) => {
             if (e.key === 'baco_site_content') {
