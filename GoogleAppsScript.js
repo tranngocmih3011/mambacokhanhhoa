@@ -276,12 +276,6 @@ function doPost(e) {
         heroProductImg: "🌊 1. Banner - Ảnh chai mắm và chén mắm tách nền",
         heroCta1: "🌊 1. Banner - Chữ nút đặt mua chính",
         heroCta2: "🌊 1. Banner - Chữ nút khám phá phụ",
-        heroBadgeTitle: "🌊 1. Banner - Tiêu đề huy hiệu chất lượng (chai mắm)",
-        heroBadgeSub: "🌊 1. Banner - Dòng phụ huy hiệu chất lượng (chai mắm)",
-        heroCommit1: "🌊 1. Banner - Cam kết chất lượng 1",
-        heroCommit2: "🌊 1. Banner - Cam kết chất lượng 2",
-        heroCommit3: "🌊 1. Banner - Cam kết chất lượng 3",
-        heroCommit4: "🌊 1. Banner - Cam kết chất lượng 4",
 
         // 🏷️ 2. HEADER & MENU
         headerLogo: "🏷️ 2. Header - Ảnh Logo (Link/Ảnh)",
