@@ -267,6 +267,21 @@ function doPost(e) {
       khoiTaoBangNoiDungWeb(cfgSheet);
 
       var labelsMap = {
+        headerLogo: "🏷️ 0. Header - Ảnh Logo (Link/Ảnh)",
+        headerBrandName: "🏷️ 0. Header - Tên thương hiệu trên thanh menu",
+        headerBrandSlogan: "🏷️ 0. Header - Slogan dưới Logo",
+        headerTopNotice: "🏷️ 0. Header - Thanh thông báo ưu đãi trên cùng",
+        headerHotline: "🏷️ 0. Header - Hotline hiển thị trên Header",
+        headerCartText: "🏷️ 0. Header - Chữ nút giỏ hàng",
+        headerCtaText: "🏷️ 0. Header - Chữ nút đặt hàng nhanh",
+        headerNav1: "🏷️ 0. Header - Menu 1 (Câu chuyện)",
+        headerNav2: "🏷️ 0. Header - Menu 2 (Quy trình)",
+        headerNav3: "🏷️ 0. Header - Menu 3 (Bộ sưu tập)",
+        headerNav4: "🏷️ 0. Header - Menu 4 (Sản phẩm)",
+        headerNav5: "🏷️ 0. Header - Menu 5 (Mua sỉ)",
+        headerNav6: "🏷️ 0. Header - Menu 6 (Ẩm thực)",
+        headerNav7: "🏷️ 0. Header - Menu 7 (Đánh giá)",
+        headerNav8: "🏷️ 0. Header - Menu 8 (Hỏi đáp)",
         heroMainTitle: "🌊 1. Banner Đầu - Tiêu đề lớn dòng 1",
         heroSubTitle: "🌊 1. Banner Đầu - Tiêu đề vàng dòng 2",
         heroDesc: "🌊 1. Banner Đầu - Đoạn mô tả ngắn",

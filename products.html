@@ -136,7 +136,7 @@
                     ←
                 </a>
                 <a href="#" onclick="window.scrollTo({ top: 0, behavior: 'smooth' }); return false;" class="flex items-center space-x-2.5 cursor-pointer group" title="Cuộn lên đầu trang">
-                    <img src="./pictrure/logo.JPG" alt="Logo Ba Cô Khánh Hòa" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shadow-sm ring-2 ring-amber-400">
+                    <img src="./pictrure/logo.JPG" alt="Logo Ba Cô Khánh Hòa" class="site-header-logo w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shadow-sm ring-2 ring-amber-400">
                     <div>
                         <span class="site-brand-name font-serif font-bold text-base sm:text-xl text-slate-900 block leading-tight group-hover:text-amber-600 transition">Ba Cô Khánh Hòa</span>
                         <span class="site-brand-slogan block text-[10px] sm:text-xs text-teal-700 font-semibold uppercase">Cửa Hàng Đặc Sản Chính Hãng</span>
@@ -2169,11 +2169,18 @@
                 const raw = localStorage.getItem('baco_site_content');
                 if (!raw) return;
                 const c = JSON.parse(raw);
-                if (c.brandName) document.querySelectorAll('.site-brand-name').forEach(el => el.textContent = c.brandName);
-                if (c.brandSlogan) document.querySelectorAll('.site-brand-slogan').forEach(el => el.textContent = c.brandSlogan);
-                if (c.brandPhone) {
-                    document.querySelectorAll('.site-hotline').forEach(el => el.textContent = c.brandPhone);
-                    document.querySelectorAll('.site-hotline-link').forEach(el => el.href = `tel:${c.brandPhone}`);
+                if (c.headerLogo) {
+                    document.querySelectorAll('.site-header-logo').forEach(el => el.src = c.headerLogo);
+                }
+                const bName = c.headerBrandName || c.brandName;
+                if (bName) document.querySelectorAll('.site-brand-name').forEach(el => el.textContent = bName);
+                const bSlogan = c.headerBrandSlogan || c.brandSlogan;
+                if (bSlogan) document.querySelectorAll('.site-brand-slogan').forEach(el => el.textContent = bSlogan);
+                const phone = c.headerHotline || c.brandPhone;
+                if (phone) {
+                    document.querySelectorAll('.site-hotline').forEach(el => el.textContent = phone);
+                    const cleanPhone = String(phone).replace(/[^0-9]/g, '');
+                    document.querySelectorAll('.site-hotline-link').forEach(el => el.href = `tel:${cleanPhone}`);
                 }
             } catch(e) {}
         }

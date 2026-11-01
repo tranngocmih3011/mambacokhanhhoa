@@ -407,12 +407,19 @@
         </div>
     </div>
 
+    <!-- Header Top Announcement Bar (Thanh thông báo ưu đãi có thể tùy biến / bật / tắt trong Admin) -->
+    <div id="headerTopNoticeBar" class="bg-gradient-to-r from-sky-900 via-blue-900 to-amber-900 text-white text-[11px] sm:text-xs py-1.5 px-3 text-center font-medium tracking-wide shadow-xs relative z-40">
+        <div class="max-w-7xl mx-auto flex items-center justify-center space-x-2">
+            <span id="headerTopNoticeText">🎉 Miễn phí giao hàng toàn quốc từ 2 chai • Cam kết đền bù 100% nếu nứt vỡ • Hotline: 0985.520.678</span>
+        </div>
+    </div>
+
     <!-- Header / Navbar (Tone Trắng & Xanh Dương Tươi Sáng) -->
     <header id="navbar" class="sticky top-0 z-40 bg-white/92 backdrop-blur-xl border-b border-sky-100/90 shadow-[0_4px_20px_rgba(2,132,199,0.06)] transition-all duration-300">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2">
             <a href="#" onclick="window.scrollTo({ top: 0, behavior: 'smooth' }); return false;" class="flex items-center space-x-2.5 sm:space-x-3 cursor-pointer group shrink-0" title="Cuộn lên đầu trang">
                 <div class="relative group shrink-0">
-                    <img src="./pictrure/logo.JPG" alt="Logo Ba Cô Khánh Hòa" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shadow-sm ring-2 ring-sky-500/80 group-hover:ring-sky-600 transition">
+                    <img id="headerLogoImg" src="./pictrure/logo.JPG" alt="Logo Ba Cô Khánh Hòa" class="site-header-logo w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shadow-sm ring-2 ring-sky-500/80 group-hover:ring-sky-600 transition">
                     <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
                 </div>
                 <div class="shrink-0">
@@ -422,19 +429,23 @@
             </a>
             <!-- Menu Desktop: Tươi sáng, thanh lịch -->
             <nav class="hidden lg:flex items-center justify-center flex-nowrap whitespace-nowrap gap-1.5 xl:gap-2.5 font-medium text-slate-600 text-xs xl:text-sm shrink min-w-0">
-                <a href="#about" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Câu chuyện</a>
-                <a href="#process" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Quy trình</a>
-                <a href="#gallery" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Bộ sưu tập</a>
-                <a href="#products" class="px-3.5 py-1.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200/80 font-bold transition">Sản phẩm</a>
-                <a href="#wholesale" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Mua sỉ & Đại lý</a>
-                <a href="#recipes" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Ẩm thực</a>
-                <a href="#reviews" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Đánh giá</a>
-                <a href="#faq" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Hỏi đáp</a>
+                <a href="#about" id="headerNav1" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Câu chuyện</a>
+                <a href="#process" id="headerNav2" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Quy trình</a>
+                <a href="#gallery" id="headerNav3" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Bộ sưu tập</a>
+                <a href="#products" id="headerNav4" class="px-3.5 py-1.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200/80 font-bold transition">Sản phẩm</a>
+                <a href="#wholesale" id="headerNav5" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Mua sỉ & Đại lý</a>
+                <a href="#recipes" id="headerNav6" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Ẩm thực</a>
+                <a href="#reviews" id="headerNav7" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Đánh giá</a>
+                <a href="#faq" id="headerNav8" class="px-3 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Hỏi đáp</a>
             </nav>
             <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+                <a id="headerHotlineBtn" href="tel:0985520678" class="site-hotline-link hidden sm:inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/90 text-xs font-bold transition shadow-2xs">
+                    <span>📞</span>
+                    <span id="headerHotlineText" class="site-hotline font-mono font-bold">0985 520 678</span>
+                </a>
                 <button onclick="toggleCart()" class="relative p-2 sm:p-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-900 transition flex items-center space-x-1.5 px-3 sm:px-3.5 text-xs sm:text-sm font-bold border border-sky-200 shadow-2xs active:scale-95 shrink-0">
                     <span>🛒</span>
-                    <span class="hidden sm:inline">Giỏ hàng</span>
+                    <span id="headerCartBtnText" class="hidden sm:inline">Giỏ hàng</span>
                     <span id="cartNavBadge" class="bg-amber-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow-2xs">0</span>
                 </button>
                 <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-xl bg-slate-100 text-slate-700 hover:text-sky-700 transition focus:outline-none shrink-0" aria-label="Mở Menu">
@@ -446,19 +457,19 @@
         </div>
         <!-- Mobile Dropdown Menu -->
         <div id="mobileMenu" class="hidden lg:hidden bg-white/98 backdrop-blur-xl border-b border-sky-100 shadow-xl px-4 py-3 space-y-1.5 font-medium text-slate-700 text-xs sm:text-sm">
-            <a href="#about" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition">1. Câu chuyện thương hiệu</a>
-            <a href="#process" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition">2. Quy trình 365 ngày</a>
-            <a href="#gallery" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition">3. Bộ sưu tập hình ảnh</a>
+            <a href="#about" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav1">1. Câu chuyện thương hiệu</span></a>
+            <a href="#process" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav2">2. Quy trình 365 ngày</span></a>
+            <a href="#gallery" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav3">3. Bộ sưu tập hình ảnh</span></a>
             <a href="#products" onclick="toggleMobileMenu()" class="block py-2.5 px-3 rounded-xl bg-sky-50 text-sky-800 font-bold flex items-center justify-between border border-sky-200/80">
-                <span>🛍️ 4. Sản phẩm đặc sản</span>
+                <span id="mobileNav4">🛍️ 4. Sản phẩm đặc sản</span>
                 <span class="text-[10px] bg-sky-600 text-white font-bold px-2 py-0.5 rounded-full">Trực tuyến</span>
             </a>
-            <a href="#wholesale" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition">5. Mua sỉ & Đại lý toàn quốc</a>
-            <a href="#recipes" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition">6. Góc ẩm thực gia đình</a>
-            <a href="#reviews" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition">7. Đánh giá khách hàng</a>
-            <a href="#faq" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition">8. Hỏi đáp thường gặp</a>
+            <a href="#wholesale" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav5">5. Mua sỉ & Đại lý toàn quốc</span></a>
+            <a href="#recipes" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav6">6. Góc ẩm thực gia đình</span></a>
+            <a href="#reviews" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav7">7. Đánh giá khách hàng</span></a>
+            <a href="#faq" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav8">8. Hỏi đáp thường gặp</span></a>
             <div class="pt-2 flex gap-2">
-                <button onclick="openCheckoutModal(); toggleMobileMenu();" class="btn-order-cta flex-1 py-2.5 px-3 rounded-xl text-white text-center font-bold shadow-md text-xs">⚡ Đặt mua ngay</button>
+                <button onclick="openCheckoutModal(); toggleMobileMenu();" class="site-header-cta-text btn-order-cta flex-1 py-2.5 px-3 rounded-xl text-white text-center font-bold shadow-md text-xs">⚡ Đặt mua ngay</button>
                 <a href="./products.html" class="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-700 text-center font-bold text-xs border border-slate-200">Xem catalog ➔</a>
             </div>
         </div>
@@ -2855,6 +2866,10 @@
         async function syncSiteAndProductsFromSheetOnHome() {
             const SHEET_ID = '1ZvX_-wHeoc6fcv43hW_Jj-blOagtsFJiazorJJ8pBBw';
             const VALID_CMS_KEYS = new Set([
+                'headerLogo', 'headerBrandName', 'headerBrandSlogan', 'headerTopNotice', 'headerHotline',
+                'headerCartText', 'headerCtaText',
+                'headerNav1', 'headerNav2', 'headerNav3', 'headerNav4',
+                'headerNav5', 'headerNav6', 'headerNav7', 'headerNav8',
                 'heroMainTitle', 'heroSubTitle', 'heroDesc', 'heroBgImg', 'heroProductImg',
                 'brandName', 'brandSlogan', 'brandPhone', 'brandAddress', 'brandEmail',
                 'pillar1Title', 'pillar1Desc', 'pillar1Img',
@@ -3589,6 +3604,62 @@
             if (!raw) return;
             try {
                 const c = JSON.parse(raw);
+
+                // ================= 0. HEADER / MENU / LOGO =================
+                // 1. Logo Header
+                if (c.headerLogo) {
+                    document.querySelectorAll('.site-header-logo').forEach(el => el.src = c.headerLogo);
+                }
+                // 2. Tên thương hiệu & Slogan Header (ưu tiên headerBrandName/Slogan, fallback brandName/Slogan)
+                const hBrand = c.headerBrandName || c.brandName;
+                if (hBrand) {
+                    document.querySelectorAll('.site-brand-name').forEach(el => el.textContent = hBrand);
+                }
+                const hSlogan = c.headerBrandSlogan || c.brandSlogan;
+                if (hSlogan) {
+                    document.querySelectorAll('.site-brand-slogan').forEach(el => el.textContent = hSlogan);
+                }
+                // 3. Thanh thông báo ưu đãi trên đỉnh (Top Announcement Bar)
+                const topNoticeBar = document.getElementById('headerTopNoticeBar');
+                const topNoticeText = document.getElementById('headerTopNoticeText');
+                if (topNoticeBar && topNoticeText) {
+                    const noticeVal = (c.headerTopNotice !== undefined) ? c.headerTopNotice.trim() : null;
+                    if (noticeVal !== null && noticeVal !== '' && noticeVal.toLowerCase() !== 'ẩn') {
+                        topNoticeText.textContent = noticeVal;
+                        topNoticeBar.classList.remove('hidden');
+                    } else if (noticeVal !== null && (noticeVal === '' || noticeVal.toLowerCase() === 'ẩn')) {
+                        topNoticeBar.classList.add('hidden');
+                    }
+                }
+                // 4. Hotline Header & Quick Links
+                const hPhone = c.headerHotline || c.brandPhone;
+                if (hPhone) {
+                    document.querySelectorAll('.site-hotline').forEach(el => el.textContent = hPhone);
+                    const cleanPhone = String(hPhone).replace(/[^0-9]/g, '');
+                    document.querySelectorAll('.site-hotline-link').forEach(el => el.href = `tel:${cleanPhone}`);
+                    document.querySelectorAll('.site-zalo-link').forEach(el => el.href = `https://zalo.me/${cleanPhone}`);
+                }
+                // 5. Chữ nút Giỏ Hàng
+                if (c.headerCartText) {
+                    const cartTxt = document.getElementById('headerCartBtnText');
+                    if (cartTxt) cartTxt.textContent = c.headerCartText;
+                }
+                // 6. Chữ nút Đặt Mua Nhanh Header
+                if (c.headerCtaText) {
+                    document.querySelectorAll('.site-header-cta-text').forEach(el => el.textContent = c.headerCtaText);
+                }
+                // 7. 8 Mục Menu điều hướng
+                for (let i = 1; i <= 8; i++) {
+                    const navKey = `headerNav${i}`;
+                    if (c[navKey]) {
+                        const dEl = document.getElementById(`headerNav${i}`);
+                        if (dEl) dEl.textContent = c[navKey];
+                        const mEl = document.getElementById(`mobileNav${i}`);
+                        if (mEl) mEl.textContent = `${i}. ${c[navKey]}`;
+                    }
+                }
+
+                // ================= 1. HERO BANNER =================
                 if (c.heroMainTitle) {
                     const el = document.getElementById('heroMainTitle');
                     if (el) el.innerHTML = `${c.heroMainTitle} <br><span class="bg-gradient-to-r from-amber-600 via-orange-500 to-amber-700 bg-clip-text text-transparent font-serif italic" id="heroSubTitle">${c.heroSubTitle || ''}</span>`;
@@ -3610,15 +3681,15 @@
                         el.src = c.heroProductImg;
                     }
                 }
-                // Brand Name & Slogan
-                if (c.brandName) {
+                // Brand Name & Slogan (fallback if not already set)
+                if (c.brandName && !c.headerBrandName) {
                     document.querySelectorAll('.site-brand-name').forEach(el => el.textContent = c.brandName);
                 }
-                if (c.brandSlogan) {
+                if (c.brandSlogan && !c.headerBrandSlogan) {
                     document.querySelectorAll('.site-brand-slogan').forEach(el => el.textContent = c.brandSlogan);
                 }
                 // Brand Phone & Hotline & Zalo
-                if (c.brandPhone) {
+                if (c.brandPhone && !c.headerHotline) {
                     document.querySelectorAll('.site-hotline').forEach(el => el.textContent = c.brandPhone);
                     document.querySelectorAll('.site-hotline-link').forEach(el => el.href = `tel:${c.brandPhone}`);
                     document.querySelectorAll('.site-zalo-link').forEach(el => el.href = `https://zalo.me/${c.brandPhone}`);
