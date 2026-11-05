@@ -568,11 +568,12 @@
         </div>
     </section>
 
-    <!-- About Section (3 Trụ Cột Tinh Hoa - Thiết kế Bento Grid Sáng Trong & Liền Khối) -->
-    <section id="about" class="py-12 sm:py-20 relative z-10 overflow-hidden">
+    <!-- About Section (3 Trụ Cột Tinh Hoa - Slide Layout Mượt Mà) -->
+    <section id="about" class="py-10 sm:py-16 lg:py-20 relative z-10 overflow-hidden">
         <div class="shape_animate_orb w-80 h-80 bg-sky-200/30 top-1/4 -left-20"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-12 gap-4 wow-reveal">
+            <!-- Header Section với nút điều hướng Slide -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-6 sm:mb-10 gap-4 wow-reveal">
                 <div class="space-y-2 max-w-xl">
                     <div class="inline-flex items-center space-x-2 bg-sky-50 text-sky-800 border border-sky-200/90 px-3.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-[0.2em]">
                         <span>✨ Tinh Hoa Nghề Biển Cam Ranh</span>
@@ -581,15 +582,26 @@
                         3 Trụ Cột Tạo Nên Giọt Ngọc
                     </h2>
                 </div>
-                <p class="text-slate-600 text-xs sm:text-sm max-w-md leading-relaxed font-normal">
-                    Không cầu kỳ hóa chất phụ gia, hương vị độc bản của Nước Mắm Ba Cô được kết tinh từ sự kiên định với 3 yếu tố tinh khiết nhất của đất trời biển đảo miền Trung.
-                </p>
+                <div class="flex items-center justify-between md:justify-end gap-3 max-w-md">
+                    <p class="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
+                        Không cầu kỳ hóa chất phụ gia, hương vị Ba Cô được kết tinh từ 3 tinh hoa biển đảo miền Trung.
+                    </p>
+                    <!-- Nút bấm điều hướng Slide (Lướt nhanh tiện lợi) -->
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button onclick="slidePillars(-1)" class="w-9 h-9 rounded-full bg-white border border-slate-200 text-slate-700 flex items-center justify-center shadow-xs active:scale-90 transition hover:bg-sky-50 hover:text-sky-700 hover:border-sky-300" aria-label="Slide trước">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+                        </button>
+                        <button onclick="slidePillars(1)" class="w-9 h-9 rounded-full bg-white border border-slate-200 text-slate-700 flex items-center justify-center shadow-xs active:scale-90 transition hover:bg-sky-50 hover:text-sky-700 hover:border-sky-300" aria-label="Slide tiếp theo">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <!-- 3 Trụ Cột Đồng Nhất Tỉ Lệ (3 Cột Cân Bằng Chuẩn Banner Cả Mobile & Desktop) -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-                <!-- Trụ Cột 1: Cá Cơm Than -->
-                <div class="group bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition duration-300 wow-reveal delay-100">
+            <!-- 3 Trụ Cột Dạng Slide (Vuốt mượt mà trên Mobile & Cân đối chuẩn tỉ lệ) -->
+            <div id="pillarsSlider" onscroll="updatePillarDots()" class="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 pt-1 -mx-4 px-4 no-scrollbar md:grid md:grid-cols-3 md:gap-6 md:mx-0 md:px-0 md:pb-0 scroll-smooth">
+                <!-- Slide 1: Cá Cơm Than -->
+                <div class="pillar-card min-w-[85vw] xs:min-w-[82vw] sm:min-w-[340px] md:min-w-0 md:w-auto shrink-0 md:shrink snap-center group bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition duration-300">
                     <div>
                         <!-- Header badge -->
                         <div class="flex items-center justify-between mb-3">
@@ -626,8 +638,8 @@
                     </div>
                 </div>
 
-                <!-- Trụ Cột 2: Muối Hạt Tinh Khiết -->
-                <div class="group bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-amber-300 transition duration-300 wow-reveal delay-200">
+                <!-- Slide 2: Muối Hạt Tinh Khiết -->
+                <div class="pillar-card min-w-[85vw] xs:min-w-[82vw] sm:min-w-[340px] md:min-w-0 md:w-auto shrink-0 md:shrink snap-center group bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-amber-300 transition duration-300">
                     <div>
                         <!-- Header badge -->
                         <div class="flex items-center justify-between mb-3">
@@ -664,8 +676,8 @@
                     </div>
                 </div>
 
-                <!-- Trụ Cột 3: Thùng Gỗ Bời Lời -->
-                <div class="group bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 transition duration-300 wow-reveal delay-300">
+                <!-- Slide 3: Thùng Gỗ Bời Lời -->
+                <div class="pillar-card min-w-[85vw] xs:min-w-[82vw] sm:min-w-[340px] md:min-w-0 md:w-auto shrink-0 md:shrink snap-center group bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 transition duration-300">
                     <div>
                         <!-- Header badge -->
                         <div class="flex items-center justify-between mb-3">
@@ -701,6 +713,13 @@
                         <span class="text-slate-400 font-normal">Chắt giọt mắm nhĩ</span>
                     </div>
                 </div>
+            </div>
+
+            <!-- Dots Phân Trang Slide (Hiển thị mượt mà trên Mobile & Tablet) -->
+            <div id="pillarDots" class="flex md:hidden items-center justify-center gap-2 pt-3">
+                <button onclick="goToPillarSlide(0)" class="pillar-dot h-2 w-6 rounded-full bg-sky-600 transition-all duration-300" aria-label="Chuyển sang Trụ cột 1"></button>
+                <button onclick="goToPillarSlide(1)" class="pillar-dot h-2 w-2 rounded-full bg-slate-300 transition-all duration-300" aria-label="Chuyển sang Trụ cột 2"></button>
+                <button onclick="goToPillarSlide(2)" class="pillar-dot h-2 w-2 rounded-full bg-slate-300 transition-all duration-300" aria-label="Chuyển sang Trụ cột 3"></button>
             </div>
         </div>
     </section>
@@ -2036,6 +2055,42 @@
                 toast.classList.add('toast-exit');
                 setTimeout(() => toast.remove(), 300);
             }, 3500);
+        }
+
+        // Điều khiển Slide cho 3 Trụ Cột Tinh Hoa
+        function slidePillars(direction) {
+            const container = document.getElementById('pillarsSlider');
+            if (!container) return;
+            const card = container.querySelector('.pillar-card');
+            const step = card ? card.offsetWidth + 16 : 320;
+            container.scrollBy({ left: direction * step, behavior: 'smooth' });
+        }
+
+        function goToPillarSlide(index) {
+            const container = document.getElementById('pillarsSlider');
+            if (!container) return;
+            const cards = container.querySelectorAll('.pillar-card');
+            if (cards[index]) {
+                cards[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+        }
+
+        function updatePillarDots() {
+            const container = document.getElementById('pillarsSlider');
+            if (!container) return;
+            const cards = container.querySelectorAll('.pillar-card');
+            if (!cards.length) return;
+            const scrollLeft = container.scrollLeft;
+            const cardWidth = cards[0].offsetWidth + 16;
+            const activeIndex = Math.min(cards.length - 1, Math.max(0, Math.round(scrollLeft / cardWidth)));
+            const dots = document.querySelectorAll('.pillar-dot');
+            dots.forEach((dot, idx) => {
+                if (idx === activeIndex) {
+                    dot.className = 'pillar-dot h-2 w-6 rounded-full bg-sky-600 transition-all duration-300';
+                } else {
+                    dot.className = 'pillar-dot h-2 w-2 rounded-full bg-slate-300 transition-all duration-300';
+                }
+            });
         }
 
         function toggleMobileMenu() {
