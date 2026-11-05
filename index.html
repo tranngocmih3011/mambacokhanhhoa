@@ -586,58 +586,89 @@
                 </p>
             </div>
 
-            <!-- Bento Grid 3 Trụ Cột (Clean White & Ocean Blue Cards) -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
-                <!-- Trụ Cột 1: Cá Cơm Than (Hero Bento Card - 7 Cột) -->
-                <div class="lg:col-span-7 group relative bg-white rounded-3xl overflow-hidden flex flex-col justify-between min-h-[360px] sm:min-h-[440px] border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition duration-500 wow-reveal delay-100">
-                    <div class="absolute inset-0 overflow-hidden">
-                        <img id="pillar1Img" src="./pictrure/1.jpg" alt="Cá Cơm Than Cam Ranh" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out opacity-90">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent"></div>
-                    </div>
-                    <div class="relative z-10 p-5 sm:p-7 flex justify-between items-start">
-                        <span class="inline-flex items-center space-x-1.5 bg-white/95 backdrop-blur-md text-sky-800 text-[11px] font-bold px-3 py-1 rounded-full border border-sky-200 shadow-sm">
-                            <span>01</span>
-                            <span>•</span>
-                            <span>Biển Cam Ranh</span>
-                        </span>
-                        <span class="w-10 h-10 rounded-full bg-white/95 backdrop-blur-md text-sky-800 flex items-center justify-center text-sm font-display font-bold border border-sky-200 shadow-sm">Ⅰ</span>
-                    </div>
-                    <div class="relative z-10 p-5 sm:p-7 space-y-2 text-white">
-                        <h3 id="pillar1Title" class="font-display font-bold text-xl sm:text-3xl text-white leading-tight">
+            <!-- 3 Trụ Cột Đồng Nhất Tỉ Lệ (3 Cột Cân Bằng Chuẩn Banner Cả Mobile & Desktop) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                <!-- Trụ Cột 1: Cá Cơm Than -->
+                <div class="group bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition duration-300 wow-reveal delay-100">
+                    <div>
+                        <!-- Header badge -->
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="inline-flex items-center space-x-1.5 bg-sky-50 text-sky-800 text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full border border-sky-200">
+                                <span>01</span>
+                                <span>•</span>
+                                <span>Biển Cam Ranh</span>
+                            </span>
+                            <span class="w-8 h-8 rounded-full bg-sky-100 text-sky-800 flex items-center justify-center text-xs font-display font-bold border border-sky-200">Ⅰ</span>
+                        </div>
+                        <!-- Ảnh chuẩn tỉ lệ đồng nhất -->
+                        <div class="h-44 sm:h-52 w-full rounded-xl sm:rounded-2xl overflow-hidden mb-3.5 relative bg-slate-100 border border-slate-200/60">
+                            <img id="pillar1Img" src="./pictrure/1.jpg" alt="Cá Cơm Than Cam Ranh" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/30 to-transparent"></div>
+                            <span class="absolute bottom-2.5 left-2.5 bg-white/95 backdrop-blur-md text-sky-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-sky-200/80 shadow-xs">
+                                🐟 Đánh bắt rạng đông
+                            </span>
+                        </div>
+                        <!-- Tiêu đề và mô tả -->
+                        <h3 id="pillar1Title" class="font-display font-bold text-lg sm:text-xl text-slate-900 group-hover:text-sky-700 transition">
                             Cá Cơm Than Tươi
                         </h3>
-                        <p id="pillar1Desc" class="text-slate-100 text-xs sm:text-sm leading-relaxed max-w-lg font-light">
+                        <p id="pillar1Desc" class="text-slate-600 text-xs sm:text-sm leading-relaxed mt-1.5 font-normal">
                             Đánh bắt rạng đông, chọn lọc từng mẻ cá cơm than béo múp, óng ánh tươi xanh và ướp muối ngay trên tàu để bảo toàn độ đạm nguyên bản.
                         </p>
                     </div>
+                    <!-- Chip đặc quyền phong cách Hero Ribbon -->
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-sky-700 font-semibold">
+                        <span class="flex items-center space-x-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+                            <span>Ướp muối boong tàu</span>
+                        </span>
+                        <span class="text-slate-400 font-normal">Tươi xanh 100%</span>
+                    </div>
                 </div>
 
-                <!-- 2 Card Phụ (5 Cột) -->
-                <div class="lg:col-span-5 flex flex-col gap-4 sm:gap-6">
-                    <!-- Trụ Cột 2: Muối Hạt Tinh Khiết -->
-                    <div class="group relative bg-white rounded-3xl overflow-hidden p-5 sm:p-6 flex flex-col justify-between min-h-[190px] sm:min-h-[210px] border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition duration-300 wow-reveal delay-200">
-                        <div class="flex items-center justify-between">
-                            <span class="inline-flex items-center space-x-1.5 bg-sky-50 text-sky-800 text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full border border-sky-200">
+                <!-- Trụ Cột 2: Muối Hạt Tinh Khiết -->
+                <div class="group bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-amber-300 transition duration-300 wow-reveal delay-200">
+                    <div>
+                        <!-- Header badge -->
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="inline-flex items-center space-x-1.5 bg-amber-50 text-amber-800 text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full border border-amber-200">
                                 <span>02</span>
                                 <span>•</span>
                                 <span>Tỉ Lệ Vàng 3:1</span>
                             </span>
-                            <span class="w-8 h-8 rounded-full bg-sky-100 text-sky-800 flex items-center justify-center text-xs font-display font-bold border border-sky-200">Ⅱ</span>
+                            <span class="w-8 h-8 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center text-xs font-display font-bold border border-amber-200">Ⅱ</span>
                         </div>
-                        <div class="space-y-1.5 pt-3">
-                            <h3 id="pillar2Title" class="font-display font-bold text-lg sm:text-xl text-slate-900 group-hover:text-sky-700 transition">
-                                Muối Hạt Trắng Tinh
-                            </h3>
-                            <p id="pillar2Desc" class="text-slate-600 text-xs leading-relaxed font-normal">
-                                Hạt muối tinh kết tinh từ nắng gắt miền Trung, lưu kho 12 tháng để xả hết vị chát gắt, giúp nước mắm có vị mặn đằm thắm dịu êm.
-                            </p>
+                        <!-- Ảnh chuẩn tỉ lệ đồng nhất -->
+                        <div class="h-44 sm:h-52 w-full rounded-xl sm:rounded-2xl overflow-hidden mb-3.5 relative bg-slate-100 border border-slate-200/60">
+                            <img id="pillar2Img" src="https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=800&q=80" alt="Muối Biển Tinh Khiết" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/30 to-transparent"></div>
+                            <span class="absolute bottom-2.5 left-2.5 bg-white/95 backdrop-blur-md text-amber-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-200/80 shadow-xs">
+                                🧂 Muối tinh xả chát
+                            </span>
                         </div>
-                        <img id="pillar2Img" src="./pictrure/1.jpg" alt="Muối Biển Tinh Khiết" class="hidden">
+                        <!-- Tiêu đề và mô tả -->
+                        <h3 id="pillar2Title" class="font-display font-bold text-lg sm:text-xl text-slate-900 group-hover:text-amber-700 transition">
+                            Muối Hạt Trắng Tinh
+                        </h3>
+                        <p id="pillar2Desc" class="text-slate-600 text-xs sm:text-sm leading-relaxed mt-1.5 font-normal">
+                            Hạt muối tinh kết tinh từ nắng gắt miền Trung, lưu kho 12 tháng để xả hết vị chát gắt, giúp nước mắm có vị mặn đằm thắm dịu êm.
+                        </p>
                     </div>
+                    <!-- Chip đặc quyền phong cách Hero Ribbon -->
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-amber-700 font-semibold">
+                        <span class="flex items-center space-x-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                            <span>3 Cá : 1 Muối biển</span>
+                        </span>
+                        <span class="text-slate-400 font-normal">Lưu kho 12 tháng</span>
+                    </div>
+                </div>
 
-                    <!-- Trụ Cột 3: Thùng Gỗ Bời Lời -->
-                    <div class="group relative bg-white rounded-3xl overflow-hidden p-5 sm:p-6 flex flex-col justify-between min-h-[190px] sm:min-h-[210px] border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition duration-300 wow-reveal delay-300">
-                        <div class="flex items-center justify-between">
+                <!-- Trụ Cột 3: Thùng Gỗ Bời Lời -->
+                <div class="group bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 transition duration-300 wow-reveal delay-300">
+                    <div>
+                        <!-- Header badge -->
+                        <div class="flex items-center justify-between mb-3">
                             <span class="inline-flex items-center space-x-1.5 bg-emerald-50 text-emerald-800 text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full border border-emerald-200">
                                 <span>03</span>
                                 <span>•</span>
@@ -645,15 +676,29 @@
                             </span>
                             <span class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs font-display font-bold border border-emerald-200">Ⅲ</span>
                         </div>
-                        <div class="space-y-1.5 pt-3">
-                            <h3 id="pillar3Title" class="font-display font-bold text-lg sm:text-xl text-slate-900 group-hover:text-emerald-700 transition">
-                                Ủy Nắng 12 Tháng
-                            </h3>
-                            <p id="pillar3Desc" class="text-slate-600 text-xs leading-relaxed font-normal">
-                                Gỗ bời lời giữ nhiệt hoàn hảo, kích thích men vi sinh tự nhiên hoạt động suốt 365 ngày dưới nắng ấm để chắt ra những giọt mắm nhĩ vàng óng.
-                            </p>
+                        <!-- Ảnh chuẩn tỉ lệ đồng nhất -->
+                        <div class="h-44 sm:h-52 w-full rounded-xl sm:rounded-2xl overflow-hidden mb-3.5 relative bg-slate-100 border border-slate-200/60">
+                            <img id="pillar3Img" src="https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&w=800&q=80" alt="Ủ Thùng Gỗ Bời Lời" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/30 to-transparent"></div>
+                            <span class="absolute bottom-2.5 left-2.5 bg-white/95 backdrop-blur-md text-emerald-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200/80 shadow-xs">
+                                🪵 Gỗ bời lời phơi nắng
+                            </span>
                         </div>
-                        <img id="pillar3Img" src="./pictrure/1.jpg" alt="Ủ Thùng Gỗ Bời Lời" class="hidden">
+                        <!-- Tiêu đề và mô tả -->
+                        <h3 id="pillar3Title" class="font-display font-bold text-lg sm:text-xl text-slate-900 group-hover:text-emerald-700 transition">
+                            Ủ Nắng 12 Tháng
+                        </h3>
+                        <p id="pillar3Desc" class="text-slate-600 text-xs sm:text-sm leading-relaxed mt-1.5 font-normal">
+                            Gỗ bời lời giữ nhiệt hoàn hảo, kích thích men vi sinh tự nhiên hoạt động suốt 365 ngày dưới nắng ấm để chắt ra những giọt mắm nhĩ vàng óng.
+                        </p>
+                    </div>
+                    <!-- Chip đặc quyền phong cách Hero Ribbon -->
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-emerald-700 font-semibold">
+                        <span class="flex items-center space-x-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span>Men vi sinh tự nhiên</span>
+                        </span>
+                        <span class="text-slate-400 font-normal">Chắt giọt mắm nhĩ</span>
                     </div>
                 </div>
             </div>
@@ -708,7 +753,7 @@
                                 <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Tỉ lệ 3:1</span>
                             </div>
                             <div class="h-28 sm:h-38 rounded-xl overflow-hidden mb-3 relative bg-slate-100">
-                                <img src="./pictrure/1.jpg" alt="Ướp Muối Boong Tàu" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
+                                <img src="https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=600&q=80" alt="Ướp Muối Boong Tàu" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
                             </div>
                             <h3 class="font-display font-bold text-xs sm:text-base text-slate-900 leading-snug mb-1 group-hover:text-sky-700 transition">
                                 Ướp Muối Boong Tàu
@@ -727,7 +772,7 @@
                                 <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">365 ngày</span>
                             </div>
                             <div class="h-28 sm:h-38 rounded-xl overflow-hidden mb-3 relative bg-slate-100">
-                                <img src="./pictrure/1.jpg" alt="Ủ Gỗ Tự Nhiên" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
+                                <img src="https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&w=600&q=80" alt="Ủ Gỗ Tự Nhiên" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
                             </div>
                             <h3 class="font-display font-bold text-xs sm:text-base text-slate-900 leading-snug mb-1 group-hover:text-sky-700 transition">
                                 Ủ Gỗ Tự Nhiên
@@ -746,7 +791,7 @@
                                 <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Giọt nhĩ đầu</span>
                             </div>
                             <div class="h-28 sm:h-38 rounded-xl overflow-hidden mb-3 relative bg-slate-100">
-                                <img src="./pictrure/1.jpg" alt="Chắt Lọc Đóng Chai" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
+                                <img src="./pictrure/prod_mamnhi43.jpg" alt="Chắt Lọc Đóng Chai" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
                             </div>
                             <h3 class="font-display font-bold text-xs sm:text-base text-slate-900 leading-snug mb-1 group-hover:text-sky-700 transition">
                                 Chắt Lọc Đóng Chai
