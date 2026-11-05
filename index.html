@@ -470,7 +470,7 @@
     </header>
 
     <!-- Hero Section (Phong cách Digitum Luxury Gradient Tươi Sáng - Chai Mắm Nổi Bật & Layout Thoáng Đãng Tinh Tế) -->
-    <section class="relative min-h-[560px] sm:min-h-[620px] lg:min-h-[700px] flex items-center justify-center pt-10 sm:pt-16 lg:pt-20 pb-6 sm:pb-8 lg:pb-10 overflow-hidden bg-gradient-to-br from-sky-50 via-white to-amber-50/70">
+    <section class="relative min-h-0 sm:min-h-[620px] lg:min-h-[700px] flex items-center justify-center pt-3 pb-6 sm:pt-16 sm:pb-8 lg:pt-20 lg:pb-10 overflow-hidden bg-gradient-to-br from-sky-50 via-white to-amber-50/70">
         <!-- Ảnh nền biển đảo Cam Ranh mờ nhẹ tinh tế tạo chiều sâu thị giác -->
         <div id="heroBgImg" class="absolute inset-0 bg-[url('./pictrure/banner_khanhhoa.jpg')] bg-cover bg-center opacity-10 mix-blend-multiply scale-105 transition-transform duration-1000"></div>
         <!-- Lớp phủ mesh gradient rực rỡ tươi mới -->
@@ -480,17 +480,17 @@
         <div class="shape_animate_orb w-[420px] lg:w-[500px] h-[420px] lg:h-[500px] bg-gradient-to-tr from-sky-400/25 via-blue-300/20 to-indigo-200/15 top-4 -left-12" style="filter: blur(80px);"></div>
         <div class="shape_animate_orb w-[480px] lg:w-[600px] h-[480px] lg:h-[600px] bg-gradient-to-br from-amber-400/30 via-orange-400/20 to-amber-200/30 -top-8 -right-8" style="animation-delay: -3.5s; filter: blur(80px);"></div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
-            <!-- CỘT BÊN TRÁI: NỘI DUNG CHỮ & NÚT ĐẶT HÀNG (CĂN CHỈNH SANG TRỌNG, THOÁNG ĐÃNG) -->
-            <div class="lg:col-span-6 space-y-5 sm:space-y-6 text-center lg:text-left wow-reveal wow-fade-left">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 lg:gap-14 items-center">
+            <!-- CỘT NỘI DUNG CHỮ & NÚT ĐẶT HÀNG (TRÊN MOBILE Ở DƯỚI CHAI MẮM, TRÊN DESKTOP Ở BÊN TRÁI) -->
+            <div class="order-2 lg:order-1 lg:col-span-6 space-y-3 sm:space-y-5 lg:space-y-6 text-center lg:text-left wow-reveal wow-fade-left">
                 <!-- Tagline đầu trang -->
-                <div class="inline-flex items-center space-x-2.5 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full text-xs font-bold border border-amber-300/80 shadow-xs">
-                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
-                    <span id="heroTagText" class="tracking-wide text-amber-900 font-extrabold text-[11px] sm:text-xs uppercase">✨ ĐẶC SẢN VỊNH CAM RANH • Ủ TRUYỀN THỐNG 12 THÁNG</span>
+                <div class="inline-flex items-center space-x-2 bg-white/90 backdrop-blur-md px-3 py-1 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold border border-amber-300/80 shadow-2xs">
+                    <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-500 animate-ping"></span>
+                    <span id="heroTagText" class="tracking-wide text-amber-900 font-extrabold uppercase">✨ ĐẶC SẢN VỊNH CAM RANH • Ủ TRUYỀN THỐNG 12 THÁNG</span>
                 </div>
                 
                 <!-- Tiêu đề chính -->
-                <h1 class="font-display text-3xl sm:text-5xl lg:text-6xl xl:text-[4rem] font-black leading-[1.14] tracking-tight text-slate-900" id="heroMainTitle">
+                <h1 class="font-display text-2xl sm:text-5xl lg:text-6xl xl:text-[4rem] font-black leading-[1.15] tracking-tight text-slate-900" id="heroMainTitle">
                     Giọt Ngọc Biển Khơi<br>
                     <span class="bg-gradient-to-r from-amber-600 via-orange-500 to-amber-700 bg-clip-text text-transparent font-serif italic drop-shadow-2xs" id="heroSubTitle">
                         Nước Mắm Nhĩ Thượng Hạng
@@ -498,42 +498,40 @@
                 </h1>
 
                 <!-- Đoạn mô tả giới thiệu -->
-                <p class="text-sm sm:text-base lg:text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal" id="heroDesc">
+                <p class="text-xs sm:text-base lg:text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal" id="heroDesc">
                     Chắt lọc từng giọt nước mắm nhĩ đầu tiên sánh vàng như mật ong biển, hương thơm dịu ấm, hậu vị ngọt sâu từ đạm cá tự nhiên qua 12 tháng ủ gỗ bời lời phơi nắng Cam Ranh.
                 </p>
 
-                <!-- Cụm nút hành động CTA chính -->
-                <div class="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                    <div class="flex items-center gap-3 w-full sm:w-auto">
-                        <button onclick="openCheckoutModal()" class="btn-order-cta shimmer-btn text-white font-extrabold px-8 sm:px-10 py-3.5 sm:py-4 rounded-2xl shadow-xl text-center transition active:scale-95 text-sm sm:text-base flex items-center justify-center space-x-2 flex-1 sm:flex-initial">
-                            <span class="text-lg">⚡</span>
-                            <span id="heroCtaText1">Đặt Mua Ngay</span>
-                        </button>
-                        <a href="#products" class="bg-white hover:bg-sky-50 text-sky-800 font-bold px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl text-center transition border border-sky-200 text-xs sm:text-sm active:scale-95 flex items-center justify-center space-x-1.5 shadow-xs flex-1 sm:flex-initial">
-                            <span id="heroCtaText2">Khám Phá Dòng Mắm</span>
-                            <span>↓</span>
-                        </a>
-                    </div>
+                <!-- Cụm nút hành động CTA chính (Thu nhỏ gọn gàng, cân đối hoàn hảo trên điện thoại) -->
+                <div class="pt-1 flex flex-row items-center justify-center lg:justify-start gap-2.5 sm:gap-4">
+                    <button onclick="openCheckoutModal()" class="btn-order-cta shimmer-btn text-white font-extrabold px-4 sm:px-8 lg:px-10 py-2.5 sm:py-3.5 lg:py-4 rounded-xl sm:rounded-2xl shadow-md text-center transition active:scale-95 text-xs sm:text-sm lg:text-base flex items-center justify-center space-x-1.5 shrink-0">
+                        <span class="text-sm sm:text-base">⚡</span>
+                        <span id="heroCtaText1">Đặt Mua Ngay</span>
+                    </button>
+                    <a href="#products" class="bg-white hover:bg-sky-50 text-sky-800 font-bold px-3.5 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 lg:py-4 rounded-xl sm:rounded-2xl text-center transition border border-sky-200 text-[11px] sm:text-xs lg:text-sm active:scale-95 flex items-center justify-center space-x-1 shadow-2xs shrink-0">
+                        <span id="heroCtaText2">Khám Phá</span>
+                        <span>↓</span>
+                    </a>
                 </div>
 
                 <!-- Đánh giá thực tế từ khách hàng (nhẹ nhàng, tinh tế) -->
-                <div class="pt-1 flex items-center justify-center lg:justify-start space-x-3 text-xs text-slate-600">
-                    <div class="flex text-amber-500 text-sm tracking-tight">★★★★★</div>
+                <div class="pt-0.5 flex items-center justify-center lg:justify-start space-x-2 text-[11px] sm:text-xs text-slate-600">
+                    <div class="flex text-amber-500 text-xs sm:text-sm tracking-tight">★★★★★</div>
                     <span class="font-bold text-slate-900">4.9/5</span>
                     <span class="text-slate-300">•</span>
                     <span>Hơn 1.200+ gia đình tin dùng trên toàn quốc</span>
                 </div>
             </div>
 
-            <!-- CỘT BÊN PHẢI: CHAI NƯỚC MẮM + CHÉN MẮM ỚT TÁCH NỀN TO NỔI BẬT ĐẬP HẲN VÀO MẮT (KHÔNG HỀ CÓ KHUNG) -->
-            <div class="lg:col-span-6 relative flex flex-col justify-center items-center wow-reveal wow-fade-right">
+            <!-- CỘT CHAI NƯỚC MẮM + CHÉN MẮM ỚT TÁCH NỀN (TRÊN MOBILE LÊN ĐẦU TIÊN ĐẬP VÀO MẮT, TRÊN DESKTOP Ở BÊN PHẢI) -->
+            <div class="order-1 lg:order-2 lg:col-span-6 relative flex flex-col justify-center items-center wow-reveal wow-fade-right">
                 <!-- Quầng sáng hổ phách ấm áp sau chai mắm và chén mắm -->
-                <div class="absolute -inset-6 sm:-inset-14 bg-gradient-to-tr from-amber-400/40 via-orange-400/30 to-sky-300/30 blur-3xl rounded-full pointer-events-none -z-10 animate-pulse" style="animation-duration: 4s;"></div>
+                <div class="absolute -inset-4 sm:-inset-14 bg-gradient-to-tr from-amber-400/40 via-orange-400/30 to-sky-300/30 blur-2xl sm:blur-3xl rounded-full pointer-events-none -z-10 animate-pulse" style="animation-duration: 4s;"></div>
 
-                <div class="relative w-full max-w-[340px] sm:max-w-[460px] lg:max-w-[560px] xl:max-w-[620px] flex flex-col items-center group">
+                <div class="relative w-full max-w-[280px] xs:max-w-[320px] sm:max-w-[440px] lg:max-w-[560px] xl:max-w-[620px] flex flex-col items-center group">
                     <!-- CHAI NƯỚC MẮM VÀ CHÉN NƯỚC MẮM ỚT TÁCH NỀN TRONG SUỐT (TO KHỔNG LỒ, ĐẬP HẲN VÀO MẮT, HOÀN TOÀN KHÔNG CÓ BẤT KỲ KHUNG NÀO) -->
-                    <div class="relative flex items-center justify-center w-full py-2">
-                        <img id="heroProductImg" src="./pictrure/hero_bottle_dish.png" alt="Chai Nước Mắm Nhĩ Ba Cô Khánh Hòa và Chén Mắm Ớt Tươi Tách Nền" class="w-full h-[420px] sm:h-[520px] lg:h-[620px] xl:h-[680px] object-contain filter drop-shadow-[0_22px_38px_rgba(15,23,42,0.18)] drop-shadow-[0_8px_20px_rgba(217,119,6,0.25)] transform hover:scale-105 hover:-rotate-1 transition-all duration-700 ease-out select-none">
+                    <div class="relative flex items-center justify-center w-full py-1 sm:py-2">
+                        <img id="heroProductImg" src="./pictrure/hero_bottle_dish.png" alt="Chai Nước Mắm Nhĩ Ba Cô Khánh Hòa và Chén Mắm Ớt Tươi Tách Nền" class="w-full h-[250px] xs:h-[280px] sm:h-[420px] lg:h-[620px] xl:h-[680px] object-contain filter drop-shadow-[0_16px_28px_rgba(15,23,42,0.18)] drop-shadow-[0_6px_16px_rgba(217,119,6,0.25)] transform hover:scale-105 hover:-rotate-1 transition-all duration-700 ease-out select-none">
                     </div>
                 </div>
             </div>
