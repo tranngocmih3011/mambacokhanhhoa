@@ -469,8 +469,8 @@
         </div>
     </header>
 
-    <!-- Hero Section (Phong cách Digitum Luxury Gradient Tươi Sáng - Chai Mắm Nổi Bật & Layout Thoáng Đãng Tinh Tế) -->
-    <section class="relative min-h-0 sm:min-h-[620px] lg:min-h-[700px] flex items-center justify-center pt-3 pb-6 sm:pt-16 sm:pb-8 lg:pt-20 lg:pb-10 overflow-hidden bg-gradient-to-br from-sky-50 via-white to-amber-50/70">
+    <!-- Hero Section (Phong cách Digitum Luxury Gradient Tươi Sáng - Chai Mắm Nổi Bật & Chuẩn UX Mobile Không Cần Cuộn) -->
+    <section class="relative min-h-0 sm:min-h-[620px] lg:min-h-[700px] flex items-center justify-center pt-2 pb-5 sm:pt-14 sm:pb-8 lg:pt-20 lg:pb-10 overflow-hidden bg-gradient-to-br from-sky-50 via-white to-amber-50/70">
         <!-- Ảnh nền biển đảo Cam Ranh mờ nhẹ tinh tế tạo chiều sâu thị giác -->
         <div id="heroBgImg" class="absolute inset-0 bg-[url('./pictrure/banner_khanhhoa.jpg')] bg-cover bg-center opacity-10 mix-blend-multiply scale-105 transition-transform duration-1000"></div>
         <!-- Lớp phủ mesh gradient rực rỡ tươi mới -->
@@ -480,24 +480,37 @@
         <div class="shape_animate_orb w-[420px] lg:w-[500px] h-[420px] lg:h-[500px] bg-gradient-to-tr from-sky-400/25 via-blue-300/20 to-indigo-200/15 top-4 -left-12" style="filter: blur(80px);"></div>
         <div class="shape_animate_orb w-[480px] lg:w-[600px] h-[480px] lg:h-[600px] bg-gradient-to-br from-amber-400/30 via-orange-400/20 to-amber-200/30 -top-8 -right-8" style="animation-delay: -3.5s; filter: blur(80px);"></div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 lg:gap-14 items-center">
-            <!-- CỘT NỘI DUNG CHỮ & NÚT ĐẶT HÀNG (CÂN ĐỐI HÀI HÒA DƯỚI CHAI MẮM TRÊN MOBILE, BÊN TRÁI TRÊN DESKTOP) -->
-            <div class="order-2 lg:order-1 lg:col-span-6 space-y-2.5 sm:space-y-4 lg:space-y-6 text-center lg:text-left wow-reveal wow-fade-left">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-8 lg:gap-14 items-center">
+            <!-- CỘT CHAI NƯỚC MẮM + CHÉN MẮM ỚT TÁCH NỀN (HIỂN THỊ ĐẦU TIÊN TRÊN MOBILE, BÊN PHẢI TRÊN DESKTOP) -->
+            <div class="order-1 lg:order-2 lg:col-span-6 relative flex flex-col justify-center items-center">
+                <!-- Quầng sáng hổ phách ấm áp sau chai mắm và chén mắm -->
+                <div class="absolute -inset-4 sm:-inset-14 bg-gradient-to-tr from-amber-400/40 via-orange-400/30 to-sky-300/30 blur-2xl sm:blur-3xl rounded-full pointer-events-none -z-10 animate-pulse" style="animation-duration: 4s;"></div>
+
+                <div class="relative w-full max-w-[280px] xs:max-w-[320px] sm:max-w-[420px] lg:max-w-[560px] xl:max-w-[620px] flex flex-col items-center group">
+                    <!-- CHAI NƯỚC MẮM VÀ CHÉN NƯỚC MẮM ỚT TÁCH NỀN TRONG SUỐT (TỈ LỆ VÀNG CHUẨN UX MOBILE) -->
+                    <div class="relative flex items-center justify-center w-full py-0.5 sm:py-2">
+                        <img id="heroProductImg" src="./pictrure/hero_bottle_dish.png" alt="Chai Nước Mắm Nhĩ Ba Cô Khánh Hòa và Chén Mắm Ớt Tươi Tách Nền" class="w-full h-[230px] xs:h-[260px] sm:h-[400px] lg:h-[580px] xl:h-[660px] object-contain filter drop-shadow-[0_16px_30px_rgba(15,23,42,0.16)] drop-shadow-[0_6px_16px_rgba(217,119,6,0.22)] transform hover:scale-105 hover:-rotate-1 transition-all duration-700 ease-out select-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- CỘT NỘI DUNG CHỮ & NÚT ĐẶT HÀNG (CÂN ĐỐI GỌN GÀNG DƯỚI CHAI TRÊN MOBILE, BÊN TRÁI TRÊN DESKTOP) -->
+            <div class="order-2 lg:order-1 lg:col-span-6 space-y-2 sm:space-y-4 lg:space-y-6 text-center lg:text-left">
                 <!-- Tiêu đề chính -->
-                <h1 class="font-display text-2xl xs:text-3xl sm:text-5xl lg:text-6xl xl:text-[4rem] font-black leading-tight tracking-tight text-slate-900" id="heroMainTitle">
+                <h1 class="font-display text-2xl xs:text-3xl sm:text-5xl lg:text-6xl xl:text-[3.8rem] font-black leading-tight tracking-tight text-slate-900" id="heroMainTitle">
                     Giọt Ngọc Biển Khơi<br>
                     <span class="bg-gradient-to-r from-amber-600 via-orange-500 to-amber-700 bg-clip-text text-transparent font-serif italic drop-shadow-2xs" id="heroSubTitle">
                         Nước Mắm Nhĩ Thượng Hạng
                     </span>
                 </h1>
 
-                <!-- Đoạn mô tả giới thiệu -->
+                <!-- Đoạn mô tả giới thiệu tinh gọn trên mobile -->
                 <p class="text-xs sm:text-base lg:text-lg text-slate-600 max-w-lg mx-auto lg:mx-0 leading-relaxed font-normal" id="heroDesc">
-                    Chắt lọc từng giọt nước mắm nhĩ đầu tiên sánh vàng như mật ong biển, hương thơm dịu ấm, hậu vị ngọt sâu từ đạm cá tự nhiên qua 12 tháng ủ gỗ bời lời phơi nắng Cam Ranh.
+                    Chắt lọc từng giọt mắm nhĩ đầu tiên sánh vàng như mật ong biển, hương thơm dịu ấm, hậu vị ngọt sâu từ đạm cá tự nhiên qua 12 tháng ủ gỗ bời lời Cam Ranh.
                 </p>
 
-                <!-- Cụm nút hành động CTA chính (Thiết kế thanh thoát, cân đối hoàn hảo) -->
-                <div class="pt-1.5 flex flex-row items-center justify-center lg:justify-start gap-2.5 sm:gap-4">
+                <!-- Cụm nút hành động CTA chính (Thanh thoát, vừa vặn không bị đẩy ra ngoài màn hình) -->
+                <div class="pt-1 flex flex-row items-center justify-center lg:justify-start gap-2.5 sm:gap-4">
                     <button onclick="openCheckoutModal()" class="btn-order-cta shimmer-btn text-white font-extrabold px-5 sm:px-8 lg:px-10 py-2.5 sm:py-3.5 lg:py-4 rounded-xl sm:rounded-2xl shadow-md text-center transition active:scale-95 text-xs sm:text-sm lg:text-base flex items-center justify-center space-x-1.5 shrink-0">
                         <span class="text-sm sm:text-base">⚡</span>
                         <span id="heroCtaText1">Đặt Mua Ngay</span>
@@ -508,73 +521,60 @@
                     </a>
                 </div>
 
-                <!-- Đánh giá thực tế từ khách hàng (nhẹ nhàng, tinh tế) -->
-                <div class="pt-0.5 flex items-center justify-center lg:justify-start space-x-2 text-[11px] sm:text-xs text-slate-600">
+                <!-- Đánh giá thực tế từ khách hàng -->
+                <div class="pt-0.5 flex items-center justify-center lg:justify-start space-x-2 text-[10px] xs:text-[11px] sm:text-xs text-slate-600">
                     <div class="flex text-amber-500 text-xs sm:text-sm tracking-tight">★★★★★</div>
                     <span class="font-bold text-slate-900">4.9/5</span>
                     <span class="text-slate-300">•</span>
-                    <span>Hơn 1.200+ gia đình tin dùng trên toàn quốc</span>
-                </div>
-            </div>
-
-            <!-- CỘT CHAI NƯỚC MẮM + CHÉN MẮM ỚT TÁCH NỀN (TO NỔI BẬT ĐẬP HẲN VÀO MẮT TRÊN MOBILE & DESKTOP) -->
-            <div class="order-1 lg:order-2 lg:col-span-6 relative flex flex-col justify-center items-center wow-reveal wow-fade-right">
-                <!-- Quầng sáng hổ phách ấm áp sau chai mắm và chén mắm -->
-                <div class="absolute -inset-4 sm:-inset-14 bg-gradient-to-tr from-amber-400/40 via-orange-400/30 to-sky-300/30 blur-2xl sm:blur-3xl rounded-full pointer-events-none -z-10 animate-pulse" style="animation-duration: 4s;"></div>
-
-                <div class="relative w-full max-w-[330px] xs:max-w-[380px] sm:max-w-[460px] lg:max-w-[580px] xl:max-w-[640px] flex flex-col items-center group">
-                    <!-- CHAI NƯỚC MẮM VÀ CHÉN NƯỚC MẮM ỚT TÁCH NỀN TRONG SUỐT (TO RÕ, ĐẬP HẲN VÀO MẮT) -->
-                    <div class="relative flex items-center justify-center w-full py-1 sm:py-2">
-                        <img id="heroProductImg" src="./pictrure/hero_bottle_dish.png" alt="Chai Nước Mắm Nhĩ Ba Cô Khánh Hòa và Chén Mắm Ớt Tươi Tách Nền" class="w-full h-[330px] xs:h-[370px] sm:h-[460px] lg:h-[620px] xl:h-[700px] object-contain filter drop-shadow-[0_18px_32px_rgba(15,23,42,0.18)] drop-shadow-[0_6px_18px_rgba(217,119,6,0.25)] transform hover:scale-105 hover:-rotate-1 transition-all duration-700 ease-out select-none">
-                    </div>
+                    <span>1.200+ gia đình tin dùng</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Dải thanh biểu tượng đặc quyền (Feature Heritage Ribbon) -->
-    <section class="py-3 sm:py-5 relative z-10 mt-1 sm:mt-2 lg:mt-3">
+    <!-- Dải thanh biểu tượng đặc quyền (Feature Heritage Ribbon - Tối ưu 2 cột thoáng đãng trên Mobile) -->
+    <section class="py-2.5 sm:py-5 relative z-10 mt-1 sm:mt-2 lg:mt-3">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-                <div class="wow-reveal delay-100 flex items-center space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-sky-300 hover:shadow-md transition">
-                    <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center text-lg shrink-0 border border-sky-100 font-bold">🐟</div>
-                    <div>
-                        <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight">Cá Cơm Than Sớm</h4>
-                        <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Tươi xanh • Muối boong tàu</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 xs:gap-3 sm:gap-4">
+                <div class="flex items-center space-x-2 xs:space-x-2.5 sm:space-x-3 p-2.5 xs:p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-sky-300 hover:shadow-md transition">
+                    <div class="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center text-base sm:text-lg shrink-0 border border-sky-100 font-bold">🐟</div>
+                    <div class="min-w-0 flex-1">
+                        <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight truncate">Cá Cơm Than</h4>
+                        <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate">Tươi xanh boong tàu</p>
                     </div>
                 </div>
-                <div class="wow-reveal delay-200 flex items-center space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-sky-300 hover:shadow-md transition">
-                    <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center text-lg shrink-0 border border-amber-100 font-bold">🪵</div>
-                    <div>
-                        <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight">Ủ Gỗ 12-15 Tháng</h4>
-                        <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Lên men tự nhiên phơi nắng</p>
+                <div class="flex items-center space-x-2 xs:space-x-2.5 sm:space-x-3 p-2.5 xs:p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-sky-300 hover:shadow-md transition">
+                    <div class="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center text-base sm:text-lg shrink-0 border border-amber-100 font-bold">🪵</div>
+                    <div class="min-w-0 flex-1">
+                        <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight truncate">Ủ Gỗ 12 Tháng</h4>
+                        <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate">Lên men tự nhiên</p>
                     </div>
                 </div>
-                <div class="wow-reveal delay-300 flex items-center space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-sky-300 hover:shadow-md transition">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-lg shrink-0 border border-emerald-100 font-bold">🛡️</div>
-                    <div>
-                        <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight">An Toàn Tuyệt Đối</h4>
-                        <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">0% hóa chất • 0% bảo quản</p>
+                <div class="flex items-center space-x-2 xs:space-x-2.5 sm:space-x-3 p-2.5 xs:p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-sky-300 hover:shadow-md transition">
+                    <div class="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-base sm:text-lg shrink-0 border border-emerald-100 font-bold">🛡️</div>
+                    <div class="min-w-0 flex-1">
+                        <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight truncate">An Toàn 100%</h4>
+                        <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate">0% chất bảo quản</p>
                     </div>
                 </div>
-                <div class="wow-reveal delay-400 flex items-center space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-sky-300 hover:shadow-md transition">
-                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center text-lg shrink-0 border border-blue-100 font-bold">🚚</div>
-                    <div>
-                        <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight">Ship COD Toàn Quốc</h4>
-                        <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Được kiểm tra mắm trước</p>
+                <div class="flex items-center space-x-2 xs:space-x-2.5 sm:space-x-3 p-2.5 xs:p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-sky-300 hover:shadow-md transition">
+                    <div class="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center text-base sm:text-lg shrink-0 border border-blue-100 font-bold">🚚</div>
+                    <div class="min-w-0 flex-1">
+                        <h4 class="font-bold text-slate-900 text-xs sm:text-sm leading-tight truncate">Ship COD Nhanh</h4>
+                        <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate">Kiểm tra mắm trước</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- About Section (3 Trụ Cột Tinh Hoa - Slide Layout Mượt Mà) -->
+    <!-- About Section (3 Trụ Cột Tinh Hoa - Slide Carousel Chuẩn UX Mobile) -->
     <section id="about" class="py-10 sm:py-16 lg:py-20 relative z-10 overflow-hidden">
         <div class="shape_animate_orb w-80 h-80 bg-sky-200/30 top-1/4 -left-20"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <!-- Header Section với nút điều hướng Slide -->
-            <div class="flex flex-col md:flex-row md:items-end justify-between mb-6 sm:mb-10 gap-4 wow-reveal">
-                <div class="space-y-2 max-w-xl">
+            <!-- Header Section với bố cục phân tầng chuẩn UX Mobile -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-5 sm:mb-10 gap-3 sm:gap-4 wow-reveal">
+                <div class="space-y-1.5 sm:space-y-2 max-w-xl">
                     <div class="inline-flex items-center space-x-2 bg-sky-50 text-sky-800 border border-sky-200/90 px-3.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-[0.2em]">
                         <span>✨ Tinh Hoa Nghề Biển Cam Ranh</span>
                     </div>
@@ -582,26 +582,26 @@
                         3 Trụ Cột Tạo Nên Giọt Ngọc
                     </h2>
                 </div>
-                <div class="flex items-center justify-between md:justify-end gap-3 max-w-md">
-                    <p class="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
-                        Không cầu kỳ hóa chất phụ gia, hương vị Ba Cô được kết tinh từ 3 tinh hoa biển đảo miền Trung.
+                <div class="flex items-center justify-between gap-3 max-w-md w-full md:w-auto pt-1 md:pt-0">
+                    <p class="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal flex-1">
+                        Không phụ gia hóa chất, Ba Cô kết tinh từ 3 tinh hoa tự nhiên của đất trời Cam Ranh.
                     </p>
-                    <!-- Nút bấm điều hướng Slide (Lướt nhanh tiện lợi) -->
+                    <!-- Nút bấm điều hướng Slide -->
                     <div class="flex items-center gap-1.5 shrink-0">
-                        <button onclick="slidePillars(-1)" class="w-9 h-9 rounded-full bg-white border border-slate-200 text-slate-700 flex items-center justify-center shadow-xs active:scale-90 transition hover:bg-sky-50 hover:text-sky-700 hover:border-sky-300" aria-label="Slide trước">
+                        <button onclick="slidePillars(-1)" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white border border-slate-200 text-slate-700 flex items-center justify-center shadow-xs active:scale-90 transition hover:bg-sky-50 hover:text-sky-700 hover:border-sky-300" aria-label="Slide trước">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
                         </button>
-                        <button onclick="slidePillars(1)" class="w-9 h-9 rounded-full bg-white border border-slate-200 text-slate-700 flex items-center justify-center shadow-xs active:scale-90 transition hover:bg-sky-50 hover:text-sky-700 hover:border-sky-300" aria-label="Slide tiếp theo">
+                        <button onclick="slidePillars(1)" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white border border-slate-200 text-slate-700 flex items-center justify-center shadow-xs active:scale-90 transition hover:bg-sky-50 hover:text-sky-700 hover:border-sky-300" aria-label="Slide tiếp theo">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- 3 Trụ Cột Dạng Slide (Vuốt mượt mà trên Mobile & Cân đối chuẩn tỉ lệ) -->
-            <div id="pillarsSlider" onscroll="updatePillarDots()" class="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 pt-1 -mx-4 px-4 no-scrollbar md:grid md:grid-cols-3 md:gap-6 md:mx-0 md:px-0 md:pb-0 scroll-smooth">
+            <!-- 3 Trụ Cột Dạng Slide (Snap-Start mượt mà, căn lề chuẩn 100% không lệch lề) -->
+            <div id="pillarsSlider" onscroll="updatePillarDots()" class="flex overflow-x-auto snap-x snap-mandatory scroll-pl-4 gap-3.5 sm:gap-6 pb-3 pt-1 -mx-4 px-4 no-scrollbar md:grid md:grid-cols-3 md:mx-0 md:px-0 md:pb-0 scroll-smooth">
                 <!-- Slide 1: Cá Cơm Than -->
-                <div class="pillar-card min-w-[85vw] xs:min-w-[82vw] sm:min-w-[340px] md:min-w-0 md:w-auto shrink-0 md:shrink snap-center group bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition duration-300">
+                <div class="pillar-card w-[84vw] max-w-[340px] md:w-auto shrink-0 md:shrink snap-start group bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition duration-300">
                     <div>
                         <!-- Header badge -->
                         <div class="flex items-center justify-between mb-3">
@@ -639,7 +639,7 @@
                 </div>
 
                 <!-- Slide 2: Muối Hạt Tinh Khiết -->
-                <div class="pillar-card min-w-[85vw] xs:min-w-[82vw] sm:min-w-[340px] md:min-w-0 md:w-auto shrink-0 md:shrink snap-center group bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-amber-300 transition duration-300">
+                <div class="pillar-card w-[84vw] max-w-[340px] md:w-auto shrink-0 md:shrink snap-start group bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-amber-300 transition duration-300">
                     <div>
                         <!-- Header badge -->
                         <div class="flex items-center justify-between mb-3">
@@ -677,7 +677,7 @@
                 </div>
 
                 <!-- Slide 3: Thùng Gỗ Bời Lời -->
-                <div class="pillar-card min-w-[85vw] xs:min-w-[82vw] sm:min-w-[340px] md:min-w-0 md:w-auto shrink-0 md:shrink snap-center group bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 transition duration-300">
+                <div class="pillar-card w-[84vw] max-w-[340px] md:w-auto shrink-0 md:shrink snap-start group bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col justify-between border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 transition duration-300">
                     <div>
                         <!-- Header badge -->
                         <div class="flex items-center justify-between mb-3">
@@ -716,11 +716,12 @@
             </div>
 
             <!-- Dots Phân Trang Slide (Hiển thị mượt mà trên Mobile & Tablet) -->
-            <div id="pillarDots" class="flex md:hidden items-center justify-center gap-2 pt-3">
+            <div id="pillarDots" class="flex md:hidden items-center justify-center gap-2 pt-2.5">
                 <button onclick="goToPillarSlide(0)" class="pillar-dot h-2 w-6 rounded-full bg-sky-600 transition-all duration-300" aria-label="Chuyển sang Trụ cột 1"></button>
                 <button onclick="goToPillarSlide(1)" class="pillar-dot h-2 w-2 rounded-full bg-slate-300 transition-all duration-300" aria-label="Chuyển sang Trụ cột 2"></button>
                 <button onclick="goToPillarSlide(2)" class="pillar-dot h-2 w-2 rounded-full bg-slate-300 transition-all duration-300" aria-label="Chuyển sang Trụ cột 3"></button>
             </div>
+            <div class="text-center text-[10px] text-slate-400 mt-1 md:hidden">👆 Vuốt ngang để xem đủ 3 trụ cột</div>
         </div>
     </section>
 
@@ -1987,7 +1988,7 @@
 
 
     <!-- Footer (European Luxury Atelier Style) -->
-    <footer class="relative liquid-glass bg-slate-950/90 text-slate-400 py-16 border-t border-white/10 overflow-hidden">
+    <footer class="relative liquid-glass bg-slate-950/90 text-slate-400 py-12 pb-28 lg:py-16 border-t border-white/10 overflow-hidden">
         <div class="ambient-orb w-80 h-80 bg-amber-500/10 -top-20 right-10"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-10 relative z-10">
             <div class="space-y-3.5 wow-reveal delay-100">
@@ -2071,7 +2072,7 @@
             if (!container) return;
             const cards = container.querySelectorAll('.pillar-card');
             if (cards[index]) {
-                cards[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                cards[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
             }
         }
 
