@@ -757,7 +757,7 @@
                 </div>
 
                 <!-- Segmented Control chọn mục nội dung (Ưu tiên Banner và Header lên đầu) -->
-                <div class="ios-segmented grid grid-cols-5 gap-1 sticky top-[49px] z-20">
+                <div class="ios-segmented grid grid-cols-5 gap-1 sticky top-12 sm:top-14 md:top-[93px] z-20">
                     <button type="button" onclick="switchCmsFolder('hero')" id="cmsFolderBtn-hero" class="cms-folder-btn active py-2 px-1 sm:px-2 rounded-lg text-xs font-semibold transition text-center ios-press">
                         Banner
                     </button>
@@ -991,37 +991,40 @@
                     <div id="cmsFolderPanel-pillars" class="hidden ios-card p-4 space-y-3">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div class="bg-[#F2F2F7]/70 p-3 rounded-xl space-y-2">
-                                <span class="text-xs font-semibold text-[#1c1c1e] block">Trụ cột 1</span>
+                                <span class="text-xs font-semibold text-[#1c1c1e] block">Trụ cột 1 (Cá Cơm Than)</span>
                                 <input type="text" id="cms_pillar1Title" placeholder="Tiêu đề" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs font-medium">
                                 <textarea id="cms_pillar1Desc" rows="2" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs"></textarea>
                                 <div class="flex items-center space-x-2">
                                     <img id="preview_cms_pillar1Img" src="./pictrure/1.jpg" class="w-12 h-12 rounded-lg object-cover border border-black/[0.08] shrink-0">
                                     <input type="file" id="file_cms_pillar1Img" accept="image/*" class="hidden" onchange="handleCmsImageSelect(event, 'pillar1Img')">
                                     <button type="button" onclick="document.getElementById('file_cms_pillar1Img').click()" class="flex-1 bg-white border border-black/[0.1] text-[#1c1c1e] text-xs font-medium py-1.5 rounded-lg ios-press">Đổi ảnh</button>
+                                    <button type="button" onclick="setPresetCmsImage('pillar1Img', './pictrure/1.jpg')" class="bg-white border border-black/[0.1] text-[#8E8E93] text-xs font-medium px-2 py-1.5 rounded-lg ios-press" title="Ảnh gốc">Ảnh gốc</button>
                                 </div>
                                 <input type="text" id="cms_pillar1Img" oninput="updateCmsPreviewFromInput('pillar1Img')" placeholder="Link ảnh..." class="w-full px-2 py-1 rounded-lg bg-white border border-black/[0.06] text-[10px] text-[#8E8E93]">
                             </div>
 
                             <div class="bg-[#F2F2F7]/70 p-3 rounded-xl space-y-2">
-                                <span class="text-xs font-semibold text-[#1c1c1e] block">Trụ cột 2</span>
+                                <span class="text-xs font-semibold text-[#1c1c1e] block">Trụ cột 2 (Muối Biển)</span>
                                 <input type="text" id="cms_pillar2Title" placeholder="Tiêu đề" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs font-medium">
                                 <textarea id="cms_pillar2Desc" rows="2" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs"></textarea>
                                 <div class="flex items-center space-x-2">
-                                    <img id="preview_cms_pillar2Img" src="./pictrure/1.jpg" class="w-12 h-12 rounded-lg object-cover border border-black/[0.08] shrink-0">
+                                    <img id="preview_cms_pillar2Img" src="./pictrure/pillar_salt.jpg" class="w-12 h-12 rounded-lg object-cover border border-black/[0.08] shrink-0">
                                     <input type="file" id="file_cms_pillar2Img" accept="image/*" class="hidden" onchange="handleCmsImageSelect(event, 'pillar2Img')">
                                     <button type="button" onclick="document.getElementById('file_cms_pillar2Img').click()" class="flex-1 bg-white border border-black/[0.1] text-[#1c1c1e] text-xs font-medium py-1.5 rounded-lg ios-press">Đổi ảnh</button>
+                                    <button type="button" onclick="setPresetCmsImage('pillar2Img', './pictrure/pillar_salt.jpg')" class="bg-white border border-black/[0.1] text-[#8E8E93] text-xs font-medium px-2 py-1.5 rounded-lg ios-press" title="Ảnh gốc">Ảnh gốc</button>
                                 </div>
                                 <input type="text" id="cms_pillar2Img" oninput="updateCmsPreviewFromInput('pillar2Img')" placeholder="Link ảnh..." class="w-full px-2 py-1 rounded-lg bg-white border border-black/[0.06] text-[10px] text-[#8E8E93]">
                             </div>
 
                             <div class="bg-[#F2F2F7]/70 p-3 rounded-xl space-y-2">
-                                <span class="text-xs font-semibold text-[#1c1c1e] block">Trụ cột 3</span>
+                                <span class="text-xs font-semibold text-[#1c1c1e] block">Trụ cột 3 (Thùng Gỗ Bời Lời)</span>
                                 <input type="text" id="cms_pillar3Title" placeholder="Tiêu đề" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs font-medium">
                                 <textarea id="cms_pillar3Desc" rows="2" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs"></textarea>
                                 <div class="flex items-center space-x-2">
-                                    <img id="preview_cms_pillar3Img" src="./pictrure/1.jpg" class="w-12 h-12 rounded-lg object-cover border border-black/[0.08] shrink-0">
+                                    <img id="preview_cms_pillar3Img" src="./pictrure/pillar_barrel.jpg" class="w-12 h-12 rounded-lg object-cover border border-black/[0.08] shrink-0">
                                     <input type="file" id="file_cms_pillar3Img" accept="image/*" class="hidden" onchange="handleCmsImageSelect(event, 'pillar3Img')">
                                     <button type="button" onclick="document.getElementById('file_cms_pillar3Img').click()" class="flex-1 bg-white border border-black/[0.1] text-[#1c1c1e] text-xs font-medium py-1.5 rounded-lg ios-press">Đổi ảnh</button>
+                                    <button type="button" onclick="setPresetCmsImage('pillar3Img', './pictrure/pillar_barrel.jpg')" class="bg-white border border-black/[0.1] text-[#8E8E93] text-xs font-medium px-2 py-1.5 rounded-lg ios-press" title="Ảnh gốc">Ảnh gốc</button>
                                 </div>
                                 <input type="text" id="cms_pillar3Img" oninput="updateCmsPreviewFromInput('pillar3Img')" placeholder="Link ảnh..." class="w-full px-2 py-1 rounded-lg bg-white border border-black/[0.06] text-[10px] text-[#8E8E93]">
                             </div>
@@ -1032,37 +1035,40 @@
                     <div id="cmsFolderPanel-recipes" class="hidden ios-card p-4 space-y-3">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div class="bg-[#F2F2F7]/70 p-3 rounded-xl space-y-2">
-                                <span class="text-xs font-semibold text-[#1c1c1e] block">Món ăn 1</span>
+                                <span class="text-xs font-semibold text-[#1c1c1e] block">Món ăn 1 (Thịt Kho Tộ)</span>
                                 <input type="text" id="cms_recipe1Title" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs font-medium">
                                 <textarea id="cms_recipe1Desc" rows="2" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs"></textarea>
                                 <div class="flex items-center space-x-2">
-                                    <img id="preview_cms_recipe1Img" src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80" class="w-12 h-12 rounded-lg object-cover border border-black/[0.08] shrink-0">
+                                    <img id="preview_cms_recipe1Img" src="./pictrure/recipe_thitkho.jpg" class="w-12 h-12 rounded-lg object-cover border border-black/[0.08] shrink-0">
                                     <input type="file" id="file_cms_recipe1Img" accept="image/*" class="hidden" onchange="handleCmsImageSelect(event, 'recipe1Img')">
                                     <button type="button" onclick="document.getElementById('file_cms_recipe1Img').click()" class="flex-1 bg-white border border-black/[0.1] text-[#1c1c1e] text-xs font-medium py-1.5 rounded-lg ios-press">Đổi ảnh</button>
+                                    <button type="button" onclick="setPresetCmsImage('recipe1Img', './pictrure/recipe_thitkho.jpg')" class="bg-white border border-black/[0.1] text-[#8E8E93] text-xs font-medium px-2 py-1.5 rounded-lg ios-press" title="Ảnh gốc">Ảnh gốc</button>
                                 </div>
                                 <input type="text" id="cms_recipe1Img" oninput="updateCmsPreviewFromInput('recipe1Img')" placeholder="Link ảnh..." class="w-full px-2 py-1 rounded-lg bg-white border border-black/[0.06] text-[10px] text-[#8E8E93]">
                             </div>
 
                             <div class="bg-[#F2F2F7]/70 p-3 rounded-xl space-y-2">
-                                <span class="text-xs font-semibold text-[#1c1c1e] block">Món ăn 2</span>
+                                <span class="text-xs font-semibold text-[#1c1c1e] block">Món ăn 2 (Mắm Tỏi Ớt)</span>
                                 <input type="text" id="cms_recipe2Title" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs font-medium">
                                 <textarea id="cms_recipe2Desc" rows="2" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs"></textarea>
                                 <div class="flex items-center space-x-2">
-                                    <img id="preview_cms_recipe2Img" src="https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=400&q=80" class="w-12 h-12 rounded-lg object-cover border border-black/[0.08] shrink-0">
+                                    <img id="preview_cms_recipe2Img" src="./pictrure/recipe_mamtoiot.jpg" class="w-12 h-12 rounded-lg object-cover border border-black/[0.08] shrink-0">
                                     <input type="file" id="file_cms_recipe2Img" accept="image/*" class="hidden" onchange="handleCmsImageSelect(event, 'recipe2Img')">
                                     <button type="button" onclick="document.getElementById('file_cms_recipe2Img').click()" class="flex-1 bg-white border border-black/[0.1] text-[#1c1c1e] text-xs font-medium py-1.5 rounded-lg ios-press">Đổi ảnh</button>
+                                    <button type="button" onclick="setPresetCmsImage('recipe2Img', './pictrure/recipe_mamtoiot.jpg')" class="bg-white border border-black/[0.1] text-[#8E8E93] text-xs font-medium px-2 py-1.5 rounded-lg ios-press" title="Ảnh gốc">Ảnh gốc</button>
                                 </div>
                                 <input type="text" id="cms_recipe2Img" oninput="updateCmsPreviewFromInput('recipe2Img')" placeholder="Link ảnh..." class="w-full px-2 py-1 rounded-lg bg-white border border-black/[0.06] text-[10px] text-[#8E8E93]">
                             </div>
 
                             <div class="bg-[#F2F2F7]/70 p-3 rounded-xl space-y-2">
-                                <span class="text-xs font-semibold text-[#1c1c1e] block">Món ăn 3</span>
+                                <span class="text-xs font-semibold text-[#1c1c1e] block">Món ăn 3 (Hải Sản Hấp)</span>
                                 <input type="text" id="cms_recipe3Title" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs font-medium">
                                 <textarea id="cms_recipe3Desc" rows="2" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-black/[0.06] text-xs"></textarea>
                                 <div class="flex items-center space-x-2">
-                                    <img id="preview_cms_recipe3Img" src="https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=400&q=80" class="w-12 h-12 rounded-lg object-cover border border-black/[0.08] shrink-0">
+                                    <img id="preview_cms_recipe3Img" src="./pictrure/recipe_haisan.jpg" class="w-12 h-12 rounded-lg object-cover border border-black/[0.08] shrink-0">
                                     <input type="file" id="file_cms_recipe3Img" accept="image/*" class="hidden" onchange="handleCmsImageSelect(event, 'recipe3Img')">
                                     <button type="button" onclick="document.getElementById('file_cms_recipe3Img').click()" class="flex-1 bg-white border border-black/[0.1] text-[#1c1c1e] text-xs font-medium py-1.5 rounded-lg ios-press">Đổi ảnh</button>
+                                    <button type="button" onclick="setPresetCmsImage('recipe3Img', './pictrure/recipe_haisan.jpg')" class="bg-white border border-black/[0.1] text-[#8E8E93] text-xs font-medium px-2 py-1.5 rounded-lg ios-press" title="Ảnh gốc">Ảnh gốc</button>
                                 </div>
                                 <input type="text" id="cms_recipe3Img" oninput="updateCmsPreviewFromInput('recipe3Img')" placeholder="Link ảnh..." class="w-full px-2 py-1 rounded-lg bg-white border border-black/[0.06] text-[10px] text-[#8E8E93]">
                             </div>
@@ -1070,7 +1076,7 @@
                     </div>
 
                     <div class="flex gap-2">
-                        <button type="button" onclick="saveSiteContentFromAdmin()" id="cmsSaveBtnMain" class="flex-1 bg-[#007AFF] text-white font-semibold py-3 rounded-xl transition text-xs sm:text-sm ios-press">
+                        <button type="button" onclick="saveSiteContentFromAdmin()" id="cmsSaveBtnMain" class="flex-1 bg-[#007AFF] hover:bg-[#0066CC] text-white font-semibold py-3 rounded-xl transition text-xs sm:text-sm ios-press">
                             Lưu & Đồng Bộ Nội Dung
                         </button>
                     </div>
@@ -1242,13 +1248,13 @@
                 
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Tên sản phẩm *</label>
-                    <input type="text" id="prodName" required placeholder="Ví dụ: Nước Mắm Nhĩ Thượng Hạng 40° Đạm" class="w-full px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200/80 text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none transition">
+                    <input type="text" id="prodName" required placeholder="Ví dụ: Nước Mắm Nhĩ Thượng Hạng 40° Đạm" class="w-full px-3.5 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none transition">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Dòng sản phẩm (Danh mục)</label>
-                        <select id="prodCategory" class="w-full px-3 py-2 rounded-xl bg-slate-100 border border-slate-200/80 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none font-semibold">
+                        <select id="prodCategory" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none font-semibold">
                             <option value="Mắm Nhĩ Thượng Hạng">🌟 Mắm Nhĩ Thượng Hạng</option>
                             <option value="Mắm Truyền Thống">🍳 Mắm Truyền Thống</option>
                             <option value="Quà Biếu VIP">🎁 Quà Biếu VIP</option>
@@ -1257,18 +1263,18 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Quy cách đóng gói</label>
-                        <input type="text" id="prodUnit" placeholder="Chai 500ml" class="w-full px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200/80 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <input type="text" id="prodUnit" placeholder="Chai 500ml" class="w-full px-3.5 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-3 gap-2.5">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Giá bán (VNĐ) *</label>
-                        <input type="number" id="prodPrice" required placeholder="180000" class="w-full px-3 py-2 rounded-xl bg-slate-100 border border-slate-200/80 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none font-bold text-amber-700">
+                        <input type="number" id="prodPrice" required placeholder="180000" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none font-bold text-amber-700">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Huy hiệu</label>
-                        <select id="prodTag" class="w-full px-2.5 py-2 rounded-xl bg-slate-100 border border-slate-200/80 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <select id="prodTag" class="w-full px-2.5 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
                             <option value="Đặc Biệt">Đặc Biệt</option>
                             <option value="Bán Chạy">Bán Chạy</option>
                             <option value="Phổ Biến">Phổ Biến</option>
@@ -1279,7 +1285,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Kho hàng</label>
-                        <select id="prodInStock" class="w-full px-2.5 py-2 rounded-xl bg-slate-100 border border-slate-200/80 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <select id="prodInStock" class="w-full px-2.5 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
                             <option value="true">🟢 Còn hàng</option>
                             <option value="false">🔴 Hết hàng</option>
                         </select>
@@ -1289,20 +1295,28 @@
                 <!-- Chọn ảnh trực tiếp từ thư viện điện thoại / máy tính -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Ảnh sản phẩm *</label>
-                    <div class="flex items-center space-x-3 bg-slate-50 p-2.5 rounded-2xl border border-slate-200/80">
-                        <div class="relative w-16 h-16 rounded-xl overflow-hidden bg-slate-200 border border-slate-300 flex-shrink-0 flex items-center justify-center shadow-inner">
-                            <img id="imagePreview" src="./pictrure/1.jpg" alt="Preview" class="w-full h-full object-cover">
+                    <div class="flex items-center space-x-3 bg-[#F2F2F7]/70 p-2.5 rounded-2xl border border-black/[0.06]">
+                        <div class="relative w-16 h-16 rounded-xl overflow-hidden bg-slate-200 border border-black/[0.08] flex-shrink-0 flex items-center justify-center shadow-inner">
+                            <img id="imagePreview" src="./pictrure/hero_bottle_large.jpg" alt="Preview" class="w-full h-full object-cover">
                         </div>
-                        <div class="flex-1 space-y-1">
+                        <div class="flex-1 space-y-1.5">
                             <input type="file" id="prodImageFileInput" accept="image/*" class="hidden" onchange="handleDeviceImageSelect(event)">
-                            <button type="button" onclick="document.getElementById('prodImageFileInput').click()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition shadow flex items-center space-x-1.5 ios-press">
+                            <button type="button" onclick="document.getElementById('prodImageFileInput').click()" class="bg-[#007AFF] hover:bg-[#0066CC] text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition shadow-xs flex items-center space-x-1.5 ios-press">
                                 <span>📷 Chọn ảnh từ máy tính / ĐT</span>
                             </button>
-                            <p class="text-[10px] text-slate-400">Hỗ trợ chọn ảnh từ máy/ĐT hoặc dán đường dẫn ảnh / link Google Drive:</p>
-                            <input type="text" id="prodImage" oninput="handleProdImageInput(this.value)" placeholder="./pictrure/1.jpg hoặc link web..." class="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] text-slate-700 focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono" value="./pictrure/1.jpg">
-                            <div class="pt-0.5">
-                                <button type="button" onclick="handleProdImageInput('./pictrure/1.jpg')" class="text-[10px] text-amber-800 hover:text-amber-950 font-bold bg-amber-100/70 hover:bg-amber-100 px-2 py-0.5 rounded-md transition">
-                                    🍾 Dùng chai mắm Ba Cô gốc (Nét 100%)
+                            <input type="text" id="prodImage" oninput="handleProdImageInput(this.value)" placeholder="./pictrure/hero_bottle_large.jpg hoặc link web..." class="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#007AFF] font-mono" value="./pictrure/hero_bottle_large.jpg">
+                            <div class="flex flex-wrap gap-1 pt-0.5">
+                                <button type="button" onclick="handleProdImageInput('./pictrure/hero_bottle_large.jpg')" class="text-[10px] text-sky-800 hover:bg-sky-100 font-semibold bg-sky-50 border border-sky-200 px-2 py-0.5 rounded-md transition ios-press">
+                                    🍾 Chai 40°N
+                                </button>
+                                <button type="button" onclick="handleProdImageInput('./pictrure/prod_mamnhi43.jpg')" class="text-[10px] text-amber-800 hover:bg-amber-100 font-semibold bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md transition ios-press">
+                                    ✨ Chai 43°N
+                                </button>
+                                <button type="button" onclick="handleProdImageInput('./pictrure/prod_hopqua.jpg')" class="text-[10px] text-rose-800 hover:bg-rose-100 font-semibold bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md transition ios-press">
+                                    🎁 Hộp Quà
+                                </button>
+                                <button type="button" onclick="handleProdImageInput('./pictrure/prod_can2l.jpg')" class="text-[10px] text-emerald-800 hover:bg-emerald-100 font-semibold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md transition ios-press">
+                                    🏡 Can 2L
                                 </button>
                             </div>
                         </div>
@@ -1311,14 +1325,14 @@
 
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Mô tả ngắn</label>
-                    <textarea id="prodDesc" rows="2" placeholder="Hương vị, công dụng, cách dùng..." class="w-full px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200/80 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none"></textarea>
+                    <textarea id="prodDesc" rows="2" placeholder="Hương vị, công dụng, cách dùng..." class="w-full px-3.5 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none"></textarea>
                 </div>
 
                 <div class="pt-1 flex gap-2.5">
                     <button type="button" onclick="closeProductModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-2xl text-sm transition ios-press">
                         Đóng
                     </button>
-                    <button type="submit" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2.5 rounded-2xl text-sm transition shadow-md ios-press">
+                    <button type="submit" class="flex-1 bg-[#007AFF] hover:bg-[#0066CC] text-white font-semibold py-2.5 rounded-2xl text-sm transition shadow-md ios-press">
                         💾 Lưu & Đồng Bộ Sheet
                     </button>
                 </div>
@@ -1341,7 +1355,7 @@
 
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Sản phẩm được đánh giá *</label>
-                    <select id="adminReviewProductSelect" required class="w-full px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-xs sm:text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    <select id="adminReviewProductSelect" required class="w-full px-3.5 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
                         <!-- Nạp động qua JS -->
                     </select>
                 </div>
@@ -1349,7 +1363,7 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Số sao chấm (1 - 5) *</label>
-                        <select id="adminReviewRating" required class="w-full px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-xs sm:text-sm font-bold text-amber-700 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <select id="adminReviewRating" required class="w-full px-3.5 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm font-bold text-amber-600 focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
                             <option value="5">★★★★★ 5 Sao (Xuất sắc)</option>
                             <option value="4">★★★★☆ 4 Sao (Rất tốt)</option>
                             <option value="3">★★★☆☆ 3 Sao (Ổn)</option>
@@ -1359,7 +1373,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Trạng thái hiển thị *</label>
-                        <select id="adminReviewStatus" required class="w-full px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-xs sm:text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <select id="adminReviewStatus" required class="w-full px-3.5 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
                             <option value="approved">🟢 Đã duyệt (Hiện trên web)</option>
                             <option value="pending">🟡 Chờ duyệt (Tạm ẩn)</option>
                         </select>
@@ -1369,34 +1383,34 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Tên khách hàng *</label>
-                        <input type="text" id="adminReviewName" required placeholder="Ví dụ: Chị Lan Anh" class="w-full px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <input type="text" id="adminReviewName" required placeholder="Ví dụ: Chị Lan Anh" class="w-full px-3.5 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Số điện thoại</label>
-                        <input type="tel" id="adminReviewPhone" placeholder="0985520678" class="w-full px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <input type="tel" id="adminReviewPhone" placeholder="0985520678" class="w-full px-3.5 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Khu vực / Tỉnh thành</label>
-                    <input type="text" id="adminReviewLocation" placeholder="TP. Hồ Chí Minh, Hà Nội, Nha Trang..." class="w-full px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    <input type="text" id="adminReviewLocation" placeholder="TP. Hồ Chí Minh, Hà Nội, Nha Trang..." class="w-full px-3.5 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Tiêu chí gắn kèm (phân cách bằng dấu phẩy)</label>
-                    <input type="text" id="adminReviewTags" placeholder="🐟 Mùi thơm cá cơm thật, 🍯 Hậu vị ngọt sâu" class="w-full px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    <input type="text" id="adminReviewTags" placeholder="🐟 Mùi thơm cá cơm thật, 🍯 Hậu vị ngọt sâu" class="w-full px-3.5 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Lời nhận xét chi tiết *</label>
-                    <textarea id="adminReviewComment" required rows="3" placeholder="Nội dung phản hồi của khách hàng từ Zalo, cuộc gọi hoặc tin nhắn..." class="w-full px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none"></textarea>
+                    <textarea id="adminReviewComment" required rows="3" placeholder="Nội dung phản hồi của khách hàng từ Zalo, cuộc gọi hoặc tin nhắn..." class="w-full px-3.5 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none"></textarea>
                 </div>
 
                 <div class="pt-1 flex gap-2.5">
                     <button type="button" onclick="closeAdminReviewModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-2xl text-sm transition ios-press">
                         Đóng
                     </button>
-                    <button type="submit" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2.5 rounded-2xl text-sm transition shadow-md ios-press">
+                    <button type="submit" class="flex-1 bg-[#007AFF] hover:bg-[#0066CC] text-white font-semibold py-2.5 rounded-2xl text-sm transition shadow-md ios-press">
                         💾 Lưu Đánh Giá
                     </button>
                 </div>
@@ -2519,7 +2533,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 price: 180000,
                 unit: "Chai Thủy Tinh 500ml",
                 tag: "Bán Chạy",
-                image: "./pictrure/1.jpg",
+                image: "./pictrure/hero_bottle_large.jpg",
                 desc: "Cốt nhĩ kéo rút đợt đầu tiên sánh đặc hổ phách, hậu vị ngọt sâu. Thích hợp chấm trực tiếp hoặc biếu tặng.",
                 inStock: true
             },
@@ -2530,7 +2544,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 price: 120000,
                 unit: "Chai 500ml",
                 tag: "Phổ Biến",
-                image: "./pictrure/1.jpg",
+                image: "./pictrure/hero_bottle_large.jpg",
                 desc: "Đậm đà vị cá cơm than Cam Ranh, lựa chọn hàng đầu cho chấm, ướp và kho nấu gia đình mỗi ngày.",
                 inStock: true
             },
@@ -2541,7 +2555,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 price: 380000,
                 unit: "Hộp 2 chai 500ml",
                 tag: "Combo Quà Biếu",
-                image: "./pictrure/1.jpg",
+                image: "./pictrure/prod_hopqua.jpg",
                 desc: "Hộp quà thiết kế sang trọng kèm túi xách lịch sự, món quà sức khỏe ý nghĩa tặng đối tác và người thân.",
                 inStock: true
             },
@@ -2552,7 +2566,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 price: 245000,
                 unit: "Chai Thủy Tinh 500ml",
                 tag: "Đặc Biệt",
-                image: "./pictrure/1.jpg",
+                image: "./pictrure/prod_mamnhi43.jpg",
                 desc: "Ủ chượp ròng rã 15 tháng trong thùng gỗ bời lời, đạm cá tự nhiên cao kỷ lục 43°N, thơm dịu sánh quyện.",
                 inStock: true
             },
@@ -2563,7 +2577,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 price: 225000,
                 unit: "Lốc 2 chai 500ml",
                 tag: "Tiết Kiệm",
-                image: "./pictrure/1.jpg",
+                image: "./pictrure/prod_hopqua.jpg",
                 desc: "Mua 2 chai tiết kiệm hơn cho gian bếp gia đình, vị mặn đằm hậu ngọt chuẩn mắm truyền thống Khánh Hòa.",
                 inStock: true
             },
@@ -2574,7 +2588,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 price: 290000,
                 unit: "Can 2 Lít",
                 tag: "Tiết Kiệm",
-                image: "./pictrure/1.jpg",
+                image: "./pictrure/prod_can2l.jpg",
                 desc: "Dung tích lớn siêu tiết kiệm chuyên dùng kho thịt, kho cá, nấu canh giúp món ăn dậy mùi thơm nức.",
                 inStock: true
             }
@@ -3090,6 +3104,19 @@ function dinhDangDongKhachSi(sheet, row) {
             }
         }
 
+        // Tự động nâng cấp ảnh sản phẩm mặc định từ ảnh cá cơm nguyên liệu cũ sang ảnh chai mắm thật
+        function upgradeLegacyProductImage(id, img) {
+            const raw = (img || '').trim();
+            if (!raw || raw === './pictrure/1.jpg') {
+                if (id === 'prod_1' || id === 'prod_2') return './pictrure/hero_bottle_large.jpg';
+                if (id === 'prod_3' || id === 'prod_5') return './pictrure/prod_hopqua.jpg';
+                if (id === 'prod_4') return './pictrure/prod_mamnhi43.jpg';
+                if (id === 'prod_6') return './pictrure/prod_can2l.jpg';
+                return './pictrure/hero_bottle_large.jpg';
+            }
+            return raw;
+        }
+
         // Đồng bộ tải Sản Phẩm (tab SanPham) và Nội Dung Web (tab NoiDungWeb) từ Google Sheet nếu có
         async function fetchSiteAndProductsFromSheet(silent = true) {
             let hasSheetContent = false;
@@ -3113,6 +3140,21 @@ function dinhDangDongKhachSi(sheet, row) {
                         let v = c[1] && c[1].v !== null && c[1].v !== undefined ? String(c[1].v) : '';
                         if (k === 'heroBgImg' && v.includes('photo-1507525428034-b723cf961d3e')) {
                             v = './pictrure/banner_khanhhoa.jpg';
+                        }
+                        if (k === 'pillar2Img' && (v === './pictrure/1.jpg' || v.includes('unsplash.com'))) {
+                            v = './pictrure/pillar_salt.jpg';
+                        }
+                        if (k === 'pillar3Img' && (v === './pictrure/1.jpg' || v.includes('unsplash.com'))) {
+                            v = './pictrure/pillar_barrel.jpg';
+                        }
+                        if (k === 'recipe1Img' && v.includes('unsplash.com')) {
+                            v = './pictrure/recipe_thitkho.jpg';
+                        }
+                        if (k === 'recipe2Img' && v.includes('unsplash.com')) {
+                            v = './pictrure/recipe_mamtoiot.jpg';
+                        }
+                        if (k === 'recipe3Img' && v.includes('unsplash.com')) {
+                            v = './pictrure/recipe_haisan.jpg';
                         }
                         if (k && k in DEFAULT_SITE_CONTENT) {
                             sheetContent[k] = v;
@@ -3156,7 +3198,7 @@ function dinhDangDongKhachSi(sheet, row) {
                             tag: String(getVal(5) || 'Đặc Biệt'),
                             inStock: inStock,
                             desc: String(getVal(7) || ''),
-                            image: String(getVal(8) || './pictrure/1.jpg')
+                            image: upgradeLegacyProductImage(id, String(getVal(8) || ''))
                         });
                     }
                     if (sheetProds.length > 0) {
@@ -3336,6 +3378,14 @@ function dinhDangDongKhachSi(sheet, row) {
             if (storedProds) {
                 try {
                     products = JSON.parse(storedProds);
+                    let imgUpgraded = false;
+                    products.forEach(p => {
+                        const upImg = upgradeLegacyProductImage(p.id, p.image);
+                        if (upImg !== p.image) {
+                            p.image = upImg;
+                            imgUpgraded = true;
+                        }
+                    });
                     if (!localStorage.getItem('baco_products_v2_upgraded') && products.length <= 3) {
                         const existingIds = new Set(products.map(p => p.id));
                         products.forEach(p => {
@@ -3350,6 +3400,8 @@ function dinhDangDongKhachSi(sheet, row) {
                         });
                         localStorage.setItem('baco_products', JSON.stringify(products));
                         localStorage.setItem('baco_products_v2_upgraded', 'true');
+                    } else if (imgUpgraded) {
+                        localStorage.setItem('baco_products', JSON.stringify(products));
                     }
                 } catch (e) { products = DEFAULT_PRODUCTS; }
             } else {
@@ -4164,7 +4216,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 if (isSelected) {
                     btn.className = "prod-cat-pill shrink-0 px-3 py-1.5 rounded-xl font-bold bg-slate-900 text-white transition ios-press shadow-xs";
                 } else {
-                    btn.className = "prod-cat-pill shrink-0 px-3 py-1.5 rounded-xl font-medium bg-white hover:bg-amber-50 text-slate-700 border border-slate-200 transition ios-press";
+                    btn.className = "prod-cat-pill shrink-0 px-3 py-1.5 rounded-xl font-medium bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 transition ios-press";
                 }
             });
             renderProducts();
@@ -4360,15 +4412,16 @@ function dinhDangDongKhachSi(sheet, row) {
                 if (catSelect) catSelect.value = prod.category || 'Mắm Nhĩ Thượng Hạng';
                 document.getElementById('prodTag').value = prod.tag || 'Đặc Biệt';
                 document.getElementById('prodInStock').value = prod.inStock ? "true" : "false";
-                prodImgInput.value = prod.image || './pictrure/1.jpg';
-                imgPreview.src = prod.image || './pictrure/1.jpg';
+                const resolvedImg = upgradeLegacyProductImage(prod.id, prod.image);
+                prodImgInput.value = resolvedImg;
+                imgPreview.src = resolvedImg;
                 document.getElementById('prodDesc').value = prod.desc || '';
             } else {
                 titleEl.textContent = '➕ Thêm Sản Phẩm Mới';
                 editIdEl.value = '';
                 if (catSelect) catSelect.value = 'Mắm Nhĩ Thượng Hạng';
-                prodImgInput.value = './pictrure/1.jpg';
-                imgPreview.src = './pictrure/1.jpg';
+                prodImgInput.value = './pictrure/hero_bottle_large.jpg';
+                imgPreview.src = './pictrure/hero_bottle_large.jpg';
             }
 
             document.getElementById('productModal').classList.remove('hidden');
@@ -4414,7 +4467,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 unit: document.getElementById('prodUnit').value.trim() || 'Chai 500ml',
                 tag: document.getElementById('prodTag').value,
                 inStock: document.getElementById('prodInStock').value === "true",
-                image: document.getElementById('prodImage').value.trim() || './pictrure/1.jpg',
+                image: document.getElementById('prodImage').value.trim() || './pictrure/hero_bottle_large.jpg',
                 desc: document.getElementById('prodDesc').value.trim()
             };
 
@@ -5261,7 +5314,7 @@ function dinhDangDongKhachSi(sheet, row) {
                 if (String(s) === String(star)) {
                     btn.className = "review-star-filter-btn px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-900 text-white shrink-0";
                 } else {
-                    btn.className = "review-star-filter-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 text-slate-700 hover:bg-amber-50 shrink-0";
+                    btn.className = "review-star-filter-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0";
                 }
             });
             renderAdminReviews();
@@ -5483,19 +5536,19 @@ function dinhDangDongKhachSi(sheet, row) {
             pillar1Img: './pictrure/1.jpg',
             pillar2Title: 'Muối Hạt Trắng Tinh',
             pillar2Desc: 'Hạt muối tinh kết tinh từ nắng gắt miền Trung, lưu kho 12 tháng để xả hết vị chát gắt, giúp nước mắm có vị mặn đằm thắm dịu êm.',
-            pillar2Img: './pictrure/1.jpg',
+            pillar2Img: './pictrure/pillar_salt.jpg',
             pillar3Title: 'Ủ nắng 12 Tháng',
             pillar3Desc: 'Gỗ bời lời giữ nhiệt hoàn hảo, kích thích men vi sinh tự nhiên hoạt động suốt 365 ngày dưới nắng ấm để chắt ra những giọt mắm nhĩ vàng óng.',
-            pillar3Img: './pictrure/1.jpg',
+            pillar3Img: './pictrure/pillar_barrel.jpg',
             recipe1Title: 'Thịt Kho Tộ Cánh Gián',
             recipe1Desc: 'Mắm nhĩ 40° đạm giúp thịt săn chắc, lên màu cánh gián tự nhiên không cần nước màu, thơm lừng bốc khói ngút ngàn.',
-            recipe1Img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
+            recipe1Img: './pictrure/recipe_thitkho.jpg',
             recipe2Title: 'Chén Mắm Tỏi Ớt Chua Ngọt',
             recipe2Desc: 'Mắm nhĩ cốt sánh vàng làm tỏi ớt nổi bồng bềnh đẹp mắt, vị chua cay mặn ngọt đằm thắm chấm gỏi cuốn hay bánh xèo đều đỉnh.',
-            recipe2Img: 'https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=800&q=80',
+            recipe2Img: './pictrure/recipe_mamtoiot.jpg',
             recipe3Title: 'Hải Sản Hấp Chấm Mắm Nhĩ',
             recipe3Desc: 'Chấm trực tiếp giọt mắm nhĩ nguyên chất dằm thêm quả ớt xiêm rừng, tôn trọn vẹn vị tươi ngọt tự nhiên của tôm cá mực biển.',
-            recipe3Img: 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=800&q=80'
+            recipe3Img: './pictrure/recipe_haisan.jpg'
         };
 
         // Chuyển đổi giữa 5 thư mục nội dung phía trên (không cần lướt xuống)
@@ -5574,8 +5627,33 @@ function dinhDangDongKhachSi(sheet, row) {
                 const stored = localStorage.getItem('baco_site_content');
                 if (stored) {
                     data = Object.assign({}, DEFAULT_SITE_CONTENT, JSON.parse(stored));
+                    let sanitized = false;
                     if (data.heroBgImg && data.heroBgImg.includes('photo-1507525428034-b723cf961d3e')) {
                         data.heroBgImg = './pictrure/banner_khanhhoa.jpg';
+                        sanitized = true;
+                    }
+                    if (data.pillar2Img && (data.pillar2Img === './pictrure/1.jpg' || data.pillar2Img.includes('unsplash.com'))) {
+                        data.pillar2Img = './pictrure/pillar_salt.jpg';
+                        sanitized = true;
+                    }
+                    if (data.pillar3Img && (data.pillar3Img === './pictrure/1.jpg' || data.pillar3Img.includes('unsplash.com'))) {
+                        data.pillar3Img = './pictrure/pillar_barrel.jpg';
+                        sanitized = true;
+                    }
+                    if (data.recipe1Img && data.recipe1Img.includes('unsplash.com')) {
+                        data.recipe1Img = './pictrure/recipe_thitkho.jpg';
+                        sanitized = true;
+                    }
+                    if (data.recipe2Img && data.recipe2Img.includes('unsplash.com')) {
+                        data.recipe2Img = './pictrure/recipe_mamtoiot.jpg';
+                        sanitized = true;
+                    }
+                    if (data.recipe3Img && data.recipe3Img.includes('unsplash.com')) {
+                        data.recipe3Img = './pictrure/recipe_haisan.jpg';
+                        sanitized = true;
+                    }
+                    if (sanitized) {
+                        localStorage.setItem('baco_site_content', JSON.stringify(data));
                     }
                 }
             } catch(e) {}
