@@ -15,8 +15,6 @@
     <link rel="preload" as="image" href="./pictrure/hero_bottle_dish.webp" fetchpriority="high">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Precompiled Tailwind CSS (thay thế CDN runtime JS -> tải trang tức thì) -->
-    <link rel="stylesheet" href="./assets/index.css">
     <!-- Hệ thống bảo mật & Chống xem mã nguồn F12 -->
     <script src="./security.js" defer></script>
     <!-- Google Fonts: 100% Thuần Việt (Be Vietnam Pro & Playfair Display Vietnamese Subset) -->
@@ -292,6 +290,8 @@
             transition: background-color 5000s ease-in-out 0s;
         }
     </style>
+    <!-- Precompiled Tailwind CSS (đặt sau <style> để giữ đúng thứ tự ưu tiên như Tailwind CDN) -->
+    <link rel="stylesheet" href="./assets/index.css">
 </head>
 <body class="font-sans liquid-canvas text-slate-800 antialiased selection:bg-sky-500 selection:text-white pb-24 lg:pb-0 relative min-h-screen overflow-x-hidden">
 
@@ -2025,7 +2025,7 @@
 
 
     <!-- Footer (European Luxury Atelier Style) -->
-    <footer class="relative liquid-glass bg-slate-950/90 text-slate-400 py-12 pb-28 lg:py-16 border-t border-white/10 overflow-hidden">
+    <footer class="relative bg-slate-950 backdrop-blur-md text-slate-300 py-12 pb-28 lg:py-16 border-t border-white/10 overflow-hidden">
         <div class="ambient-orb w-80 h-80 bg-amber-500/10 -top-20 right-10"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-10 relative z-10">
             <div class="space-y-3.5 wow-reveal delay-100">

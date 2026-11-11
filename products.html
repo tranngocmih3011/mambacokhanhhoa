@@ -14,8 +14,6 @@
     <!-- Preconnect Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Precompiled Tailwind CSS (tải tức thì, không chặn render) -->
-    <link rel="stylesheet" href="./assets/products.css">
     <!-- Hệ thống bảo mật & Chống xem mã nguồn F12 -->
     <script src="./security.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap&subset=vietnamese,latin-ext" rel="stylesheet">
@@ -53,6 +51,8 @@
         }
         .toast-enter { animation: toastIn 0.25s ease-out forwards; }
     </style>
+    <!-- Precompiled Tailwind CSS (đặt sau <style> để giữ đúng thứ tự ưu tiên) -->
+    <link rel="stylesheet" href="./assets/products.css">
 </head>
 <body class="bg-gradient-to-b from-sky-50/40 via-white to-sky-50/30 text-slate-800 font-sans antialiased pb-20 lg:pb-0">
 

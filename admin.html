@@ -20,8 +20,6 @@
     <meta name="theme-color" content="#f2f2f7">
     <meta name="mobile-web-app-capable" content="yes">
 
-    <!-- Precompiled Tailwind CSS -->
-    <link rel="stylesheet" href="./assets/admin.css">
     <!-- Hệ thống bảo mật & Chống xem mã nguồn F12 -->
     <script src="./security.js" defer></script>
     <!-- Chart.js CDN cho biểu đồ doanh số -->
@@ -221,6 +219,8 @@
             display: none;
         }
     </style>
+    <!-- Precompiled Tailwind CSS (đặt sau <style> để giữ đúng thứ tự ưu tiên) -->
+    <link rel="stylesheet" href="./assets/admin.css">
 </head>
 <body class="bg-iosBg text-[#1c1c1e] antialiased min-h-screen flex flex-col pb-safe-bottom">
 
