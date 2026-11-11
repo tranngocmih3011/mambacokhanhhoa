@@ -142,6 +142,11 @@ function doPost(e) {
     var action = data.action || "";
     var nowStr = data.timestamp || new Date().toLocaleString("vi-VN");
 
+    // XÁC THỰC QUẢN TRỊ VIÊN PHÍA MÁY CHỦ (TỪ CLOUDFLARE MIDDLEWARE)
+    if (action === "verify_admin") {
+      return handleVerifyAdmin_(data, nowStr);
+    }
+
     // ========================================================
     // TẦNG BẢO VỆ CHỐNG BOT SPAM & CÀO DỮ LIỆU (ANTI-BOT & RATE LIMIT)
     // ========================================================
@@ -1131,4 +1136,369 @@ function sendServerWebPush(d, code, type) {
     Logger.log("Lỗi sendServerWebPush: " + e.toString());
   }
 }
+
+// ========================================================
+// HỆ THỐNG BẢO MẬT & XÁC THỰC QUẢN TRỊ QUA GOOGLE SHEET
+// - Tài khoản quản trị nằm trong tab "QuanTriVien" (hoặc 1 file Google Sheet riêng tư qua AUTH_SPREADSHEET_ID)
+// - Mật khẩu được băm 500 vòng SHA-256 + Salt ngẫu nhiên + AUTH_PEPPER (chỉ lưu trong Script Properties)
+// - Nhật ký mọi lần đăng nhập được lưu tại tab "NhatKyDangNhap"
+// ========================================================
+
+function bytesToHex_(bytes) {
+  var hex = [];
+  for (var i = 0; i < bytes.length; i++) {
+    var b = bytes[i] & 0xff;
+    hex.push((b < 16 ? "0" : "") + b.toString(16));
+  }
+  return hex.join("");
+}
+
+function sha256Hex_(text) {
+  return bytesToHex_(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(text || ""), Utilities.Charset.UTF_8));
+}
+
+function constantTimeEqual_(a, b) {
+  var sa = String(a || "");
+  var sb = String(b || "");
+  var diff = sa.length ^ sb.length;
+  var len = Math.max(sa.length, sb.length);
+  for (var i = 0; i < len; i++) {
+    diff |= (sa.charCodeAt(i) || 0) ^ (sb.charCodeAt(i) || 0);
+  }
+  return diff === 0;
+}
+
+function getOrCreateSecurityProps_() {
+  var props = PropertiesService.getScriptProperties();
+  var changed = {};
+  var authKey = props.getProperty("INTERNAL_AUTH_KEY");
+  if (!authKey) {
+    authKey = sha256Hex_(Utilities.getUuid() + ":" + Date.now() + ":authkey");
+    changed.INTERNAL_AUTH_KEY = authKey;
+  }
+  var pepper = props.getProperty("AUTH_PEPPER");
+  if (!pepper) {
+    pepper = sha256Hex_(Utilities.getUuid() + ":" + Math.random() + ":pepper");
+    changed.AUTH_PEPPER = pepper;
+  }
+  if (Object.keys(changed).length > 0) {
+    props.setProperties(changed);
+  }
+  return {
+    INTERNAL_AUTH_KEY: authKey,
+    AUTH_PEPPER: pepper,
+    AUTH_SPREADSHEET_ID: props.getProperty("AUTH_SPREADSHEET_ID") || ""
+  };
+}
+
+function hashPasswordWithSalt_(password, salt, pepper) {
+  var acc = sha256Hex_(pepper + ":" + salt + ":" + String(password || ""));
+  for (var r = 0; r < 499; r++) {
+    acc = sha256Hex_(acc + ":" + salt + ":" + pepper);
+  }
+  return "baco$sha256$" + salt + "$" + acc;
+}
+
+function verifyPasswordHash_(password, storedValue, pepper) {
+  var val = String(storedValue || "").trim();
+  if (val.indexOf("baco$sha256$") !== 0) return false;
+  var parts = val.split("$");
+  if (parts.length !== 4) return false;
+  var salt = parts[2];
+  var expected = hashPasswordWithSalt_(password, salt, pepper);
+  return constantTimeEqual_(expected, val);
+}
+
+function getAuthSpreadsheet_() {
+  var props = PropertiesService.getScriptProperties();
+  var privateId = props.getProperty("AUTH_SPREADSHEET_ID");
+  if (privateId) {
+    try {
+      return { ss: SpreadsheetApp.openById(privateId), isPrivate: true };
+    } catch (e) {
+      Logger.log("Không mở được AUTH_SPREADSHEET_ID: " + e.toString());
+    }
+  }
+  return { ss: layBangTinh(), isPrivate: false };
+}
+
+function ensureAdminSecuritySheets_(ss) {
+  var userSheet = ss.getSheetByName("QuanTriVien");
+  if (!userSheet) {
+    userSheet = ss.insertSheet("QuanTriVien");
+    userSheet.appendRow(["BẢNG TÀI KHOẢN QUẢN TRỊ BẢO MẬT — NƯỚC MẮM BA CÔ KHÁNH HÒA"]);
+    userSheet.getRange("A1:G1").merge().setBackground("#0f172a").setFontColor("#fbbf24").setFontWeight("bold").setFontSize(11).setHorizontalAlignment("center");
+    userSheet.appendRow(["Tên đăng nhập", "Vai trò", "Trạng thái", "Mật khẩu (Mã hóa SHA-256)", "Lần đăng nhập cuối", "IP đăng nhập cuối", "Ghi chú"]);
+    userSheet.getRange("A2:G2").setBackground("#1e293b").setFontColor("#ffffff").setFontWeight("bold").setHorizontalAlignment("center");
+    userSheet.appendRow(["admin", "Chủ xưởng (Owner)", "Hoạt động", "", "", "", "Dùng menu 🔐 Bảo Mật Quản Trị -> Đặt mật khẩu"]);
+    userSheet.setFrozenRows(2);
+    userSheet.setColumnWidth(1, 150);
+    userSheet.setColumnWidth(2, 180);
+    userSheet.setColumnWidth(3, 120);
+    userSheet.setColumnWidth(4, 340);
+    userSheet.setColumnWidth(5, 170);
+    userSheet.setColumnWidth(6, 150);
+    userSheet.setColumnWidth(7, 260);
+    var statusRule = SpreadsheetApp.newDataValidation().requireValueInList(["Hoạt động", "Khóa"], true).build();
+    userSheet.getRange("C3:C50").setDataValidation(statusRule);
+  }
+
+  var logSheet = ss.getSheetByName("NhatKyDangNhap");
+  if (!logSheet) {
+    logSheet = ss.insertSheet("NhatKyDangNhap");
+    logSheet.appendRow(["NHẬT KÝ ĐĂNG NHẬP QUẢN TRỊ (AUDIT LOG)"]);
+    logSheet.getRange("A1:F1").merge().setBackground("#0f172a").setFontColor("#38bdf8").setFontWeight("bold").setFontSize(11).setHorizontalAlignment("center");
+    logSheet.appendRow(["Thời gian", "Tên đăng nhập", "Trạng thái", "Chi tiết", "Địa chỉ IP", "Thiết bị (User-Agent)"]);
+    logSheet.getRange("A2:F2").setBackground("#1e293b").setFontColor("#ffffff").setFontWeight("bold").setHorizontalAlignment("center");
+    logSheet.setFrozenRows(2);
+    logSheet.setColumnWidth(1, 165);
+    logSheet.setColumnWidth(2, 140);
+    logSheet.setColumnWidth(3, 130);
+    logSheet.setColumnWidth(4, 240);
+    logSheet.setColumnWidth(5, 140);
+    logSheet.setColumnWidth(6, 320);
+  }
+  return { userSheet: userSheet, logSheet: logSheet };
+}
+
+function appendLoginAudit_(logSheet, timeStr, username, statusLabel, detail, ip, ua) {
+  try {
+    if (!logSheet) return;
+    logSheet.appendRow([
+      String(timeStr || new Date().toLocaleString("vi-VN")),
+      String(username || ""),
+      String(statusLabel || ""),
+      String(detail || ""),
+      String(ip || ""),
+      String(ua || "").slice(0, 180)
+    ]);
+    var total = logSheet.getLastRow();
+    if (total > 502) {
+      logSheet.deleteRows(3, total - 502);
+    }
+  } catch (e) {}
+}
+
+// Hàm chạy 1 lần trong Apps Script để khởi tạo bảng & tạo khóa bí mật SHEET_AUTH_SECRET
+function khoiTaoBaoMatQuanTri() {
+  var sec = getOrCreateSecurityProps_();
+  var authCtx = getAuthSpreadsheet_();
+  if (!authCtx.ss) {
+    Logger.log("Không tìm thấy bảng tính Google Sheet.");
+    return;
+  }
+  ensureAdminSecuritySheets_(authCtx.ss);
+  Logger.log("✅ Đã khởi tạo bảng QuanTriVien & NhatKyDangNhap thành công!");
+  Logger.log("🔑 Hãy copy giá trị SHEET_AUTH_SECRET dưới đây dán vào Cloudflare Pages → Variables and Secrets:");
+  Logger.log("SHEET_AUTH_SECRET = " + sec.INTERNAL_AUTH_KEY);
+}
+
+// Hàm đặt hoặc đổi mật khẩu quản trị trực tiếp (tự động băm SHA-256 + salt + pepper)
+function datMatKhauQuanTri(username, plainPassword, role) {
+  var uname = String(username || "admin").trim().toLowerCase();
+  var pw = String(plainPassword || "");
+  if (!uname || pw.length < 6) {
+    throw new Error("Tên đăng nhập không được trống và mật khẩu phải từ 6 ký tự trở lên.");
+  }
+  var sec = getOrCreateSecurityProps_();
+  var authCtx = getAuthSpreadsheet_();
+  if (!authCtx.ss) throw new Error("Không mở được Google Sheet.");
+  var sheets = ensureAdminSecuritySheets_(authCtx.ss);
+  var userSheet = sheets.userSheet;
+
+  var salt = sha256Hex_(Utilities.getUuid() + ":" + Date.now()).slice(0, 16);
+  var hashed = hashPasswordWithSalt_(pw, salt, sec.AUTH_PEPPER);
+
+  var lastRow = userSheet.getLastRow();
+  if (lastRow >= 3) {
+    var rows = userSheet.getRange(3, 1, lastRow - 2, 7).getValues();
+    for (var i = 0; i < rows.length; i++) {
+      if (String(rows[i][0] || "").trim().toLowerCase() === uname) {
+        var r = 3 + i;
+        if (role) userSheet.getRange(r, 2).setValue(role);
+        userSheet.getRange(r, 3).setValue("Hoạt động");
+        userSheet.getRange(r, 4).setValue(hashed);
+        userSheet.getRange(r, 7).setValue("Cập nhật mật khẩu lúc " + new Date().toLocaleString("vi-VN"));
+        return true;
+      }
+    }
+  }
+  userSheet.appendRow([uname, role || "Quản trị viên", "Hoạt động", hashed, "", "", "Tạo mới lúc " + new Date().toLocaleString("vi-VN")]);
+  return true;
+}
+
+// Mã hóa tất cả mật khẩu dạng chữ thường vừa nhập trực tiếp trong cột D của tab QuanTriVien
+function maHoaTatCaMatKhauSheet() {
+  var sec = getOrCreateSecurityProps_();
+  var authCtx = getAuthSpreadsheet_();
+  if (!authCtx.ss) return 0;
+  var sheets = ensureAdminSecuritySheets_(authCtx.ss);
+  var userSheet = sheets.userSheet;
+  var lastRow = userSheet.getLastRow();
+  if (lastRow < 3) return 0;
+  var range = userSheet.getRange(3, 1, lastRow - 2, 7);
+  var vals = range.getValues();
+  var count = 0;
+  for (var i = 0; i < vals.length; i++) {
+    var rawPw = String(vals[i][3] || "").trim();
+    if (rawPw && rawPw.indexOf("baco$sha256$") !== 0) {
+      var salt = sha256Hex_(Utilities.getUuid() + ":" + i + ":" + Date.now()).slice(0, 16);
+      userSheet.getRange(3 + i, 4).setValue(hashPasswordWithSalt_(rawPw, salt, sec.AUTH_PEPPER));
+      userSheet.getRange(3 + i, 7).setValue("Đã mã hóa tự động " + new Date().toLocaleString("vi-VN"));
+      count++;
+    }
+  }
+  return count;
+}
+
+// Hàm xử lý xác thực do Cloudflare Pages _middleware.js gọi Server-to-Server
+function handleVerifyAdmin_(data, nowStr) {
+  var sec = getOrCreateSecurityProps_();
+  var callerKey = String(data.authKey || "");
+  if (!callerKey || !sec.INTERNAL_AUTH_KEY || !constantTimeEqual_(callerKey, sec.INTERNAL_AUTH_KEY)) {
+    return jsonError("Unauthorized");
+  }
+
+  var authCtx = getAuthSpreadsheet_();
+  if (!authCtx.ss) return jsonError("Auth sheet unavailable");
+  var sheets = ensureAdminSecuritySheets_(authCtx.ss);
+  var userSheet = sheets.userSheet;
+  var logSheet = sheets.logSheet;
+
+  var username = String(data.username || "admin").trim().toLowerCase();
+  var password = String(data.password || "");
+  var ip = String(data.ip || "");
+  var ua = String(data.userAgent || "");
+
+  if (!username || !password) {
+    appendLoginAudit_(logSheet, nowStr, username, "Thất bại", "Thiếu tài khoản hoặc mật khẩu", ip, ua);
+    return jsonSuccess({ valid: false, reason: "invalid_credentials" });
+  }
+
+  var lastRow = userSheet.getLastRow();
+  if (lastRow < 3) {
+    appendLoginAudit_(logSheet, nowStr, username, "Thất bại", "Chưa có tài khoản trong QuanTriVien", ip, ua);
+    return jsonSuccess({ valid: false, reason: "no_users" });
+  }
+
+  var rows = userSheet.getRange(3, 1, lastRow - 2, 7).getValues();
+  for (var i = 0; i < rows.length; i++) {
+    var rowUser = String(rows[i][0] || "").trim().toLowerCase();
+    if (!rowUser || rowUser !== username) continue;
+
+    var rowRole = String(rows[i][1] || "Quản trị viên").trim();
+    var rowStatus = String(rows[i][2] || "").trim().toLowerCase();
+    var storedSecret = String(rows[i][3] || "").trim();
+
+    if (rowStatus !== "hoạt động" && rowStatus !== "active") {
+      appendLoginAudit_(logSheet, nowStr, username, "Bị chặn", "Tài khoản đang bị khóa trong Sheet", ip, ua);
+      return jsonSuccess({ valid: false, reason: "account_locked" });
+    }
+
+    var matched = false;
+    if (storedSecret.indexOf("baco$sha256$") === 0) {
+      matched = verifyPasswordHash_(password, storedSecret, sec.AUTH_PEPPER);
+    } else if (authCtx.isPrivate && storedSecret.length >= 6) {
+      // Nếu là Sheet riêng tư (AUTH_SPREADSHEET_ID != SPREADSHEET_ID), hỗ trợ đối chiếu và tự nâng cấp lên hash
+      matched = constantTimeEqual_(password, storedSecret);
+      if (matched) {
+        var newSalt = sha256Hex_(Utilities.getUuid() + ":" + Date.now()).slice(0, 16);
+        userSheet.getRange(3 + i, 4).setValue(hashPasswordWithSalt_(password, newSalt, sec.AUTH_PEPPER));
+      }
+    }
+
+    if (matched) {
+      userSheet.getRange(3 + i, 5).setValue(nowStr);
+      userSheet.getRange(3 + i, 6).setValue(ip);
+      appendLoginAudit_(logSheet, nowStr, username, "Thành công", "Đăng nhập hợp lệ (" + rowRole + ")", ip, ua);
+      return jsonSuccess({ valid: true, username: rowUser, role: rowRole });
+    }
+
+    appendLoginAudit_(logSheet, nowStr, username, "Thất bại", "Sai mật khẩu", ip, ua);
+    return jsonSuccess({ valid: false, reason: "wrong_password" });
+  }
+
+  appendLoginAudit_(logSheet, nowStr, username, "Thất bại", "Không tồn tại tài khoản", ip, ua);
+  return jsonSuccess({ valid: false, reason: "not_found" });
+}
+
+// Tự động mã hóa ngay khi người quản trị nhập mật khẩu mới vào cột D tab QuanTriVien
+function onEdit(e) {
+  try {
+    if (!e || !e.range) return;
+    var sheet = e.range.getSheet();
+    if (sheet.getName() !== "QuanTriVien") return;
+    if (e.range.getRow() >= 3 && e.range.getColumn() === 4) {
+      var val = String(e.value || "").trim();
+      if (val && val.indexOf("baco$sha256$") !== 0) {
+        var sec = getOrCreateSecurityProps_();
+        var salt = sha256Hex_(Utilities.getUuid() + ":" + Date.now()).slice(0, 16);
+        e.range.setValue(hashPasswordWithSalt_(val, salt, sec.AUTH_PEPPER));
+        sheet.getRange(e.range.getRow(), 7).setValue("Đã tự mã hóa SHA-256 lúc " + new Date().toLocaleString("vi-VN"));
+      }
+    }
+  } catch (err) {}
+}
+
+// Menu thao tác nhanh ngay trên thanh công cụ Google Sheets
+function onOpen() {
+  try {
+    SpreadsheetApp.getUi()
+      .createMenu("🔐 Bảo Mật Ba Cô")
+      .addItem("1. Khởi tạo Bảng Tài Khoản & Nhật Ký", "khoiTaoBaoMatQuanTri")
+      .addItem("2. Đặt / Đổi Mật Khẩu Admin", "moHopThoaiDatMatKhau")
+      .addItem("3. Mã hóa mật khẩu vừa gõ trong Sheet", "chayMaHoaMatKhauUI")
+      .addItem("4. Xem khóa SHEET_AUTH_SECRET (Cloudflare)", "hienThiKhoaKetNoi")
+      .addItem("5. Gắn File Sheet Riêng Tư (Tùy chọn)", "moHopThoaiDatSheetRiengTu")
+      .addToUi();
+  } catch (e) {}
+}
+
+function moHopThoaiDatMatKhau() {
+  var ui = SpreadsheetApp.getUi();
+  var uRes = ui.prompt("Đặt / Đổi Mật Khẩu Quản Trị", "Nhập tên đăng nhập (mặc định: admin):", ui.ButtonSet.OK_CANCEL);
+  if (uRes.getSelectedButton() !== ui.Button.OK) return;
+  var uname = String(uRes.getResponseText() || "admin").trim().toLowerCase() || "admin";
+  var pRes = ui.prompt("Nhập Mật Khẩu Mới cho '" + uname + "'", "Nên dùng ít nhất 8–12 ký tự (sẽ được tự động băm SHA-256):", ui.ButtonSet.OK_CANCEL);
+  if (pRes.getSelectedButton() !== ui.Button.OK) return;
+  var pw = String(pRes.getResponseText() || "");
+  if (pw.length < 6) {
+    ui.alert("Mật khẩu phải có ít nhất 6 ký tự.");
+    return;
+  }
+  datMatKhauQuanTri(uname, pw);
+  ui.alert("✅ Đã lưu & mã hóa mật khẩu cho tài khoản '" + uname + "' thành công!");
+}
+
+function chayMaHoaMatKhauUI() {
+  var count = maHoaTatCaMatKhauSheet();
+  SpreadsheetApp.getUi().alert("✅ Đã mã hóa an toàn " + count + " dòng mật khẩu trong tab QuanTriVien.");
+}
+
+function hienThiKhoaKetNoi() {
+  var sec = getOrCreateSecurityProps_();
+  SpreadsheetApp.getUi().alert(
+    "Khóa xác thực máy chủ (SHEET_AUTH_SECRET)",
+    "Copy chính xác mã sau để dán vào Cloudflare Pages → Settings → Variables and Secrets với tên biến SHEET_AUTH_SECRET:\n\n" + sec.INTERNAL_AUTH_KEY,
+    SpreadsheetApp.getUi().ButtonSet.OK
+  );
+}
+
+function moHopThoaiDatSheetRiengTu() {
+  var ui = SpreadsheetApp.getUi();
+  var res = ui.prompt("Gắn Google Sheet Riêng Tư (Tùy chọn nâng cao)", "Dán Spreadsheet ID của file Sheet chỉ mình bạn có quyền xem (để trống nếu dùng chung file hiện tại):", ui.ButtonSet.OK_CANCEL);
+  if (res.getSelectedButton() !== ui.Button.OK) return;
+  var id = String(res.getResponseText() || "").trim();
+  var props = PropertiesService.getScriptProperties();
+  if (id) {
+    props.setProperty("AUTH_SPREADSHEET_ID", id);
+    var ctx = getAuthSpreadsheet_();
+    if (ctx.ss) ensureAdminSecuritySheets_(ctx.ss);
+    ui.alert("✅ Đã chuyển dữ liệu đăng nhập sang Sheet riêng tư: " + id);
+  } else {
+    props.deleteProperty("AUTH_SPREADSHEET_ID");
+    ui.alert("ℹ️ Đã chuyển về dùng tab QuanTriVien trong file Sheet chính.");
+  }
+}
+
 
