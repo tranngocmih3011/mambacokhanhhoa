@@ -3352,22 +3352,48 @@ function moHopThoaiDatSheetRiengTu() {
             }
         ];
 
+        let activeSheetSession = null;
+        let adminSheetSyncTimer = null;
+
+        function clearSavedAuthArtifacts() {
+            localStorage.removeItem('baco_pin_locked_until');
+            localStorage.removeItem('baco_pin_fail_count');
+            localStorage.removeItem('baco_custom_pin');
+            localStorage.removeItem('baco_admin_logged');
+            localStorage.removeItem('baco_sheet_session');
+            sessionStorage.removeItem('baco_admin_logged');
+            sessionStorage.removeItem('baco_sheet_session');
+        }
+
+        function lockAdminSession() {
+            activeSheetSession = null;
+            if (adminSheetSyncTimer) {
+                clearInterval(adminSheetSyncTimer);
+                adminSheetSyncTimer = null;
+            }
+            clearSavedAuthArtifacts();
+            renderSheetLoginForm();
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             // Ngày tháng hiển thị góc trên
             const dateStr = new Date().toLocaleDateString('vi-VN', { weekday: 'short', day: 'numeric', month: 'numeric' });
             const dateEl = document.getElementById('statTodayDate');
             if (dateEl) dateEl.textContent = dateStr;
 
-            // 🔒 Xác thực trực tiếp qua Google Sheet (bảng QuanTriVien + token ký HMAC từ Apps Script)
-            localStorage.removeItem('baco_pin_locked_until');
-            localStorage.removeItem('baco_pin_fail_count');
-            localStorage.removeItem('baco_custom_pin');
-            localStorage.removeItem('baco_admin_logged');
-            sessionStorage.removeItem('baco_admin_logged');
-            verifySheetSessionAndOpen();
+            // 🔒 Mỗi lần mở hoặc quay lại link quản trị đều bắt buộc đăng nhập lại (không lưu phiên qua localStorage)
+            lockAdminSession();
         });
 
-        const SHEET_SESSION_STORAGE_KEY = 'baco_sheet_session';
+        window.addEventListener('pagehide', () => {
+            lockAdminSession();
+        });
+
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted || !activeSheetSession) {
+                lockAdminSession();
+            }
+        });
 
         function renderSheetLoginForm(errorMsg = '', locked = false, prefillUser = 'admin') {
             const app = document.getElementById('adminApp');
@@ -3401,7 +3427,7 @@ function moHopThoaiDatSheetRiengTu() {
                         Đăng nhập
                     </button>
                     <div class="flex items-center justify-between text-[11px] text-[#8E8E93] pt-1">
-                        <span>🔒 Mã hóa SHA-256 + khóa dò sai</span>
+                        <span>🔒 Thoát trang tự động khóa phiên</span>
                         <button type="button" onclick="openForgotPasswordModal()" class="text-[#007AFF] hover:underline font-medium">Quên mật khẩu?</button>
                     </div>
                 </form>`;
@@ -3420,22 +3446,16 @@ function moHopThoaiDatSheetRiengTu() {
         }
 
         async function verifySheetSessionAndOpen() {
-            if (location.protocol === 'file:') { showAdminDashboard(); return; }
-            try {
-                const raw = localStorage.getItem(SHEET_SESSION_STORAGE_KEY);
-                if (raw) {
-                    const saved = JSON.parse(raw);
-                    if (saved && saved.token && (!saved.expiresAt || saved.expiresAt > Date.now())) {
-                        const verifyRes = await callSheetAuthAction({ action: 'verify_session', token: saved.token });
-                        if (verifyRes && verifyRes.status === 'success' && verifyRes.valid === true) {
-                            showAdminDashboard();
-                            return;
-                        }
+            if (activeSheetSession && activeSheetSession.token && (!activeSheetSession.expiresAt || activeSheetSession.expiresAt > Date.now())) {
+                try {
+                    const verifyRes = await callSheetAuthAction({ action: 'verify_session', token: activeSheetSession.token });
+                    if (verifyRes && verifyRes.status === 'success' && verifyRes.valid === true) {
+                        showAdminDashboard();
+                        return;
                     }
-                }
-            } catch (e) {}
-            localStorage.removeItem(SHEET_SESSION_STORAGE_KEY);
-            renderSheetLoginForm();
+                } catch (e) {}
+            }
+            lockAdminSession();
         }
 
         function toggleAdminPassVisibility() {
@@ -3467,12 +3487,13 @@ function moHopThoaiDatSheetRiengTu() {
                     userAgent: navigator.userAgent.slice(0, 180)
                 });
                 if (data && data.status === 'success' && data.valid === true && data.sessionToken) {
-                    localStorage.setItem(SHEET_SESSION_STORAGE_KEY, JSON.stringify({
+                    clearSavedAuthArtifacts();
+                    activeSheetSession = {
                         token: data.sessionToken,
                         username: data.username || username,
                         role: data.role || 'Quản trị viên',
-                        expiresAt: data.expiresAt || (Date.now() + 7 * 86400 * 1000)
-                    }));
+                        expiresAt: data.expiresAt || (Date.now() + 4 * 3600 * 1000)
+                    };
                     showAdminDashboard();
                     showAdminToast('Đăng nhập thành công (' + (data.username || username) + ')', 'success');
                     return;
@@ -3508,18 +3529,9 @@ function moHopThoaiDatSheetRiengTu() {
         function handleResetPinWithPhone() { openForgotPasswordModal(); }
         function sendPinToAdminEmail() { openForgotPasswordModal(); }
 
-        let adminSheetSyncTimer = null;
-
         function handleAdminLogout() {
-            if (adminSheetSyncTimer) {
-                clearInterval(adminSheetSyncTimer);
-                adminSheetSyncTimer = null;
-            }
-            localStorage.removeItem(SHEET_SESSION_STORAGE_KEY);
-            localStorage.removeItem('baco_admin_logged');
-            sessionStorage.removeItem('baco_admin_logged');
+            lockAdminSession();
             showAdminToast('Đã đăng xuất & khóa trang quản trị.', 'info');
-            renderSheetLoginForm();
         }
 
         // ================= XỬ LÝ KÉO XUỐNG LÀM MỚI (PULL-TO-REFRESH) TRÊN ĐIỆN THOẠI =================
