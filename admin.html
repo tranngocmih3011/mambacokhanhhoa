@@ -1561,13 +1561,24 @@ function doPost(e) {
     var action = data.action || &quot;&quot;;
     var nowStr = data.timestamp || new Date().toLocaleString(&quot;vi-VN&quot;);
 
+    // XÁC THỰC QUẢN TRỊ VIÊN TRỰC TIẾP QUA GOOGLE SHEET
+    if (action === &quot;verify_admin&quot;) {
+      return handleVerifyAdmin_(data, nowStr);
+    }
+    if (action === &quot;verify_session&quot;) {
+      return handleVerifySession_(data);
+    }
+
     // ========================================================
     // TẦNG BẢO VỆ CHỐNG BOT SPAM &amp; CÀO DỮ LIỆU (ANTI-BOT &amp; RATE LIMIT)
     // ========================================================
+    // 1. Kiểm tra Bẫy Bot Tàng hình (Honeypot Trap)
+    // Nếu bot tự động điền trường website_trap_hp -&gt; Phản hồi ảo, không lưu DB &amp; không gửi mail
     if (data.website_trap_hp &amp;&amp; String(data.website_trap_hp).trim() !== &quot;&quot;) {
       return jsonSuccess({ status: &quot;success&quot;, msg: &quot;Bot trap triggered - Ignored&quot;, ignored: true });
     }
 
+    // 2. Chống Spam liên tục vào Webhook qua CacheService (Rate limiting 3 giây)
     var isNewSubmission = (data.type === &quot;wholesale&quot; || action === &quot;wholesale&quot; || action === &quot;submit_review&quot; || !action);
     if (isNewSubmission) {
       var phoneRaw = String(data.phone || (data.review &amp;&amp; data.review.phone) || &quot;&quot;).replace(/\D/g, &quot;&quot;);
@@ -1588,6 +1599,58 @@ function doPost(e) {
     // ========================================================
     // NHÁNH 0: ĐỒNG BỘ BẢNG SẢN PHẨM &amp; BẢNG NỘI DUNG WEBSITE
     // ========================================================
+
+        // 0.3 Lưu Push Subscription (Tab &quot;PushTokens&quot;)
+    if (action === &quot;save_push_subscription&quot; &amp;&amp; data.subscription) {
+      var tokenSheet = ss.getSheetByName(&quot;PushTokens&quot;);
+      if (!tokenSheet) {
+        tokenSheet = ss.insertSheet(&quot;PushTokens&quot;);
+        tokenSheet.getRange(&quot;A1:E1&quot;).setValues([[&quot;Thời Gian&quot;, &quot;Endpoint&quot;, &quot;p256dh&quot;, &quot;auth&quot;, &quot;User Agent&quot;]]);
+        tokenSheet.getRange(&quot;A1:E1&quot;).setFontWeight(&quot;bold&quot;).setBackground(&quot;#e2e8f0&quot;);
+      }
+      var sub = data.subscription;
+      var endpoint = sub.endpoint || &quot;&quot;;
+      var keys = sub.keys || {};
+      var p256dh = keys.p256dh || &quot;&quot;;
+      var auth = keys.auth || &quot;&quot;;
+      var uAgent = String(data.userAgent || &quot;&quot;).slice(0, 200);
+
+      var lastRow = tokenSheet.getLastRow();
+      var updated = false;
+      if (lastRow &gt;= 2) {
+        var existingEndpoints = tokenSheet.getRange(2, 2, lastRow - 1, 1).getValues();
+        for (var i = 0; i &lt; existingEndpoints.length; i++) {
+          if (existingEndpoints[i][0] === endpoint) {
+            tokenSheet.getRange(2 + i, 1, 1, 5).setValues([[nowStr, endpoint, p256dh, auth, uAgent]]);
+            updated = true;
+            break;
+          }
+        }
+      }
+      if (!updated) {
+        tokenSheet.appendRow([nowStr, endpoint, p256dh, auth, uAgent]);
+      }
+      return jsonSuccess({ saved: true });
+    }
+
+    // 0.4 Xóa Push Subscription hết hạn
+    if (action === &quot;delete_expired_push_subscriptions&quot; &amp;&amp; Array.isArray(data.endpoints)) {
+      var tokenSheet = ss.getSheetByName(&quot;PushTokens&quot;);
+      if (tokenSheet) {
+        var lastRow = tokenSheet.getLastRow();
+        if (lastRow &gt;= 2) {
+          var epSet = {};
+          data.endpoints.forEach(function(ep) { epSet[ep] = true; });
+          var rows = tokenSheet.getRange(2, 2, lastRow - 1, 1).getValues();
+          for (var i = rows.length - 1; i &gt;= 0; i--) {
+            if (epSet[rows[i][0]]) {
+              tokenSheet.deleteRow(2 + i);
+            }
+          }
+        }
+      }
+      return jsonSuccess({ deleted: true });
+    }
 
     // 0.1 Lưu &amp; Kẻ bảng Sản Phẩm (Tab &quot;SanPham&quot;)
     if (action === &quot;save_products&quot; &amp;&amp; data.products) {
@@ -1631,14 +1694,34 @@ function doPost(e) {
       khoiTaoBangNoiDungWeb(cfgSheet);
 
       var labelsMap = {
-        heroMainTitle: &quot;🌊 1. Banner Đầu - Tiêu đề lớn dòng 1&quot;,
-        heroSubTitle: &quot;🌊 1. Banner Đầu - Tiêu đề vàng dòng 2&quot;,
-        heroDesc: &quot;🌊 1. Banner Đầu - Đoạn mô tả ngắn&quot;,
-        heroBgImg: &quot;🌊 1. Banner Đầu - Ảnh nền biển (Link/Ảnh)&quot;,
-        heroProductImg: &quot;🌊 1. Banner Đầu - Ảnh chai mắm chính&quot;,
-        brandName: &quot;📞 2. Thương Hiệu - Tên thương hiệu&quot;,
-        brandSlogan: &quot;📞 2. Thương Hiệu - Dòng chữ phụ dưới tên&quot;,
-        brandPhone: &quot;📞 2. Thương Hiệu - Số Hotline &amp; Zalo&quot;,
+        // 🌊 1. BANNER ĐẦU TRANG
+        heroTag: &quot;🌊 1. Banner - Huy hiệu nhỏ đầu trang (Tagline)&quot;,
+        heroMainTitle: &quot;🌊 1. Banner - Tiêu đề lớn dòng 1&quot;,
+        heroSubTitle: &quot;🌊 1. Banner - Tiêu đề vàng dòng 2&quot;,
+        heroDesc: &quot;🌊 1. Banner - Đoạn mô tả giới thiệu&quot;,
+        heroBgImg: &quot;🌊 1. Banner - Ảnh nền biển (Link/Ảnh)&quot;,
+        heroProductImg: &quot;🌊 1. Banner - Ảnh chai mắm và chén mắm tách nền&quot;,
+        heroCta1: &quot;🌊 1. Banner - Chữ nút đặt mua chính&quot;,
+        heroCta2: &quot;🌊 1. Banner - Chữ nút khám phá phụ&quot;,
+
+        // 🏷️ 2. HEADER &amp; MENU
+        headerLogo: &quot;🏷️ 2. Header - Ảnh Logo (Link/Ảnh)&quot;,
+        headerBrandName: &quot;🏷️ 2. Header - Tên thương hiệu trên thanh menu&quot;,
+        headerBrandSlogan: &quot;🏷️ 2. Header - Slogan dưới Logo&quot;,
+        headerCartText: &quot;🏷️ 2. Header - Chữ nút giỏ hàng&quot;,
+        headerNav1: &quot;🏷️ 2. Header - Menu 1 (Câu chuyện)&quot;,
+        headerNav2: &quot;🏷️ 2. Header - Menu 2 (Quy trình)&quot;,
+        headerNav3: &quot;🏷️ 2. Header - Menu 3 (Bộ sưu tập)&quot;,
+        headerNav4: &quot;🏷️ 2. Header - Menu 4 (Sản phẩm)&quot;,
+        headerNav5: &quot;🏷️ 2. Header - Menu 5 (Mua sỉ)&quot;,
+        headerNav6: &quot;🏷️ 2. Header - Menu 6 (Ẩm thực)&quot;,
+        headerNav7: &quot;🏷️ 2. Header - Menu 7 (Đánh giá)&quot;,
+        headerNav8: &quot;🏷️ 2. Header - Menu 8 (Hỏi đáp)&quot;,
+
+        // 📞 3. THƯƠNG HIỆU &amp; LIÊN HỆ
+        brandName: &quot;📞 3. Thương Hiệu - Tên thương hiệu chung&quot;,
+        brandSlogan: &quot;📞 3. Thương Hiệu - Dòng chữ phụ chung&quot;,
+        brandPhone: &quot;📞 3. Thương Hiệu - Số Hotline &amp; Zalo&quot;,
         brandAddress: &quot;📞 2. Thương Hiệu - Địa chỉ cơ sở sản xuất&quot;,
         brandEmail: &quot;📞 2. Thương Hiệu - Email liên hệ&quot;,
         pillar1Title: &quot;🪵 3. Ba Trụ Cột - Tiêu đề trụ cột 1&quot;,
@@ -1932,6 +2015,8 @@ function doPost(e) {
 
       // 🔔 GỬI EMAIL THÔNG BÁO TỨC THÌ KÈM NÚT MỞ ZALO CHAT
       sendWholesaleEmail(data, leadCode, nowStr);
+      sendTelegramWholesale(data, leadCode, nowStr);
+      sendServerWebPush(data, leadCode, &quot;wholesale&quot;);
 
       return jsonSuccess({ type: &quot;wholesale&quot;, row: targetRow });
     }
@@ -1999,7 +2084,7 @@ function doPost(e) {
       sheet.getRange(targetRow, 2, 1, rowData.length).setValues([rowData]);
       dinhDangDongDonHang(sheet, targetRow);
 
-      // 🔔 GỬI EMAIL THÔNG BÁO ĐƠN HÀNG MỚI (Trừ khi khách đang ở trạng thái 'Chờ thanh toán QR' để tránh báo sớm)
+      // 🔔 GỬI EMAIL THÔNG BÁO ĐƠN HÀNG MỚI (Trừ khi khách đang ở trạng thái &#x27;Chờ thanh toán QR&#x27; để tránh báo sớm)
       var currentStatus = String(data.status || &quot;Chờ xác nhận&quot;);
       if (currentStatus !== &quot;Chờ thanh toán QR&quot;) {
         sendOrderEmail(data, orderCode, nowStr);
@@ -2377,6 +2462,564 @@ function dinhDangDongKhachSi(sheet, row) {
   range.setHorizontalAlignments([[&quot;center&quot;, &quot;center&quot;, &quot;center&quot;, &quot;left&quot;, &quot;center&quot;, &quot;left&quot;, &quot;left&quot;, &quot;left&quot;, &quot;center&quot;]]);
   range.setFontWeights([[&quot;normal&quot;, &quot;normal&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;normal&quot;, &quot;normal&quot;, &quot;normal&quot;, &quot;bold&quot;]]);
 }
+
+// ========================================================
+// HỆ THỐNG THÔNG BÁO TELEGRAM BOT (ĐẨY KHÓA MÀN HÌNH TỨC THÌ)
+// ========================================================
+const TELEGRAM_BOT_TOKEN = &quot;&quot;; // Điền Token từ @BotFather (VD: 123456:ABC-DEF...)
+const TELEGRAM_CHAT_ID = &quot;&quot;;   // Điền Chat ID cá nhân nhận tin nhắn
+
+function sendTelegramNotification(d, code, timeStr) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+  try {
+    var totalFormatted = Number(d.totalAmount || 0).toLocaleString(&quot;vi-VN&quot;) + &quot; đ&quot;;
+    var msg = &quot;🔔 *CÓ ĐƠN HÀNG MỚI #&quot; + code + &quot;*\n\n&quot; +
+              &quot;👤 *Khách hàng:* &quot; + (d.name || &quot;Khách lẻ&quot;) + &quot;\n&quot; +
+              &quot;📞 *Số điện thoại:* &quot; + (d.phone || &quot;Chưa có&quot;) + &quot;\n&quot; +
+              &quot;📍 *Địa chỉ:* &quot; + (d.address || &quot;Chưa có&quot;) + &quot;\n&quot; +
+              &quot;🛒 *Sản phẩm:* &quot; + (d.product || &quot;Nước mắm&quot;) + &quot; (x&quot; + (d.quantity || 1) + &quot;)\n&quot; +
+              &quot;💰 *Tổng tiền:* *&quot; + totalFormatted + &quot;* (&quot; + (d.paymentMethod || &quot;COD&quot;) + &quot;)\n&quot; +
+              &quot;⏰ *Thời gian:* &quot; + timeStr + &quot;\n\n&quot; +
+              &quot;👉 [Bấm Vào Đây Để Mở Trang Quản Trị](https://mambacokhanhhoa.pages.dev/admin.html)&quot;;
+
+    var url = &quot;https://api.telegram.org/bot&quot; + TELEGRAM_BOT_TOKEN + &quot;/sendMessage&quot;;
+    UrlFetchApp.fetch(url, {
+      method: &quot;post&quot;,
+      contentType: &quot;application/json&quot;,
+      payload: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: msg,
+        parse_mode: &quot;Markdown&quot;
+      }),
+      muteHttpExceptions: true
+    });
+  } catch(e) {
+    Logger.log(&quot;Telegram Error: &quot; + e.toString());
+  }
+}
+
+function sendTelegramWholesale(d, code, timeStr) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+  try {
+    var msg = &quot;🤝 *ĐẠI LÝ SỈ MỚI ĐĂNG KÝ #&quot; + code + &quot;*\n\n&quot; +
+              &quot;👤 *Đối tác:* &quot; + (d.name || &quot;Khách sỉ&quot;) + &quot;\n&quot; +
+              &quot;📞 *SĐT / Zalo:* &quot; + (d.phone || &quot;Chưa có&quot;) + &quot;\n&quot; +
+              &quot;📍 *Khu vực:* &quot; + (d.area || &quot;Toàn quốc&quot;) + &quot;\n&quot; +
+              &quot;🏢 *Mô hình:* &quot; + (d.businessModel || &quot;Đại lý&quot;) + &quot;\n&quot; +
+              &quot;📝 *Nhu cầu:* &quot; + (d.note || &quot;Tư vấn bảng giá&quot;) + &quot;\n&quot; +
+              &quot;⏰ *Thời gian:* &quot; + timeStr + &quot;\n\n&quot; +
+              &quot;👉 [Bấm Vào Đây Để Mở Trang Quản Trị](https://mambacokhanhhoa.pages.dev/admin.html)&quot;;
+
+    var url = &quot;https://api.telegram.org/bot&quot; + TELEGRAM_BOT_TOKEN + &quot;/sendMessage&quot;;
+    UrlFetchApp.fetch(url, {
+      method: &quot;post&quot;,
+      contentType: &quot;application/json&quot;,
+      payload: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: msg,
+        parse_mode: &quot;Markdown&quot;
+      }),
+      muteHttpExceptions: true
+    });
+  } catch(e) {
+    Logger.log(&quot;Telegram Wholesale Error: &quot; + e.toString());
+  }
+}
+
+// ========================================================
+// HỆ THỐNG GỬI WEB PUSH THẲNG TỪ GOOGLE CLOUD VỀ ĐIỆN THOẠI
+// ========================================================
+function sendServerWebPush(d, code, type) {
+  try {
+    var url = &quot;https://mambacokhanhhoa.vercel.app/api/send-push&quot;;
+    var title = &quot;&quot;;
+    var body = &quot;&quot;;
+    if (type === &quot;wholesale&quot;) {
+      title = &quot;🤝 Khách Sỉ Mới #&quot; + code;
+      body = (d.name || &quot;Khách sỉ&quot;) + &quot; (&quot; + (d.phone || &quot;&quot;) + &quot;) đăng ký tại &quot; + (d.area || &quot;Toàn quốc&quot;);
+    } else {
+      var totalFormatted = Number(d.totalAmount || 0).toLocaleString(&quot;vi-VN&quot;) + &quot;đ&quot;;
+      title = &quot;🛒 Đơn Hàng Mới #&quot; + code + &quot; - &quot; + totalFormatted;
+      body = (d.name || &quot;Khách hàng&quot;) + &quot; (&quot; + (d.phone || &quot;&quot;) + &quot;) vừa đặt: &quot; + (d.product || &quot;Nước mắm&quot;) + &quot; - &quot; + (d.address || &quot;&quot;);
+    }
+    UrlFetchApp.fetch(url, {
+      method: &quot;post&quot;,
+      contentType: &quot;application/json&quot;,
+      payload: JSON.stringify({
+        title: title,
+        body: body,
+        url: &quot;./admin.html&quot;,
+        code: code,
+        type: type || &quot;orders&quot;
+      }),
+      muteHttpExceptions: true
+    });
+  } catch(e) {
+    Logger.log(&quot;Lỗi sendServerWebPush: &quot; + e.toString());
+  }
+}
+
+// ========================================================
+// HỆ THỐNG BẢO MẬT &amp; XÁC THỰC QUẢN TRỊ QUA GOOGLE SHEET
+// - Tài khoản quản trị nằm trong tab &quot;QuanTriVien&quot; (hoặc 1 file Google Sheet riêng tư qua AUTH_SPREADSHEET_ID)
+// - Mật khẩu được băm 500 vòng SHA-256 + Salt ngẫu nhiên + AUTH_PEPPER (chỉ lưu trong Script Properties)
+// - Nhật ký mọi lần đăng nhập được lưu tại tab &quot;NhatKyDangNhap&quot;
+// ========================================================
+
+function bytesToHex_(bytes) {
+  var hex = [];
+  for (var i = 0; i &lt; bytes.length; i++) {
+    var b = bytes[i] &amp; 0xff;
+    hex.push((b &lt; 16 ? &quot;0&quot; : &quot;&quot;) + b.toString(16));
+  }
+  return hex.join(&quot;&quot;);
+}
+
+function sha256Hex_(text) {
+  return bytesToHex_(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(text || &quot;&quot;), Utilities.Charset.UTF_8));
+}
+
+function constantTimeEqual_(a, b) {
+  var sa = String(a || &quot;&quot;);
+  var sb = String(b || &quot;&quot;);
+  var diff = sa.length ^ sb.length;
+  var len = Math.max(sa.length, sb.length);
+  for (var i = 0; i &lt; len; i++) {
+    diff |= (sa.charCodeAt(i) || 0) ^ (sb.charCodeAt(i) || 0);
+  }
+  return diff === 0;
+}
+
+function getOrCreateSecurityProps_() {
+  var props = PropertiesService.getScriptProperties();
+  var changed = {};
+  var pepper = props.getProperty(&quot;AUTH_PEPPER&quot;);
+  if (!pepper) {
+    pepper = sha256Hex_(Utilities.getUuid() + &quot;:&quot; + Math.random() + &quot;:pepper&quot;);
+    changed.AUTH_PEPPER = pepper;
+  }
+  var signKey = props.getProperty(&quot;SESSION_SIGN_KEY&quot;);
+  if (!signKey) {
+    signKey = sha256Hex_(Utilities.getUuid() + &quot;:&quot; + Date.now() + &quot;:session&quot;);
+    changed.SESSION_SIGN_KEY = signKey;
+  }
+  if (Object.keys(changed).length &gt; 0) {
+    props.setProperties(changed);
+  }
+  return {
+    AUTH_PEPPER: pepper,
+    SESSION_SIGN_KEY: signKey,
+    AUTH_SPREADSHEET_ID: props.getProperty(&quot;AUTH_SPREADSHEET_ID&quot;) || &quot;&quot;
+  };
+}
+
+function hmacSignHex_(payload, secret) {
+  return bytesToHex_(Utilities.computeHmacSha256Signature(String(payload || &quot;&quot;), String(secret || &quot;&quot;)));
+}
+
+function createSignedSession_(username, role, signKey) {
+  var expMs = Date.now() + 7 * 24 * 3600 * 1000;
+  var uB64 = Utilities.base64EncodeWebSafe(String(username || &quot;admin&quot;), Utilities.Charset.UTF_8).replace(/=+$/, &quot;&quot;);
+  var rB64 = Utilities.base64EncodeWebSafe(String(role || &quot;Quản trị viên&quot;), Utilities.Charset.UTF_8).replace(/=+$/, &quot;&quot;);
+  var payload = &quot;v1.&quot; + expMs + &quot;.&quot; + uB64 + &quot;.&quot; + rB64;
+  var sig = hmacSignHex_(payload, signKey);
+  return { token: payload + &quot;.&quot; + sig, expiresAt: expMs };
+}
+
+function verifySignedSession_(token, signKey) {
+  var parts = String(token || &quot;&quot;).split(&quot;.&quot;);
+  if (parts.length !== 5 || parts[0] !== &quot;v1&quot;) return null;
+  var expMs = Number(parts[1]);
+  if (!expMs || expMs &lt; Date.now()) return null;
+  var payload = parts.slice(0, 4).join(&quot;.&quot;);
+  var expected = hmacSignHex_(payload, signKey);
+  if (!constantTimeEqual_(expected, parts[4])) return null;
+  try {
+    var uname = Utilities.newBlob(Utilities.base64DecodeWebSafe(parts[2])).getDataAsString(&quot;UTF-8&quot;);
+    var urole = Utilities.newBlob(Utilities.base64DecodeWebSafe(parts[3])).getDataAsString(&quot;UTF-8&quot;);
+    return { username: uname, role: urole, expiresAt: expMs };
+  } catch (e) {
+    return null;
+  }
+}
+
+function hashPasswordWithSalt_(password, salt, pepper) {
+  var acc = sha256Hex_(pepper + &quot;:&quot; + salt + &quot;:&quot; + String(password || &quot;&quot;));
+  for (var r = 0; r &lt; 499; r++) {
+    acc = sha256Hex_(acc + &quot;:&quot; + salt + &quot;:&quot; + pepper);
+  }
+  return &quot;baco$sha256$&quot; + salt + &quot;$&quot; + acc;
+}
+
+function verifyPasswordHash_(password, storedValue, pepper) {
+  var val = String(storedValue || &quot;&quot;).trim();
+  if (val.indexOf(&quot;baco$sha256$&quot;) !== 0) return false;
+  var parts = val.split(&quot;$&quot;);
+  if (parts.length !== 4) return false;
+  var salt = parts[2];
+  var expected = hashPasswordWithSalt_(password, salt, pepper);
+  return constantTimeEqual_(expected, val);
+}
+
+function getAuthSpreadsheet_() {
+  var props = PropertiesService.getScriptProperties();
+  var privateId = props.getProperty(&quot;AUTH_SPREADSHEET_ID&quot;);
+  if (privateId) {
+    try {
+      return { ss: SpreadsheetApp.openById(privateId), isPrivate: true };
+    } catch (e) {
+      Logger.log(&quot;Không mở được AUTH_SPREADSHEET_ID: &quot; + e.toString());
+    }
+  }
+  return { ss: layBangTinh(), isPrivate: false };
+}
+
+function ensureAdminSecuritySheets_(ss) {
+  var userSheet = ss.getSheetByName(&quot;QuanTriVien&quot;);
+  if (!userSheet) {
+    userSheet = ss.insertSheet(&quot;QuanTriVien&quot;);
+    userSheet.appendRow([&quot;BẢNG TÀI KHOẢN QUẢN TRỊ BẢO MẬT — NƯỚC MẮM BA CÔ KHÁNH HÒA&quot;]);
+    userSheet.getRange(&quot;A1:G1&quot;).merge().setBackground(&quot;#0f172a&quot;).setFontColor(&quot;#fbbf24&quot;).setFontWeight(&quot;bold&quot;).setFontSize(11).setHorizontalAlignment(&quot;center&quot;);
+    userSheet.appendRow([&quot;Tên đăng nhập&quot;, &quot;Vai trò&quot;, &quot;Trạng thái&quot;, &quot;Mật khẩu (Mã hóa SHA-256)&quot;, &quot;Lần đăng nhập cuối&quot;, &quot;IP đăng nhập cuối&quot;, &quot;Ghi chú&quot;]);
+    userSheet.getRange(&quot;A2:G2&quot;).setBackground(&quot;#1e293b&quot;).setFontColor(&quot;#ffffff&quot;).setFontWeight(&quot;bold&quot;).setHorizontalAlignment(&quot;center&quot;);
+    userSheet.appendRow([&quot;admin&quot;, &quot;Chủ xưởng (Owner)&quot;, &quot;Hoạt động&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;Dùng menu 🔐 Bảo Mật Quản Trị -&gt; Đặt mật khẩu&quot;]);
+    userSheet.setFrozenRows(2);
+    userSheet.setColumnWidth(1, 150);
+    userSheet.setColumnWidth(2, 180);
+    userSheet.setColumnWidth(3, 120);
+    userSheet.setColumnWidth(4, 340);
+    userSheet.setColumnWidth(5, 170);
+    userSheet.setColumnWidth(6, 150);
+    userSheet.setColumnWidth(7, 260);
+    var statusRule = SpreadsheetApp.newDataValidation().requireValueInList([&quot;Hoạt động&quot;, &quot;Khóa&quot;], true).build();
+    userSheet.getRange(&quot;C3:C50&quot;).setDataValidation(statusRule);
+  }
+
+  var logSheet = ss.getSheetByName(&quot;NhatKyDangNhap&quot;);
+  if (!logSheet) {
+    logSheet = ss.insertSheet(&quot;NhatKyDangNhap&quot;);
+    logSheet.appendRow([&quot;NHẬT KÝ ĐĂNG NHẬP QUẢN TRỊ (AUDIT LOG)&quot;]);
+    logSheet.getRange(&quot;A1:F1&quot;).merge().setBackground(&quot;#0f172a&quot;).setFontColor(&quot;#38bdf8&quot;).setFontWeight(&quot;bold&quot;).setFontSize(11).setHorizontalAlignment(&quot;center&quot;);
+    logSheet.appendRow([&quot;Thời gian&quot;, &quot;Tên đăng nhập&quot;, &quot;Trạng thái&quot;, &quot;Chi tiết&quot;, &quot;Địa chỉ IP&quot;, &quot;Thiết bị (User-Agent)&quot;]);
+    logSheet.getRange(&quot;A2:F2&quot;).setBackground(&quot;#1e293b&quot;).setFontColor(&quot;#ffffff&quot;).setFontWeight(&quot;bold&quot;).setHorizontalAlignment(&quot;center&quot;);
+    logSheet.setFrozenRows(2);
+    logSheet.setColumnWidth(1, 165);
+    logSheet.setColumnWidth(2, 140);
+    logSheet.setColumnWidth(3, 130);
+    logSheet.setColumnWidth(4, 240);
+    logSheet.setColumnWidth(5, 140);
+    logSheet.setColumnWidth(6, 320);
+  }
+  return { userSheet: userSheet, logSheet: logSheet };
+}
+
+function appendLoginAudit_(logSheet, timeStr, username, statusLabel, detail, ip, ua) {
+  try {
+    if (!logSheet) return;
+    logSheet.appendRow([
+      String(timeStr || new Date().toLocaleString(&quot;vi-VN&quot;)),
+      String(username || &quot;&quot;),
+      String(statusLabel || &quot;&quot;),
+      String(detail || &quot;&quot;),
+      String(ip || &quot;&quot;),
+      String(ua || &quot;&quot;).slice(0, 180)
+    ]);
+    var total = logSheet.getLastRow();
+    if (total &gt; 502) {
+      logSheet.deleteRows(3, total - 502);
+    }
+  } catch (e) {}
+}
+
+// Hàm chạy 1 lần trong Apps Script để khởi tạo bảng QuanTriVien &amp; NhatKyDangNhap
+function khoiTaoBaoMatQuanTri() {
+  getOrCreateSecurityProps_();
+  var authCtx = getAuthSpreadsheet_();
+  if (!authCtx.ss) {
+    Logger.log(&quot;Không tìm thấy bảng tính Google Sheet.&quot;);
+    return;
+  }
+  ensureAdminSecuritySheets_(authCtx.ss);
+  Logger.log(&quot;✅ Đã khởi tạo bảng QuanTriVien &amp; NhatKyDangNhap thành công!&quot;);
+}
+
+// Hàm đặt hoặc đổi mật khẩu quản trị trực tiếp (tự động băm SHA-256 + salt + pepper)
+function datMatKhauQuanTri(username, plainPassword, role) {
+  var uname = String(username || &quot;admin&quot;).trim().toLowerCase();
+  var pw = String(plainPassword || &quot;&quot;);
+  if (!uname || pw.length &lt; 6) {
+    throw new Error(&quot;Tên đăng nhập không được trống và mật khẩu phải từ 6 ký tự trở lên.&quot;);
+  }
+  var sec = getOrCreateSecurityProps_();
+  var authCtx = getAuthSpreadsheet_();
+  if (!authCtx.ss) throw new Error(&quot;Không mở được Google Sheet.&quot;);
+  var sheets = ensureAdminSecuritySheets_(authCtx.ss);
+  var userSheet = sheets.userSheet;
+
+  var salt = sha256Hex_(Utilities.getUuid() + &quot;:&quot; + Date.now()).slice(0, 16);
+  var hashed = hashPasswordWithSalt_(pw, salt, sec.AUTH_PEPPER);
+
+  var lastRow = userSheet.getLastRow();
+  if (lastRow &gt;= 3) {
+    var rows = userSheet.getRange(3, 1, lastRow - 2, 7).getValues();
+    for (var i = 0; i &lt; rows.length; i++) {
+      if (String(rows[i][0] || &quot;&quot;).trim().toLowerCase() === uname) {
+        var r = 3 + i;
+        if (role) userSheet.getRange(r, 2).setValue(role);
+        userSheet.getRange(r, 3).setValue(&quot;Hoạt động&quot;);
+        userSheet.getRange(r, 4).setValue(hashed);
+        userSheet.getRange(r, 7).setValue(&quot;Cập nhật mật khẩu lúc &quot; + new Date().toLocaleString(&quot;vi-VN&quot;));
+        return true;
+      }
+    }
+  }
+  userSheet.appendRow([uname, role || &quot;Quản trị viên&quot;, &quot;Hoạt động&quot;, hashed, &quot;&quot;, &quot;&quot;, &quot;Tạo mới lúc &quot; + new Date().toLocaleString(&quot;vi-VN&quot;)]);
+  return true;
+}
+
+// Mã hóa tất cả mật khẩu dạng chữ thường vừa nhập trực tiếp trong cột D của tab QuanTriVien
+function maHoaTatCaMatKhauSheet() {
+  var sec = getOrCreateSecurityProps_();
+  var authCtx = getAuthSpreadsheet_();
+  if (!authCtx.ss) return 0;
+  var sheets = ensureAdminSecuritySheets_(authCtx.ss);
+  var userSheet = sheets.userSheet;
+  var lastRow = userSheet.getLastRow();
+  if (lastRow &lt; 3) return 0;
+  var range = userSheet.getRange(3, 1, lastRow - 2, 7);
+  var vals = range.getValues();
+  var count = 0;
+  for (var i = 0; i &lt; vals.length; i++) {
+    var rawPw = String(vals[i][3] || &quot;&quot;).trim();
+    if (rawPw &amp;&amp; rawPw.indexOf(&quot;baco$sha256$&quot;) !== 0) {
+      var salt = sha256Hex_(Utilities.getUuid() + &quot;:&quot; + i + &quot;:&quot; + Date.now()).slice(0, 16);
+      userSheet.getRange(3 + i, 4).setValue(hashPasswordWithSalt_(rawPw, salt, sec.AUTH_PEPPER));
+      userSheet.getRange(3 + i, 7).setValue(&quot;Đã mã hóa tự động &quot; + new Date().toLocaleString(&quot;vi-VN&quot;));
+      count++;
+    }
+  }
+  return count;
+}
+
+function getBruteForceState_(username) {
+  try {
+    var cache = CacheService.getScriptCache();
+    var raw = cache.get(&quot;BF_&quot; + String(username || &quot;admin&quot;).slice(0, 48));
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return { fails: 0, lockUntil: 0 };
+}
+
+function saveBruteForceState_(username, state) {
+  try {
+    var cache = CacheService.getScriptCache();
+    cache.put(&quot;BF_&quot; + String(username || &quot;admin&quot;).slice(0, 48), JSON.stringify(state), 900);
+  } catch (e) {}
+}
+
+// Truy vấn Google Sheet xác thực đăng nhập trực tiếp &amp; trả về sessionToken ký HMAC
+function handleVerifyAdmin_(data, nowStr) {
+  var sec = getOrCreateSecurityProps_();
+  var authCtx = getAuthSpreadsheet_();
+  if (!authCtx.ss) return jsonError(&quot;Auth sheet unavailable&quot;);
+  var sheets = ensureAdminSecuritySheets_(authCtx.ss);
+  var userSheet = sheets.userSheet;
+  var logSheet = sheets.logSheet;
+
+  var username = String(data.username || &quot;admin&quot;).trim().toLowerCase().slice(0, 64);
+  var password = String(data.password || &quot;&quot;).slice(0, 128);
+  var ip = String(data.ip || &quot;Direct Sheet Auth&quot;);
+  var ua = String(data.userAgent || &quot;&quot;);
+
+  if (!username || !password) {
+    appendLoginAudit_(logSheet, nowStr, username, &quot;Thất bại&quot;, &quot;Thiếu tài khoản hoặc mật khẩu&quot;, ip, ua);
+    return jsonSuccess({ valid: false, reason: &quot;invalid_credentials&quot; });
+  }
+
+  // Chống brute-force 5 lần sai -&gt; khóa 15 phút
+  var nowMs = Date.now();
+  var bf = getBruteForceState_(username);
+  if (bf.lockUntil &amp;&amp; bf.lockUntil &gt; nowMs) {
+    var mins = Math.max(1, Math.ceil((bf.lockUntil - nowMs) / 60000));
+    appendLoginAudit_(logSheet, nowStr, username, &quot;Bị chặn&quot;, &quot;Đang bị khóa chống dò mật khẩu (&quot; + mins + &quot; phút)&quot;, ip, ua);
+    return jsonSuccess({ valid: false, locked: true, retryAfterMinutes: mins, reason: &quot;locked&quot; });
+  }
+
+  var lastRow = userSheet.getLastRow();
+  if (lastRow &lt; 3) {
+    appendLoginAudit_(logSheet, nowStr, username, &quot;Thất bại&quot;, &quot;Chưa có tài khoản trong QuanTriVien&quot;, ip, ua);
+    return jsonSuccess({ valid: false, reason: &quot;no_password_set&quot; });
+  }
+
+  var rows = userSheet.getRange(3, 1, lastRow - 2, 7).getValues();
+  for (var i = 0; i &lt; rows.length; i++) {
+    var rowUser = String(rows[i][0] || &quot;&quot;).trim().toLowerCase();
+    if (!rowUser || rowUser !== username) continue;
+
+    var rowRole = String(rows[i][1] || &quot;Quản trị viên&quot;).trim();
+    var rowStatus = String(rows[i][2] || &quot;&quot;).trim().toLowerCase();
+    var storedSecret = String(rows[i][3] || &quot;&quot;).trim();
+
+    if (rowStatus !== &quot;hoạt động&quot; &amp;&amp; rowStatus !== &quot;active&quot;) {
+      appendLoginAudit_(logSheet, nowStr, username, &quot;Bị chặn&quot;, &quot;Tài khoản đang bị khóa trong Sheet&quot;, ip, ua);
+      return jsonSuccess({ valid: false, reason: &quot;account_locked&quot; });
+    }
+
+    if (!storedSecret) {
+      appendLoginAudit_(logSheet, nowStr, username, &quot;Thất bại&quot;, &quot;Chưa thiết lập mật khẩu trong QuanTriVien&quot;, ip, ua);
+      return jsonSuccess({ valid: false, reason: &quot;no_password_set&quot; });
+    }
+
+    var matched = false;
+    if (storedSecret.indexOf(&quot;baco$sha256$&quot;) === 0) {
+      matched = verifyPasswordHash_(password, storedSecret, sec.AUTH_PEPPER);
+    } else if (authCtx.isPrivate &amp;&amp; storedSecret.length &gt;= 6) {
+      matched = constantTimeEqual_(password, storedSecret);
+      if (matched) {
+        var newSalt = sha256Hex_(Utilities.getUuid() + &quot;:&quot; + Date.now()).slice(0, 16);
+        userSheet.getRange(3 + i, 4).setValue(hashPasswordWithSalt_(password, newSalt, sec.AUTH_PEPPER));
+      }
+    }
+
+    if (matched) {
+      saveBruteForceState_(username, { fails: 0, lockUntil: 0 });
+      userSheet.getRange(3 + i, 5).setValue(nowStr);
+      userSheet.getRange(3 + i, 6).setValue(ip);
+      appendLoginAudit_(logSheet, nowStr, username, &quot;Thành công&quot;, &quot;Đăng nhập hợp lệ (&quot; + rowRole + &quot;)&quot;, ip, ua);
+      var sess = createSignedSession_(rowUser, rowRole, sec.SESSION_SIGN_KEY);
+      return jsonSuccess({
+        valid: true,
+        username: rowUser,
+        role: rowRole,
+        sessionToken: sess.token,
+        expiresAt: sess.expiresAt
+      });
+    }
+
+    // Sai mật khẩu -&gt; làm chậm + đếm số lần thất bại
+    try { Utilities.sleep(450); } catch (e) {}
+    bf.fails = (bf.fails || 0) + 1;
+    if (bf.fails &gt;= 5) {
+      bf.lockUntil = nowMs + 15 * 60 * 1000;
+      bf.fails = 0;
+      saveBruteForceState_(username, bf);
+      appendLoginAudit_(logSheet, nowStr, username, &quot;Bị chặn&quot;, &quot;Sai 5 lần liên tiếp -&gt; khóa 15 phút&quot;, ip, ua);
+      return jsonSuccess({ valid: false, locked: true, retryAfterMinutes: 15, reason: &quot;locked&quot; });
+    }
+    saveBruteForceState_(username, bf);
+    appendLoginAudit_(logSheet, nowStr, username, &quot;Thất bại&quot;, &quot;Sai mật khẩu (lần &quot; + bf.fails + &quot;/5)&quot;, ip, ua);
+    return jsonSuccess({ valid: false, remainingAttempts: 5 - bf.fails, reason: &quot;wrong_password&quot; });
+  }
+
+  try { Utilities.sleep(450); } catch (e) {}
+  bf.fails = (bf.fails || 0) + 1;
+  if (bf.fails &gt;= 5) {
+    bf.lockUntil = nowMs + 15 * 60 * 1000;
+    bf.fails = 0;
+    saveBruteForceState_(username, bf);
+    appendLoginAudit_(logSheet, nowStr, username, &quot;Bị chặn&quot;, &quot;Dò tài khoản 5 lần -&gt; khóa 15 phút&quot;, ip, ua);
+    return jsonSuccess({ valid: false, locked: true, retryAfterMinutes: 15, reason: &quot;locked&quot; });
+  }
+  saveBruteForceState_(username, bf);
+  appendLoginAudit_(logSheet, nowStr, username, &quot;Thất bại&quot;, &quot;Không tồn tại tài khoản&quot;, ip, ua);
+  return jsonSuccess({ valid: false, remainingAttempts: 5 - bf.fails, reason: &quot;not_found&quot; });
+}
+
+// Xác thực lại sessionToken từ trình duyệt (kiểm tra chữ ký HMAC + hạn + trạng thái Hoạt động trong Sheet)
+function handleVerifySession_(data) {
+  var sec = getOrCreateSecurityProps_();
+  var sess = verifySignedSession_(data.token, sec.SESSION_SIGN_KEY);
+  if (!sess) return jsonSuccess({ valid: false, reason: &quot;invalid_or_expired&quot; });
+
+  var authCtx = getAuthSpreadsheet_();
+  if (!authCtx.ss) return jsonSuccess({ valid: false, reason: &quot;sheet_unavailable&quot; });
+  var userSheet = authCtx.ss.getSheetByName(&quot;QuanTriVien&quot;);
+  if (!userSheet || userSheet.getLastRow() &lt; 3) return jsonSuccess({ valid: false, reason: &quot;no_users&quot; });
+
+  var targetUser = String(sess.username || &quot;&quot;).trim().toLowerCase();
+  var rows = userSheet.getRange(3, 1, userSheet.getLastRow() - 2, 4).getValues();
+  for (var i = 0; i &lt; rows.length; i++) {
+    var rowUser = String(rows[i][0] || &quot;&quot;).trim().toLowerCase();
+    if (rowUser !== targetUser) continue;
+    var rowStatus = String(rows[i][2] || &quot;&quot;).trim().toLowerCase();
+    if (rowStatus === &quot;hoạt động&quot; || rowStatus === &quot;active&quot;) {
+      return jsonSuccess({ valid: true, username: rowUser, role: String(rows[i][1] || sess.role) });
+    }
+    return jsonSuccess({ valid: false, reason: &quot;account_locked&quot; });
+  }
+  return jsonSuccess({ valid: false, reason: &quot;not_found&quot; });
+}
+
+// Tự động mã hóa ngay khi người quản trị nhập mật khẩu mới vào cột D tab QuanTriVien
+function onEdit(e) {
+  try {
+    if (!e || !e.range) return;
+    var sheet = e.range.getSheet();
+    if (sheet.getName() !== &quot;QuanTriVien&quot;) return;
+    if (e.range.getRow() &gt;= 3 &amp;&amp; e.range.getColumn() === 4) {
+      var val = String(e.value || &quot;&quot;).trim();
+      if (val &amp;&amp; val.indexOf(&quot;baco$sha256$&quot;) !== 0) {
+        var sec = getOrCreateSecurityProps_();
+        var salt = sha256Hex_(Utilities.getUuid() + &quot;:&quot; + Date.now()).slice(0, 16);
+        e.range.setValue(hashPasswordWithSalt_(val, salt, sec.AUTH_PEPPER));
+        sheet.getRange(e.range.getRow(), 7).setValue(&quot;Đã tự mã hóa SHA-256 lúc &quot; + new Date().toLocaleString(&quot;vi-VN&quot;));
+      }
+    }
+  } catch (err) {}
+}
+
+// Menu thao tác nhanh ngay trên thanh công cụ Google Sheets
+function onOpen() {
+  try {
+    SpreadsheetApp.getUi()
+      .createMenu(&quot;🔐 Bảo Mật Ba Cô&quot;)
+      .addItem(&quot;1. Khởi tạo Bảng Tài Khoản &amp; Nhật Ký&quot;, &quot;khoiTaoBaoMatQuanTri&quot;)
+      .addItem(&quot;2. Đặt / Đổi Mật Khẩu Admin&quot;, &quot;moHopThoaiDatMatKhau&quot;)
+      .addItem(&quot;3. Mã hóa mật khẩu vừa gõ trong Sheet&quot;, &quot;chayMaHoaMatKhauUI&quot;)
+      .addItem(&quot;4. Gắn File Sheet Riêng Tư (Tùy chọn)&quot;, &quot;moHopThoaiDatSheetRiengTu&quot;)
+      .addToUi();
+  } catch (e) {}
+}
+
+function moHopThoaiDatMatKhau() {
+  var ui = SpreadsheetApp.getUi();
+  var uRes = ui.prompt(&quot;Đặt / Đổi Mật Khẩu Quản Trị&quot;, &quot;Nhập tên đăng nhập (mặc định: admin):&quot;, ui.ButtonSet.OK_CANCEL);
+  if (uRes.getSelectedButton() !== ui.Button.OK) return;
+  var uname = String(uRes.getResponseText() || &quot;admin&quot;).trim().toLowerCase() || &quot;admin&quot;;
+  var pRes = ui.prompt(&quot;Nhập Mật Khẩu Mới cho &#x27;&quot; + uname + &quot;&#x27;&quot;, &quot;Nên dùng ít nhất 8–12 ký tự (sẽ được tự động băm SHA-256):&quot;, ui.ButtonSet.OK_CANCEL);
+  if (pRes.getSelectedButton() !== ui.Button.OK) return;
+  var pw = String(pRes.getResponseText() || &quot;&quot;);
+  if (pw.length &lt; 6) {
+    ui.alert(&quot;Mật khẩu phải có ít nhất 6 ký tự.&quot;);
+    return;
+  }
+  datMatKhauQuanTri(uname, pw);
+  ui.alert(&quot;✅ Đã lưu &amp; mã hóa mật khẩu cho tài khoản &#x27;&quot; + uname + &quot;&#x27; thành công!&quot;);
+}
+
+function chayMaHoaMatKhauUI() {
+  var count = maHoaTatCaMatKhauSheet();
+  SpreadsheetApp.getUi().alert(&quot;✅ Đã mã hóa an toàn &quot; + count + &quot; dòng mật khẩu trong tab QuanTriVien.&quot;);
+}
+
+function moHopThoaiDatSheetRiengTu() {
+  var ui = SpreadsheetApp.getUi();
+  var res = ui.prompt(&quot;Gắn Google Sheet Riêng Tư (Tùy chọn nâng cao)&quot;, &quot;Dán Spreadsheet ID của file Sheet chỉ mình bạn có quyền xem (để trống nếu dùng chung file hiện tại):&quot;, ui.ButtonSet.OK_CANCEL);
+  if (res.getSelectedButton() !== ui.Button.OK) return;
+  var id = String(res.getResponseText() || &quot;&quot;).trim();
+  var props = PropertiesService.getScriptProperties();
+  if (id) {
+    props.setProperty(&quot;AUTH_SPREADSHEET_ID&quot;, id);
+    var ctx = getAuthSpreadsheet_();
+    if (ctx.ss) ensureAdminSecuritySheets_(ctx.ss);
+    ui.alert(&quot;✅ Đã chuyển dữ liệu đăng nhập sang Sheet riêng tư: &quot; + id);
+  } else {
+    props.deleteProperty(&quot;AUTH_SPREADSHEET_ID&quot;);
+    ui.alert(&quot;ℹ️ Đã chuyển về dùng tab QuanTriVien trong file Sheet chính.&quot;);
+  }
+}
+
+
 </pre>
                 <button type="button" onclick="copyAppsScriptCode()" class="mt-2.5 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow transition ios-press">
                     📋 Sao Chép Toàn Bộ Mã Apps Script Đầy Đủ
