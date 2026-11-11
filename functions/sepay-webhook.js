@@ -1,5 +1,4 @@
-// functions/sepay-webhook.js - Cloudflare Pages Function
-// Route dự phòng nhận SePay Webhook khi khách điền link không có tiền tố /api
+// functions/sepay-webhook.js - Cloudflare Pages Function (Hardened)
 export async function onRequest(context) {
   const { request } = context;
   const targetUrl = `https://mambacokhanhhoa.vercel.app/api/sepay-webhook`;
@@ -8,9 +7,9 @@ export async function onRequest(context) {
     return new Response(null, {
       status: 204,
       headers: {
-        'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Cache-Control': 'no-store'
       }
     });
   }
@@ -19,14 +18,15 @@ export async function onRequest(context) {
     const forwardHeaders = new Headers();
     for (const [key, value] of request.headers.entries()) {
       const lower = key.toLowerCase();
-      if (!['host', 'cf-connecting-ip', 'cf-ray', 'cf-visitor', 'connection'].includes(lower)) {
+      if (!['host', 'cookie', 'cf-connecting-ip', 'cf-ray', 'cf-visitor', 'connection'].includes(lower)) {
         forwardHeaders.set(key, value);
       }
     }
     const fetchInit = {
       method: request.method,
       headers: forwardHeaders,
-      redirect: 'follow'
+      redirect: 'follow',
+      signal: AbortSignal.timeout(10000)
     };
     if (request.method !== 'GET' && request.method !== 'HEAD') {
       fetchInit.body = await request.text();
@@ -36,11 +36,15 @@ export async function onRequest(context) {
     return new Response(body, {
       status: response.status,
       headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store',
+        'X-Content-Type-Options': 'nosniff'
       }
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: 'Webhook upstream error', success: false }), {
+      status: 502,
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+    });
   }
 }

@@ -20,35 +20,12 @@
     <meta name="theme-color" content="#f2f2f7">
     <meta name="mobile-web-app-capable" content="yes">
 
+    <!-- Precompiled Tailwind CSS -->
+    <link rel="stylesheet" href="./assets/admin.css">
     <!-- Hệ thống bảo mật & Chống xem mã nguồn F12 -->
-    <script src="./security.js"></script>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="./security.js" defer></script>
     <!-- Chart.js CDN cho biểu đồ doanh số -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        iosBg: '#f2f2f7',
-                        iosCard: '#ffffff',
-                        iosBlue: '#007AFF',
-                        iosGreen: '#34C759',
-                        iosOrange: '#FF9500',
-                        iosRed: '#FF3B30',
-                        iosPurple: '#5856D6',
-                        iosGray: '#8E8E93',
-                        iosDivider: '#E5E5EA',
-                        amberBrand: '#1c1c1e'
-                    },
-                    fontFamily: {
-                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <style>
         /* Apple iOS Native Minimalist Look & Feel */
         body {
@@ -264,73 +241,14 @@
     <!-- Audio Element phát chuông Ting-Ting chuyên dụng cho thông báo -->
     <audio id="bacoChimeAudioElement" preload="auto" playsinline></audio>
 
-    <!-- 1. MÀN HÌNH ĐĂNG NHẬP BẢO MẬT (Chuẩn iOS Passcode tối giản) -->
+    <!-- 1. MÀN HÌNH XÁC THỰC (Đăng nhập thật được xử lý phía máy chủ Cloudflare - functions/_middleware.js) -->
     <div id="loginScreen" class="fixed inset-0 z-50 bg-[#F2F2F7] flex items-center justify-center p-5">
-        <div class="ios-card max-w-xs w-full p-6 text-center space-y-5 shadow-sm">
-            <img src="./pictrure/logo.JPG" alt="Ba Cô" class="w-16 h-16 rounded-2xl object-cover mx-auto border border-black/[0.08] shadow-xs">
-            <div>
-                <h2 class="text-lg font-bold tracking-tight text-[#1c1c1e]">Ba Cô Admin</h2>
-                <p class="text-xs text-[#8E8E93] mt-0.5">Nhập mã PIN quản trị</p>
-            </div>
-
-            <!-- Khung thông báo lỗi khi nhập sai mật khẩu -->
-            <div id="loginErrorBox" class="hidden text-xs font-medium text-[#FF3B30] bg-[#FF3B30]/10 p-2.5 rounded-xl text-center">
-                <span id="loginErrorMsg">Mã PIN không chính xác.</span>
-            </div>
-
-            <form onsubmit="handleAdminLogin(event)" class="space-y-3.5">
-                <div class="relative">
-                    <input type="password" id="adminPasswordInput" placeholder="••••••" maxlength="20" inputmode="numeric" required 
-                           class="w-full px-4 py-3 rounded-xl bg-[#767680]/[0.12] border-0 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-center text-lg tracking-[0.25em] font-mono transition">
-                    <button type="button" onclick="toggleAdminPassVisibility()" title="Ẩn/Hiện mật khẩu" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#8E8E93] hover:text-slate-700 text-xs p-1">
-                        <span id="passEyeIcon">Hiện</span>
-                    </button>
-                </div>
-
-                <button type="submit" id="adminLoginBtn" class="w-full bg-[#007AFF] hover:bg-[#0066CC] text-white font-semibold py-3 rounded-xl transition ios-press text-sm">
-                    Đăng Nhập
-                </button>
-            </form>
-
-            <div class="flex items-center justify-between pt-2 border-t border-black/[0.06] text-xs">
-                <a href="./index.html" class="text-[#8E8E93] hover:text-[#1c1c1e]">← Trang chủ</a>
-                <button type="button" onclick="openForgotPasswordModal()" class="text-[#007AFF] font-medium">
-                    Quên mã PIN?
-                </button>
-            </div>
+        <div class="flex flex-col items-center space-y-3 text-[#8E8E93]">
+            <span class="animate-spin text-[#007AFF] text-2xl">↻</span>
+            <span class="text-xs font-medium">Đang xác thực phiên quản trị an toàn...</span>
         </div>
     </div>
-
-    <!-- MODAL KHÔI PHỤC KHI QUÊN MẬT KHẨU -->
-    <div id="forgotPasswordModal" class="fixed inset-0 z-[60] bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-        <div class="ios-card max-w-sm w-full p-5 space-y-4 shadow-xl relative">
-            <div class="flex items-center justify-between border-b border-black/[0.06] pb-3">
-                <h3 class="text-base font-bold text-[#1c1c1e]">Đặt Lại Mã PIN</h3>
-                <button type="button" onclick="closeForgotPasswordModal()" class="w-7 h-7 rounded-full bg-[#767680]/[0.12] text-[#8E8E93] font-bold flex items-center justify-center text-xs ios-press">✕</button>
-            </div>
-
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-xs font-medium text-[#8E8E93] mb-1">Số điện thoại chủ shop</label>
-                    <input type="tel" id="recoveryPhoneInput" placeholder="0985520678" class="w-full px-3.5 py-2.5 rounded-xl bg-[#767680]/[0.12] text-sm focus:outline-none focus:ring-2 focus:ring-[#007AFF] focus:bg-white font-mono">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-[#8E8E93] mb-1">Mã PIN mới (4 - 10 số)</label>
-                    <input type="password" id="newPinInput" placeholder="Nhập mã PIN mới" maxlength="10" inputmode="numeric" class="w-full px-3.5 py-2.5 rounded-xl bg-[#767680]/[0.12] text-sm focus:outline-none focus:ring-2 focus:ring-[#007AFF] focus:bg-white font-mono">
-                </div>
-                <button type="button" onclick="handleResetPinWithPhone()" class="w-full bg-[#007AFF] text-white font-semibold text-xs py-2.5 rounded-xl transition ios-press">
-                    Lưu Mã PIN Mới
-                </button>
-            </div>
-
-            <div class="pt-2 border-t border-black/[0.06] flex items-center justify-between text-xs">
-                <button type="button" onclick="fillDefaultPinAndLogin()" class="text-[#8E8E93] hover:text-[#1c1c1e]">Dùng PIN mặc định</button>
-                <button type="button" onclick="sendPinToAdminEmail()" class="text-[#007AFF] font-medium">
-                    Gửi qua Email
-                </button>
-            </div>
-        </div>
-    </div>
+    <div id="forgotPasswordModal" class="hidden"></div>
 
     <!-- 2. GIAO DIỆN CHÍNH QUẢN TRỊ VIÊN (APPLE iOS MINIMALIST) -->
     <div id="adminApp" class="hidden flex-1 flex flex-col">
@@ -815,14 +733,14 @@
                             <div class="bg-[#F2F2F7]/70 p-3 rounded-xl space-y-2">
                                 <label class="block text-xs font-semibold text-[#1c1c1e]">Ảnh nền biển đảo Cam Ranh</label>
                                 <div class="flex items-center space-x-3">
-                                    <img id="preview_cms_heroBgImg" src="./pictrure/banner_khanhhoa.jpg" alt="Preview" class="w-16 h-14 rounded-lg object-cover border border-black/[0.08] shrink-0">
+                                    <img id="preview_cms_heroBgImg" src="./pictrure/banner_khanhhoa.webp" alt="Preview" class="w-16 h-14 rounded-lg object-cover border border-black/[0.08] shrink-0">
                                     <div class="flex-1 space-y-1.5">
                                         <input type="file" id="file_cms_heroBgImg" accept="image/*" class="hidden" onchange="handleCmsImageSelect(event, 'heroBgImg')">
                                         <div class="flex gap-1.5">
                                             <button type="button" onclick="document.getElementById('file_cms_heroBgImg').click()" class="flex-1 bg-white border border-black/[0.1] text-[#1c1c1e] text-xs font-medium px-2 py-1.5 rounded-lg transition ios-press">
                                                 Chọn ảnh
                                             </button>
-                                            <button type="button" onclick="setPresetCmsImage('heroBgImg', './pictrure/banner_khanhhoa.jpg')" class="bg-white border border-black/[0.1] text-[#8E8E93] text-xs font-medium px-2 py-1.5 rounded-lg transition ios-press" title="Ảnh gốc">
+                                            <button type="button" onclick="setPresetCmsImage('heroBgImg', './pictrure/banner_khanhhoa.webp')" class="bg-white border border-black/[0.1] text-[#8E8E93] text-xs font-medium px-2 py-1.5 rounded-lg transition ios-press" title="Ảnh gốc">
                                                 Ảnh gốc
                                             </button>
                                         </div>
@@ -834,14 +752,14 @@
                             <div class="bg-[#F2F2F7]/70 p-3 rounded-xl space-y-2">
                                 <label class="block text-xs font-semibold text-[#1c1c1e]">Ảnh chai mắm & chén mắm tách nền (Bên phải)</label>
                                 <div class="flex items-center space-x-3">
-                                    <img id="preview_cms_heroProductImg" src="./pictrure/hero_bottle_dish.png" alt="Preview" class="w-16 h-14 rounded-lg object-contain bg-slate-900/10 p-1 border border-black/[0.08] shrink-0">
+                                    <img id="preview_cms_heroProductImg" src="./pictrure/hero_bottle_dish.webp" alt="Preview" class="w-16 h-14 rounded-lg object-contain bg-slate-900/10 p-1 border border-black/[0.08] shrink-0">
                                     <div class="flex-1 space-y-1.5">
                                         <input type="file" id="file_cms_heroProductImg" accept="image/*" class="hidden" onchange="handleCmsImageSelect(event, 'heroProductImg')">
                                         <div class="flex gap-1.5">
                                             <button type="button" onclick="document.getElementById('file_cms_heroProductImg').click()" class="flex-1 bg-white border border-black/[0.1] text-[#1c1c1e] text-xs font-medium px-2 py-1.5 rounded-lg transition ios-press">
                                                 Chọn ảnh
                                             </button>
-                                            <button type="button" onclick="setPresetCmsImage('heroProductImg', './pictrure/hero_bottle_dish.png')" class="bg-white border border-black/[0.1] text-[#8E8E93] text-xs font-medium px-2 py-1.5 rounded-lg transition ios-press" title="Ảnh gốc">
+                                            <button type="button" onclick="setPresetCmsImage('heroProductImg', './pictrure/hero_bottle_dish.webp')" class="bg-white border border-black/[0.1] text-[#8E8E93] text-xs font-medium px-2 py-1.5 rounded-lg transition ios-press" title="Ảnh gốc">
                                                 Ảnh gốc
                                             </button>
                                         </div>
@@ -2523,7 +2441,6 @@ function dinhDangDongKhachSi(sheet, row) {
 
     <!-- ================= JAVASCRIPT XỬ LÝ QUẢN TRỊ ================= -->
     <script>
-        const ADMIN_PIN = "123456";
 
         const DEFAULT_PRODUCTS = [
             {
@@ -2798,134 +2715,62 @@ function dinhDangDongKhachSi(sheet, row) {
             const dateEl = document.getElementById('statTodayDate');
             if (dateEl) dateEl.textContent = dateStr;
 
-            // Xóa khóa cũ nếu bị kẹt để điện thoại đăng nhập bình thường
+            // 🔒 Xác thực PHÍA MÁY CHỦ: trang này chỉ được Cloudflare trả về khi đã đăng nhập bằng mật khẩu
+            // (cookie phiên HttpOnly ký HMAC). Mã PIN không còn nằm trong mã nguồn.
             localStorage.removeItem('baco_pin_locked_until');
             localStorage.removeItem('baco_pin_fail_count');
-
-            // Kiểm tra trạng thái đã đăng nhập lưu vĩnh viễn trên thiết bị
-            const isLogged = localStorage.getItem('baco_admin_logged') === 'true' || sessionStorage.getItem('baco_admin_logged') === 'true';
-
-            // Chỉ bắt buộc đăng nhập lại nếu URL có tham số khóa chủ động ?lock=1
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('lock') === '1') {
-                localStorage.removeItem('baco_admin_logged');
-                sessionStorage.removeItem('baco_admin_logged');
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-
-            if (isLogged && urlParams.get('lock') !== '1') {
-                showAdminDashboard();
-            } else {
-                // Focus ngay vào ô nhập PIN nếu chưa đăng nhập
-                setTimeout(() => {
-                    const passInput = document.getElementById('adminPasswordInput');
-                    if (passInput) passInput.focus();
-                }, 300);
-            }
+            localStorage.removeItem('baco_custom_pin');
+            localStorage.removeItem('baco_admin_logged');
+            sessionStorage.removeItem('baco_admin_logged');
+            verifyServerSessionAndOpen();
         });
 
-        function getAdminPin() {
-            return (localStorage.getItem('baco_custom_pin') || ADMIN_PIN).trim();
+        async function verifyServerSessionAndOpen() {
+            const isLocalDev = location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+            if (isLocalDev) { showAdminDashboard(); return; }
+            try {
+                const res = await fetch('/__auth/status', { credentials: 'same-origin', cache: 'no-store' });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.authenticated) { showAdminDashboard(); return; }
+                }
+            } catch (e) {}
+            // Không xác thực được (phiên hết hạn hoặc truy cập từ tên miền không được bảo vệ) -> khóa giao diện
+            showServerLockedScreen();
         }
 
-        function toggleAdminPassVisibility() {
-            const input = document.getElementById('adminPasswordInput');
-            const icon = document.getElementById('passEyeIcon');
-            if (!input) return;
-            if (input.type === 'password') {
-                input.type = 'text';
-                if (icon) icon.textContent = '🙈';
-            } else {
-                input.type = 'password';
-                if (icon) icon.textContent = '👁️';
+        function showServerLockedScreen() {
+            const app = document.getElementById('adminApp');
+            if (app) app.classList.add('hidden');
+            const screen = document.getElementById('loginScreen');
+            if (screen) {
+                screen.classList.remove('hidden');
+                screen.innerHTML = `
+                    <div class="w-full max-w-sm bg-white rounded-3xl p-7 text-center shadow-sm space-y-3">
+                        <div class="text-4xl">🔒</div>
+                        <h2 class="text-base font-bold text-[#1c1c1e]">Phiên quản trị đã hết hạn</h2>
+                        <p class="text-xs text-[#8E8E93]">Vui lòng đăng nhập lại bằng mật khẩu quản trị trên tên miền chính thức.</p>
+                        <a href="https://mambacokhanhhoa.pages.dev/admin.html" class="block w-full bg-[#007AFF] text-white font-semibold py-3 rounded-xl text-sm">Đăng nhập lại</a>
+                    </div>`;
             }
         }
 
+        // Các hàm PIN cũ được giữ tên để không vỡ liên kết giao diện, nhưng chuyển sang đăng nhập máy chủ
+        function toggleAdminPassVisibility() {}
         function handleAdminLogin(e) {
             if (e && e.preventDefault) e.preventDefault();
-            const inputEl = document.getElementById('adminPasswordInput');
-            const errBox = document.getElementById('loginErrorBox');
-            const errText = document.getElementById('loginErrorMsg');
-            const pass = (inputEl ? inputEl.value : '').trim();
-
-            if (pass === getAdminPin()) {
-                if (errBox) errBox.classList.add('hidden');
-                if (inputEl) inputEl.classList.remove('border-rose-500', 'bg-rose-50/50');
-                localStorage.setItem('baco_admin_logged', 'true');
-                sessionStorage.setItem('baco_admin_logged', 'true');
-                showAdminDashboard();
-                showAdminToast('Đăng nhập quản trị thành công! Chào mừng bạn.', 'success');
-            } else {
-                if (errBox && errText) {
-                    errText.innerHTML = `Mật khẩu (mã PIN) không chính xác! Vui lòng thử lại hoặc bấm <strong>"Quên mật khẩu?"</strong> bên dưới.`;
-                    errBox.classList.remove('hidden');
-                }
-                if (inputEl) {
-                    inputEl.classList.add('border-rose-500', 'bg-rose-50/50');
-                    inputEl.focus();
-                    inputEl.select();
-                }
-                showAdminToast('Mật khẩu không đúng! Mã PIN mặc định là 123456', 'error');
-            }
+            window.location.href = '/admin.html';
         }
-
         function openForgotPasswordModal() {
-            const modal = document.getElementById('forgotPasswordModal');
-            if (modal) modal.classList.remove('hidden');
+            showAdminToast('Mật khẩu quản trị được đặt trong Cloudflare Pages → Settings → Variables and Secrets (ADMIN_PASSWORD).', 'info');
         }
-
         function closeForgotPasswordModal() {
             const modal = document.getElementById('forgotPasswordModal');
             if (modal) modal.classList.add('hidden');
         }
-
-        function fillDefaultPinAndLogin() {
-            const input = document.getElementById('adminPasswordInput');
-            if (input) input.value = getAdminPin();
-            closeForgotPasswordModal();
-            const errBox = document.getElementById('loginErrorBox');
-            if (errBox) errBox.classList.add('hidden');
-            handleAdminLogin();
-        }
-
-        function handleResetPinWithPhone() {
-            const phone = (document.getElementById('recoveryPhoneInput').value || '').replace(/\D/g, '');
-            const newPin = (document.getElementById('newPinInput').value || '').trim();
-
-            if (phone !== '0985520678') {
-                showAdminToast('Số điện thoại không khớp với số Hotline đã đăng ký (0985 520 678)!', 'error');
-                return;
-            }
-            if (!newPin || newPin.length < 4) {
-                showAdminToast('Mã PIN mới phải từ 4 ký tự/số trở lên!', 'error');
-                return;
-            }
-
-            localStorage.setItem('baco_custom_pin', newPin);
-            closeForgotPasswordModal();
-            const passInput = document.getElementById('adminPasswordInput');
-            if (passInput) passInput.value = newPin;
-            showAdminToast(`Đặt lại mã PIN thành công (${newPin})! Đang mở khóa...`, 'success');
-            handleAdminLogin();
-        }
-
-        function sendPinToAdminEmail() {
-            const currentPin = getAdminPin();
-            showAdminToast('Đang gửi mã PIN về email...', 'info');
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({
-                    action: 'forgot_password_email',
-                    pin: currentPin,
-                    email: 'tranngocmih3011@gmail.com',
-                    timestamp: new Date().toLocaleString('vi-VN')
-                })
-            }).finally(() => {
-                showAdminToast(`Mã PIN hiện tại là: ${currentPin} (Đã lưu ý về email)`, 'success');
-            });
-        }
+        function fillDefaultPinAndLogin() { closeForgotPasswordModal(); handleAdminLogin(); }
+        function handleResetPinWithPhone() { openForgotPasswordModal(); }
+        function sendPinToAdminEmail() { openForgotPasswordModal(); }
 
         let adminSheetSyncTimer = null;
 
@@ -2936,16 +2781,9 @@ function dinhDangDongKhachSi(sheet, row) {
             }
             localStorage.removeItem('baco_admin_logged');
             sessionStorage.removeItem('baco_admin_logged');
-            document.getElementById('adminApp').classList.add('hidden');
-            document.getElementById('loginScreen').classList.remove('hidden');
-            const passInput = document.getElementById('adminPasswordInput');
-            if (passInput) {
-                passInput.value = '';
-                passInput.focus();
-            }
-            const errBox = document.getElementById('loginErrorBox');
-            if (errBox) errBox.classList.add('hidden');
-            showAdminToast('Đã đăng xuất & khóa trang quản trị', 'info');
+            showAdminToast('Đang đăng xuất & khóa trang quản trị...', 'info');
+            // Xóa cookie phiên HttpOnly phía máy chủ
+            window.location.href = '/__auth/logout';
         }
 
         // ================= XỬ LÝ KÉO XUỐNG LÀM MỚI (PULL-TO-REFRESH) TRÊN ĐIỆN THOẠI =================
@@ -3139,7 +2977,7 @@ function dinhDangDongKhachSi(sheet, row) {
                         const k = c[0] && c[0].v ? String(c[0].v).trim() : '';
                         let v = c[1] && c[1].v !== null && c[1].v !== undefined ? String(c[1].v) : '';
                         if (k === 'heroBgImg' && v.includes('photo-1507525428034-b723cf961d3e')) {
-                            v = './pictrure/banner_khanhhoa.jpg';
+                            v = './pictrure/banner_khanhhoa.webp';
                         }
                         if (k === 'pillar2Img' && (v === './pictrure/1.jpg' || v.includes('unsplash.com'))) {
                             v = './pictrure/pillar_salt.jpg';
@@ -3593,6 +3431,18 @@ function dinhDangDongKhachSi(sheet, row) {
             renderOrders();
         }
 
+        function escHtml(str) {
+            return String(str == null ? '' : str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+        function safePhone(str) {
+            return String(str == null ? '' : str).replace(/[^0-9+]/g, '');
+        }
+
         function renderOrders() {
             let isTargetedMode = false;
             let filtered = [];
@@ -3693,22 +3543,34 @@ function dinhDangDongKhachSi(sheet, row) {
                             ? 'p-3.5 space-y-2.5 rounded-2xl bg-[#F0F7FF] border-2 border-[#007AFF] shadow-sm transition-all duration-300'
                             : 'ios-card p-3.5 space-y-2.5 transition-all duration-200';
 
+                        const sCode = escHtml(order.orderCode);
+                        const sCleanCode = escHtml(cleanCode);
+                        const sTime = escHtml(order.timestamp);
+                        const sStatus = escHtml(order.status);
+                        const sName = escHtml(order.name);
+                        const sPhone = escHtml(order.phone);
+                        const sTel = safePhone(order.phone);
+                        const sAddr = escHtml(order.address);
+                        const sProd = escHtml(order.product);
+                        const sNote = order.note ? escHtml(order.note) : '';
+                        const sQty = Number(order.quantity || 0);
+
                         return `
-                            <div id="order-card-mobile-${cleanCode}" class="${cardClasses}">
+                            <div id="order-card-mobile-${sCleanCode}" class="${cardClasses}">
                                 ${isTargeted ? `
                                     <div class="inline-flex items-center space-x-1.5 bg-[#007AFF] text-white font-semibold text-[11px] px-2.5 py-0.5 rounded-full">
-                                        <span>Đơn hàng đang chọn #${cleanCode}</span>
+                                        <span>Đơn hàng đang chọn #${sCleanCode}</span>
                                     </div>
                                 ` : ''}
 
                                 <div class="flex items-center justify-between border-b border-black/[0.05] pb-2">
                                     <div class="flex items-center space-x-2">
-                                        <span class="font-mono font-bold text-xs text-[#1c1c1e]">#${order.orderCode}</span>
-                                        <span class="text-[11px] text-[#8E8E93]">${order.timestamp}</span>
+                                        <span class="font-mono font-bold text-xs text-[#1c1c1e]">#${sCode}</span>
+                                        <span class="text-[11px] text-[#8E8E93]">${sTime}</span>
                                     </div>
                                     <div class="flex items-center space-x-1.5">
                                         <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md ${statusColor}">
-                                            ${order.status}
+                                            ${sStatus}
                                         </span>
                                         <button onclick="deleteOrder(${originalIdx})" class="w-6 h-6 rounded-full text-[#8E8E93] hover:text-[#FF3B30] flex items-center justify-center text-xs transition ios-press" title="Xóa">
                                             ✕
@@ -3718,17 +3580,17 @@ function dinhDangDongKhachSi(sheet, row) {
 
                                 <div class="flex items-start justify-between gap-2">
                                     <div class="space-y-0.5 min-w-0">
-                                        <div class="font-semibold text-[#1c1c1e] text-sm leading-tight truncate">${order.name}</div>
+                                        <div class="font-semibold text-[#1c1c1e] text-sm leading-tight truncate">${sName}</div>
                                         <div class="text-xs text-[#007AFF] font-medium">
-                                            <a href="tel:${order.phone}">${order.phone}</a>
+                                            <a href="tel:${sTel}">${sPhone}</a>
                                         </div>
-                                        <div class="text-[11px] text-[#8E8E93] line-clamp-1">${order.address}</div>
+                                        <div class="text-[11px] text-[#8E8E93] line-clamp-1">${sAddr}</div>
                                     </div>
                                     <div class="flex items-center space-x-1.5 shrink-0">
-                                        <a href="tel:${order.phone}" class="px-2.5 py-1 rounded-lg bg-[#34C759]/12 text-[#34C759] text-xs font-semibold ios-press">
+                                        <a href="tel:${sTel}" class="px-2.5 py-1 rounded-lg bg-[#34C759]/12 text-[#34C759] text-xs font-semibold ios-press">
                                             Gọi
                                         </a>
-                                        <a href="https://zalo.me/${order.phone}" target="_blank" class="px-2.5 py-1 rounded-lg bg-[#007AFF]/12 text-[#007AFF] text-xs font-semibold ios-press">
+                                        <a href="https://zalo.me/${sTel}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-[#007AFF]/12 text-[#007AFF] text-xs font-semibold ios-press">
                                             Zalo
                                         </a>
                                     </div>
@@ -3736,10 +3598,10 @@ function dinhDangDongKhachSi(sheet, row) {
 
                                 <div class="bg-[#F2F2F7]/80 px-3 py-2 rounded-xl text-xs space-y-0.5">
                                     <div class="flex justify-between items-center text-[#1c1c1e]">
-                                        <span class="font-medium truncate pr-2">${order.product}</span>
-                                        <span class="font-bold shrink-0">x${order.quantity}</span>
+                                        <span class="font-medium truncate pr-2">${sProd}</span>
+                                        <span class="font-bold shrink-0">x${sQty}</span>
                                     </div>
-                                    ${order.note ? `<div class="text-[11px] text-[#8E8E93]">Ghi chú: ${order.note}</div>` : ''}
+                                    ${sNote ? `<div class="text-[11px] text-[#8E8E93]">Ghi chú: ${sNote}</div>` : ''}
                                 </div>
 
                                 <div class="flex items-center justify-between pt-0.5">
@@ -3781,21 +3643,30 @@ function dinhDangDongKhachSi(sheet, row) {
                         const rowClasses = isTargeted
                             ? 'bg-[#F0F7FF] border-l-4 border-[#007AFF] font-semibold transition-all duration-300'
                             : 'hover:bg-slate-50/80 transition-all duration-200';
+                        const sCode = escHtml(order.orderCode);
+                        const sCleanCode = escHtml(cleanCode);
+                        const sTime = escHtml(order.timestamp);
+                        const sName = escHtml(order.name);
+                        const sPhone = escHtml(order.phone);
+                        const sTel = safePhone(order.phone);
+                        const sAddr = escHtml(order.address);
+                        const sProd = escHtml(order.product);
+                        const sQty = Number(order.quantity || 0);
 
                         return `
-                            <tr id="order-row-desktop-${cleanCode}" class="${rowClasses}">
+                            <tr id="order-row-desktop-${sCleanCode}" class="${rowClasses}">
                                 <td class="px-4 py-3 font-mono font-bold text-[#1c1c1e]">
-                                    #${order.orderCode}
-                                    <div class="text-[11px] text-[#8E8E93] font-sans font-normal">${order.timestamp}</div>
+                                    #${sCode}
+                                    <div class="text-[11px] text-[#8E8E93] font-sans font-normal">${sTime}</div>
                                 </td>
                                 <td class="px-4 py-3">
-                                    <div class="font-semibold text-[#1c1c1e]">${order.name}</div>
-                                    <a href="tel:${order.phone}" class="text-xs text-[#007AFF] hover:underline">${order.phone}</a>
-                                    <div class="text-xs text-[#8E8E93] truncate max-w-[200px]">${order.address}</div>
+                                    <div class="font-semibold text-[#1c1c1e]">${sName}</div>
+                                    <a href="tel:${sTel}" class="text-xs text-[#007AFF] hover:underline">${sPhone}</a>
+                                    <div class="text-xs text-[#8E8E93] truncate max-w-[200px]">${sAddr}</div>
                                 </td>
                                 <td class="px-4 py-3">
-                                    <div class="text-xs font-medium text-[#1c1c1e]">${order.product}</div>
-                                    <div class="text-[11px] text-[#8E8E93]">SL: <strong>${order.quantity}</strong></div>
+                                    <div class="text-xs font-medium text-[#1c1c1e]">${sProd}</div>
+                                    <div class="text-[11px] text-[#8E8E93]">SL: <strong>${sQty}</strong></div>
                                 </td>
                                 <td class="px-4 py-3 font-bold text-[#1c1c1e]">
                                     ${Number(order.totalAmount || 0).toLocaleString('vi-VN')} đ
@@ -3816,7 +3687,7 @@ function dinhDangDongKhachSi(sheet, row) {
                                 </td>
                                 <td class="px-4 py-3 text-right whitespace-nowrap">
                                     <div class="inline-flex items-center justify-end gap-1.5">
-                                        <a href="https://zalo.me/${order.phone}" target="_blank" 
+                                        <a href="https://zalo.me/${sTel}" target="_blank" rel="noopener noreferrer" 
                                            class="text-xs bg-[#007AFF]/12 text-[#007AFF] px-2.5 py-1 rounded-lg font-semibold transition ios-press">
                                             Zalo
                                         </a>
@@ -4010,22 +3881,33 @@ function dinhDangDongKhachSi(sheet, row) {
                             ? 'p-3.5 space-y-2.5 rounded-2xl bg-[#F0F7FF] border-2 border-[#007AFF] shadow-sm transition-all duration-300'
                             : 'ios-card p-3.5 space-y-2.5 transition-all duration-200';
 
+                        const lCode = escHtml(lead.leadCode);
+                        const lCleanCode = escHtml(cleanCode);
+                        const lTime = escHtml(lead.timestamp || '');
+                        const lStatus = escHtml(lead.status || 'Chờ gọi tư vấn');
+                        const lName = escHtml(lead.name);
+                        const lPhone = escHtml(lead.phone);
+                        const lTel = safePhone(lead.phone);
+                        const lArea = escHtml(lead.area || 'Toàn quốc');
+                        const lModel = escHtml(lead.businessModel || 'Đại lý phân phối');
+                        const lNote = lead.note ? escHtml(lead.note) : '';
+
                         return `
-                            <div id="wholesale-card-mobile-${cleanCode}" class="${cardClasses}">
+                            <div id="wholesale-card-mobile-${lCleanCode}" class="${cardClasses}">
                                 ${isTargeted ? `
                                     <div class="inline-flex items-center space-x-1.5 bg-[#007AFF] text-white font-semibold text-[11px] px-2.5 py-0.5 rounded-full">
-                                        <span>Đại lý đang chọn #${cleanCode}</span>
+                                        <span>Đại lý đang chọn #${lCleanCode}</span>
                                     </div>
                                 ` : ''}
 
                                 <div class="flex items-center justify-between border-b border-black/[0.05] pb-2">
                                     <div class="flex items-center space-x-2">
-                                        <span class="font-mono font-bold text-xs text-[#1c1c1e]">#${lead.leadCode}</span>
-                                        <span class="text-[11px] text-[#8E8E93]">${lead.timestamp || ''}</span>
+                                        <span class="font-mono font-bold text-xs text-[#1c1c1e]">#${lCode}</span>
+                                        <span class="text-[11px] text-[#8E8E93]">${lTime}</span>
                                     </div>
                                     <div class="flex items-center space-x-1.5">
                                         <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md ${badgeColor}">
-                                            ${lead.status || 'Chờ gọi tư vấn'}
+                                            ${lStatus}
                                         </span>
                                         <button onclick="deleteWholesaleLead(${originalIdx})" class="w-6 h-6 rounded-full text-[#8E8E93] hover:text-[#FF3B30] flex items-center justify-center text-xs transition ios-press" title="Xóa">
                                             ✕
@@ -4035,25 +3917,25 @@ function dinhDangDongKhachSi(sheet, row) {
 
                                 <div class="flex items-start justify-between gap-2">
                                     <div class="space-y-0.5 min-w-0">
-                                        <div class="font-semibold text-[#1c1c1e] text-sm leading-tight truncate">${lead.name}</div>
+                                        <div class="font-semibold text-[#1c1c1e] text-sm leading-tight truncate">${lName}</div>
                                         <div class="text-xs text-[#007AFF] font-medium">
-                                            <a href="tel:${lead.phone}">${lead.phone}</a>
+                                            <a href="tel:${lTel}">${lPhone}</a>
                                         </div>
-                                        <div class="text-[11px] text-[#8E8E93]">Khu vực: <span class="text-[#1c1c1e] font-medium">${lead.area || 'Toàn quốc'}</span></div>
+                                        <div class="text-[11px] text-[#8E8E93]">Khu vực: <span class="text-[#1c1c1e] font-medium">${lArea}</span></div>
                                     </div>
                                     <div class="flex items-center space-x-1.5 shrink-0">
-                                        <a href="tel:${lead.phone}" class="px-2.5 py-1 rounded-lg bg-[#34C759]/12 text-[#34C759] text-xs font-semibold ios-press">
+                                        <a href="tel:${lTel}" class="px-2.5 py-1 rounded-lg bg-[#34C759]/12 text-[#34C759] text-xs font-semibold ios-press">
                                             Gọi
                                         </a>
-                                        <a href="https://zalo.me/${lead.phone}" target="_blank" class="px-2.5 py-1 rounded-lg bg-[#007AFF]/12 text-[#007AFF] text-xs font-semibold ios-press">
+                                        <a href="https://zalo.me/${lTel}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-[#007AFF]/12 text-[#007AFF] text-xs font-semibold ios-press">
                                             Zalo
                                         </a>
                                     </div>
                                 </div>
 
                                 <div class="bg-[#F2F2F7]/80 px-3 py-2 rounded-xl text-xs space-y-0.5">
-                                    <div class="text-[#1c1c1e] font-medium">${lead.businessModel || 'Đại lý phân phối'}</div>
-                                    ${lead.note ? `<div class="text-[11px] text-[#8E8E93]">${lead.note}</div>` : ''}
+                                    <div class="text-[#1c1c1e] font-medium">${lModel}</div>
+                                    ${lNote ? `<div class="text-[11px] text-[#8E8E93]">${lNote}</div>` : ''}
                                 </div>
 
                                 <div class="flex items-center justify-between pt-0.5">
@@ -4085,23 +3967,32 @@ function dinhDangDongKhachSi(sheet, row) {
                         const rowClasses = isTargeted
                             ? 'bg-[#F0F7FF] border-l-4 border-[#007AFF] font-semibold transition-all duration-300'
                             : 'hover:bg-slate-50/60 transition-all duration-200';
+                        const lCode = escHtml(lead.leadCode);
+                        const lCleanCode = escHtml(cleanCode);
+                        const lTime = escHtml(lead.timestamp || '');
+                        const lName = escHtml(lead.name);
+                        const lPhone = escHtml(lead.phone);
+                        const lTel = safePhone(lead.phone);
+                        const lArea = escHtml(lead.area || 'Toàn quốc');
+                        const lModel = escHtml(lead.businessModel || '');
+                        const lNote = escHtml(lead.note || '');
 
                         return `
-                            <tr id="wholesale-row-desktop-${cleanCode}" class="${rowClasses}">
+                            <tr id="wholesale-row-desktop-${lCleanCode}" class="${rowClasses}">
                                 <td class="px-4 py-3 font-mono font-bold text-[#1c1c1e]">
-                                    #${lead.leadCode}
-                                    <div class="text-[11px] text-[#8E8E93] font-sans font-normal">${lead.timestamp || ''}</div>
+                                    #${lCode}
+                                    <div class="text-[11px] text-[#8E8E93] font-sans font-normal">${lTime}</div>
                                 </td>
                                 <td class="px-4 py-3">
-                                    <div class="font-semibold text-[#1c1c1e]">${lead.name}</div>
-                                    <a href="tel:${lead.phone}" class="text-xs text-[#007AFF] hover:underline">${lead.phone}</a>
+                                    <div class="font-semibold text-[#1c1c1e]">${lName}</div>
+                                    <a href="tel:${lTel}" class="text-xs text-[#007AFF] hover:underline">${lPhone}</a>
                                 </td>
                                 <td class="px-4 py-3">
-                                    <span class="text-xs font-medium text-[#1c1c1e] bg-[#767680]/[0.1] px-2 py-0.5 rounded-md">${lead.area || 'Toàn quốc'}</span>
+                                    <span class="text-xs font-medium text-[#1c1c1e] bg-[#767680]/[0.1] px-2 py-0.5 rounded-md">${lArea}</span>
                                 </td>
                                 <td class="px-4 py-3">
-                                    <div class="text-xs font-medium text-[#1c1c1e]">${lead.businessModel || ''}</div>
-                                    <div class="text-[11px] text-[#8E8E93] truncate max-w-[200px]">${lead.note || ''}</div>
+                                    <div class="text-xs font-medium text-[#1c1c1e]">${lModel}</div>
+                                    <div class="text-[11px] text-[#8E8E93] truncate max-w-[200px]">${lNote}</div>
                                 </td>
                                 <td class="px-4 py-3">
                                     <select onchange="updateWholesaleStatus(${originalIdx}, this.value)" class="text-xs font-medium px-2 py-1 rounded-lg bg-[#767680]/[0.12] border-0">
@@ -4113,7 +4004,7 @@ function dinhDangDongKhachSi(sheet, row) {
                                 </td>
                                 <td class="px-4 py-3 text-right whitespace-nowrap">
                                     <div class="inline-flex items-center justify-end gap-1.5">
-                                        <a href="https://zalo.me/${lead.phone}" target="_blank" 
+                                        <a href="https://zalo.me/${lTel}" target="_blank" rel="noopener noreferrer" 
                                            class="text-xs bg-[#007AFF]/12 text-[#007AFF] px-2.5 py-1 rounded-lg font-semibold transition ios-press">
                                             Zalo
                                         </a>
@@ -5173,20 +5064,21 @@ function dinhDangDongKhachSi(sheet, row) {
                     mobileList.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">Không tìm thấy đánh giá nào phù hợp.</div>`;
                 } else {
                     mobileList.innerHTML = filtered.map(r => {
-                        const cleanId = String(r.id || '').trim();
-                        const isTargeted = isTargetedRev || (targetedReviewId && cleanId.toLowerCase() === String(targetedReviewId).trim().toLowerCase());
+                        const cleanId = escHtml(String(r.id || '').trim());
+                        const safeIdAttr = String(r.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+                        const isTargeted = isTargetedRev || (targetedReviewId && String(r.id || '').trim().toLowerCase() === String(targetedReviewId).trim().toLowerCase());
                         const stars = '★'.repeat(Math.max(1, Math.min(5, Number(r.rating) || 5)));
                         const isApproved = r.status === 'approved';
                         const statusBadge = isApproved
-                            ? `<button type="button" onclick="toggleReviewStatus('${r.id}')" class="text-[9px] font-bold bg-emerald-100 hover:bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-full transition flex items-center space-x-1" title="Bấm để ẩn đánh giá này">
+                            ? `<button type="button" onclick="toggleReviewStatus('${safeIdAttr}')" class="text-[9px] font-bold bg-emerald-100 hover:bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-full transition flex items-center space-x-1" title="Bấm để ẩn đánh giá này">
                                   <span>🟢 Đã duyệt</span>
                                </button>`
-                            : `<button type="button" onclick="toggleReviewStatus('${r.id}')" class="text-[9px] font-bold bg-amber-100 hover:bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full transition flex items-center space-x-1" title="Bấm để duyệt hiển thị">
+                            : `<button type="button" onclick="toggleReviewStatus('${safeIdAttr}')" class="text-[9px] font-bold bg-amber-100 hover:bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full transition flex items-center space-x-1" title="Bấm để duyệt hiển thị">
                                   <span>🟡 Chờ duyệt</span>
                                </button>`;
 
                         const tagsHtml = (r.tags && r.tags.length > 0)
-                            ? `<div class="flex flex-wrap gap-1 mt-1">${r.tags.map(t => `<span class="text-[9px] bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded font-medium">${t}</span>`).join('')}</div>`
+                            ? `<div class="flex flex-wrap gap-1 mt-1">${r.tags.map(t => `<span class="text-[9px] bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded font-medium">${escHtml(t)}</span>`).join('')}</div>`
                             : '';
 
                         const cardClasses = isTargeted
@@ -5204,22 +5096,22 @@ function dinhDangDongKhachSi(sheet, row) {
 
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center space-x-2">
-                                        <span class="font-bold text-slate-900 text-xs sm:text-sm">${r.name}</span>
-                                        <span class="text-[10px] text-slate-400">${r.location || ''}</span>
+                                        <span class="font-bold text-slate-900 text-xs sm:text-sm">${escHtml(r.name)}</span>
+                                        <span class="text-[10px] text-slate-400">${escHtml(r.location || '')}</span>
                                     </div>
                                     <div class="flex items-center space-x-1.5">
-                                        ${r.phone ? `<a href="https://zalo.me/${r.phone}" target="_blank" class="text-[10px] bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded-lg border border-blue-200/60" title="Nhắn Zalo">💬 Zalo</a>` : ''}
+                                        ${r.phone ? `<a href="https://zalo.me/${safePhone(r.phone)}" target="_blank" rel="noopener noreferrer" class="text-[10px] bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded-lg border border-blue-200/60" title="Nhắn Zalo">💬 Zalo</a>` : ''}
                                         ${statusBadge}
-                                        <button onclick="deleteReview('${r.id}')" class="text-[11px] bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-0.5 rounded-lg transition" title="Xóa">🗑️</button>
+                                        <button onclick="deleteReview('${safeIdAttr}')" class="text-[11px] bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-0.5 rounded-lg transition" title="Xóa">🗑️</button>
                                     </div>
                                 </div>
                                 <div class="flex items-center justify-between text-[11px]">
                                     <span class="font-bold text-amber-500 tracking-wider">${stars}</span>
-                                    <span class="text-[10px] text-teal-800 bg-teal-50 px-2 py-0.5 rounded border border-teal-200/60 font-semibold truncate max-w-[190px]">${r.product || 'Sản phẩm'}</span>
-                                    <span class="text-[10px] text-slate-400">${r.date || ''}</span>
+                                    <span class="text-[10px] text-teal-800 bg-teal-50 px-2 py-0.5 rounded border border-teal-200/60 font-semibold truncate max-w-[190px]">${escHtml(r.product || 'Sản phẩm')}</span>
+                                    <span class="text-[10px] text-slate-400">${escHtml(r.date || '')}</span>
                                 </div>
                                 <p class="text-xs text-slate-700 italic leading-relaxed bg-slate-50/70 p-2 rounded-xl border border-slate-100">
-                                    "${r.comment}"
+                                    "${escHtml(r.comment)}"
                                 </p>
                                 ${tagsHtml}
                             </div>
@@ -5235,20 +5127,21 @@ function dinhDangDongKhachSi(sheet, row) {
                     tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-xs text-slate-400">Không tìm thấy đánh giá nào.</td></tr>`;
                 } else {
                     tbody.innerHTML = filtered.map(r => {
-                        const cleanId = String(r.id || '').trim();
-                        const isTargeted = isTargetedRev || (targetedReviewId && cleanId.toLowerCase() === String(targetedReviewId).trim().toLowerCase());
+                        const cleanId = escHtml(String(r.id || '').trim());
+                        const safeIdAttr = String(r.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+                        const isTargeted = isTargetedRev || (targetedReviewId && String(r.id || '').trim().toLowerCase() === String(targetedReviewId).trim().toLowerCase());
                         const stars = '★'.repeat(Math.max(1, Math.min(5, Number(r.rating) || 5)));
                         const isApproved = r.status === 'approved';
                         const statusBadge = isApproved
-                            ? `<button type="button" onclick="toggleReviewStatus('${r.id}')" class="inline-flex items-center space-x-1 text-xs font-bold bg-emerald-100 hover:bg-emerald-200 text-emerald-800 px-2.5 py-1 rounded-full transition" title="Bấm để ẩn khỏi website">
+                            ? `<button type="button" onclick="toggleReviewStatus('${safeIdAttr}')" class="inline-flex items-center space-x-1 text-xs font-bold bg-emerald-100 hover:bg-emerald-200 text-emerald-800 px-2.5 py-1 rounded-full transition" title="Bấm để ẩn khỏi website">
                                   <span>🟢 Đã duyệt</span>
                                </button>`
-                            : `<button type="button" onclick="toggleReviewStatus('${r.id}')" class="inline-flex items-center space-x-1 text-xs font-bold bg-amber-100 hover:bg-amber-200 text-amber-900 px-2.5 py-1 rounded-full transition" title="Bấm để duyệt hiện lên website">
+                            : `<button type="button" onclick="toggleReviewStatus('${safeIdAttr}')" class="inline-flex items-center space-x-1 text-xs font-bold bg-amber-100 hover:bg-amber-200 text-amber-900 px-2.5 py-1 rounded-full transition" title="Bấm để duyệt hiện lên website">
                                   <span>🟡 Chờ duyệt</span>
                                </button>`;
 
                         const tagsHtml = (r.tags && r.tags.length > 0)
-                            ? `<div class="flex flex-wrap gap-1 mt-1">${r.tags.map(t => `<span class="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-medium">${t}</span>`).join('')}</div>`
+                            ? `<div class="flex flex-wrap gap-1 mt-1">${r.tags.map(t => `<span class="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-medium">${escHtml(t)}</span>`).join('')}</div>`
                             : '';
 
                         const rowClasses = isTargeted
@@ -5259,34 +5152,34 @@ function dinhDangDongKhachSi(sheet, row) {
                             <tr id="review-row-desktop-${cleanId}" class="${rowClasses}">
                                 <td class="px-4 py-2.5">
                                     <div class="font-bold text-slate-900 text-xs sm:text-sm">
-                                        ${r.name}
+                                        ${escHtml(r.name)}
                                         ${isTargeted ? `<span class="inline-block ml-1 px-1.5 py-0.5 rounded text-[10px] bg-teal-600 text-white font-bold">ĐANG CHỌN</span>` : ''}
                                     </div>
-                                    <div class="text-[10px] text-slate-400">${r.phone ? r.phone : ''} ${r.location ? '• ' + r.location : ''}</div>
+                                    <div class="text-[10px] text-slate-400">${r.phone ? escHtml(r.phone) : ''} ${r.location ? '• ' + escHtml(r.location) : ''}</div>
                                 </td>
                                 <td class="px-4 py-2.5 text-xs text-teal-900 font-semibold">
-                                    <span class="bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-md inline-block max-w-[200px] truncate" title="${r.product || ''}">${r.product || 'Nước mắm Ba Cô'}</span>
+                                    <span class="bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-md inline-block max-w-[200px] truncate" title="${escHtml(r.product || '')}">${escHtml(r.product || 'Nước mắm Ba Cô')}</span>
                                 </td>
                                 <td class="px-4 py-2.5 whitespace-nowrap">
                                     <span class="text-amber-500 font-black tracking-wider text-sm">${stars}</span>
                                 </td>
                                 <td class="px-4 py-2.5 text-xs text-slate-700 max-w-xs">
-                                    <div class="italic leading-snug line-clamp-2">"${r.comment}"</div>
+                                    <div class="italic leading-snug line-clamp-2">"${escHtml(r.comment)}"</div>
                                     ${tagsHtml}
                                 </td>
                                 <td class="px-4 py-2.5 whitespace-nowrap text-xs text-slate-500">
-                                    ${r.date || ''}
+                                    ${escHtml(r.date || '')}
                                 </td>
                                 <td class="px-4 py-2.5 text-center whitespace-nowrap">
                                     ${statusBadge}
                                 </td>
                                 <td class="px-4 py-2.5 text-right whitespace-nowrap">
                                     <div class="inline-flex items-center space-x-1.5">
-                                        ${r.phone ? `<a href="https://zalo.me/${r.phone}" target="_blank" class="inline-flex items-center space-x-1 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 px-2.5 py-1.5 rounded-xl font-bold transition border border-blue-200/60 shadow-xs ios-press" title="Nhắn Zalo cảm ơn khách"><span>💬</span><span>Zalo</span></a>` : ''}
-                                        <button onclick="openAdminAddReviewModal('${r.id}')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold px-2.5 py-1.5 rounded-xl transition ios-press">
+                                        ${r.phone ? `<a href="https://zalo.me/${safePhone(r.phone)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 px-2.5 py-1.5 rounded-xl font-bold transition border border-blue-200/60 shadow-xs ios-press" title="Nhắn Zalo cảm ơn khách"><span>💬</span><span>Zalo</span></a>` : ''}
+                                        <button onclick="openAdminAddReviewModal('${safeIdAttr}')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold px-2.5 py-1.5 rounded-xl transition ios-press">
                                             ✏️ Sửa
                                         </button>
-                                        <button onclick="deleteReview('${r.id}')" class="text-xs bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold px-2.5 py-1.5 rounded-xl transition ios-press">
+                                        <button onclick="deleteReview('${safeIdAttr}')" class="text-xs bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold px-2.5 py-1.5 rounded-xl transition ios-press">
                                             🗑️ Xóa
                                         </button>
                                     </div>
@@ -5520,8 +5413,8 @@ function dinhDangDongKhachSi(sheet, row) {
             heroMainTitle: 'Giọt Ngọc Biển Khơi',
             heroSubTitle: 'Nước Mắm Nhĩ Thượng Hạng',
             heroDesc: 'Chắt lọc từng giọt nước mắm nhĩ đầu tiên sánh vàng như mật ong biển, hương thơm dịu ấm, hậu vị ngọt sâu từ đạm cá tự nhiên qua 12 tháng ủ gỗ bời lời phơi nắng Cam Ranh.',
-            heroBgImg: './pictrure/banner_khanhhoa.jpg',
-            heroProductImg: './pictrure/hero_bottle_dish.png',
+            heroBgImg: './pictrure/banner_khanhhoa.webp',
+            heroProductImg: './pictrure/hero_bottle_dish.webp',
             heroCta1: '⚡ Đặt Mua Ngay',
             heroCta2: 'Khám Phá Dòng Mắm ↓',
 
@@ -5629,7 +5522,7 @@ function dinhDangDongKhachSi(sheet, row) {
                     data = Object.assign({}, DEFAULT_SITE_CONTENT, JSON.parse(stored));
                     let sanitized = false;
                     if (data.heroBgImg && data.heroBgImg.includes('photo-1507525428034-b723cf961d3e')) {
-                        data.heroBgImg = './pictrure/banner_khanhhoa.jpg';
+                        data.heroBgImg = './pictrure/banner_khanhhoa.webp';
                         sanitized = true;
                     }
                     if (data.pillar2Img && (data.pillar2Img === './pictrure/1.jpg' || data.pillar2Img.includes('unsplash.com'))) {

@@ -3,9 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <title>Cửa Hàng Sản Phẩm - Nước Mắm Ba Cô Khánh Hòa</title>
     <!-- Favicon & Brand Icons -->
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
@@ -14,25 +11,14 @@
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
     <link rel="shortcut icon" href="./favicon.ico">
     <meta name="theme-color" content="#0284c7">
-    <!-- Hệ thống bảo mật & Chống xem mã nguồn F12 -->
-    <script src="./security.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Preconnect Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Precompiled Tailwind CSS (tải tức thì, không chặn render) -->
+    <link rel="stylesheet" href="./assets/products.css">
+    <!-- Hệ thống bảo mật & Chống xem mã nguồn F12 -->
+    <script src="./security.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap&subset=vietnamese,latin-ext" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        serif: ['"Playfair Display"', 'Georgia', 'serif'],
-                        sans: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
-                        display: ['"Playfair Display"', 'Georgia', 'serif']
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         html, body {
             overflow-x: hidden !important;
@@ -232,7 +218,7 @@
             <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-lg transition-all duration-300 overflow-hidden border border-slate-200/80 flex flex-col justify-between group">
                 <div>
                     <div onclick="openProductQuickView('prod_1')" class="h-36 sm:h-52 relative overflow-hidden bg-slate-100 cursor-pointer">
-                        <img src="./pictrure/hero_bottle_large.jpg" alt="Nước Mắm Nhĩ Thượng Hạng 40° Đạm" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <img loading="lazy" decoding="async" src="./pictrure/hero_bottle_large.jpg" alt="Nước Mắm Nhĩ Thượng Hạng 40° Đạm" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                         <span class="absolute top-2.5 left-2.5 bg-amber-500 text-slate-950 font-bold text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-xs">
                             Bán Chạy
@@ -266,7 +252,7 @@
             <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-lg transition-all duration-300 overflow-hidden border border-slate-200/80 flex flex-col justify-between group">
                 <div>
                     <div onclick="openProductQuickView('prod_2')" class="h-36 sm:h-52 relative overflow-hidden bg-slate-100 cursor-pointer">
-                        <img src="./pictrure/hero_bottle_large.jpg" alt="Nước Mắm Truyền Thống 35° Đạm" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <img loading="lazy" decoding="async" src="./pictrure/hero_bottle_large.jpg" alt="Nước Mắm Truyền Thống 35° Đạm" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                         <span class="absolute top-2.5 left-2.5 bg-amber-500 text-slate-950 font-bold text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-xs">
                             Phổ Biến
@@ -300,7 +286,7 @@
             <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-lg transition-all duration-300 overflow-hidden border border-slate-200/80 flex flex-col justify-between group">
                 <div>
                     <div onclick="openProductQuickView('prod_3')" class="h-36 sm:h-52 relative overflow-hidden bg-slate-100 cursor-pointer">
-                        <img src="./pictrure/prod_hopqua.jpg" alt="Hộp Quà Tặng Đôi 2 Chai 40° Đạm" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <img loading="lazy" decoding="async" src="./pictrure/prod_hopqua.jpg" alt="Hộp Quà Tặng Đôi 2 Chai 40° Đạm" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                         <span class="absolute top-2.5 left-2.5 bg-rose-500 text-white text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-xs">
                             Combo Quà Biếu
@@ -334,7 +320,7 @@
             <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-lg transition-all duration-300 overflow-hidden border border-slate-200/80 flex flex-col justify-between group">
                 <div>
                     <div onclick="openProductQuickView('prod_4')" class="h-36 sm:h-52 relative overflow-hidden bg-slate-100 cursor-pointer">
-                        <img src="./pictrure/prod_mamnhi43.jpg" alt="Mắm Nhĩ Cốt Đặc Biệt 43°N Ủ Thùng Gỗ" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <img loading="lazy" decoding="async" src="./pictrure/prod_mamnhi43.jpg" alt="Mắm Nhĩ Cốt Đặc Biệt 43°N Ủ Thùng Gỗ" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                         <span class="absolute top-2.5 left-2.5 bg-amber-500 text-slate-950 font-bold text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-xs">
                             Đặc Biệt
@@ -368,7 +354,7 @@
             <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-lg transition-all duration-300 overflow-hidden border border-slate-200/80 flex flex-col justify-between group">
                 <div>
                     <div onclick="openProductQuickView('prod_5')" class="h-36 sm:h-52 relative overflow-hidden bg-slate-100 cursor-pointer">
-                        <img src="./pictrure/prod_hopqua.jpg" alt="Combo Tiết Kiệm 2 Chai Truyền Thống 35°N" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <img loading="lazy" decoding="async" src="./pictrure/prod_hopqua.jpg" alt="Combo Tiết Kiệm 2 Chai Truyền Thống 35°N" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                         <span class="absolute top-2.5 left-2.5 bg-teal-600 text-white text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-xs">
                             Tiết Kiệm
@@ -402,7 +388,7 @@
             <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-lg transition-all duration-300 overflow-hidden border border-slate-200/80 flex flex-col justify-between group">
                 <div>
                     <div onclick="openProductQuickView('prod_6')" class="h-36 sm:h-52 relative overflow-hidden bg-slate-100 cursor-pointer">
-                        <img src="./pictrure/prod_can2l.jpg" alt="Can Gia Đình 2 Lít Kho Nấu Đậm Đà 30°N" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <img loading="lazy" decoding="async" src="./pictrure/prod_can2l.jpg" alt="Can Gia Đình 2 Lít Kho Nấu Đậm Đà 30°N" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                         <span class="absolute top-2.5 left-2.5 bg-teal-600 text-white text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-xs">
                             Tiết Kiệm
@@ -443,7 +429,7 @@
         <div class="relative bg-white rounded-t-[28px] sm:rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100 z-10 max-h-[90vh] flex flex-col">
             <button onclick="closeProductQuickView()" class="absolute top-3.5 right-3.5 z-20 w-8 h-8 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center font-bold text-sm transition">✕</button>
             <div class="h-56 sm:h-64 bg-slate-100 relative shrink-0">
-                <img id="qvImage" src="./pictrure/hero_bottle_large.jpg" alt="Chi tiết sản phẩm" class="w-full h-full object-cover">
+                <img loading="lazy" decoding="async" id="qvImage" src="./pictrure/hero_bottle_large.jpg" alt="Chi tiết sản phẩm" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-transparent"></div>
                 <span id="qvTag" class="absolute top-3.5 left-3.5 bg-amber-500 text-slate-950 text-xs font-black px-3 py-1 rounded-full shadow">Đặc Biệt</span>
                 <div class="absolute bottom-3 left-4 right-4 flex items-center justify-between text-white text-xs">
@@ -710,7 +696,7 @@
                 <!-- Khung hiển thị ảnh QR động & Nút tải ảnh QR -->
                 <div class="space-y-3">
                     <div class="bg-gradient-to-b from-amber-50 to-orange-50 p-4 rounded-2xl border border-amber-200 inline-block shadow-inner mx-auto">
-                        <img id="vietQrImage" src="" alt="Mã VietQR Thanh Toán" class="w-56 h-56 sm:w-64 sm:h-64 object-contain mx-auto rounded-xl shadow-md bg-white p-2">
+                        <img loading="lazy" decoding="async" id="vietQrImage" src="" alt="Mã VietQR Thanh Toán" class="w-56 h-56 sm:w-64 sm:h-64 object-contain mx-auto rounded-xl shadow-md bg-white p-2">
                         <div class="mt-2 flex items-center justify-center space-x-1.5 text-xs text-amber-900 font-semibold">
                             <span>⚡</span> <span>Tự động điền số tiền & nội dung</span>
                         </div>
@@ -1144,7 +1130,7 @@
                     <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xs hover:shadow-lg transition-all duration-300 overflow-hidden border border-slate-200/80 flex flex-col justify-between group">
                         <div>
                             <div onclick="openProductQuickView('${p.id}')" class="h-36 sm:h-52 relative overflow-hidden bg-slate-100 cursor-pointer">
-                                <img src="${p.image || './pictrure/hero_bottle_large.jpg'}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                <img loading="lazy" decoding="async" src="${p.image || './pictrure/hero_bottle_large.jpg'}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                                 <span class="absolute top-2.5 left-2.5 ${tagColor} text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-xs">
                                     ${p.tag || 'Đặc Biệt'}

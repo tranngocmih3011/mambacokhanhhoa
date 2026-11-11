@@ -1,5 +1,43 @@
-# Cloudflare Pages Headers
+# Cloudflare Pages Headers — Bảo mật tối đa & Tăng tốc
+# ------------------------------------------------------------------
+# 1) Security headers cho toàn bộ website (CSP đã loại bỏ Tailwind CDN)
+/*
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin
+  X-Permitted-Cross-Domain-Policies: none
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://docs.google.com https://script.google.com https://script.googleusercontent.com https://mambacokhanhhoa.vercel.app https://qr.sepay.vn https://api.restful-api.dev https://cdn.jsdelivr.net https://cloudflareinsights.com; media-src 'self' data: blob:; frame-src https://www.google.com https://maps.google.com https://www.youtube.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://script.google.com; frame-ancestors 'none'; upgrade-insecure-requests
+
+# 2) Trang HTML: luôn kiểm tra bản mới (ETag) nhưng phản hồi 304 rất nhanh
+/
+  Cache-Control: public, max-age=0, must-revalidate
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+/products.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# 3) Ảnh, icon, CSS: cache trình duyệt 7-30 ngày + CDN 30 ngày, tự làm mới nền
+/pictrure/*
+  Cache-Control: public, max-age=604800, s-maxage=2592000, stale-while-revalidate=86400
+/assets/*
+  Cache-Control: public, max-age=604800, s-maxage=2592000, stale-while-revalidate=86400
+/favicon*
+  Cache-Control: public, max-age=2592000
+/icon-*
+  Cache-Control: public, max-age=2592000
+/apple-touch-icon.png
+  Cache-Control: public, max-age=2592000
+/security.js
+  Cache-Control: public, max-age=86400, stale-while-revalidate=86400
+
+# 4) Không cache các phần nhạy cảm
 /admin.html
-  Cache-Control: no-cache, no-store, must-revalidate
+  Cache-Control: no-store, private
+  X-Robots-Tag: noindex, nofollow
 /sw.js
   Cache-Control: no-cache, no-store, must-revalidate
+/manifest.json
+  Cache-Control: public, max-age=3600

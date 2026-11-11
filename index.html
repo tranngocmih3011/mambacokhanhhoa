@@ -3,9 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <title>Nước Mắm Ba Cô Khánh Hòa - Tinh Hoa Đất Trời Miền Biển</title>
     <!-- Favicon & Brand Icons -->
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
@@ -14,37 +11,16 @@
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
     <link rel="shortcut icon" href="./favicon.ico">
     <meta name="theme-color" content="#0284c7">
-    <!-- Hệ thống bảo mật & Chống xem mã nguồn F12 -->
-    <script src="./security.js"></script>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: 100% Thuần Việt (Be Vietnam Pro & Playfair Display Vietnamese Subset) -->
+    <!-- Preload ảnh trung tâm Hero (LCP) & Preconnect Fonts -->
+    <link rel="preload" as="image" href="./pictrure/hero_bottle_dish.webp" fetchpriority="high">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Precompiled Tailwind CSS (thay thế CDN runtime JS -> tải trang tức thì) -->
+    <link rel="stylesheet" href="./assets/index.css">
+    <!-- Hệ thống bảo mật & Chống xem mã nguồn F12 -->
+    <script src="./security.js" defer></script>
+    <!-- Google Fonts: 100% Thuần Việt (Be Vietnam Pro & Playfair Display Vietnamese Subset) -->
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600;1,700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        oceanBlue: '#0284c7',
-                        deepOcean: '#0369a1',
-                        navyOcean: '#0c4a6e',
-                        skyLight: '#f0f9ff',
-                        amberGold: '#d97706',
-                        warmAmber: '#f59e0b',
-                        ctaOrange: '#ea580c'
-                    },
-                    fontFamily: {
-                        display: ['"Playfair Display"', 'Georgia', 'serif'],
-                        serif: ['"Playfair Display"', 'Georgia', 'serif'],
-                        sans: ['"Be Vietnam Pro"', 'system-ui', '-apple-system', 'sans-serif'],
-                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
-                    }
-                }
-            }
-        }
-    </script>
     <!-- Custom CSS Styles: Tone Tươi Sáng Trắng & Xanh Dương Đại Dương -->
     <style>
         html {
@@ -481,7 +457,7 @@
     <!-- Hero Section (Phong cách Digitum Luxury Gradient Tươi Sáng - Chai Mắm Nổi Bật & Chuẩn UX Mobile Không Cần Cuộn) -->
     <section class="relative min-h-0 sm:min-h-[620px] lg:min-h-[700px] flex items-center justify-center pt-2 pb-5 sm:pt-14 sm:pb-8 lg:pt-20 lg:pb-10 overflow-hidden bg-gradient-to-br from-sky-50 via-white to-amber-50/70">
         <!-- Ảnh nền biển đảo Cam Ranh mờ nhẹ tinh tế tạo chiều sâu thị giác -->
-        <div id="heroBgImg" class="absolute inset-0 bg-[url('./pictrure/banner_khanhhoa.jpg')] bg-cover bg-center opacity-10 mix-blend-multiply scale-105 transition-transform duration-1000"></div>
+        <div id="heroBgImg" class="absolute inset-0 bg-[url('./pictrure/banner_khanhhoa.webp')] bg-cover bg-center opacity-10 mix-blend-multiply scale-105 transition-transform duration-1000"></div>
         <!-- Lớp phủ mesh gradient rực rỡ tươi mới -->
         <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(14,165,233,0.14),transparent_50%),radial-gradient(ellipse_at_bottom_right,rgba(245,158,11,0.18),transparent_55%),radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.7),transparent_70%)] pointer-events-none"></div>
 
@@ -498,7 +474,7 @@
                 <div class="relative w-full max-w-[280px] xs:max-w-[320px] sm:max-w-[420px] lg:max-w-[560px] xl:max-w-[620px] flex flex-col items-center group">
                     <!-- CHAI NƯỚC MẮM VÀ CHÉN NƯỚC MẮM ỚT TÁCH NỀN TRONG SUỐT (TỈ LỆ VÀNG CHUẨN UX MOBILE) -->
                     <div class="relative flex items-center justify-center w-full py-0.5 sm:py-2">
-                        <img id="heroProductImg" src="./pictrure/hero_bottle_dish.png" alt="Chai Nước Mắm Nhĩ Ba Cô Khánh Hòa và Chén Mắm Ớt Tươi Tách Nền" class="w-full h-[250px] xs:h-[280px] sm:h-[400px] lg:h-[580px] xl:h-[660px] object-contain filter drop-shadow-[0_16px_30px_rgba(15,23,42,0.16)] drop-shadow-[0_6px_16px_rgba(217,119,6,0.22)] transform hover:scale-105 hover:-rotate-1 transition-all duration-700 ease-out select-none">
+                        <img id="heroProductImg" src="./pictrure/hero_bottle_dish.webp" width="1024" height="1024" fetchpriority="high" decoding="async" alt="Chai Nước Mắm Nhĩ Ba Cô Khánh Hòa và Chén Mắm Ớt Tươi Tách Nền" class="w-full h-[250px] xs:h-[280px] sm:h-[400px] lg:h-[580px] xl:h-[660px] object-contain filter drop-shadow-[0_16px_30px_rgba(15,23,42,0.16)] drop-shadow-[0_6px_16px_rgba(217,119,6,0.22)] transform hover:scale-105 hover:-rotate-1 transition-all duration-700 ease-out select-none">
                     </div>
                     <!-- 3 Huy hiệu bảo chứng chất lượng nhỏ gọn tinh xảo dưới chân chai -->
                     <div class="flex items-center justify-center gap-1.5 xs:gap-2 mt-1 sm:mt-2 text-[10px] xs:text-[11px] font-semibold text-sky-900 select-none">
@@ -638,7 +614,7 @@
                         </div>
                         <!-- Ảnh chuẩn tỉ lệ đồng nhất -->
                         <div class="h-44 sm:h-52 w-full rounded-xl sm:rounded-2xl overflow-hidden mb-3.5 relative bg-slate-100 border border-slate-200/60">
-                            <img id="pillar1Img" src="./pictrure/1.jpg" alt="Cá Cơm Than Cam Ranh" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out">
+                            <img loading="lazy" decoding="async" id="pillar1Img" src="./pictrure/1.jpg" alt="Cá Cơm Than Cam Ranh" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out">
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-900/30 to-transparent"></div>
                             <span class="absolute bottom-2.5 left-2.5 bg-white/95 backdrop-blur-md text-sky-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-sky-200/80 shadow-xs">
                                 🐟 Đánh bắt rạng đông
@@ -676,7 +652,7 @@
                         </div>
                         <!-- Ảnh chuẩn tỉ lệ đồng nhất -->
                         <div class="h-44 sm:h-52 w-full rounded-xl sm:rounded-2xl overflow-hidden mb-3.5 relative bg-slate-100 border border-slate-200/60">
-                            <img id="pillar2Img" src="./pictrure/pillar_salt.jpg" alt="Muối Biển Tinh Khiết" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out">
+                            <img loading="lazy" decoding="async" id="pillar2Img" src="./pictrure/pillar_salt.jpg" alt="Muối Biển Tinh Khiết" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out">
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-900/30 to-transparent"></div>
                             <span class="absolute bottom-2.5 left-2.5 bg-white/95 backdrop-blur-md text-amber-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-200/80 shadow-xs">
                                 🧂 Muối tinh xả chát
@@ -714,7 +690,7 @@
                         </div>
                         <!-- Ảnh chuẩn tỉ lệ đồng nhất -->
                         <div class="h-44 sm:h-52 w-full rounded-xl sm:rounded-2xl overflow-hidden mb-3.5 relative bg-slate-100 border border-slate-200/60">
-                            <img id="pillar3Img" src="./pictrure/pillar_barrel.jpg" alt="Ủ Thùng Gỗ Bời Lời" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out">
+                            <img loading="lazy" decoding="async" id="pillar3Img" src="./pictrure/pillar_barrel.jpg" alt="Ủ Thùng Gỗ Bời Lời" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out">
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-900/30 to-transparent"></div>
                             <span class="absolute bottom-2.5 left-2.5 bg-white/95 backdrop-blur-md text-emerald-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200/80 shadow-xs">
                                 🪵 Gỗ bời lời phơi nắng
@@ -778,7 +754,7 @@
                                 <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Rạng đông</span>
                             </div>
                             <div class="h-28 sm:h-38 rounded-xl overflow-hidden mb-3 relative bg-slate-100">
-                                <img src="./pictrure/1.jpg" alt="Đánh Bắt Cá Sớm" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
+                                <img loading="lazy" decoding="async" src="./pictrure/1.jpg" alt="Đánh Bắt Cá Sớm" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
                             </div>
                             <h3 class="font-display font-bold text-xs sm:text-base text-slate-900 leading-snug mb-1 group-hover:text-sky-700 transition">
                                 Đánh Bắt Cá Sớm
@@ -797,7 +773,7 @@
                                 <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Tỉ lệ 3:1</span>
                             </div>
                             <div class="h-28 sm:h-38 rounded-xl overflow-hidden mb-3 relative bg-slate-100">
-                                <img src="./pictrure/pillar_salt.jpg" alt="Ướp Muối Boong Tàu" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
+                                <img loading="lazy" decoding="async" src="./pictrure/pillar_salt.jpg" alt="Ướp Muối Boong Tàu" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
                             </div>
                             <h3 class="font-display font-bold text-xs sm:text-base text-slate-900 leading-snug mb-1 group-hover:text-sky-700 transition">
                                 Ướp Muối Boong Tàu
@@ -816,7 +792,7 @@
                                 <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">365 ngày</span>
                             </div>
                             <div class="h-28 sm:h-38 rounded-xl overflow-hidden mb-3 relative bg-slate-100">
-                                <img src="./pictrure/pillar_barrel.jpg" alt="Ủ Gỗ Tự Nhiên" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
+                                <img loading="lazy" decoding="async" src="./pictrure/pillar_barrel.jpg" alt="Ủ Gỗ Tự Nhiên" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
                             </div>
                             <h3 class="font-display font-bold text-xs sm:text-base text-slate-900 leading-snug mb-1 group-hover:text-sky-700 transition">
                                 Ủ Gỗ Tự Nhiên
@@ -835,7 +811,7 @@
                                 <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Giọt nhĩ đầu</span>
                             </div>
                             <div class="h-28 sm:h-38 rounded-xl overflow-hidden mb-3 relative bg-slate-100">
-                                <img src="./pictrure/prod_mamnhi43.jpg" alt="Chắt Lọc Đóng Chai" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
+                                <img loading="lazy" decoding="async" src="./pictrure/prod_mamnhi43.jpg" alt="Chắt Lọc Đóng Chai" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
                             </div>
                             <h3 class="font-display font-bold text-xs sm:text-base text-slate-900 leading-snug mb-1 group-hover:text-sky-700 transition">
                                 Chắt Lọc Đóng Chai
@@ -913,7 +889,7 @@
             <!-- Asymmetric Grid: 4 Thẻ Phối Hợp Tinh Tế -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
                 <div class="group relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-slate-200/90 shadow-sm hover:shadow-xl transition duration-500 wow-reveal delay-100">
-                    <img src="./pictrure/recipe_mamtoiot.jpg" alt="Chén Mắm Tỏi Ớt" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                    <img loading="lazy" decoding="async" src="./pictrure/recipe_mamtoiot.jpg" alt="Chén Mắm Tỏi Ớt" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
                     <div class="absolute bottom-3 left-3 right-3 text-white">
                         <span class="text-[9px] font-bold text-amber-300 uppercase tracking-widest block font-mono">Bữa cơm Việt</span>
@@ -922,7 +898,7 @@
                 </div>
 
                 <div class="group relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-slate-200/90 shadow-sm hover:shadow-xl transition duration-500 wow-reveal delay-200">
-                    <img src="./pictrure/recipe_thitkho.jpg" alt="Thịt Kho Tộ" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                    <img loading="lazy" decoding="async" src="./pictrure/recipe_thitkho.jpg" alt="Thịt Kho Tộ" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
                     <div class="absolute bottom-3 left-3 right-3 text-white">
                         <span class="text-[9px] font-bold text-amber-300 uppercase tracking-widest block font-mono">Món ngon gia đình</span>
@@ -931,7 +907,7 @@
                 </div>
 
                 <div class="group relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-slate-200/90 shadow-sm hover:shadow-xl transition duration-500 wow-reveal delay-300">
-                    <img src="./pictrure/banner_khanhhoa.jpg" alt="Vịnh Biển Cam Ranh" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                    <img loading="lazy" decoding="async" src="./pictrure/banner_khanhhoa.webp" alt="Vịnh Biển Cam Ranh" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
                     <div class="absolute bottom-3 left-3 right-3 text-white">
                         <span class="text-[9px] font-bold text-sky-300 uppercase tracking-widest block font-mono">Nguồn nguyên liệu</span>
@@ -940,7 +916,7 @@
                 </div>
 
                 <div class="group relative bg-white rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72 border border-slate-200/90 shadow-sm hover:shadow-xl transition duration-500 wow-reveal delay-400">
-                    <img src="./pictrure/hero_bottle_large.jpg" alt="Mắm Nhĩ Thượng Hạng" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                    <img loading="lazy" decoding="async" src="./pictrure/hero_bottle_large.jpg" alt="Mắm Nhĩ Thượng Hạng" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
                     <div class="absolute bottom-3 left-3 right-3 text-white">
                         <span class="text-[9px] font-bold text-amber-300 uppercase tracking-widest block font-mono">Thương hiệu</span>
@@ -999,7 +975,7 @@
                 <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group wow-reveal delay-100">
                     <div>
                         <div onclick="openProductQuickView('prod_1')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
-                            <img src="./pictrure/hero_bottle_large.jpg" alt="Nước Mắm Nhĩ Thượng Hạng 40° Đạm" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                            <img loading="lazy" decoding="async" src="./pictrure/hero_bottle_large.jpg" alt="Nước Mắm Nhĩ Thượng Hạng 40° Đạm" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                             <span class="absolute top-2.5 left-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-md font-mono tracking-wide">
                                 Bán Chạy
@@ -1034,7 +1010,7 @@
                 <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group wow-reveal delay-200">
                     <div>
                         <div onclick="openProductQuickView('prod_2')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
-                            <img src="./pictrure/hero_bottle_large.jpg" alt="Nước Mắm Truyền Thống 35° Đạm" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                            <img loading="lazy" decoding="async" src="./pictrure/hero_bottle_large.jpg" alt="Nước Mắm Truyền Thống 35° Đạm" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                             <span class="absolute top-2.5 left-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-md font-mono tracking-wide">
                                 Phổ Biến
@@ -1069,7 +1045,7 @@
                 <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group wow-reveal delay-300">
                     <div>
                         <div onclick="openProductQuickView('prod_3')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
-                            <img src="./pictrure/prod_hopqua.jpg" alt="Hộp Quà Tặng Đôi 2 Chai 40° Đạm" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                            <img loading="lazy" decoding="async" src="./pictrure/prod_hopqua.jpg" alt="Hộp Quà Tặng Đôi 2 Chai 40° Đạm" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                             <span class="absolute top-2.5 left-2.5 bg-gradient-to-r from-rose-500 to-rose-600 text-white text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-md font-mono tracking-wide">
                                 Combo Quà Biếu
@@ -1104,7 +1080,7 @@
                 <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group wow-reveal delay-150">
                     <div>
                         <div onclick="openProductQuickView('prod_4')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
-                            <img src="./pictrure/prod_mamnhi43.jpg" alt="Mắm Nhĩ Cốt Đặc Biệt 43°N Ủ Thùng Gỗ" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                            <img loading="lazy" decoding="async" src="./pictrure/prod_mamnhi43.jpg" alt="Mắm Nhĩ Cốt Đặc Biệt 43°N Ủ Thùng Gỗ" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                             <span class="absolute top-2.5 left-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-md font-mono tracking-wide">
                                 Đặc Biệt
@@ -1139,7 +1115,7 @@
                 <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group wow-reveal delay-250">
                     <div>
                         <div onclick="openProductQuickView('prod_5')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
-                            <img src="./pictrure/prod_hopqua.jpg" alt="Combo Tiết Kiệm 2 Chai Truyền Thống 35°N" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                            <img loading="lazy" decoding="async" src="./pictrure/prod_hopqua.jpg" alt="Combo Tiết Kiệm 2 Chai Truyền Thống 35°N" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                             <span class="absolute top-2.5 left-2.5 bg-gradient-to-r from-teal-500 to-teal-600 text-white text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-md font-mono tracking-wide">
                                 Tiết Kiệm
@@ -1174,7 +1150,7 @@
                 <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group wow-reveal delay-350">
                     <div>
                         <div onclick="openProductQuickView('prod_6')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
-                            <img src="./pictrure/prod_can2l.jpg" alt="Can Gia Đình 2 Lít Kho Nấu Đậm Đà 30°N" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                            <img loading="lazy" decoding="async" src="./pictrure/prod_can2l.jpg" alt="Can Gia Đình 2 Lít Kho Nấu Đậm Đà 30°N" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                             <span class="absolute top-2.5 left-2.5 bg-gradient-to-r from-teal-500 to-teal-600 text-white text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-md font-mono tracking-wide">
                                 Tiết Kiệm
@@ -1228,7 +1204,7 @@
         <div class="relative bg-white rounded-t-[28px] sm:rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 z-10 max-h-[90vh] flex flex-col text-slate-800">
             <button onclick="closeProductQuickView()" class="absolute top-3.5 right-3.5 z-20 w-8 h-8 rounded-full bg-slate-900/60 hover:bg-slate-900 text-white flex items-center justify-center font-bold text-sm transition">✕</button>
             <div class="h-56 sm:h-64 bg-slate-100 relative shrink-0">
-                <img id="qvImage" src="./pictrure/hero_bottle_large.jpg" alt="Chi tiết sản phẩm" class="w-full h-full object-cover">
+                <img loading="lazy" decoding="async" id="qvImage" src="./pictrure/hero_bottle_large.jpg" alt="Chi tiết sản phẩm" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
                 <span id="qvTag" class="absolute top-3.5 left-3.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 text-xs font-black px-3 py-1 rounded-full shadow">Đặc Biệt</span>
                 <div class="absolute bottom-3 left-4 right-4 flex items-center justify-between text-white text-xs">
@@ -1396,7 +1372,7 @@
                 <!-- Món 1: Thịt Kho Tộ -->
                 <div class="recipe-card w-[84vw] max-w-[340px] md:w-auto shrink-0 md:shrink snap-start group bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition-all duration-300 flex flex-col justify-between">
                     <div class="h-44 sm:h-56 overflow-hidden relative bg-slate-100">
-                        <img id="recipe1Img" src="./pictrure/recipe_thitkho.jpg" alt="Thịt Ba Chỉ Kho Tộ Cánh Gián" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                        <img loading="lazy" decoding="async" id="recipe1Img" src="./pictrure/recipe_thitkho.jpg" alt="Thịt Ba Chỉ Kho Tộ Cánh Gián" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
                         <span class="absolute top-3 left-3 bg-amber-500 text-white text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full shadow">
                             Món Kho Đậm Đà
@@ -1415,7 +1391,7 @@
                 <!-- Món 2: Nước Mắm Tỏi Ớt -->
                 <div class="recipe-card w-[84vw] max-w-[340px] md:w-auto shrink-0 md:shrink snap-start group bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition-all duration-300 flex flex-col justify-between">
                     <div class="h-44 sm:h-56 overflow-hidden relative bg-slate-100">
-                        <img id="recipe2Img" src="./pictrure/recipe_mamtoiot.jpg" alt="Chén Nước Mắm Chua Ngọt Tỏi Ớt Nổi" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                        <img loading="lazy" decoding="async" id="recipe2Img" src="./pictrure/recipe_mamtoiot.jpg" alt="Chén Nước Mắm Chua Ngọt Tỏi Ớt Nổi" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
                         <span class="absolute top-3 left-3 bg-rose-500 text-white text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full shadow">
                             Nước Chấm Tuyệt Đỉnh
@@ -1434,7 +1410,7 @@
                 <!-- Món 3: Hải Sản Hấp -->
                 <div class="recipe-card w-[84vw] max-w-[340px] md:w-auto shrink-0 md:shrink snap-start group bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-sky-300 transition-all duration-300 flex flex-col justify-between">
                     <div class="h-44 sm:h-56 overflow-hidden relative bg-slate-100">
-                        <img id="recipe3Img" src="./pictrure/recipe_haisan.jpg" alt="Hải Sản Hấp Gừng Chấm Mắm Cốt" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                        <img loading="lazy" decoding="async" id="recipe3Img" src="./pictrure/recipe_haisan.jpg" alt="Hải Sản Hấp Gừng Chấm Mắm Cốt" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
                         <span class="absolute top-3 left-3 bg-sky-600 text-white text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full shadow">
                             Vị Ngon Biển Khơi
@@ -1832,7 +1808,7 @@
                 <!-- Khung hiển thị ảnh QR động & Nút tải ảnh QR -->
                 <div class="space-y-3">
                     <div class="bg-gradient-to-b from-amber-50 to-orange-50 p-4 rounded-2xl border border-amber-200 inline-block shadow-inner mx-auto">
-                        <img id="vietQrImage" src="" alt="Mã VietQR Thanh Toán" class="w-56 h-56 sm:w-64 sm:h-64 object-contain mx-auto rounded-xl shadow-md bg-white p-2">
+                        <img loading="lazy" decoding="async" id="vietQrImage" src="" alt="Mã VietQR Thanh Toán" class="w-56 h-56 sm:w-64 sm:h-64 object-contain mx-auto rounded-xl shadow-md bg-white p-2">
                         <div class="mt-2 flex items-center justify-center space-x-1.5 text-xs text-amber-900 font-semibold">
                             <span>⚡</span> <span>Tự động điền số tiền & nội dung</span>
                         </div>
@@ -2991,7 +2967,7 @@
                     <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/90 hover:border-sky-300 flex flex-col justify-between group wow-reveal ${delayClass}">
                         <div>
                             <div onclick="openProductQuickView('${p.id}')" class="h-40 sm:h-60 relative overflow-hidden bg-slate-100 cursor-pointer">
-                                <img src="${p.image || './pictrure/hero_bottle_large.jpg'}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                                <img loading="lazy" decoding="async" src="${p.image || './pictrure/hero_bottle_large.jpg'}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
                                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
                                 <span class="absolute top-2.5 left-2.5 ${tagColor} text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full shadow-md font-mono tracking-wide">
                                     ${p.tag || 'Đặc Biệt'}
@@ -3099,10 +3075,13 @@
                         const k = c[0] && c[0].v ? String(c[0].v).trim() : '';
                         let v = c[1] && c[1].v !== null && c[1].v !== undefined ? String(c[1].v) : '';
                         if (k === 'heroBgImg' && v.includes('photo-1507525428034-b723cf961d3e')) {
-                            v = './pictrure/banner_khanhhoa.jpg';
+                            v = './pictrure/banner_khanhhoa.webp';
                         }
-                        if (k === 'heroProductImg' && (v === './pictrure/1.jpg' || !v || v.includes('hero_bottle_large'))) {
-                            v = './pictrure/hero_bottle_dish.png';
+                        if (k === 'heroProductImg' && (v === './pictrure/1.jpg' || !v || v.includes('hero_bottle_large') || v === './pictrure/hero_bottle_dish.png')) {
+                            v = './pictrure/hero_bottle_dish.webp';
+                        }
+                        if (k === 'heroBgImg' && v === './pictrure/banner_khanhhoa.jpg') {
+                            v = './pictrure/banner_khanhhoa.webp';
                         }
                         if (k === 'pillar2Img' && (!v || v === './pictrure/1.jpg' || v.includes('1518977676601'))) {
                             v = './pictrure/pillar_salt.jpg';
@@ -3878,8 +3857,8 @@
                 if (c.heroProductImg) {
                     const el = document.getElementById('heroProductImg');
                     if (el) {
-                        if (c.heroProductImg === './pictrure/1.jpg' || c.heroProductImg === './pictrure/hero_bottle_large.jpg') {
-                            c.heroProductImg = './pictrure/hero_bottle_dish.png';
+                        if (c.heroProductImg === './pictrure/1.jpg' || c.heroProductImg === './pictrure/hero_bottle_large.jpg' || c.heroProductImg === './pictrure/hero_bottle_dish.png') {
+                            c.heroProductImg = './pictrure/hero_bottle_dish.webp';
                         }
                         el.src = c.heroProductImg;
                     }
@@ -4043,6 +4022,15 @@
             renderReviews();
         }
 
+        function escHtml(str) {
+            return String(str == null ? '' : str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function renderReviews() {
             const container = document.getElementById('reviewsListContainer');
             if (!container) return;
@@ -4062,10 +4050,10 @@
 
             container.innerHTML = approvedReviews.map((r) => {
                 const stars = '★'.repeat(Math.max(1, Math.min(5, Number(r.rating) || 5)));
-                const initial = (r.name || 'KH').trim().split(' ').pop().substring(0, 2).toUpperCase();
+                const initial = escHtml((r.name || 'KH').trim().split(' ').pop().substring(0, 2).toUpperCase());
                 const tagsHtml = (r.tags && r.tags.length > 0)
                     ? `<div class="flex flex-wrap gap-1.5 pt-1">
-                         ${r.tags.map(t => `<span class="text-[10px] font-mono bg-sky-50 text-sky-800 border border-sky-200/80 px-2.5 py-0.5 rounded-full">${t}</span>`).join('')}
+                         ${r.tags.map(t => `<span class="text-[10px] font-mono bg-sky-50 text-sky-800 border border-sky-200/80 px-2.5 py-0.5 rounded-full">${escHtml(t)}</span>`).join('')}
                        </div>`
                     : '';
 
@@ -4074,13 +4062,13 @@
                         <div class="space-y-2.5">
                             <div class="flex items-center justify-between">
                                 <div class="text-amber-500 text-sm tracking-wider font-bold">${stars}</div>
-                                <span class="text-[10px] text-slate-400 font-mono">${r.date || ''}</span>
+                                <span class="text-[10px] text-slate-400 font-mono">${escHtml(r.date || '')}</span>
                             </div>
                             <div class="bg-sky-50 text-sky-800 border border-sky-200/80 text-[10px] font-medium px-3 py-0.5 rounded-full inline-block truncate max-w-full">
-                                🛍️ ${r.product || 'Nước mắm Ba Cô'}
+                                🛍️ ${escHtml(r.product || 'Nước mắm Ba Cô')}
                             </div>
                             <p class="text-slate-600 italic text-xs sm:text-sm leading-relaxed font-normal">
-                                "${r.comment}"
+                                "${escHtml(r.comment)}"
                             </p>
                             ${tagsHtml}
                         </div>
@@ -4090,10 +4078,10 @@
                             </div>
                             <div class="min-w-0 flex-1">
                                 <div class="font-display font-bold text-slate-900 text-xs sm:text-sm flex items-center space-x-1.5">
-                                    <span class="truncate">${r.name}</span>
+                                    <span class="truncate">${escHtml(r.name)}</span>
                                     <span class="text-emerald-500 text-xs shrink-0" title="Đã xác thực mua hàng">✓</span>
                                 </div>
-                                <span class="text-[10px] text-slate-500 block truncate font-normal">${r.location || 'Khách hàng thân thiết'}</span>
+                                <span class="text-[10px] text-slate-500 block truncate font-normal">${escHtml(r.location || 'Khách hàng thân thiết')}</span>
                             </div>
                         </div>
                     </div>

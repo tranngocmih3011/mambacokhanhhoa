@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "include": [
+    "/admin",
+    "/admin*",
+    "/Admin*",
+    "/ADMIN*",
+    "/__auth/*",
+    "/api/*",
+    "/sepay*",
+    "/functions/*",
+    "/GoogleAppsScript*",
+    "/chime_datauri.txt",
+    "/vercel.json",
+    "/package.json",
+    "/_headers",
+    "/_redirects",
+    "/_routes.json",
+    "/.git*",
+    "/.env*",
+    "/.DS_Store",
+    "/pictrure/.DS_Store",
+    "/wp-*",
+    "/*.php",
+    "/xmlrpc*",
+    "/phpmyadmin*"
+  ],
+  "exclude": []
+}
