@@ -2715,60 +2715,153 @@ function dinhDangDongKhachSi(sheet, row) {
             const dateEl = document.getElementById('statTodayDate');
             if (dateEl) dateEl.textContent = dateStr;
 
-            // 🔒 Xác thực PHÍA MÁY CHỦ: trang này chỉ được Cloudflare trả về khi đã đăng nhập bằng mật khẩu
-            // (cookie phiên HttpOnly ký HMAC). Mã PIN không còn nằm trong mã nguồn.
+            // 🔒 Xác thực trực tiếp qua Google Sheet (bảng QuanTriVien + token ký HMAC từ Apps Script)
             localStorage.removeItem('baco_pin_locked_until');
             localStorage.removeItem('baco_pin_fail_count');
             localStorage.removeItem('baco_custom_pin');
             localStorage.removeItem('baco_admin_logged');
             sessionStorage.removeItem('baco_admin_logged');
-            verifyServerSessionAndOpen();
+            verifySheetSessionAndOpen();
         });
 
-        async function verifyServerSessionAndOpen() {
-            const isLocalDev = location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-            if (isLocalDev) { showAdminDashboard(); return; }
-            try {
-                const res = await fetch('/__auth/status', { credentials: 'same-origin', cache: 'no-store' });
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && data.authenticated) { showAdminDashboard(); return; }
-                }
-            } catch (e) {}
-            // Không xác thực được (phiên hết hạn hoặc truy cập từ tên miền không được bảo vệ) -> khóa giao diện
-            showServerLockedScreen();
-        }
+        const SHEET_SESSION_STORAGE_KEY = 'baco_sheet_session';
 
-        function showServerLockedScreen() {
+        function renderSheetLoginForm(errorMsg = '', locked = false, prefillUser = 'admin') {
             const app = document.getElementById('adminApp');
             if (app) app.classList.add('hidden');
             const screen = document.getElementById('loginScreen');
-            if (screen) {
-                screen.classList.remove('hidden');
-                screen.innerHTML = `
-                    <div class="w-full max-w-sm bg-white rounded-3xl p-7 text-center shadow-sm space-y-3">
-                        <div class="text-4xl">🔒</div>
-                        <h2 class="text-base font-bold text-[#1c1c1e]">Phiên quản trị đã hết hạn</h2>
-                        <p class="text-xs text-[#8E8E93]">Vui lòng đăng nhập lại bằng mật khẩu quản trị trên tên miền chính thức.</p>
-                        <a href="https://mambacokhanhhoa.pages.dev/admin.html" class="block w-full bg-[#007AFF] text-white font-semibold py-3 rounded-xl text-sm">Đăng nhập lại</a>
-                    </div>`;
+            if (!screen) return;
+            screen.classList.remove('hidden');
+            const safeErr = errorMsg ? `<div class="text-xs text-[#FF3B30] bg-red-50 border border-red-200/80 px-3.5 py-2.5 rounded-xl text-center leading-relaxed">${escHtml(errorMsg)}</div>` : '';
+            screen.innerHTML = `
+                <form onsubmit="handleAdminLogin(event)" class="w-full max-w-[360px] bg-white rounded-[22px] p-7 shadow-lg border border-black/[0.04] space-y-4">
+                    <div class="text-center space-y-1.5">
+                        <img src="./pictrure/logo.JPG" alt="Ba Cô" class="w-16 h-16 rounded-full object-cover mx-auto shadow ring-2 ring-[#007AFF]/25">
+                        <h1 class="text-lg font-bold text-[#1c1c1e] pt-1">Ba Cô Khánh Hòa</h1>
+                        <p class="text-xs text-[#8E8E93]">Đăng nhập quản trị qua Google Sheet</p>
+                    </div>
+                    ${safeErr}
+                    <div class="space-y-3">
+                        <div>
+                            <label for="adminLoginUser" class="block text-xs font-medium text-[#8E8E93] mb-1">Tên đăng nhập</label>
+                            <input id="adminLoginUser" type="text" value="${escHtml(prefillUser || 'admin')}" autocomplete="username" required maxlength="64" ${locked ? 'disabled' : ''} class="w-full px-3.5 py-3 rounded-xl bg-[#767680]/[0.12] text-[15px] text-[#1c1c1e] outline-none focus:bg-white focus:ring-2 focus:ring-[#007AFF] transition">
+                        </div>
+                        <div>
+                            <label for="adminLoginPass" class="block text-xs font-medium text-[#8E8E93] mb-1">Mật khẩu quản trị</label>
+                            <div class="relative">
+                                <input id="adminLoginPass" type="password" autocomplete="current-password" required minlength="4" maxlength="128" autofocus ${locked ? 'disabled' : ''} placeholder="Nhập mật khẩu..." class="w-full px-3.5 py-3 pr-11 rounded-xl bg-[#767680]/[0.12] text-[15px] text-[#1c1c1e] outline-none focus:bg-white focus:ring-2 focus:ring-[#007AFF] transition">
+                                <button type="button" onclick="toggleAdminPassVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#8E8E93] hover:text-[#1c1c1e] text-sm px-1" aria-label="Hiện/ẩn mật khẩu">👁️</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="adminLoginBtn" type="submit" ${locked ? 'disabled' : ''} class="w-full py-3 rounded-xl bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.99] text-white font-semibold text-[15px] transition disabled:opacity-50 disabled:cursor-not-allowed">
+                        Đăng nhập
+                    </button>
+                    <div class="flex items-center justify-between text-[11px] text-[#8E8E93] pt-1">
+                        <span>🔒 Mã hóa SHA-256 + khóa dò sai</span>
+                        <button type="button" onclick="openForgotPasswordModal()" class="text-[#007AFF] hover:underline font-medium">Quên mật khẩu?</button>
+                    </div>
+                </form>`;
+        }
+
+        async function callSheetAuthAction(payload) {
+            const res = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload),
+                redirect: 'follow',
+                cache: 'no-store'
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return await res.json();
+        }
+
+        async function verifySheetSessionAndOpen() {
+            if (location.protocol === 'file:') { showAdminDashboard(); return; }
+            try {
+                const raw = localStorage.getItem(SHEET_SESSION_STORAGE_KEY);
+                if (raw) {
+                    const saved = JSON.parse(raw);
+                    if (saved && saved.token && (!saved.expiresAt || saved.expiresAt > Date.now())) {
+                        const verifyRes = await callSheetAuthAction({ action: 'verify_session', token: saved.token });
+                        if (verifyRes && verifyRes.status === 'success' && verifyRes.valid === true) {
+                            showAdminDashboard();
+                            return;
+                        }
+                    }
+                }
+            } catch (e) {}
+            localStorage.removeItem(SHEET_SESSION_STORAGE_KEY);
+            renderSheetLoginForm();
+        }
+
+        function toggleAdminPassVisibility() {
+            const input = document.getElementById('adminLoginPass');
+            if (!input) return;
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        async function handleAdminLogin(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const userEl = document.getElementById('adminLoginUser');
+            const passEl = document.getElementById('adminLoginPass');
+            const btnEl = document.getElementById('adminLoginBtn');
+            const username = (userEl ? userEl.value : 'admin').trim().toLowerCase() || 'admin';
+            const password = passEl ? passEl.value : '';
+            if (!password) {
+                renderSheetLoginForm('Vui lòng nhập mật khẩu quản trị.', false, username);
+                return;
+            }
+            if (btnEl) {
+                btnEl.disabled = true;
+                btnEl.textContent = 'Đang kiểm tra Google Sheet...';
+            }
+            try {
+                const data = await callSheetAuthAction({
+                    action: 'verify_admin',
+                    username,
+                    password,
+                    userAgent: navigator.userAgent.slice(0, 180)
+                });
+                if (data && data.status === 'success' && data.valid === true && data.sessionToken) {
+                    localStorage.setItem(SHEET_SESSION_STORAGE_KEY, JSON.stringify({
+                        token: data.sessionToken,
+                        username: data.username || username,
+                        role: data.role || 'Quản trị viên',
+                        expiresAt: data.expiresAt || (Date.now() + 7 * 86400 * 1000)
+                    }));
+                    showAdminDashboard();
+                    showAdminToast('Đăng nhập thành công (' + (data.username || username) + ')', 'success');
+                    return;
+                }
+                if (data && data.locked) {
+                    const mins = data.retryAfterMinutes || 15;
+                    renderSheetLoginForm(`⛔ Nhập sai quá nhiều lần. Tài khoản tạm khóa ${mins} phút để chống dò mật khẩu.`, true, username);
+                    return;
+                }
+                if (data && data.reason === 'account_locked') {
+                    renderSheetLoginForm('⛔ Tài khoản này đang ở trạng thái Khóa trong bảng QuanTriVien trên Google Sheet.', false, username);
+                    return;
+                }
+                if (data && data.reason === 'no_password_set') {
+                    renderSheetLoginForm('⚠️ Tài khoản chưa đặt mật khẩu trong tab QuanTriVien. Hãy mở Google Sheet → menu "🔐 Bảo Mật Ba Cô" → Đặt mật khẩu.', false, username);
+                    return;
+                }
+                const rem = typeof data?.remainingAttempts === 'number' ? ` (còn ${data.remainingAttempts} lần thử)` : '';
+                renderSheetLoginForm(`Tên đăng nhập hoặc mật khẩu không chính xác${rem}.`, false, username);
+            } catch (err) {
+                renderSheetLoginForm('Không kết nối được tới Google Sheet Apps Script. Vui lòng kiểm tra lại mạng hoặc bản triển khai Web App.', false, username);
             }
         }
 
-        // Các hàm PIN cũ được giữ tên để không vỡ liên kết giao diện, nhưng chuyển sang đăng nhập máy chủ
-        function toggleAdminPassVisibility() {}
-        function handleAdminLogin(e) {
-            if (e && e.preventDefault) e.preventDefault();
-            window.location.href = '/admin.html';
-        }
         function openForgotPasswordModal() {
-            showAdminToast('Mật khẩu quản trị được quản lý trong tab QuanTriVien trên Google Sheet (hoặc ADMIN_PASSWORD trong Cloudflare Pages).', 'info');
+            showAdminToast('Mở Google Sheet → menu "🔐 Bảo Mật Ba Cô" → "2. Đặt / Đổi Mật Khẩu Admin" để đặt lại mật khẩu.', 'info');
         }
         function closeForgotPasswordModal() {
             const modal = document.getElementById('forgotPasswordModal');
             if (modal) modal.classList.add('hidden');
         }
-        function fillDefaultPinAndLogin() { closeForgotPasswordModal(); handleAdminLogin(); }
+        function fillDefaultPinAndLogin() { closeForgotPasswordModal(); }
         function handleResetPinWithPhone() { openForgotPasswordModal(); }
         function sendPinToAdminEmail() { openForgotPasswordModal(); }
 
@@ -2779,11 +2872,11 @@ function dinhDangDongKhachSi(sheet, row) {
                 clearInterval(adminSheetSyncTimer);
                 adminSheetSyncTimer = null;
             }
+            localStorage.removeItem(SHEET_SESSION_STORAGE_KEY);
             localStorage.removeItem('baco_admin_logged');
             sessionStorage.removeItem('baco_admin_logged');
-            showAdminToast('Đang đăng xuất & khóa trang quản trị...', 'info');
-            // Xóa cookie phiên HttpOnly phía máy chủ
-            window.location.href = '/__auth/logout';
+            showAdminToast('Đã đăng xuất & khóa trang quản trị.', 'info');
+            renderSheetLoginForm();
         }
 
         // ================= XỬ LÝ KÉO XUỐNG LÀM MỚI (PULL-TO-REFRESH) TRÊN ĐIỆN THOẠI =================

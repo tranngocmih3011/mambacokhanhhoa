@@ -142,9 +142,12 @@ function doPost(e) {
     var action = data.action || "";
     var nowStr = data.timestamp || new Date().toLocaleString("vi-VN");
 
-    // XÁC THỰC QUẢN TRỊ VIÊN PHÍA MÁY CHỦ (TỪ CLOUDFLARE MIDDLEWARE)
+    // XÁC THỰC QUẢN TRỊ VIÊN TRỰC TIẾP QUA GOOGLE SHEET
     if (action === "verify_admin") {
       return handleVerifyAdmin_(data, nowStr);
+    }
+    if (action === "verify_session") {
+      return handleVerifySession_(data);
     }
 
     // ========================================================
@@ -1171,24 +1174,54 @@ function constantTimeEqual_(a, b) {
 function getOrCreateSecurityProps_() {
   var props = PropertiesService.getScriptProperties();
   var changed = {};
-  var authKey = props.getProperty("INTERNAL_AUTH_KEY");
-  if (!authKey) {
-    authKey = sha256Hex_(Utilities.getUuid() + ":" + Date.now() + ":authkey");
-    changed.INTERNAL_AUTH_KEY = authKey;
-  }
   var pepper = props.getProperty("AUTH_PEPPER");
   if (!pepper) {
     pepper = sha256Hex_(Utilities.getUuid() + ":" + Math.random() + ":pepper");
     changed.AUTH_PEPPER = pepper;
   }
+  var signKey = props.getProperty("SESSION_SIGN_KEY");
+  if (!signKey) {
+    signKey = sha256Hex_(Utilities.getUuid() + ":" + Date.now() + ":session");
+    changed.SESSION_SIGN_KEY = signKey;
+  }
   if (Object.keys(changed).length > 0) {
     props.setProperties(changed);
   }
   return {
-    INTERNAL_AUTH_KEY: authKey,
     AUTH_PEPPER: pepper,
+    SESSION_SIGN_KEY: signKey,
     AUTH_SPREADSHEET_ID: props.getProperty("AUTH_SPREADSHEET_ID") || ""
   };
+}
+
+function hmacSignHex_(payload, secret) {
+  return bytesToHex_(Utilities.computeHmacSha256Signature(String(payload || ""), String(secret || "")));
+}
+
+function createSignedSession_(username, role, signKey) {
+  var expMs = Date.now() + 7 * 24 * 3600 * 1000;
+  var uB64 = Utilities.base64EncodeWebSafe(String(username || "admin"), Utilities.Charset.UTF_8).replace(/=+$/, "");
+  var rB64 = Utilities.base64EncodeWebSafe(String(role || "Quản trị viên"), Utilities.Charset.UTF_8).replace(/=+$/, "");
+  var payload = "v1." + expMs + "." + uB64 + "." + rB64;
+  var sig = hmacSignHex_(payload, signKey);
+  return { token: payload + "." + sig, expiresAt: expMs };
+}
+
+function verifySignedSession_(token, signKey) {
+  var parts = String(token || "").split(".");
+  if (parts.length !== 5 || parts[0] !== "v1") return null;
+  var expMs = Number(parts[1]);
+  if (!expMs || expMs < Date.now()) return null;
+  var payload = parts.slice(0, 4).join(".");
+  var expected = hmacSignHex_(payload, signKey);
+  if (!constantTimeEqual_(expected, parts[4])) return null;
+  try {
+    var uname = Utilities.newBlob(Utilities.base64DecodeWebSafe(parts[2])).getDataAsString("UTF-8");
+    var urole = Utilities.newBlob(Utilities.base64DecodeWebSafe(parts[3])).getDataAsString("UTF-8");
+    return { username: uname, role: urole, expiresAt: expMs };
+  } catch (e) {
+    return null;
+  }
 }
 
 function hashPasswordWithSalt_(password, salt, pepper) {
@@ -1279,9 +1312,9 @@ function appendLoginAudit_(logSheet, timeStr, username, statusLabel, detail, ip,
   } catch (e) {}
 }
 
-// Hàm chạy 1 lần trong Apps Script để khởi tạo bảng & tạo khóa bí mật SHEET_AUTH_SECRET
+// Hàm chạy 1 lần trong Apps Script để khởi tạo bảng QuanTriVien & NhatKyDangNhap
 function khoiTaoBaoMatQuanTri() {
-  var sec = getOrCreateSecurityProps_();
+  getOrCreateSecurityProps_();
   var authCtx = getAuthSpreadsheet_();
   if (!authCtx.ss) {
     Logger.log("Không tìm thấy bảng tính Google Sheet.");
@@ -1289,8 +1322,6 @@ function khoiTaoBaoMatQuanTri() {
   }
   ensureAdminSecuritySheets_(authCtx.ss);
   Logger.log("✅ Đã khởi tạo bảng QuanTriVien & NhatKyDangNhap thành công!");
-  Logger.log("🔑 Hãy copy giá trị SHEET_AUTH_SECRET dưới đây dán vào Cloudflare Pages → Variables and Secrets:");
-  Logger.log("SHEET_AUTH_SECRET = " + sec.INTERNAL_AUTH_KEY);
 }
 
 // Hàm đặt hoặc đổi mật khẩu quản trị trực tiếp (tự động băm SHA-256 + salt + pepper)
@@ -1351,23 +1382,34 @@ function maHoaTatCaMatKhauSheet() {
   return count;
 }
 
-// Hàm xử lý xác thực do Cloudflare Pages _middleware.js gọi Server-to-Server
+function getBruteForceState_(username) {
+  try {
+    var cache = CacheService.getScriptCache();
+    var raw = cache.get("BF_" + String(username || "admin").slice(0, 48));
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return { fails: 0, lockUntil: 0 };
+}
+
+function saveBruteForceState_(username, state) {
+  try {
+    var cache = CacheService.getScriptCache();
+    cache.put("BF_" + String(username || "admin").slice(0, 48), JSON.stringify(state), 900);
+  } catch (e) {}
+}
+
+// Truy vấn Google Sheet xác thực đăng nhập trực tiếp & trả về sessionToken ký HMAC
 function handleVerifyAdmin_(data, nowStr) {
   var sec = getOrCreateSecurityProps_();
-  var callerKey = String(data.authKey || "");
-  if (!callerKey || !sec.INTERNAL_AUTH_KEY || !constantTimeEqual_(callerKey, sec.INTERNAL_AUTH_KEY)) {
-    return jsonError("Unauthorized");
-  }
-
   var authCtx = getAuthSpreadsheet_();
   if (!authCtx.ss) return jsonError("Auth sheet unavailable");
   var sheets = ensureAdminSecuritySheets_(authCtx.ss);
   var userSheet = sheets.userSheet;
   var logSheet = sheets.logSheet;
 
-  var username = String(data.username || "admin").trim().toLowerCase();
-  var password = String(data.password || "");
-  var ip = String(data.ip || "");
+  var username = String(data.username || "admin").trim().toLowerCase().slice(0, 64);
+  var password = String(data.password || "").slice(0, 128);
+  var ip = String(data.ip || "Direct Sheet Auth");
   var ua = String(data.userAgent || "");
 
   if (!username || !password) {
@@ -1375,10 +1417,19 @@ function handleVerifyAdmin_(data, nowStr) {
     return jsonSuccess({ valid: false, reason: "invalid_credentials" });
   }
 
+  // Chống brute-force 5 lần sai -> khóa 15 phút
+  var nowMs = Date.now();
+  var bf = getBruteForceState_(username);
+  if (bf.lockUntil && bf.lockUntil > nowMs) {
+    var mins = Math.max(1, Math.ceil((bf.lockUntil - nowMs) / 60000));
+    appendLoginAudit_(logSheet, nowStr, username, "Bị chặn", "Đang bị khóa chống dò mật khẩu (" + mins + " phút)", ip, ua);
+    return jsonSuccess({ valid: false, locked: true, retryAfterMinutes: mins, reason: "locked" });
+  }
+
   var lastRow = userSheet.getLastRow();
   if (lastRow < 3) {
     appendLoginAudit_(logSheet, nowStr, username, "Thất bại", "Chưa có tài khoản trong QuanTriVien", ip, ua);
-    return jsonSuccess({ valid: false, reason: "no_users" });
+    return jsonSuccess({ valid: false, reason: "no_password_set" });
   }
 
   var rows = userSheet.getRange(3, 1, lastRow - 2, 7).getValues();
@@ -1395,11 +1446,15 @@ function handleVerifyAdmin_(data, nowStr) {
       return jsonSuccess({ valid: false, reason: "account_locked" });
     }
 
+    if (!storedSecret) {
+      appendLoginAudit_(logSheet, nowStr, username, "Thất bại", "Chưa thiết lập mật khẩu trong QuanTriVien", ip, ua);
+      return jsonSuccess({ valid: false, reason: "no_password_set" });
+    }
+
     var matched = false;
     if (storedSecret.indexOf("baco$sha256$") === 0) {
       matched = verifyPasswordHash_(password, storedSecret, sec.AUTH_PEPPER);
     } else if (authCtx.isPrivate && storedSecret.length >= 6) {
-      // Nếu là Sheet riêng tư (AUTH_SPREADSHEET_ID != SPREADSHEET_ID), hỗ trợ đối chiếu và tự nâng cấp lên hash
       matched = constantTimeEqual_(password, storedSecret);
       if (matched) {
         var newSalt = sha256Hex_(Utilities.getUuid() + ":" + Date.now()).slice(0, 16);
@@ -1408,17 +1463,71 @@ function handleVerifyAdmin_(data, nowStr) {
     }
 
     if (matched) {
+      saveBruteForceState_(username, { fails: 0, lockUntil: 0 });
       userSheet.getRange(3 + i, 5).setValue(nowStr);
       userSheet.getRange(3 + i, 6).setValue(ip);
       appendLoginAudit_(logSheet, nowStr, username, "Thành công", "Đăng nhập hợp lệ (" + rowRole + ")", ip, ua);
-      return jsonSuccess({ valid: true, username: rowUser, role: rowRole });
+      var sess = createSignedSession_(rowUser, rowRole, sec.SESSION_SIGN_KEY);
+      return jsonSuccess({
+        valid: true,
+        username: rowUser,
+        role: rowRole,
+        sessionToken: sess.token,
+        expiresAt: sess.expiresAt
+      });
     }
 
-    appendLoginAudit_(logSheet, nowStr, username, "Thất bại", "Sai mật khẩu", ip, ua);
-    return jsonSuccess({ valid: false, reason: "wrong_password" });
+    // Sai mật khẩu -> làm chậm + đếm số lần thất bại
+    try { Utilities.sleep(450); } catch (e) {}
+    bf.fails = (bf.fails || 0) + 1;
+    if (bf.fails >= 5) {
+      bf.lockUntil = nowMs + 15 * 60 * 1000;
+      bf.fails = 0;
+      saveBruteForceState_(username, bf);
+      appendLoginAudit_(logSheet, nowStr, username, "Bị chặn", "Sai 5 lần liên tiếp -> khóa 15 phút", ip, ua);
+      return jsonSuccess({ valid: false, locked: true, retryAfterMinutes: 15, reason: "locked" });
+    }
+    saveBruteForceState_(username, bf);
+    appendLoginAudit_(logSheet, nowStr, username, "Thất bại", "Sai mật khẩu (lần " + bf.fails + "/5)", ip, ua);
+    return jsonSuccess({ valid: false, remainingAttempts: 5 - bf.fails, reason: "wrong_password" });
   }
 
+  try { Utilities.sleep(450); } catch (e) {}
+  bf.fails = (bf.fails || 0) + 1;
+  if (bf.fails >= 5) {
+    bf.lockUntil = nowMs + 15 * 60 * 1000;
+    bf.fails = 0;
+    saveBruteForceState_(username, bf);
+    appendLoginAudit_(logSheet, nowStr, username, "Bị chặn", "Dò tài khoản 5 lần -> khóa 15 phút", ip, ua);
+    return jsonSuccess({ valid: false, locked: true, retryAfterMinutes: 15, reason: "locked" });
+  }
+  saveBruteForceState_(username, bf);
   appendLoginAudit_(logSheet, nowStr, username, "Thất bại", "Không tồn tại tài khoản", ip, ua);
+  return jsonSuccess({ valid: false, remainingAttempts: 5 - bf.fails, reason: "not_found" });
+}
+
+// Xác thực lại sessionToken từ trình duyệt (kiểm tra chữ ký HMAC + hạn + trạng thái Hoạt động trong Sheet)
+function handleVerifySession_(data) {
+  var sec = getOrCreateSecurityProps_();
+  var sess = verifySignedSession_(data.token, sec.SESSION_SIGN_KEY);
+  if (!sess) return jsonSuccess({ valid: false, reason: "invalid_or_expired" });
+
+  var authCtx = getAuthSpreadsheet_();
+  if (!authCtx.ss) return jsonSuccess({ valid: false, reason: "sheet_unavailable" });
+  var userSheet = authCtx.ss.getSheetByName("QuanTriVien");
+  if (!userSheet || userSheet.getLastRow() < 3) return jsonSuccess({ valid: false, reason: "no_users" });
+
+  var targetUser = String(sess.username || "").trim().toLowerCase();
+  var rows = userSheet.getRange(3, 1, userSheet.getLastRow() - 2, 4).getValues();
+  for (var i = 0; i < rows.length; i++) {
+    var rowUser = String(rows[i][0] || "").trim().toLowerCase();
+    if (rowUser !== targetUser) continue;
+    var rowStatus = String(rows[i][2] || "").trim().toLowerCase();
+    if (rowStatus === "hoạt động" || rowStatus === "active") {
+      return jsonSuccess({ valid: true, username: rowUser, role: String(rows[i][1] || sess.role) });
+    }
+    return jsonSuccess({ valid: false, reason: "account_locked" });
+  }
   return jsonSuccess({ valid: false, reason: "not_found" });
 }
 
@@ -1448,8 +1557,7 @@ function onOpen() {
       .addItem("1. Khởi tạo Bảng Tài Khoản & Nhật Ký", "khoiTaoBaoMatQuanTri")
       .addItem("2. Đặt / Đổi Mật Khẩu Admin", "moHopThoaiDatMatKhau")
       .addItem("3. Mã hóa mật khẩu vừa gõ trong Sheet", "chayMaHoaMatKhauUI")
-      .addItem("4. Xem khóa SHEET_AUTH_SECRET (Cloudflare)", "hienThiKhoaKetNoi")
-      .addItem("5. Gắn File Sheet Riêng Tư (Tùy chọn)", "moHopThoaiDatSheetRiengTu")
+      .addItem("4. Gắn File Sheet Riêng Tư (Tùy chọn)", "moHopThoaiDatSheetRiengTu")
       .addToUi();
   } catch (e) {}
 }
@@ -1473,15 +1581,6 @@ function moHopThoaiDatMatKhau() {
 function chayMaHoaMatKhauUI() {
   var count = maHoaTatCaMatKhauSheet();
   SpreadsheetApp.getUi().alert("✅ Đã mã hóa an toàn " + count + " dòng mật khẩu trong tab QuanTriVien.");
-}
-
-function hienThiKhoaKetNoi() {
-  var sec = getOrCreateSecurityProps_();
-  SpreadsheetApp.getUi().alert(
-    "Khóa xác thực máy chủ (SHEET_AUTH_SECRET)",
-    "Copy chính xác mã sau để dán vào Cloudflare Pages → Settings → Variables and Secrets với tên biến SHEET_AUTH_SECRET:\n\n" + sec.INTERNAL_AUTH_KEY,
-    SpreadsheetApp.getUi().ButtonSet.OK
-  );
 }
 
 function moHopThoaiDatSheetRiengTu() {
