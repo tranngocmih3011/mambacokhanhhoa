@@ -50,9 +50,14 @@
             to { transform: translateY(0); opacity: 1; }
         }
         .toast-enter { animation: toastIn 0.25s ease-out forwards; }
+        .footer-luxury-dark {
+            background: radial-gradient(circle at 85% 15%, rgba(245, 158, 11, 0.14) 0%, transparent 45%),
+                        linear-gradient(155deg, #041224 0%, #0a2544 55%, #030e1c 100%) !important;
+            color: #e2e8f0;
+        }
     </style>
     <!-- Precompiled Tailwind CSS (đặt sau <style> để giữ đúng thứ tự ưu tiên) -->
-    <link rel="stylesheet" href="./assets/products.css">
+    <link rel="stylesheet" href="./assets/products.css?v=20261111c">
 </head>
 <body class="bg-gradient-to-b from-sky-50/40 via-white to-sky-50/30 text-slate-800 font-sans antialiased pb-20 lg:pb-0">
 
@@ -910,12 +915,14 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="mt-20 bg-sky-950 text-slate-300 py-12 border-t border-sky-900">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-400">
-            <a href="./admin.html?lock=1" class="text-slate-400 hover:text-sky-300 transition cursor-pointer select-none">
+    <!-- Footer (Dark Ocean Luxury Style) -->
+    <footer class="relative mt-20 footer-luxury-dark bg-slate-950 text-slate-200 py-12 border-t border-amber-400/30 overflow-hidden">
+        <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-sky-400 via-amber-400 to-orange-500"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center text-xs text-slate-300">
+            <a href="./admin.html?lock=1" class="text-slate-200 hover:text-amber-300 font-medium transition cursor-pointer select-none">
                 © 2026 Nước Mắm Ba Cô Khánh Hòa. All rights reserved.
             </a>
+            <span class="text-[11px] text-amber-300/90 font-semibold">Hotline / Zalo: 0985 520 678 • Cam Ranh, Khánh Hòa</span>
         </div>
     </footer>
 

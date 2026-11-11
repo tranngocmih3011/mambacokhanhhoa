@@ -289,9 +289,15 @@
             -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
             transition: background-color 5000s ease-in-out 0s;
         }
+        .footer-luxury-dark {
+            background: radial-gradient(circle at 88% 12%, rgba(245, 158, 11, 0.14) 0%, transparent 42%),
+                        radial-gradient(circle at 12% 85%, rgba(14, 165, 233, 0.18) 0%, transparent 48%),
+                        linear-gradient(155deg, #041224 0%, #0a2544 52%, #030e1c 100%) !important;
+            color: #e2e8f0;
+        }
     </style>
     <!-- Precompiled Tailwind CSS (đặt sau <style> để giữ đúng thứ tự ưu tiên như Tailwind CDN) -->
-    <link rel="stylesheet" href="./assets/index.css">
+    <link rel="stylesheet" href="./assets/index.css?v=20261111c">
 </head>
 <body class="font-sans liquid-canvas text-slate-800 antialiased selection:bg-sky-500 selection:text-white pb-24 lg:pb-0 relative min-h-screen overflow-x-hidden">
 
@@ -2024,40 +2030,43 @@
 
 
 
-    <!-- Footer (European Luxury Atelier Style) -->
-    <footer class="relative bg-slate-950 backdrop-blur-md text-slate-300 py-12 pb-28 lg:py-16 border-t border-white/10 overflow-hidden">
-        <div class="ambient-orb w-80 h-80 bg-amber-500/10 -top-20 right-10"></div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-10 relative z-10">
-            <div class="space-y-3.5 wow-reveal delay-100">
+    <!-- Footer (Dark Ocean Luxury Atelier Style) -->
+    <footer class="relative footer-luxury-dark bg-slate-950 text-slate-200 py-14 pb-28 lg:py-16 border-t border-amber-400/30 overflow-hidden shadow-2xl">
+        <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-sky-400 via-amber-400 to-orange-500"></div>
+        <div class="ambient-orb w-80 h-80 bg-amber-500/15 -top-24 right-8 pointer-events-none"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10 relative z-10">
+            <div class="space-y-4">
                 <span class="site-brand-name font-display font-bold text-white text-xl sm:text-2xl tracking-tight block">Nước Mắm Ba Cô Khánh Hòa</span>
                 <p class="site-brand-slogan text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
                     Đặc sản mắm nhĩ cốt truyền thống ủ chượp tự nhiên từ cá cơm than vịnh Cam Ranh. Đậm đà bản sắc, trọn vị tình thân.
                 </p>
-                <div class="pt-1">
-                    <span class="bg-sky-900/80 text-sky-200 border border-sky-700 px-3 py-1 text-[10px] font-mono font-bold rounded-full">TRUYỀN THỐNG TRĂM NĂM</span>
+                <div class="pt-1 flex flex-wrap gap-2">
+                    <span class="bg-amber-500/20 text-amber-200 border border-amber-400/40 px-3 py-1 text-[10px] font-mono font-bold rounded-full tracking-wider">TRUYỀN THỐNG TRĂM NĂM</span>
+                    <span class="bg-sky-500/20 text-sky-200 border border-sky-400/30 px-3 py-1 text-[10px] font-mono font-bold rounded-full tracking-wider">100% NGUYÊN CHẤT</span>
                 </div>
             </div>
-            <div class="space-y-3.5 wow-reveal delay-200">
-                <h4 class="font-display font-bold text-white text-sm sm:text-base tracking-wider uppercase">Thông Tin Liên Hệ</h4>
-                <div class="space-y-2 text-xs sm:text-sm font-normal text-slate-200">
-                    <p class="flex items-center space-x-2"><span>📍</span><span>Cơ sở: <strong class="site-address font-medium text-white">Phường Cam Ranh, Tỉnh Khánh Hòa</strong></span></p>
-                    <p class="flex items-center space-x-2"><span>📞</span><span>Hotline / Zalo: <a href="tel:0985520678" class="site-hotline-link text-amber-300 hover:text-amber-200 font-bold transition"><span class="site-hotline">0985 520 678</span></a></span></p>
-                    <p class="flex items-center space-x-2"><span>✉️</span><span>Email: <a href="mailto:contact@bacokhanhhoa.vn" class="site-email-link text-slate-200 hover:text-white transition"><span class="site-email">contact@bacokhanhhoa.vn</span></a></span></p>
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3.5 backdrop-blur-md">
+                <h4 class="font-display font-bold text-amber-300 text-sm sm:text-base tracking-wider uppercase">Thông Tin Liên Hệ</h4>
+                <div class="space-y-2.5 text-xs sm:text-sm font-normal text-slate-200">
+                    <p class="flex items-start space-x-2.5"><span class="shrink-0">📍</span><span>Cơ sở: <strong class="site-address font-semibold text-white">Phường Cam Ranh, Tỉnh Khánh Hòa</strong></span></p>
+                    <p class="flex items-center space-x-2.5"><span class="shrink-0">📞</span><span>Hotline / Zalo: <a href="tel:0985520678" class="site-hotline-link text-amber-300 hover:text-amber-200 font-bold underline decoration-amber-400/40 underline-offset-4 transition"><span class="site-hotline">0985 520 678</span></a></span></p>
+                    <p class="flex items-center space-x-2.5"><span class="shrink-0">✉️</span><span>Email: <a href="mailto:contact@bacokhanhhoa.vn" class="site-email-link text-sky-200 hover:text-white transition"><span class="site-email">contact@bacokhanhhoa.vn</span></a></span></p>
                 </div>
             </div>
-            <div class="space-y-3.5 wow-reveal delay-300">
-                <h4 class="font-display font-bold text-white text-sm sm:text-base tracking-wider uppercase">Kết Nối Với Chúng Tôi</h4>
-                <p class="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">Theo dõi trang chính thức để nhận các chương trình ưu đãi tri anh đối tác và gia đình hàng tháng.</p>
-                <div class="flex space-x-3 pt-1">
-                    <a href="https://facebook.com" target="_blank" class="w-10 h-10 bg-sky-900/70 border border-sky-700 rounded-xl flex items-center justify-center text-white hover:text-sky-300 transition active:scale-95 text-sm font-bold">f</a>
-                    <a href="https://zalo.me/0985520678" target="_blank" class="site-zalo-link w-10 h-10 bg-sky-900/70 border border-sky-700 rounded-xl flex items-center justify-center text-white hover:text-sky-300 transition active:scale-95 text-sm font-bold">z</a>
+            <div class="space-y-4">
+                <h4 class="font-display font-bold text-amber-300 text-sm sm:text-base tracking-wider uppercase">Kết Nối Với Chúng Tôi</h4>
+                <p class="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">Theo dõi trang chính thức để nhận các chương trình ưu đãi tri ân đối tác và gia đình hàng tháng.</p>
+                <div class="flex items-center space-x-3 pt-1">
+                    <a href="https://facebook.com" target="_blank" class="px-4 h-10 bg-sky-500/20 hover:bg-sky-500/35 border border-sky-400/40 rounded-xl flex items-center justify-center text-white transition active:scale-95 text-xs sm:text-sm font-bold space-x-2"><span>f</span><span>Facebook</span></a>
+                    <a href="https://zalo.me/0985520678" target="_blank" class="site-zalo-link px-4 h-10 bg-amber-500/20 hover:bg-amber-500/35 border border-amber-400/40 rounded-xl flex items-center justify-center text-amber-200 hover:text-white transition active:scale-95 text-xs sm:text-sm font-bold space-x-2"><span>💬</span><span>Chat Zalo</span></a>
                 </div>
             </div>
         </div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-sky-900 flex items-center justify-center text-center text-xs text-slate-400 relative z-10 wow-reveal delay-400">
-            <a href="./admin.html?lock=1" class="text-slate-400 hover:text-sky-300 transition cursor-pointer select-none">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 pt-6 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-2 text-center text-xs text-slate-300 relative z-10">
+            <a href="./admin.html?lock=1" class="text-slate-300 hover:text-amber-300 transition cursor-pointer select-none">
                 © 2026 Nước Mắm Ba Cô Khánh Hòa. All rights reserved.
             </a>
+            <span class="text-[11px] text-slate-400">Ủ chượp truyền thống tại Vịnh Cam Ranh • Giao hàng toàn quốc</span>
         </div>
     </footer>
 
