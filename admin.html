@@ -220,7 +220,7 @@
         }
     </style>
     <!-- Precompiled Tailwind CSS (đặt sau <style> để giữ đúng thứ tự ưu tiên) -->
-    <link rel="stylesheet" href="./assets/admin.css?v=20261113a">
+    <link rel="stylesheet" href="./assets/admin.css?v=20261113c">
 </head>
 <body class="bg-iosBg text-[#1c1c1e] antialiased min-h-screen flex flex-col pb-safe-bottom">
 
@@ -421,6 +421,37 @@
                     </div>
                 </div>
 
+                <!-- Báo Cáo Tài Chính & Tỷ Lệ Hủy/Hoàn + Cảnh Báo Tồn Kho -->
+                <div class="ios-card p-3.5 sm:p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider">Báo cáo tài chính &amp; Tỷ lệ hủy/hoàn</span>
+                        <span id="statFinancialNetLabel" class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Đã trừ đơn hủy/hoàn</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        <div class="bg-[#F2F2F7] p-2.5 rounded-xl">
+                            <span class="text-[10px] text-[#8E8E93] block">Đã thực thu (QR/Hoàn tất)</span>
+                            <div id="statRealizedRevenue" class="text-sm font-bold text-emerald-700 mt-0.5">0 đ</div>
+                        </div>
+                        <div class="bg-[#F2F2F7] p-2.5 rounded-xl">
+                            <span class="text-[10px] text-[#8E8E93] block">COD đang chờ thu hộ</span>
+                            <div id="statPendingCodRevenue" class="text-sm font-bold text-[#007AFF] mt-0.5">0 đ</div>
+                        </div>
+                        <div class="bg-[#F2F2F7] p-2.5 rounded-xl">
+                            <span class="text-[10px] text-[#8E8E93] block">Đã giảm qua Voucher</span>
+                            <div id="statTotalVoucherDiscount" class="text-sm font-bold text-amber-700 mt-0.5">0 đ</div>
+                        </div>
+                        <div class="bg-rose-50/80 border border-rose-200/70 p-2.5 rounded-xl">
+                            <span class="text-[10px] text-rose-700 font-medium block">Tỷ lệ hủy / hoàn hàng</span>
+                            <div id="statCancelRate" class="text-sm font-bold text-[#FF3B30] mt-0.5">0%</div>
+                            <span id="statCancelLoss" class="text-[10px] text-rose-600">0 đơn • 0 đ</span>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-black/[0.06]">
+                        <span class="text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider block mb-1.5">Cảnh báo tồn kho (≤ 10 sản phẩm)</span>
+                        <div id="statLowStockAlertList" class="flex flex-wrap gap-1.5 text-xs"></div>
+                    </div>
+                </div>
+
                 <!-- Biểu đồ phân tích doanh thu -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-2.5 sm:gap-3.5">
                     <div class="lg:col-span-7 ios-card p-3.5 space-y-2">
@@ -514,6 +545,9 @@
                             </button>
                             <button onclick="setOrderFilter('completed')" id="filterBtn-completed" class="flex-1 py-1.5 text-center transition ios-segment-btn whitespace-nowrap px-2">
                                 Hoàn tất (<span id="countFilter-completed">0</span>)
+                            </button>
+                            <button onclick="setOrderFilter('cancelled')" id="filterBtn-cancelled" class="flex-1 py-1.5 text-center transition ios-segment-btn whitespace-nowrap px-2">
+                                Hủy/Hoàn (<span id="countFilter-cancelled">0</span>)
                             </button>
                         </div>
                     </div>
@@ -1263,6 +1297,10 @@
                             <option value="false">🔴 Hết hàng</option>
                         </select>
                     </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Số lượng tồn kho (SP) *</label>
+                    <input type="number" id="prodStock" min="0" value="100" required class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
                 </div>
 
                 <!-- Chọn ảnh trực tiếp từ thư viện điện thoại / máy tính -->
@@ -3829,7 +3867,10 @@ function moHopThoaiDatSheetRiengTu() {
                         const name = String(getVal(1)).trim();
                         if (!id.startsWith('prod_') || !name) continue;
                         const stockRaw = String(getVal(6)).trim().toUpperCase();
-                        const inStock = !(stockRaw === 'FALSE' || stockRaw === 'HẾT HÀNG' || stockRaw === 'HET HANG' || stockRaw === '0');
+                        const rawStockQty = getVal(9);
+                        const hasStockNum = rawStockQty !== '' && rawStockQty !== null && rawStockQty !== undefined && !isNaN(Number(rawStockQty));
+                        const stockQty = hasStockNum ? Math.max(0, Math.floor(Number(rawStockQty))) : (stockRaw === 'FALSE' || stockRaw === 'HẾT HÀNG' || stockRaw === 'HET HANG' || stockRaw === '0' ? 0 : 100);
+                        const inStock = !(stockRaw === 'FALSE' || stockRaw === 'HẾT HÀNG' || stockRaw === 'HET HANG' || stockRaw === '0') && stockQty > 0;
                         sheetProds.push({
                             id: id,
                             name: name,
@@ -3838,6 +3879,7 @@ function moHopThoaiDatSheetRiengTu() {
                             category: String(getVal(4) || 'Mắm Nhĩ Thượng Hạng'),
                             tag: String(getVal(5) || 'Đặc Biệt'),
                             inStock: inStock,
+                            stock: stockQty,
                             desc: String(getVal(7) || ''),
                             image: upgradeLegacyProductImage(id, String(getVal(8) || ''))
                         });
@@ -4422,6 +4464,7 @@ function moHopThoaiDatSheetRiengTu() {
                     if (currentFilter === 'pending') return o.status === 'Chờ xác nhận' || o.status === 'Đang chờ xử lý' || o.status === 'Chờ thanh toán QR';
                     if (currentFilter === 'shipping') return o.status === 'Đang giao';
                     if (currentFilter === 'completed') return o.status === 'Hoàn tất' || o.status === 'Đã nhận tiền';
+                    if (currentFilter === 'cancelled') return o.status === 'Đã hủy' || o.status === 'Hoàn hàng';
                     return true;
                 });
             }
@@ -4453,11 +4496,13 @@ function moHopThoaiDatSheetRiengTu() {
             const countPending = dateScopedOrders.filter(o => o.status === 'Chờ xác nhận' || o.status === 'Đang chờ xử lý' || o.status === 'Chờ thanh toán QR').length;
             const countShipping = dateScopedOrders.filter(o => o.status === 'Đang giao').length;
             const countCompleted = dateScopedOrders.filter(o => o.status === 'Hoàn tất' || o.status === 'Đã nhận tiền').length;
+            const countCancelled = dateScopedOrders.filter(o => o.status === 'Đã hủy' || o.status === 'Hoàn hàng').length;
 
             if (document.getElementById('countFilter-all')) document.getElementById('countFilter-all').textContent = countAll;
             if (document.getElementById('countFilter-pending')) document.getElementById('countFilter-pending').textContent = countPending;
             if (document.getElementById('countFilter-shipping')) document.getElementById('countFilter-shipping').textContent = countShipping;
             if (document.getElementById('countFilter-completed')) document.getElementById('countFilter-completed').textContent = countCompleted;
+            if (document.getElementById('countFilter-cancelled')) document.getElementById('countFilter-cancelled').textContent = countCancelled;
 
             const totalItems = filtered.length;
             const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1;
@@ -4487,6 +4532,7 @@ function moHopThoaiDatSheetRiengTu() {
                         if (order.status === 'Chờ thanh toán QR') statusColor = "bg-[#AF52DE]/12 text-[#AF52DE]";
                         if (order.status === 'Đang giao') statusColor = "bg-[#007AFF]/12 text-[#007AFF]";
                         if (order.status === 'Hoàn tất' || order.status === 'Đã nhận tiền') statusColor = "bg-[#34C759]/12 text-[#34C759]";
+                        if (order.status === 'Đã hủy' || order.status === 'Hoàn hàng') statusColor = "bg-[#FF3B30]/12 text-[#FF3B30]";
 
                         const cardClasses = isTargeted
                             ? 'p-3.5 space-y-2.5 rounded-2xl bg-[#F0F7FF] border-2 border-[#007AFF] shadow-sm transition-all duration-300'
@@ -4574,6 +4620,8 @@ function moHopThoaiDatSheetRiengTu() {
                                             <option value="Đã nhận tiền" ${order.status === 'Đã nhận tiền' ? 'selected' : ''}>Đã nhận tiền</option>
                                             <option value="Đang giao" ${order.status === 'Đang giao' ? 'selected' : ''}>Đang giao</option>
                                             <option value="Hoàn tất" ${order.status === 'Hoàn tất' ? 'selected' : ''}>Hoàn tất</option>
+                                            <option value="Đã hủy" ${order.status === 'Đã hủy' ? 'selected' : ''}>Đã hủy</option>
+                                            <option value="Hoàn hàng" ${order.status === 'Hoàn hàng' ? 'selected' : ''}>Hoàn hàng</option>
                                         </select>
                                     </div>
                                 </div>
@@ -4637,6 +4685,8 @@ function moHopThoaiDatSheetRiengTu() {
                                         <option value="Đã nhận tiền" ${order.status === 'Đã nhận tiền' ? 'selected' : ''}>Đã nhận tiền</option>
                                         <option value="Đang giao" ${order.status === 'Đang giao' ? 'selected' : ''}>Đang giao</option>
                                         <option value="Hoàn tất" ${order.status === 'Hoàn tất' ? 'selected' : ''}>Hoàn tất</option>
+                                        <option value="Đã hủy" ${order.status === 'Đã hủy' ? 'selected' : ''}>Đã hủy</option>
+                                        <option value="Hoàn hàng" ${order.status === 'Hoàn hàng' ? 'selected' : ''}>Hoàn hàng</option>
                                     </select>
                                 </td>
                                 <td class="px-4 py-3 text-right whitespace-nowrap">
@@ -4692,12 +4742,52 @@ function moHopThoaiDatSheetRiengTu() {
             }
         }
 
+        function adjustLocalStockForOrder(productText, qtyFallback, direction) {
+            if (!Array.isArray(products) || products.length === 0) return;
+            const parts = String(productText || '').split(',');
+            let changed = false;
+            parts.forEach(rawPart => {
+                const raw = String(rawPart || '').trim();
+                if (!raw) return;
+                const m = raw.match(/^(.*?)\s*\(x(\d+)\)\s*$/i);
+                const targetName = (m ? m[1] : raw).trim().toLowerCase();
+                const qty = m ? (parseInt(m[2], 10) || 1) : (Number(qtyFallback) || 1);
+                const prod = products.find(p => {
+                    const pn = String(p.name || '').trim().toLowerCase();
+                    return pn && (pn === targetName || pn.includes(targetName) || targetName.includes(pn));
+                });
+                if (prod) {
+                    const cur = (typeof prod.stock === 'number' && !isNaN(prod.stock)) ? prod.stock : (prod.inStock ? 100 : 0);
+                    const next = Math.max(0, cur + (direction * qty));
+                    prod.stock = next;
+                    prod.inStock = next > 0;
+                    changed = true;
+                }
+            });
+            if (changed) {
+                localStorage.setItem('baco_products', JSON.stringify(products));
+                renderProducts();
+            }
+        }
+
         function updateOrderStatus(index, newStatus) {
             if (orders[index]) {
-                const targetCode = orders[index].orderCode;
-                orders[index].status = newStatus;
+                const order = orders[index];
+                const targetCode = order.orderCode;
+                const prevStatus = String(order.status || '');
+                const isPrevCancel = (prevStatus === 'Đã hủy' || prevStatus === 'Hoàn hàng');
+                const isNextCancel = (newStatus === 'Đã hủy' || newStatus === 'Hoàn hàng');
+                order.status = newStatus;
                 localStorage.setItem('baco_orders', JSON.stringify(orders));
+
+                if (!isPrevCancel && isNextCancel) {
+                    adjustLocalStockForOrder(order.product, order.quantity, 1);
+                } else if (isPrevCancel && !isNextCancel) {
+                    adjustLocalStockForOrder(order.product, order.quantity, -1);
+                }
+
                 renderOrders();
+                renderAnalytics();
                 showAdminToast(`Đã đổi đơn #${targetCode} sang "${newStatus}"!`, 'success');
 
                 syncToGoogleSheet({
@@ -5142,12 +5232,14 @@ function moHopThoaiDatSheetRiengTu() {
                     mobileList.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">Không tìm thấy sản phẩm nào.</div>`;
                 } else {
                     mobileList.innerHTML = paginated.map(prod => {
-                        const stockBtn = prod.inStock 
-                            ? `<button type="button" onclick="toggleProductStock('${prod.id}')" class="text-[10px] font-semibold bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-full transition" title="Bấm để đổi trạng thái">
-                                  Còn hàng
+                        const stockQty = (typeof prod.stock === 'number' && !isNaN(prod.stock)) ? prod.stock : (prod.inStock ? 100 : 0);
+                        const isAvail = prod.inStock && stockQty > 0;
+                        const stockBtn = isAvail
+                            ? `<button type="button" onclick="toggleProductStock('${prod.id}')" class="text-[10px] font-semibold ${stockQty <= 10 ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-emerald-50 text-emerald-700'} px-2.5 py-0.5 rounded-full transition" title="Bấm để đổi trạng thái">
+                                  ${stockQty <= 10 ? `⚠️ Còn ${stockQty}` : `Còn ${stockQty} sp`}
                                </button>`
                             : `<button type="button" onclick="toggleProductStock('${prod.id}')" class="text-[10px] font-semibold bg-rose-50 text-rose-600 px-2.5 py-0.5 rounded-full transition" title="Bấm để đổi trạng thái">
-                                  Tạm hết
+                                  Hết hàng (${stockQty})
                                </button>`;
 
                         return `
@@ -5188,12 +5280,14 @@ function moHopThoaiDatSheetRiengTu() {
                     tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-xs text-slate-400">Không tìm thấy sản phẩm nào</td></tr>`;
                 } else {
                     tbody.innerHTML = paginated.map(prod => {
-                        const stockBtn = prod.inStock 
-                            ? `<button type="button" onclick="toggleProductStock('${prod.id}')" class="inline-flex items-center text-xs font-semibold bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full transition">
-                                  Còn hàng
+                        const stockQty = (typeof prod.stock === 'number' && !isNaN(prod.stock)) ? prod.stock : (prod.inStock ? 100 : 0);
+                        const isAvail = prod.inStock && stockQty > 0;
+                        const stockBtn = isAvail
+                            ? `<button type="button" onclick="toggleProductStock('${prod.id}')" class="inline-flex items-center text-xs font-semibold ${stockQty <= 10 ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-emerald-50 text-emerald-700'} px-2.5 py-1 rounded-full transition">
+                                  ${stockQty <= 10 ? `⚠️ Sắp hết (${stockQty})` : `Còn hàng (${stockQty})`}
                                </button>`
                             : `<button type="button" onclick="toggleProductStock('${prod.id}')" class="inline-flex items-center text-xs font-semibold bg-rose-50 text-rose-600 px-2.5 py-1 rounded-full transition">
-                                  Tạm hết
+                                  Hết hàng (${stockQty})
                                </button>`;
 
                         return `
@@ -5260,7 +5354,9 @@ function moHopThoaiDatSheetRiengTu() {
                 document.getElementById('prodUnit').value = prod.unit || '';
                 if (catSelect) catSelect.value = prod.category || 'Mắm Nhĩ Thượng Hạng';
                 document.getElementById('prodTag').value = prod.tag || 'Đặc Biệt';
-                document.getElementById('prodInStock').value = prod.inStock ? "true" : "false";
+                const stockQty = (typeof prod.stock === 'number' && !isNaN(prod.stock)) ? prod.stock : (prod.inStock ? 100 : 0);
+                document.getElementById('prodInStock').value = (prod.inStock && stockQty > 0) ? "true" : "false";
+                if (document.getElementById('prodStock')) document.getElementById('prodStock').value = stockQty;
                 const resolvedImg = upgradeLegacyProductImage(prod.id, prod.image);
                 prodImgInput.value = resolvedImg;
                 imgPreview.src = resolvedImg;
@@ -5269,6 +5365,7 @@ function moHopThoaiDatSheetRiengTu() {
                 titleEl.textContent = '➕ Thêm Sản Phẩm Mới';
                 editIdEl.value = '';
                 if (catSelect) catSelect.value = 'Mắm Nhĩ Thượng Hạng';
+                if (document.getElementById('prodStock')) document.getElementById('prodStock').value = 100;
                 prodImgInput.value = './pictrure/hero_bottle_large.jpg';
                 imgPreview.src = './pictrure/hero_bottle_large.jpg';
             }
@@ -5308,6 +5405,8 @@ function moHopThoaiDatSheetRiengTu() {
             e.preventDefault();
             const editId = document.getElementById('editProductId').value;
             const catSelect = document.getElementById('prodCategory');
+            const stockInputVal = document.getElementById('prodStock') ? Math.max(0, Math.floor(Number(document.getElementById('prodStock').value) || 0)) : 100;
+            const selectInStock = document.getElementById('prodInStock').value === "true";
             const newProd = {
                 id: editId || 'prod_' + Date.now(),
                 name: document.getElementById('prodName').value.trim(),
@@ -5315,7 +5414,8 @@ function moHopThoaiDatSheetRiengTu() {
                 price: Number(document.getElementById('prodPrice').value),
                 unit: document.getElementById('prodUnit').value.trim() || 'Chai 500ml',
                 tag: document.getElementById('prodTag').value,
-                inStock: document.getElementById('prodInStock').value === "true",
+                stock: stockInputVal,
+                inStock: selectInStock && stockInputVal > 0,
                 image: document.getElementById('prodImage').value.trim() || './pictrure/hero_bottle_large.jpg',
                 desc: document.getElementById('prodDesc').value.trim()
             };
@@ -5443,25 +5543,47 @@ function moHopThoaiDatSheetRiengTu() {
         function renderAnalytics() {
             // Lọc danh sách đơn hàng theo khoảng thời gian phân tích đã chọn
             const scopedOrders = orders.filter(o => isDateInRange(parseItemDate(o.timestamp), analyticsDateFilter));
+            const isCancelledStatus = st => (st === 'Đã hủy' || st === 'Hoàn hàng');
+            const activeOrders = scopedOrders.filter(o => !isCancelledStatus(o.status));
+            const cancelledOrders = scopedOrders.filter(o => isCancelledStatus(o.status));
 
-            const totalRevenue = scopedOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
+            const totalRevenue = activeOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
             const totalOrders = scopedOrders.length;
-            const bankOrdersList = scopedOrders.filter(o => o.paymentMethod && o.paymentMethod.includes('Chuyển khoản'));
+            const activeOrderCount = activeOrders.length;
+            const bankOrdersList = activeOrders.filter(o => o.paymentMethod && o.paymentMethod.includes('Chuyển khoản'));
             const bankOrders = bankOrdersList.length;
-            const codOrdersList = scopedOrders.filter(o => !o.paymentMethod || !o.paymentMethod.includes('Chuyển khoản'));
+            const codOrdersList = activeOrders.filter(o => !o.paymentMethod || !o.paymentMethod.includes('Chuyển khoản'));
             const codOrders = codOrdersList.length;
 
             const revenueBank = bankOrdersList.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
             const revenueCod = codOrdersList.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
 
-            const transferRate = totalOrders > 0 ? Math.round((bankOrders / totalOrders) * 100) : 0;
-            const avgOrder = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
+            const transferRate = activeOrderCount > 0 ? Math.round((bankOrders / activeOrderCount) * 100) : 0;
+            const avgOrder = activeOrderCount > 0 ? Math.round(totalRevenue / activeOrderCount) : 0;
+
+            // Báo cáo tài chính chi tiết & Tỷ lệ hủy/hoàn
+            const realizedRevenue = activeOrders
+                .filter(o => o.status === 'Đã nhận tiền' || o.status === 'Hoàn tất')
+                .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
+            const pendingCodRevenue = codOrdersList
+                .filter(o => o.status !== 'Đã nhận tiền' && o.status !== 'Hoàn tất')
+                .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
+            const totalVoucherDiscount = activeOrders.reduce((sum, o) => sum + (Number(o.discountAmount) || 0), 0);
+            const cancelLoss = cancelledOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
+            const cancelRate = totalOrders > 0 ? ((cancelledOrders.length / totalOrders) * 100).toFixed(1).replace(/\.0$/, '') : '0';
 
             // Cập nhật 4 widget thống kê
             const elTotRev = document.getElementById('statTotalRevenue'); if (elTotRev) elTotRev.textContent = totalRevenue.toLocaleString('vi-VN') + ' đ';
-            const elTotOrd = document.getElementById('statTotalOrders'); if (elTotOrd) elTotOrd.textContent = totalOrders;
+            const elTotOrd = document.getElementById('statTotalOrders'); if (elTotOrd) elTotOrd.textContent = `${activeOrderCount} / ${totalOrders}`;
             const elTrfRate = document.getElementById('statTransferRate'); if (elTrfRate) elTrfRate.textContent = transferRate + '%';
             const elAvgOrd = document.getElementById('statAvgOrder'); if (elAvgOrd) elAvgOrd.textContent = avgOrder.toLocaleString('vi-VN') + ' đ';
+
+            // Cập nhật widget Báo cáo tài chính & Hủy/Hoàn
+            const elRealized = document.getElementById('statRealizedRevenue'); if (elRealized) elRealized.textContent = realizedRevenue.toLocaleString('vi-VN') + ' đ';
+            const elPendingCod = document.getElementById('statPendingCodRevenue'); if (elPendingCod) elPendingCod.textContent = pendingCodRevenue.toLocaleString('vi-VN') + ' đ';
+            const elVoucherDisc = document.getElementById('statTotalVoucherDiscount'); if (elVoucherDisc) elVoucherDisc.textContent = totalVoucherDiscount.toLocaleString('vi-VN') + ' đ';
+            const elCancelRate = document.getElementById('statCancelRate'); if (elCancelRate) elCancelRate.textContent = cancelRate + '%';
+            const elCancelLoss = document.getElementById('statCancelLoss'); if (elCancelLoss) elCancelLoss.textContent = `${cancelledOrders.length} đơn • ${cancelLoss.toLocaleString('vi-VN')} đ`;
 
             // Cập nhật Báo cáo Dòng Tiền & Tồn kho
             const elRevBank = document.getElementById('statRevenueBank'); if (elRevBank) elRevBank.textContent = revenueBank.toLocaleString('vi-VN') + ' đ';
@@ -5469,13 +5591,31 @@ function moHopThoaiDatSheetRiengTu() {
             const elRevCod = document.getElementById('statRevenueCod'); if (elRevCod) elRevCod.textContent = revenueCod.toLocaleString('vi-VN') + ' đ';
             const elCntCod = document.getElementById('statCountCod'); if (elCntCod) elCntCod.textContent = `${codOrders} đơn tiền mặt`;
 
-            const inStockCount = products.filter(p => p.inStock).length;
-            const elTotStock = document.getElementById('statTotalStockCount'); if (elTotStock) elTotStock.textContent = `${inStockCount} / ${products.length} mặt hàng`;
-            const elInStockRatio = document.getElementById('statInStockRatio'); if (elInStockRatio) elInStockRatio.textContent = inStockCount === products.length ? '100% sẵn hàng trong kho' : `Đang sẵn sàng phục vụ`;
+            const inStockCount = products.filter(p => p.inStock && ((typeof p.stock !== 'number') || p.stock > 0)).length;
+            const totalStockUnits = products.reduce((sum, p) => sum + ((typeof p.stock === 'number' && !isNaN(p.stock)) ? p.stock : (p.inStock ? 100 : 0)), 0);
+            const elTotStock = document.getElementById('statTotalStockCount'); if (elTotStock) elTotStock.textContent = `${inStockCount} / ${products.length} SP (${totalStockUnits} đv)`;
+            const elInStockRatio = document.getElementById('statInStockRatio'); if (elInStockRatio) elInStockRatio.textContent = inStockCount === products.length ? '100% sẵn hàng trong kho' : `${products.length - inStockCount} mặt hàng hết`;
 
-            // Tính Top 3 sản phẩm bán chạy nhất trong khoảng thời gian đã chọn
+            const lowStockBox = document.getElementById('statLowStockAlertList');
+            if (lowStockBox) {
+                const lowItems = products.filter(p => {
+                    const s = (typeof p.stock === 'number' && !isNaN(p.stock)) ? p.stock : (p.inStock ? 100 : 0);
+                    return s <= 10 || !p.inStock;
+                });
+                if (lowItems.length === 0) {
+                    lowStockBox.innerHTML = '<span class="text-emerald-700 font-medium">✅ Tất cả mặt hàng đều còn tồn kho an toàn (&gt; 10 SP).</span>';
+                } else {
+                    lowStockBox.innerHTML = lowItems.map(p => {
+                        const s = (typeof p.stock === 'number' && !isNaN(p.stock)) ? p.stock : (p.inStock ? 100 : 0);
+                        const cls = s === 0 || !p.inStock ? 'bg-rose-100 text-rose-800 border-rose-200' : 'bg-amber-100 text-amber-900 border-amber-200';
+                        return `<span class="px-2.5 py-1 rounded-lg border font-semibold ${cls}">${escHtml(p.name)}: ${s} sp</span>`;
+                    }).join('');
+                }
+            }
+
+            // Tính Top 3 sản phẩm bán chạy nhất trong khoảng thời gian đã chọn (không tính đơn hủy/hoàn)
             const prodStats = {};
-            scopedOrders.forEach(o => {
+            activeOrders.forEach(o => {
                 const pName = (o.product || 'Nước mắm').trim();
                 if (!prodStats[pName]) prodStats[pName] = { name: pName, qty: 0, revenue: 0 };
                 prodStats[pName].qty += Number(o.quantity) || 1;

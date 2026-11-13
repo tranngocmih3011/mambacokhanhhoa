@@ -2325,16 +2325,32 @@
             });
         }
 
+        function getProductMaxStock(prods, name) {
+            const found = (prods || []).find(p => p.name.trim().toLowerCase() === name.trim().toLowerCase() || name.includes(p.name));
+            if (!found) return { found: null, maxStock: 999 };
+            if (found.inStock === false) return { found, maxStock: 0 };
+            const s = (typeof found.stock === 'number' && !isNaN(found.stock)) ? found.stock : 999;
+            return { found, maxStock: Math.max(0, s) };
+        }
+
         function addToCart(name, price) {
             let prods = homeProductsList;
             if (!prods || prods.length === 0) {
                 try { prods = JSON.parse(localStorage.getItem('baco_products') || '[]'); } catch(e) {}
             }
-            const found = (prods || []).find(p => p.name.trim().toLowerCase() === name.trim().toLowerCase() || name.includes(p.name));
+            const { found, maxStock } = getProductMaxStock(prods, name);
+            if (maxStock <= 0) {
+                showToast(`Sản phẩm "${name}" hiện đã hết hàng!`, 'warning');
+                return;
+            }
             const activePrice = found ? Number(found.price) : Number(price);
 
             const existingItem = cart.find(item => item.name === name);
             if (existingItem) {
+                if (existingItem.quantity + 1 > maxStock) {
+                    showToast(`Chỉ còn ${maxStock} sản phẩm "${name}" trong kho!`, 'warning');
+                    return;
+                }
                 existingItem.quantity += 1;
                 existingItem.price = activePrice;
             } else {
@@ -2349,12 +2365,20 @@
             if (!prods || prods.length === 0) {
                 try { prods = JSON.parse(localStorage.getItem('baco_products') || '[]'); } catch(e) {}
             }
-            const found = (prods || []).find(p => p.name.trim().toLowerCase() === name.trim().toLowerCase() || name.includes(p.name));
+            const { found, maxStock } = getProductMaxStock(prods, name);
+            if (maxStock <= 0) {
+                showToast(`Sản phẩm "${name}" hiện đã hết hàng!`, 'warning');
+                return;
+            }
             const activePrice = found ? Number(found.price) : Number(price);
 
             const existingItem = cart.find(item => item.name === name);
             if (existingItem) {
-                existingItem.quantity += 1;
+                if (existingItem.quantity + 1 > maxStock) {
+                    showToast(`Chỉ còn ${maxStock} sản phẩm "${name}" trong kho!`, 'warning');
+                } else {
+                    existingItem.quantity += 1;
+                }
                 existingItem.price = activePrice;
             } else {
                 cart.push({ name, price: activePrice, quantity: 1 });
@@ -2641,6 +2665,17 @@
 
         function changeCartQty(index, delta) {
             if (!cart[index]) return;
+            if (delta > 0) {
+                let prods = homeProductsList;
+                if (!prods || prods.length === 0) {
+                    try { prods = JSON.parse(localStorage.getItem('baco_products') || '[]'); } catch(e) {}
+                }
+                const { maxStock } = getProductMaxStock(prods, cart[index].name);
+                if (cart[index].quantity + delta > maxStock) {
+                    showToast(`Chỉ còn ${maxStock} sản phẩm "${cart[index].name}" trong kho!`, 'warning');
+                    return;
+                }
+            }
             cart[index].quantity += delta;
             if (cart[index].quantity <= 0) {
                 cart.splice(index, 1);
@@ -3314,7 +3349,10 @@
                         const name = String(getVal(1)).trim();
                         if (!id.startsWith('prod_') || !name) continue;
                         const stockRaw = String(getVal(6)).trim().toUpperCase();
-                        const inStock = !(stockRaw === 'FALSE' || stockRaw === 'HẾT HÀNG' || stockRaw === 'HET HANG' || stockRaw === '0');
+                        const rawStockQty = getVal(9);
+                        const hasStockNum = rawStockQty !== '' && rawStockQty !== null && rawStockQty !== undefined && !isNaN(Number(rawStockQty));
+                        const stockQty = hasStockNum ? Math.max(0, Math.floor(Number(rawStockQty))) : (stockRaw === 'FALSE' || stockRaw === 'HẾT HÀNG' || stockRaw === 'HET HANG' || stockRaw === '0' ? 0 : 100);
+                        const inStock = !(stockRaw === 'FALSE' || stockRaw === 'HẾT HÀNG' || stockRaw === 'HET HANG' || stockRaw === '0') && stockQty > 0;
                         sheetProds.push({
                             id: id,
                             name: name,
@@ -3323,6 +3361,7 @@
                             category: String(getVal(4) || 'Mắm Nhĩ Thượng Hạng'),
                             tag: String(getVal(5) || 'Đặc Biệt'),
                             inStock: inStock,
+                            stock: stockQty,
                             desc: String(getVal(7) || ''),
                             image: String(getVal(8) || './pictrure/hero_bottle_large.jpg')
                         });

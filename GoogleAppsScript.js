@@ -281,6 +281,9 @@ function doPost(e) {
       for (var pIdx = 0; pIdx < items.length; pIdx++) {
         var p = items[pIdx];
         var targetRow = 3 + pIdx;
+        var hasStockField = (p.stock !== undefined && p.stock !== null && p.stock !== "");
+        var stockNum = hasStockField ? Math.max(0, Math.floor(Number(p.stock) || 0)) : (p.inStock === false ? 0 : 100);
+        var isAvail = (p.inStock !== false) && (stockNum > 0);
         var rowVals = [
           p.id || ("prod_" + (pIdx + 1)),
           p.name || "",
@@ -288,12 +291,13 @@ function doPost(e) {
           p.unit || "Chai 500ml",
           p.category || "Mắm Nhĩ Thượng Hạng",
           p.tag || "Đặc Biệt",
-          p.inStock === false ? "Hết hàng" : "Còn hàng",
+          isAvail ? "Còn hàng" : "Hết hàng",
           p.desc || "",
-          p.image || "./pictrure/1.jpg"
+          p.image || "./pictrure/1.jpg",
+          stockNum
         ];
         prodSheet.getRange(targetRow, 1, 1, rowVals.length).setValues([rowVals]);
-        dinhDangDongSanPham(prodSheet, targetRow, p.inStock !== false);
+        dinhDangDongSanPham(prodSheet, targetRow, isAvail);
       }
       return jsonSuccess({ saved: "SanPham", count: items.length });
     }
@@ -507,9 +511,22 @@ function doPost(e) {
           if (chuanHoa(codes[i][0]) === cleanCode) {
             var targetRow = 3 + i;
             var cell = sheet.getRange(targetRow, 12);
-            cell.setValue(data.status);
-            dinhDangTrangThaiDonHang(cell, data.status);
-            return jsonSuccess({ row: targetRow, status: data.status });
+            var prevStatus = String(cell.getValue() || "");
+            var nextStatus = String(data.status || "");
+            var isPrevCancel = (prevStatus.indexOf("Hủy") !== -1 || prevStatus.indexOf("hủy") !== -1 || prevStatus.indexOf("Hoàn hàng") !== -1);
+            var isNextCancel = (nextStatus.indexOf("Hủy") !== -1 || nextStatus.indexOf("hủy") !== -1 || nextStatus.indexOf("Hoàn hàng") !== -1);
+            cell.setValue(nextStatus);
+            dinhDangTrangThaiDonHang(cell, nextStatus);
+            if (!isPrevCancel && isNextCancel) {
+              var orderProd = String(sheet.getRange(targetRow, 7).getValue() || "");
+              var orderQty = Number(sheet.getRange(targetRow, 8).getValue()) || 1;
+              adjustProductStock_(ss, orderProd, orderQty, 1);
+            } else if (isPrevCancel && !isNextCancel) {
+              var orderProdR = String(sheet.getRange(targetRow, 7).getValue() || "");
+              var orderQtyR = Number(sheet.getRange(targetRow, 8).getValue()) || 1;
+              adjustProductStock_(ss, orderProdR, orderQtyR, -1);
+            }
+            return jsonSuccess({ row: targetRow, status: nextStatus });
           }
         }
       }
@@ -698,6 +715,7 @@ function doPost(e) {
 
       sheet.getRange(targetRow, 2, 1, rowData.length).setValues([rowData]);
       dinhDangDongDonHang(sheet, targetRow);
+      adjustProductStock_(ss, data.product || "", Number(data.quantity) || 1, -1);
 
       // 🔔 GỬI EMAIL THÔNG BÁO ĐƠN HÀNG MỚI (Trừ khi khách đang ở trạng thái 'Chờ thanh toán QR' để tránh báo sớm)
       var currentStatus = String(data.status || "Chờ xác nhận");
@@ -890,14 +908,14 @@ function sendReviewEmail(r, timeStr) {
 // ========================================================
 
 function khoiTaoBangSanPham(sheet) {
-  sheet.getRange("A1:I1").merge()
+  sheet.getRange("A1:J1").merge()
        .setValue("DANH SÁCH SẢN PHẨM KINH DOANH - NƯỚC MẮM BA CÔ KHÁNH HÒA")
        .setBackground("#b45309").setFontColor("#ffffff").setFontWeight("bold").setFontSize(13).setFontFamily("Roboto")
        .setHorizontalAlignment("center").setVerticalAlignment("middle");
   sheet.setRowHeight(1, 40);
 
-  var headers = ["Mã SP", "Tên Sản Phẩm", "Giá Bán (VNĐ)", "Quy Cách", "Dòng Sản Phẩm", "Huy Hiệu", "Trạng Thái Kho", "Mô Tả Chi Tiết", "Hình Ảnh (Link / Dữ Liệu)"];
-  sheet.getRange("A2:I2").setValues([headers])
+  var headers = ["Mã SP", "Tên Sản Phẩm", "Giá Bán (VNĐ)", "Quy Cách", "Dòng Sản Phẩm", "Huy Hiệu", "Trạng Thái Kho", "Mô Tả Chi Tiết", "Hình Ảnh (Link / Dữ Liệu)", "Tồn Kho (SL)"];
+  sheet.getRange("A2:J2").setValues([headers])
        .setBackground("#fef3c7").setFontColor("#78350f").setFontWeight("bold").setFontSize(10).setFontFamily("Roboto")
        .setHorizontalAlignment("center").setVerticalAlignment("middle");
   sheet.setRowHeight(2, 34);
@@ -911,10 +929,11 @@ function khoiTaoBangSanPham(sheet) {
   sheet.setColumnWidth(7, 120);
   sheet.setColumnWidth(8, 280);
   sheet.setColumnWidth(9, 220);
+  sheet.setColumnWidth(10, 100);
 }
 
 function dinhDangDongSanPham(sheet, row, inStock) {
-  var range = sheet.getRange(row, 1, 1, 9);
+  var range = sheet.getRange(row, 1, 1, 10);
   range.setFontFamily("Roboto").setFontSize(10).setVerticalAlignment("middle");
   range.setBorder(true, true, true, true, true, true, "#e2e8f0", SpreadsheetApp.BorderStyle.SOLID);
   sheet.setRowHeight(row, 38);
@@ -922,11 +941,60 @@ function dinhDangDongSanPham(sheet, row, inStock) {
   var stockBg = inStock ? "#dcfce7" : "#fee2e2";
   var stockColor = inStock ? "#15803d" : "#b91c1c";
 
-  range.setBackgrounds([["#ffffff", "#ffffff", "#ffffff", "#ffffff", "#f0fdfa", "#fffbeb", stockBg, "#ffffff", "#f8fafc"]]);
-  range.setFontColors([["#64748b", "#0f172a", "#b45309", "#334155", "#0f766e", "#b45309", stockColor, "#475569", "#64748b"]]);
-  range.setHorizontalAlignments([["center", "left", "right", "center", "center", "center", "center", "left", "left"]]);
-  range.setFontWeights([["bold", "bold", "bold", "normal", "bold", "bold", "bold", "normal", "normal"]]);
+  range.setBackgrounds([["#ffffff", "#ffffff", "#ffffff", "#ffffff", "#f0fdfa", "#fffbeb", stockBg, "#ffffff", "#f8fafc", "#ffffff"]]);
+  range.setFontColors([["#64748b", "#0f172a", "#b45309", "#334155", "#0f766e", "#b45309", stockColor, "#475569", "#64748b", "#0f172a"]]);
+  range.setHorizontalAlignments([["center", "left", "right", "center", "center", "center", "center", "left", "left", "center"]]);
+  range.setFontWeights([["bold", "bold", "bold", "normal", "bold", "bold", "bold", "normal", "normal", "bold"]]);
   sheet.getRange(row, 3).setNumberFormat("#,##0 \"đ\"");
+  sheet.getRange(row, 10).setNumberFormat("#,##0");
+}
+
+function adjustProductStock_(ss, productText, qtyFallback, direction) {
+  try {
+    var prodSheet = ss.getSheetByName("SanPham");
+    if (!prodSheet) return;
+    var lastRow = prodSheet.getLastRow();
+    if (lastRow < 3) return;
+    var names = prodSheet.getRange("B3:B" + lastRow).getValues();
+    var stocks = prodSheet.getRange("J3:J" + lastRow).getValues();
+    var statuses = prodSheet.getRange("G3:G" + lastRow).getValues();
+
+    // Tách danh sách "Tên SP (x2), Tên SP 2 (x1)" hoặc 1 tên SP đơn lẻ
+    var parts = String(productText || "").split(",");
+    var items = [];
+    for (var i = 0; i < parts.length; i++) {
+      var raw = String(parts[i] || "").trim();
+      if (!raw) continue;
+      var m = raw.match(/^(.*?)\s*\(x(\d+)\)\s*$/i);
+      if (m) {
+        items.push({ name: m[1].trim().toLowerCase(), qty: Math.max(1, parseInt(m[2], 10) || 1) });
+      } else {
+        items.push({ name: raw.toLowerCase(), qty: Math.max(1, Number(qtyFallback) || 1) });
+      }
+    }
+    if (items.length === 0) return;
+
+    for (var k = 0; k < items.length; k++) {
+      var targetName = items[k].name;
+      for (var r = 0; r < names.length; r++) {
+        var sheetName = String(names[r][0] || "").trim().toLowerCase();
+        if (!sheetName) continue;
+        if (sheetName === targetName || sheetName.indexOf(targetName) !== -1 || targetName.indexOf(sheetName) !== -1) {
+          var rawStock = stocks[r][0];
+          var curStock = (rawStock === "" || rawStock === null || rawStock === undefined) ? 100 : (Number(rawStock) || 0);
+          var newStock = Math.max(0, curStock + (direction * items[k].qty));
+          var rowNum = 3 + r;
+          prodSheet.getRange(rowNum, 10).setValue(newStock);
+          var newAvail = newStock > 0;
+          prodSheet.getRange(rowNum, 7).setValue(newAvail ? "Còn hàng" : "Hết hàng");
+          dinhDangDongSanPham(prodSheet, rowNum, newAvail);
+          stocks[r][0] = newStock;
+          statuses[r][0] = newAvail ? "Còn hàng" : "Hết hàng";
+          break;
+        }
+      }
+    }
+  } catch (e) {}
 }
 
 function khoiTaoBangNoiDungWeb(sheet) {
