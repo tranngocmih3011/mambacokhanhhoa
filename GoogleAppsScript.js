@@ -137,6 +137,9 @@ function doGet(e) {
   if (param.action === "get_vouchers") {
     return jsonSuccess({ vouchers: getVouchersList_() });
   }
+  if (param.action === "verify_voucher") {
+    return verifyVoucherCode_(param.code, Number(param.subtotal || 0));
+  }
   return ContentService.createTextOutput("Google Apps Script 2-Way Sync (6 Bảng) & Thông báo Gmail/Zalo/Telegram/Push đang hoạt động tốt!");
 }
 

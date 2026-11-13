@@ -250,27 +250,19 @@
             }
 
             let foundOrder = null;
-            const endpoints = (location.protocol === 'http:' || location.protocol === 'https:')
-                ? ['/api/sheet-cache', GOOGLE_SCRIPT_URL]
-                : [GOOGLE_SCRIPT_URL];
-
-            for (const url of endpoints) {
-                try {
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'lookup_order', orderCode, phone: phoneDigits }),
-                        redirect: 'follow'
-                    });
-                    if (res.ok) {
-                        const json = await res.json();
+            try {
+                const lookupUrl = `${GOOGLE_SCRIPT_URL}?action=lookup_order&orderCode=${encodeURIComponent(orderCode)}&phone=${encodeURIComponent(phoneDigits)}&_t=${Date.now()}`;
+                const res = await fetch(lookupUrl, { method: 'GET', redirect: 'follow', cache: 'no-store' });
+                if (res.ok) {
+                    const text = await res.text();
+                    try {
+                        const json = JSON.parse(text);
                         if (json && json.status === 'success' && json.found && json.order) {
                             foundOrder = json.order;
-                            break;
                         }
-                    }
-                } catch (err) {}
-            }
+                    } catch (parseErr) {}
+                }
+            } catch (err) {}
 
             if (!foundOrder) {
                 foundOrder = lookupInLocalOrders(orderCode, phoneDigits);

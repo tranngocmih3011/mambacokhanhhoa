@@ -72,7 +72,7 @@ export async function onRequestPost(context) {
     });
   }
 
-  // Retry 1 lần nếu Google Apps Script trả 429 hoặc 5xx tạm thời
+  // Chỉ retry 1 lần nếu gặp HTTP 429 (rate limit), không retry 5xx để tránh ghi trùng đơn hàng
   let lastErr = null;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
@@ -83,7 +83,7 @@ export async function onRequestPost(context) {
         redirect: 'follow'
       });
       const text = await upstream.text();
-      if (upstream.ok || (upstream.status !== 429 && upstream.status < 500)) {
+      if (upstream.status !== 429) {
         return new Response(text, {
           status: upstream.status,
           headers: {
@@ -95,6 +95,7 @@ export async function onRequestPost(context) {
       lastErr = 'HTTP ' + upstream.status;
     } catch (err) {
       lastErr = err && err.message ? err.message : 'Network error';
+      break;
     }
   }
 

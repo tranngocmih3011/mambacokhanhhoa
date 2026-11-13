@@ -195,24 +195,20 @@
         const code = String(codeRaw || '').trim().toUpperCase();
         if (!code) return { valid: false, message: 'Vui lòng nhập mã giảm giá.' };
         try {
-            const endpoint = (location.protocol === 'http:' || location.protocol === 'https:')
-                ? '/api/sheet-cache'
-                : scriptUrl;
-            const res = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: 'verify_voucher', code, subtotal }),
-                redirect: 'follow'
-            });
+            const url = `${scriptUrl}?action=verify_voucher&code=${encodeURIComponent(code)}&subtotal=${encodeURIComponent(subtotal)}&_t=${Date.now()}`;
+            const res = await fetch(url, { method: 'GET', redirect: 'follow', cache: 'no-store' });
             if (res.ok) {
-                const json = await res.json();
-                if (json && json.status === 'success') return json;
+                const text = await res.text();
+                try {
+                    const json = JSON.parse(text);
+                    if (json && json.status === 'success') return json;
+                } catch (parseErr) {}
             }
         } catch (e) {}
         return evaluateVoucherLocally(code, subtotal);
     }
 
-    // Gửi đơn hàng qua Edge Proxy (/api/sheet-cache) + hàng đợi tự động gửi lại khi mạng/Sheet quá tải
+    // Gửi đơn hàng qua Edge Proxy (/api/sheet-cache) + fallback mode: 'no-cors' không gửi trùng
     function enqueuePendingSync(payload) {
         try {
             const q = JSON.parse(localStorage.getItem(PENDING_QUEUE_KEY) || '[]');
@@ -229,24 +225,35 @@
         if (!Array.isArray(q) || q.length === 0) return;
 
         const remaining = [];
-        const endpoint = (location.protocol === 'http:' || location.protocol === 'https:')
-            ? '/api/sheet-cache'
-            : scriptUrl;
+        const useEdge = (location.protocol === 'http:' || location.protocol === 'https:');
 
         for (const item of q) {
             if (!item || !item.payload) continue;
             if (Date.now() - (item.ts || 0) > 24 * 3600 * 1000) continue;
-            try {
-                const res = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(item.payload),
-                    redirect: 'follow'
-                });
-                if (!res.ok) remaining.push(item);
-            } catch (e) {
-                remaining.push(item);
+            let sent = false;
+            if (useEdge) {
+                try {
+                    const res = await fetch('/api/sheet-cache', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(item.payload),
+                        redirect: 'follow'
+                    });
+                    if (res.ok) sent = true;
+                } catch (e) {}
             }
+            if (!sent) {
+                try {
+                    await fetch(scriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(item.payload)
+                    });
+                    sent = true;
+                } catch (e) {}
+            }
+            if (!sent) remaining.push(item);
         }
         try {
             localStorage.setItem(PENDING_QUEUE_KEY, JSON.stringify(remaining));
@@ -254,11 +261,14 @@
     }
 
     async function sendOrderResilient(scriptUrl, payload) {
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+            enqueuePendingSync(payload);
+            return false;
+        }
         const useEdge = (location.protocol === 'http:' || location.protocol === 'https:');
-        const targets = useEdge ? ['/api/sheet-cache', scriptUrl] : [scriptUrl];
-        for (const url of targets) {
+        if (useEdge) {
             try {
-                const res = await fetch(url, {
+                const res = await fetch('/api/sheet-cache', {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload),
@@ -267,8 +277,18 @@
                 if (res.ok) return true;
             } catch (e) {}
         }
-        enqueuePendingSync(payload);
-        return false;
+        try {
+            await fetch(scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            });
+            return true;
+        } catch (e) {
+            enqueuePendingSync(payload);
+            return false;
+        }
     }
 
     global.BaCoStoreUtils = {
