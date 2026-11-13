@@ -131,10 +131,17 @@ function doGet(e) {
     }
     return jsonSuccess({ subscriptions: list });
   }
-  return ContentService.createTextOutput("Google Apps Script 2-Way Sync (5 Bảng) & Thông báo Gmail/Zalo/Telegram/Push đang hoạt động tốt!");
+  if (param.action === "lookup_order") {
+    return lookupOrderInSheet_(param.orderCode, param.phone);
+  }
+  if (param.action === "get_vouchers") {
+    return jsonSuccess({ vouchers: getVouchersList_() });
+  }
+  return ContentService.createTextOutput("Google Apps Script 2-Way Sync (6 Bảng) & Thông báo Gmail/Zalo/Telegram/Push đang hoạt động tốt!");
 }
 
 function doPost(e) {
+  var lock = null;
   try {
     var ss = layBangTinh();
     if (!ss) return jsonError("Không thể mở bảng tính Google Sheet!");
@@ -148,6 +155,30 @@ function doPost(e) {
     }
     if (action === "verify_session") {
       return handleVerifySession_(data);
+    }
+
+    // TRA CỨU ĐƠN HÀNG & KIỂM TRA VOUCHER (KHÔNG CẦN LOCK GHI)
+    if (action === "lookup_order") {
+      return lookupOrderInSheet_(data.orderCode, data.phone);
+    }
+    if (action === "get_vouchers") {
+      return jsonSuccess({ vouchers: getVouchersList_() });
+    }
+    if (action === "verify_voucher") {
+      return handleVerifyVoucher_(data.code, Number(data.subtotal) || 0);
+    }
+
+    // Khóa ghi đồng thời chống xung đột dòng khi có nhiều đơn hàng cùng lúc (Ưu tiên 3)
+    var isWriteOp = !action || action === "wholesale" || data.type === "wholesale" ||
+                    action === "submit_review" || action === "update_order_status" ||
+                    action === "delete_order" || action === "save_products" ||
+                    action === "save_vouchers" || action === "save_site_content" ||
+                    action === "sepay_webhook";
+    if (isWriteOp) {
+      try {
+        lock = LockService.getScriptLock();
+        lock.tryLock(8000);
+      } catch (lockErr) { lock = null; }
     }
 
     // ========================================================
@@ -676,10 +707,42 @@ function doPost(e) {
       return jsonSuccess({ type: "retail", row: targetRow });
     }
 
+    if (action === "save_vouchers" && Array.isArray(data.vouchers)) {
+      var vSheet = ss.getSheetByName("Voucher");
+      if (!vSheet) {
+        vSheet = ss.insertSheet("Voucher");
+      } else {
+        vSheet.clear();
+      }
+      khoiTaoBangVoucher(vSheet);
+      var vItems = data.vouchers || [];
+      for (var vIdx = 0; vIdx < vItems.length; vIdx++) {
+        var v = vItems[vIdx];
+        var vRow = 3 + vIdx;
+        var rowV = [
+          String(v.code || "").trim().toUpperCase(),
+          v.type || "fixed",
+          Number(v.value) || 0,
+          Number(v.minOrder) || 0,
+          Number(v.maxDiscount) || 0,
+          v.active === false ? "Tắt" : "Đang bật",
+          v.note || ""
+        ];
+        vSheet.getRange(vRow, 1, 1, rowV.length).setValues([rowV]);
+        dinhDangDongVoucher(vSheet, vRow, v.active !== false);
+      }
+      try { CacheService.getScriptCache().remove("baco_vouchers_v1"); } catch (ce) {}
+      return jsonSuccess({ saved: "Voucher", count: vItems.length });
+    }
+
     return jsonSuccess({ msg: "Action processed without order creation", action: action });
 
   } catch (error) {
     return jsonError(error.toString());
+  } finally {
+    if (lock) {
+      try { lock.releaseLock(); } catch (le) {}
+    }
   }
 }
 
@@ -1599,5 +1662,165 @@ function moHopThoaiDatSheetRiengTu() {
     ui.alert("ℹ️ Đã chuyển về dùng tab QuanTriVien trong file Sheet chính.");
   }
 }
+
+// ========================================================
+// TRA CỨU ĐƠN HÀNG CÔNG KHAI (MÃ ĐƠN + SĐT BẢO MẬT)
+// ========================================================
+function lookupOrderInSheet_(orderCodeRaw, phoneRaw) {
+  var code = chuanHoa(orderCodeRaw);
+  var phoneDigits = String(phoneRaw || "").replace(/\D/g, "");
+  if (!code || phoneDigits.length < 4) {
+    return jsonError("Vui lòng nhập mã đơn hàng và tối thiểu 4 số cuối điện thoại.");
+  }
+
+  var ss = layBangTinh();
+  if (!ss) return jsonError("Không kết nối được bảng tính.");
+  var sheet = ss.getSheets()[0];
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 3) return jsonSuccess({ found: false });
+
+  var rows = sheet.getRange("B3:L" + lastRow).getValues();
+  for (var i = rows.length - 1; i >= 0; i--) {
+    var rCode = chuanHoa(rows[i][1]);
+    var rPhone = String(rows[i][3] || "").replace(/\D/g, "");
+    var codeMatch = (rCode === code) || (rCode && code && rCode.indexOf(code) !== -1 && code.length >= 6);
+    var phoneMatch = rPhone && (rPhone === phoneDigits || rPhone.slice(-4) === phoneDigits.slice(-4));
+    if (codeMatch && phoneMatch) {
+      var maskedPhone = rPhone.length >= 7
+        ? rPhone.slice(0, 3) + "****" + rPhone.slice(-3)
+        : "****" + rPhone.slice(-3);
+      return jsonSuccess({
+        found: true,
+        order: {
+          createdAt: String(rows[i][0] || ""),
+          orderCode: String(rows[i][1] || ""),
+          name: String(rows[i][2] || ""),
+          phoneMasked: maskedPhone,
+          address: String(rows[i][4] || ""),
+          product: String(rows[i][5] || ""),
+          quantity: Number(rows[i][6]) || 1,
+          totalAmount: Number(rows[i][7]) || 0,
+          paymentMethod: String(rows[i][8] || "COD"),
+          note: String(rows[i][9] || ""),
+          status: String(rows[i][10] || "Chờ xác nhận")
+        }
+      });
+    }
+  }
+  return jsonSuccess({ found: false });
+}
+
+// ========================================================
+// HỆ THỐNG MÃ GIẢM GIÁ (VOUCHER TAB & VALIDATION)
+// ========================================================
+function getDefaultVouchers_() {
+  return [
+    { code: "BACO20", type: "fixed", value: 20000, minOrder: 200000, maxDiscount: 20000, active: true, note: "Giảm 20.000đ cho đơn từ 200k" },
+    { code: "FREESHIP", type: "freeship", value: 30000, minOrder: 0, maxDiscount: 30000, active: true, note: "Miễn phí vận chuyển toàn quốc" },
+    { code: "VIP10", type: "percent", value: 10, minOrder: 350000, maxDiscount: 50000, active: true, note: "Giảm 10% tối đa 50.000đ đơn từ 350k" }
+  ];
+}
+
+function getVouchersList_() {
+  try {
+    var cache = CacheService.getScriptCache();
+    var cached = cache ? cache.get("baco_vouchers_v1") : null;
+    if (cached) return JSON.parse(cached);
+  } catch (ce) {}
+
+  var ss = layBangTinh();
+  if (!ss) return getDefaultVouchers_();
+  var vSheet = ss.getSheetByName("Voucher");
+  if (!vSheet || vSheet.getLastRow() < 3) return getDefaultVouchers_();
+
+  var rows = vSheet.getRange(3, 1, vSheet.getLastRow() - 2, 7).getValues();
+  var list = [];
+  for (var i = 0; i < rows.length; i++) {
+    var code = String(rows[i][0] || "").trim().toUpperCase();
+    if (!code) continue;
+    list.push({
+      code: code,
+      type: String(rows[i][1] || "fixed").trim(),
+      value: Number(rows[i][2]) || 0,
+      minOrder: Number(rows[i][3]) || 0,
+      maxDiscount: Number(rows[i][4]) || 0,
+      active: String(rows[i][5] || "").toLowerCase().indexOf("tắt") === -1,
+      note: String(rows[i][6] || "")
+    });
+  }
+  if (list.length === 0) list = getDefaultVouchers_();
+  try {
+    var cache2 = CacheService.getScriptCache();
+    if (cache2) cache2.put("baco_vouchers_v1", JSON.stringify(list), 120);
+  } catch (ce2) {}
+  return list;
+}
+
+function handleVerifyVoucher_(codeRaw, subtotal) {
+  var code = String(codeRaw || "").trim().toUpperCase();
+  if (!code) return jsonSuccess({ valid: false, message: "Vui lòng nhập mã giảm giá." });
+
+  var list = getVouchersList_();
+  var found = null;
+  for (var i = 0; i < list.length; i++) {
+    if (list[i].code === code) { found = list[i]; break; }
+  }
+  if (!found || !found.active) {
+    return jsonSuccess({ valid: false, message: "Mã giảm giá không tồn tại hoặc đã hết hạn." });
+  }
+  if (found.minOrder > 0 && subtotal < found.minOrder) {
+    return jsonSuccess({
+      valid: false,
+      message: "Mã " + code + " áp dụng cho đơn từ " + found.minOrder.toLocaleString("vi-VN") + "đ."
+    });
+  }
+
+  var discountAmount = 0;
+  var freeShipping = false;
+  if (found.type === "freeship") {
+    freeShipping = true;
+    discountAmount = 0;
+  } else if (found.type === "percent") {
+    discountAmount = Math.round((subtotal * found.value) / 100);
+    if (found.maxDiscount > 0 && discountAmount > found.maxDiscount) {
+      discountAmount = found.maxDiscount;
+    }
+  } else {
+    discountAmount = Math.min(found.value, subtotal);
+  }
+
+  return jsonSuccess({
+    valid: true,
+    voucher: {
+      code: found.code,
+      type: found.type,
+      value: found.value,
+      discountAmount: discountAmount,
+      freeShipping: freeShipping,
+      note: found.note
+    }
+  });
+}
+
+function khoiTaoBangVoucher(sheet) {
+  sheet.getRange("A1:G1").merge()
+    .setValue("🏷️ KHO MÃ GIẢM GIÁ & KHUYẾN MÃI — NƯỚC MẮM BA CÔ")
+    .setBackground("#1e3a8a").setFontColor("#ffffff").setFontWeight("bold").setFontSize(12)
+    .setHorizontalAlignment("center").setVerticalAlignment("middle");
+  sheet.setRowHeight(1, 34);
+
+  var headers = ["Mã Voucher", "Loại (fixed/percent/freeship)", "Giá trị giảm", "Đơn tối thiểu", "Giảm tối đa", "Trạng thái", "Ghi chú hiển thị"];
+  sheet.getRange(2, 1, 1, headers.length).setValues([headers])
+    .setBackground("#0f172a").setFontColor("#ffffff").setFontWeight("bold").setHorizontalAlignment("center");
+  sheet.setRowHeight(2, 28);
+  sheet.setFrozenRows(2);
+}
+
+function dinhDangDongVoucher(sheet, row, isActive) {
+  sheet.getRange(row, 1, 1, 7).setVerticalAlignment("middle").setBorder(true, true, true, true, true, true, "#cbd5e1", SpreadsheetApp.BorderStyle.SOLID);
+  sheet.getRange(row, 3, 1, 3).setNumberFormat("#,##0");
+  sheet.getRange(row, 6).setBackground(isActive ? "#dcfce7" : "#fee2e2").setFontColor(isActive ? "#166534" : "#991b1b").setFontWeight("bold").setHorizontalAlignment("center");
+}
+
 
 

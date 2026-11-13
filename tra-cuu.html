@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Tra Cứu Đơn Hàng - Nước Mắm Ba Cô Khánh Hòa</title>
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+    <meta name="theme-color" content="#0284c7">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="./security.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap&subset=vietnamese,latin-ext" rel="stylesheet">
+    <style>
+        html, body {
+            overflow-x: hidden !important;
+            font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        @media screen and (max-width: 768px) {
+            input, select, textarea { font-size: 16px !important; }
+        }
+        .btn-order-cta {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 50%, #c2410c 100%) !important;
+            color: #ffffff !important;
+            transition: all 0.25s ease !important;
+        }
+        .footer-luxury-dark {
+            background: radial-gradient(circle at 85% 15%, rgba(245, 158, 11, 0.14) 0%, transparent 45%),
+                        linear-gradient(155deg, #041224 0%, #0a2544 55%, #030e1c 100%) !important;
+            color: #e2e8f0;
+        }
+    </style>
+    <link rel="stylesheet" href="./assets/tra-cuu.css?v=20261113a">
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b border-slate-200/80 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
+            <a href="./index.html" class="flex items-center space-x-3">
+                <img src="./pictrure/logo.JPG" alt="Nước Mắm Ba Cô" class="h-10 w-10 rounded-xl object-cover border border-amber-300 shadow-sm">
+                <div>
+                    <span class="font-bold text-base sm:text-lg text-slate-900 block leading-tight">Nước Mắm Ba Cô</span>
+                    <span class="text-[11px] text-sky-700 font-medium">Tra cứu hành trình đơn hàng</span>
+                </div>
+            </a>
+            <div class="flex items-center gap-2">
+                <a href="./products.html" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-700 hover:text-sky-700 font-semibold text-xs sm:text-sm transition">
+                    Cửa hàng
+                </a>
+                <a href="./index.html" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs sm:text-sm transition">
+                    Trang chủ
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Banner -->
+    <section class="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white py-8 sm:py-12">
+        <div class="max-w-3xl mx-auto px-4 text-center space-y-2">
+            <span class="inline-block bg-white/10 border border-white/15 text-amber-300 text-xs font-semibold px-3.5 py-1 rounded-full">
+                Kiểm tra trạng thái 24/7
+            </span>
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Tra Cứu Đơn Hàng Ba Cô</h1>
+            <p class="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto">
+                Nhập mã đơn hàng (ví dụ: BC-839201) và số điện thoại đặt hàng để xem tiến trình đóng gói & giao nhận
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Lookup Form & Result -->
+    <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-6 sm:py-10 space-y-6">
+        <form onsubmit="handleOrderLookup(event)" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 sm:p-7 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                    <label for="lookupOrderCode" class="block text-xs font-semibold text-slate-700 mb-1.5">Mã đơn hàng *</label>
+                    <input id="lookupOrderCode" type="text" required placeholder="VD: BC-839201" class="w-full px-4 py-3 rounded-xl bg-slate-50 focus:bg-white border border-slate-200 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500 uppercase">
+                </div>
+                <div>
+                    <label for="lookupPhone" class="block text-xs font-semibold text-slate-700 mb-1.5">Số điện thoại (hoặc 4 số cuối) *</label>
+                    <input id="lookupPhone" type="tel" required minlength="4" placeholder="VD: 0985520678 hoặc 0678" class="w-full px-4 py-3 rounded-xl bg-slate-50 focus:bg-white border border-slate-200 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                </div>
+            </div>
+            <button id="lookupSubmitBtn" type="submit" class="btn-order-cta w-full py-3.5 rounded-xl font-semibold text-sm shadow-sm active:scale-[0.99]">
+                Kiểm Tra Đơn Hàng Ngay
+            </button>
+        </form>
+
+        <div id="lookupResultBox" class="hidden"></div>
+    </main>
+
+    <!-- Dark Ocean Luxury Footer -->
+    <footer class="footer-luxury-dark text-slate-200 py-8 mt-auto border-t border-white/10">
+        <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+            <div class="text-slate-300">
+                © 2026 <strong class="text-white">Nước Mắm Ba Cô Khánh Hòa</strong> • Cam Ranh, Khánh Hòa
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="tel:0985520678" class="text-amber-300 hover:underline font-semibold">Hotline: 0985 520 678</a>
+                <a href="https://zalo.me/0985520678" target="_blank" rel="noopener noreferrer" class="text-sky-300 hover:underline font-semibold">Hỗ trợ Zalo</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
+
+        function escHtml(str) {
+            return String(str == null ? '' : str)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function normalizeCode(c) {
+            return String(c || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        }
+
+        function lookupInLocalOrders(codeRaw, phoneDigits) {
+            try {
+                const list = JSON.parse(localStorage.getItem('baco_orders') || '[]');
+                if (!Array.isArray(list)) return null;
+                const code = normalizeCode(codeRaw);
+                for (let i = list.length - 1; i >= 0; i--) {
+                    const o = list[i];
+                    const rCode = normalizeCode(o.orderCode);
+                    const rPhone = String(o.phone || '').replace(/\D/g, '');
+                    if ((rCode === code || (rCode && code && rCode.includes(code))) &&
+                        rPhone && (rPhone === phoneDigits || rPhone.slice(-4) === phoneDigits.slice(-4))) {
+                        const masked = rPhone.length >= 7 ? rPhone.slice(0, 3) + '****' + rPhone.slice(-3) : '****' + rPhone.slice(-3);
+                        return {
+                            createdAt: o.createdAt || o.timestamp || '',
+                            orderCode: o.orderCode,
+                            name: o.name || '',
+                            phoneMasked: masked,
+                            address: o.address || '',
+                            product: o.product || '',
+                            quantity: o.quantity || 1,
+                            totalAmount: o.totalAmount || 0,
+                            paymentMethod: o.paymentMethod || 'COD',
+                            note: o.note || '',
+                            status: o.status || 'Chờ xác nhận'
+                        };
+                    }
+                }
+            } catch (e) {}
+            return null;
+        }
+
+        function getOrderStepIndex(statusRaw) {
+            const s = String(statusRaw || '').toLowerCase();
+            if (s.includes('hủy') || s.includes('hoàn')) return -1;
+            if (s.includes('thành công') || s.includes('hoàn tất') || s.includes('đã giao')) return 3;
+            if (s.includes('đang giao') || s.includes('vận chuyển') || s.includes('bưu cục')) return 2;
+            if (s.includes('xác nhận') || s.includes('đóng gói') || s.includes('thanh toán') || s.includes('paid')) return 1;
+            return 0;
+        }
+
+        function renderOrderResult(order) {
+            const box = document.getElementById('lookupResultBox');
+            if (!box) return;
+            box.classList.remove('hidden');
+
+            if (!order) {
+                box.innerHTML = `
+                    <div class="bg-white rounded-2xl border border-rose-200 p-6 text-center space-y-2 shadow-sm">
+                        <div class="text-3xl">🔎</div>
+                        <h2 class="font-bold text-slate-900 text-base">Không tìm thấy đơn hàng phù hợp</h2>
+                        <p class="text-xs sm:text-sm text-slate-500">Vui lòng kiểm tra lại Mã đơn hàng và 4 số cuối điện thoại, hoặc liên hệ Hotline <a href="tel:0985520678" class="text-sky-700 font-semibold underline">0985 520 678</a>.</p>
+                    </div>`;
+                return;
+            }
+
+            const step = getOrderStepIndex(order.status);
+            const steps = ['Chờ xác nhận', 'Đã xác nhận & Đóng gói', 'Đang giao hàng', 'Giao thành công'];
+            const isCancelled = step === -1;
+
+            const timelineHtml = isCancelled
+                ? `<div class="bg-rose-50 border border-rose-200 text-rose-700 rounded-xl p-3.5 text-xs sm:text-sm font-semibold text-center">Đơn hàng đang ở trạng thái: ${escHtml(order.status)}</div>`
+                : `<div class="grid grid-cols-4 gap-2 pt-2">
+                    ${steps.map((label, idx) => {
+                        const done = idx <= step;
+                        const dotCls = done ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-400 border-slate-300';
+                        const txtCls = done ? 'text-slate-900 font-semibold' : 'text-slate-400';
+                        return `
+                            <div class="flex flex-col items-center text-center space-y-1.5">
+                                <div class="w-7 h-7 rounded-full border-2 ${dotCls} flex items-center justify-center text-xs font-bold">${done ? '✓' : (idx + 1)}</div>
+                                <span class="text-[10px] sm:text-xs leading-tight ${txtCls}">${label}</span>
+                            </div>`;
+                    }).join('')}
+                   </div>`;
+
+            box.innerHTML = `
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <div class="bg-slate-900 text-white px-5 py-4 flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <span class="text-[11px] text-slate-400 block">Mã đơn hàng</span>
+                            <span class="font-bold text-base sm:text-lg text-amber-300">${escHtml(order.orderCode)}</span>
+                        </div>
+                        <span class="px-3 py-1 rounded-lg bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-semibold">
+                            ${escHtml(order.status)}
+                        </span>
+                    </div>
+                    <div class="p-5 sm:p-6 space-y-5">
+                        ${timelineHtml}
+                        <div class="border-t border-slate-100 pt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+                            <div class="space-y-1">
+                                <span class="text-slate-400 text-xs">Người nhận</span>
+                                <p class="font-semibold text-slate-900">${escHtml(order.name)} • ${escHtml(order.phoneMasked)}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-slate-400 text-xs">Thời gian đặt</span>
+                                <p class="font-medium text-slate-700">${escHtml(order.createdAt || 'Vừa đặt')}</p>
+                            </div>
+                            <div class="sm:col-span-2 space-y-1">
+                                <span class="text-slate-400 text-xs">Địa chỉ giao hàng</span>
+                                <p class="font-medium text-slate-800">${escHtml(order.address)}</p>
+                            </div>
+                            <div class="sm:col-span-2 bg-slate-50 rounded-xl p-3.5 border border-slate-100 space-y-1">
+                                <span class="text-slate-500 text-xs">Sản phẩm đã đặt</span>
+                                <p class="font-semibold text-slate-900">${escHtml(order.product)}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-slate-400 text-xs">Hình thức thanh toán</span>
+                                <p class="font-semibold text-sky-700">${escHtml(order.paymentMethod)}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-slate-400 text-xs">Tổng thanh toán</span>
+                                <p class="font-bold text-lg text-slate-900 tabular-nums">${Number(order.totalAmount || 0).toLocaleString('vi-VN')} đ</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        async function handleOrderLookup(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const codeEl = document.getElementById('lookupOrderCode');
+            const phoneEl = document.getElementById('lookupPhone');
+            const btn = document.getElementById('lookupSubmitBtn');
+            const orderCode = (codeEl ? codeEl.value : '').trim();
+            const phoneDigits = (phoneEl ? phoneEl.value : '').replace(/\D/g, '');
+            if (!orderCode || phoneDigits.length < 4) return;
+
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Đang kiểm tra hệ thống...';
+            }
+
+            let foundOrder = null;
+            const endpoints = (location.protocol === 'http:' || location.protocol === 'https:')
+                ? ['/api/sheet-cache', GOOGLE_SCRIPT_URL]
+                : [GOOGLE_SCRIPT_URL];
+
+            for (const url of endpoints) {
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'lookup_order', orderCode, phone: phoneDigits }),
+                        redirect: 'follow'
+                    });
+                    if (res.ok) {
+                        const json = await res.json();
+                        if (json && json.status === 'success' && json.found && json.order) {
+                            foundOrder = json.order;
+                            break;
+                        }
+                    }
+                } catch (err) {}
+            }
+
+            if (!foundOrder) {
+                foundOrder = lookupInLocalOrders(orderCode, phoneDigits);
+            }
+
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = 'Kiểm Tra Đơn Hàng Ngay';
+            }
+            renderOrderResult(foundOrder);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            try {
+                const params = new URLSearchParams(location.search);
+                const c = params.get('code') || params.get('orderCode');
+                if (c) document.getElementById('lookupOrderCode').value = c;
+            } catch (e) {}
+        });
+    </script>
+</body>
+</html>

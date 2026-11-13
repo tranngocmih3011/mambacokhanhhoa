@@ -51,7 +51,7 @@ const CSP = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com data:",
   "img-src 'self' data: blob: https:",
-  "connect-src 'self' https://docs.google.com https://script.google.com https://script.googleusercontent.com https://mambacokhanhhoa.vercel.app https://qr.sepay.vn https://api.restful-api.dev https://cdn.jsdelivr.net https://cloudflareinsights.com",
+  "connect-src 'self' https://docs.google.com https://script.google.com https://script.googleusercontent.com https://mambacokhanhhoa.vercel.app https://qr.sepay.vn https://api.restful-api.dev https://provinces.open-api.vn https://cdn.jsdelivr.net https://cloudflareinsights.com",
   "media-src 'self' data: blob:",
   "frame-src https://www.google.com https://maps.google.com https://www.youtube.com",
   "worker-src 'self'",

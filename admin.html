@@ -220,7 +220,7 @@
         }
     </style>
     <!-- Precompiled Tailwind CSS (đặt sau <style> để giữ đúng thứ tự ưu tiên) -->
-    <link rel="stylesheet" href="./assets/admin.css?v=20261111c">
+    <link rel="stylesheet" href="./assets/admin.css?v=20261113a">
 </head>
 <body class="bg-iosBg text-[#1c1c1e] antialiased min-h-screen flex flex-col pb-safe-bottom">
 
@@ -321,6 +321,9 @@
                 <button onclick="switchTab('reviews')" id="desktopTabBtn-reviews" class="py-2.5 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition">
                     <span>Đánh giá</span>
                     <span id="desktopReviewCountBadge" class="bg-[#767680]/[0.12] text-[#1c1c1e] text-[10px] font-semibold px-1.5 py-0.5 rounded-full">0</span>
+                </button>
+                <button onclick="switchTab('vouchers')" id="desktopTabBtn-vouchers" class="py-2.5 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition">
+                    <span>Mã giảm giá</span>
                 </button>
                 <button onclick="switchTab('notifications')" id="desktopTabBtn-notifications" class="py-2.5 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition">
                     <span>Thông báo</span>
@@ -1112,6 +1115,38 @@
                 <div id="notificationsContainer" class="space-y-2"></div>
             </section>
 
+            <!-- ================= TAB 6: MÃ GIẢM GIÁ (VOUCHERS) ================= -->
+            <section id="tab-vouchers" class="hidden space-y-3">
+                <div class="ios-card p-3.5 sm:p-4 space-y-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div>
+                            <h2 class="font-bold text-sm text-[#1c1c1e]">🏷️ Quản Lý Mã Giảm Giá / Voucher</h2>
+                            <p class="text-[11px] text-[#8E8E93]">Tạo mã khuyến mãi mới và đồng bộ lên Google Sheet (Tab <code>Voucher</code>).</p>
+                        </div>
+                        <button type="button" onclick="syncVouchersToSheet()" class="bg-[#34C759] hover:bg-emerald-600 text-white text-xs font-semibold px-3 py-2 rounded-xl transition ios-press shrink-0">
+                            ☁️ Đồng bộ lên Sheet
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-6 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200/80">
+                        <input type="text" id="newVoucherCode" placeholder="Mã (VD: TET20)" class="sm:col-span-1 px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-bold uppercase">
+                        <select id="newVoucherType" class="sm:col-span-1 px-2.5 py-2 rounded-lg border border-slate-200 bg-white text-xs font-medium">
+                            <option value="fixed">Giảm tiền (đ)</option>
+                            <option value="percent">Giảm %</option>
+                            <option value="freeship">Miễn phí ship</option>
+                        </select>
+                        <input type="number" id="newVoucherValue" placeholder="Giá trị (VD: 20000)" min="0" class="sm:col-span-1 px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs">
+                        <input type="number" id="newVoucherMinOrder" placeholder="Đơn tối thiểu (đ)" min="0" value="0" class="sm:col-span-1 px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs">
+                        <input type="text" id="newVoucherNote" placeholder="Mô tả (VD: Giảm 20k đơn từ 200k)" class="sm:col-span-1 px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs">
+                        <button type="button" onclick="saveAdminVoucher()" class="sm:col-span-1 bg-[#007AFF] hover:bg-blue-600 text-white font-semibold text-xs py-2 px-3 rounded-lg transition ios-press">
+                            + Thêm / Cập nhật
+                        </button>
+                    </div>
+
+                    <div id="adminVouchersList" class="divide-y divide-black/[0.06]"></div>
+                </div>
+            </section>
+
         </main>
 
         <!-- ================= 3. THANH ĐIỀU HƯỚNG DƯỚI CÙNG CHUẨN iOS TAB BAR ================= -->
@@ -1137,6 +1172,11 @@
                 <span class="text-[10px] font-medium mt-0.5 leading-tight">Nội dung</span>
             </button>
 
+            <button onclick="switchTab('vouchers')" id="mobileTabBtn-vouchers" class="flex flex-col items-center justify-center flex-1 py-1 text-[#8E8E93] transition ios-press">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                <span class="text-[10px] font-medium mt-0.5 leading-tight">Mã giảm</span>
+            </button>
+
             <button onclick="switchTab('reviews')" id="mobileTabBtn-reviews" class="flex flex-col items-center justify-center flex-1 py-1 text-[#8E8E93] transition ios-press">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
                 <span class="text-[10px] font-medium mt-0.5 leading-tight">Đánh giá</span>
@@ -1148,6 +1188,21 @@
                 <span class="text-[10px] font-medium mt-0.5 leading-tight">Thông báo</span>
             </button>
         </nav>
+    </div>
+
+    <!-- Modal Xem Trước & In Phiếu Giao Hàng (80mm / A6) -->
+    <div id="orderPrintModal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 hidden no-print">
+        <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-sm text-slate-900">🖨️ Xem Trước Phiếu Giao Hàng (A6 / 80mm)</h3>
+                <button type="button" onclick="closeOrderPrintModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-xs">✕</button>
+            </div>
+            <div id="orderPrintPreviewBody" class="bg-slate-50 p-3 rounded-2xl border border-dashed border-slate-300 text-xs"></div>
+            <div class="flex gap-2">
+                <button type="button" onclick="closeOrderPrintModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition">Đóng</button>
+                <button type="button" onclick="window.print()" class="flex-1 py-2.5 rounded-xl bg-[#007AFF] hover:bg-blue-600 text-white font-bold text-xs shadow transition">🖨️ In Phiếu Ngay</button>
+            </div>
+        </div>
     </div>
 
     <!-- ================= 4. MODAL THÊM / SỬA SẢN PHẨM (iOS Bottom Sheet trên mobile) ================= -->
@@ -4089,7 +4144,7 @@ function moHopThoaiDatSheetRiengTu() {
 
         // ================= ĐIỀU HƯỚNG TABS (CẢ MOBILE & DESKTOP) =================
         function switchTab(tabName) {
-            ['analytics', 'orders', 'products', 'content', 'reviews', 'notifications'].forEach(tab => {
+            ['analytics', 'orders', 'products', 'content', 'vouchers', 'reviews', 'notifications'].forEach(tab => {
                 const sec = document.getElementById(`tab-${tab}`);
                 if (sec) sec.classList.add('hidden');
 
@@ -4129,11 +4184,157 @@ function moHopThoaiDatSheetRiengTu() {
 
             if (tabName === 'analytics') renderAnalytics();
             if (tabName === 'content') loadSiteContentIntoAdmin();
+            if (tabName === 'vouchers') renderAdminVouchers();
             if (tabName === 'reviews') renderAdminReviews();
             if (tabName === 'notifications') {
                 syncNotificationsFromData();
                 renderNotifications();
             }
+        }
+
+        // ================= IN PHIẾU GIAO HÀNG (A6 / 80MM) =================
+        function printOrderSlip(index) {
+            const order = orders[index];
+            if (!order) return;
+            const isPaid = String(order.status || '').includes('Đã nhận tiền') || String(order.status || '').includes('Hoàn tất');
+            const codAmount = isPaid ? 0 : Number(order.totalAmount || 0);
+            const slipHtml = `
+                <div style="max-width: 105mm; margin: 0 auto; border: 1.5px dashed #334155; padding: 14px; font-family: 'Be Vietnam Pro', Arial, sans-serif; color: #0f172a; background: #ffffff;">
+                    <div style="text-align: center; border-bottom: 1.5px solid #0f172a; padding-bottom: 8px; margin-bottom: 10px;">
+                        <div style="font-weight: 900; font-size: 14px; letter-spacing: 0.5px;">NƯỚC MẮM BA CÔ KHÁNH HÒA</div>
+                        <div style="font-size: 10px; color: #475569; margin-top: 2px;">Vịnh Cam Ranh, Khánh Hòa • Hotline: 0985 520 678</div>
+                        <div style="font-size: 12px; font-weight: 800; margin-top: 6px; padding: 3px 8px; background: #f1f5f9; display: inline-block; border-radius: 4px;">PHIẾU GIAO HÀNG #${escHtml(order.orderCode)}</div>
+                    </div>
+                    <div style="font-size: 11px; line-height: 1.5; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px; margin-bottom: 8px;">
+                        <div><strong>Người nhận:</strong> ${escHtml(order.name)}</div>
+                        <div><strong>SĐT:</strong> ${escHtml(order.phone)}</div>
+                        <div><strong>Địa chỉ:</strong> ${escHtml(order.address)}</div>
+                        <div style="font-size: 10px; color: #64748b;">Ngày đặt: ${escHtml(order.timestamp || '')}</div>
+                    </div>
+                    <div style="font-size: 11px; line-height: 1.5; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px; margin-bottom: 8px;">
+                        <div><strong>Sản phẩm (${Number(order.quantity || 1)} sp):</strong></div>
+                        <div style="margin-top: 2px;">${escHtml(order.product)}</div>
+                        ${order.note ? `<div style="margin-top: 4px; font-style: italic; color: #b45309;">Ghi chú: ${escHtml(order.note)}</div>` : ''}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 6px 8px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        <span style="font-weight: 700;">THU HỘ (COD):</span>
+                        <span style="font-weight: 900; font-size: 15px; color: #b91c1c;">${codAmount.toLocaleString('vi-VN')} đ</span>
+                    </div>
+                    <div style="text-align: center; font-size: 10px; color: #475569; margin-top: 10px;">
+                        Tổng đơn: ${Number(order.totalAmount || 0).toLocaleString('vi-VN')}đ • ${isPaid ? 'Đã thanh toán' : 'Thanh toán khi nhận hàng'}<br>
+                        <strong>Cho kiểm tra hàng trước khi thanh toán • Cảm ơn quý khách!</strong>
+                    </div>
+                </div>
+            `;
+            const previewEl = document.getElementById('orderPrintPreviewBody');
+            const printEl = document.getElementById('printableReportArea');
+            if (previewEl) previewEl.innerHTML = slipHtml;
+            if (printEl) printEl.innerHTML = slipHtml;
+            const modal = document.getElementById('orderPrintModal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeOrderPrintModal() {
+            const modal = document.getElementById('orderPrintModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        // ================= QUẢN LÝ MÃ GIẢM GIÁ (VOUCHERS) =================
+        function getAdminVouchersList() {
+            const defaults = [
+                { code: 'BACO20', type: 'fixed', value: 20000, minOrder: 200000, active: true, note: 'Giảm 20.000đ cho đơn từ 200.000đ' },
+                { code: 'FREESHIP', type: 'freeship', value: 30000, minOrder: 0, active: true, note: 'Miễn phí vận chuyển toàn quốc' },
+                { code: 'VIP10', type: 'percent', value: 10, minOrder: 300000, active: true, note: 'Giảm 10% cho đơn từ 300.000đ' }
+            ];
+            try {
+                const raw = localStorage.getItem('baco_vouchers');
+                if (!raw) {
+                    localStorage.setItem('baco_vouchers', JSON.stringify(defaults));
+                    return defaults;
+                }
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) && parsed.length > 0 ? parsed : defaults;
+            } catch (e) {
+                return defaults;
+            }
+        }
+
+        function renderAdminVouchers() {
+            const container = document.getElementById('adminVouchersList');
+            if (!container) return;
+            const list = getAdminVouchersList();
+            if (list.length === 0) {
+                container.innerHTML = '<p class="text-xs text-[#8E8E93] py-6 text-center">Chưa có mã giảm giá nào.</p>';
+                return;
+            }
+            container.innerHTML = list.map((v) => {
+                const sCode = escHtml(v.code);
+                const valLabel = v.type === 'percent' ? `${v.value}%` : (v.type === 'freeship' ? 'Freeship' : `${Number(v.value || 0).toLocaleString('vi-VN')}đ`);
+                return `
+                    <div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-mono font-bold text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-900">${sCode}</span>
+                                <span class="text-xs font-semibold text-[#1c1c1e]">${valLabel}</span>
+                                <span class="text-[11px] text-[#8E8E93]">Đơn tối thiểu ${Number(v.minOrder || 0).toLocaleString('vi-VN')}đ</span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${v.active !== false ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}">${v.active !== false ? 'Đang bật' : 'Đã tắt'}</span>
+                            </div>
+                            <p class="text-[11px] text-[#8E8E93] mt-0.5">${escHtml(v.note || '')}</p>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" onclick="toggleVoucherActive('${sCode}')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 font-medium">${v.active !== false ? 'Tắt' : 'Bật'}</button>
+                            <button type="button" onclick="deleteAdminVoucher('${sCode}')" class="text-xs px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-[#FF3B30] font-medium">Xóa</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function saveAdminVoucher() {
+            const code = String((document.getElementById('newVoucherCode') || {}).value || '').trim().toUpperCase();
+            const type = String((document.getElementById('newVoucherType') || {}).value || 'fixed');
+            const value = Number((document.getElementById('newVoucherValue') || {}).value || 0);
+            const minOrder = Number((document.getElementById('newVoucherMinOrder') || {}).value || 0);
+            const note = String((document.getElementById('newVoucherNote') || {}).value || '').trim();
+            if (!code) {
+                showAdminToast('Vui lòng nhập mã giảm giá!', 'error');
+                return;
+            }
+            const list = getAdminVouchersList();
+            const idx = list.findIndex(v => String(v.code).toUpperCase() === code);
+            const item = { code, type, value: type === 'freeship' ? 30000 : value, minOrder, active: true, note: note || `Mã ưu đãi ${code}` };
+            if (idx >= 0) list[idx] = item;
+            else list.unshift(item);
+            localStorage.setItem('baco_vouchers', JSON.stringify(list));
+            ['newVoucherCode', 'newVoucherValue', 'newVoucherNote'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            renderAdminVouchers();
+            showAdminToast(`Đã lưu mã ${code}! Bấm "Đồng bộ lên Sheet" để lưu lên Google Sheet.`, 'success');
+        }
+
+        function toggleVoucherActive(code) {
+            const list = getAdminVouchersList();
+            const item = list.find(v => String(v.code).toUpperCase() === String(code).toUpperCase());
+            if (!item) return;
+            item.active = item.active === false;
+            localStorage.setItem('baco_vouchers', JSON.stringify(list));
+            renderAdminVouchers();
+        }
+
+        function deleteAdminVoucher(code) {
+            if (!confirm(`Xóa mã giảm giá ${code}?`)) return;
+            const list = getAdminVouchersList().filter(v => String(v.code).toUpperCase() !== String(code).toUpperCase());
+            localStorage.setItem('baco_vouchers', JSON.stringify(list));
+            renderAdminVouchers();
+            showAdminToast(`Đã xóa mã ${code}!`, 'info');
+        }
+
+        async function syncVouchersToSheet() {
+            const list = getAdminVouchersList();
+            await syncToGoogleSheet({ action: 'save_vouchers', vouchers: list });
+            showAdminToast('Đã đồng bộ danh sách mã giảm giá lên Tab "Voucher"!', 'success');
         }
 
         // ================= XỬ LÝ ĐƠN HÀNG MOBILE-FIRST =================
@@ -4362,14 +4563,19 @@ function moHopThoaiDatSheetRiengTu() {
                                         </div>
                                     </div>
 
-                                    <select onchange="updateOrderStatus(${originalIdx}, this.value)" 
-                                            class="text-xs font-medium px-2.5 py-1.5 rounded-lg bg-[#767680]/[0.12] border-0 text-[#1c1c1e] focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
-                                        <option value="Chờ xác nhận" ${order.status === 'Chờ xác nhận' ? 'selected' : ''}>Chờ duyệt</option>
-                                        <option value="Chờ thanh toán QR" ${order.status === 'Chờ thanh toán QR' ? 'selected' : ''}>Chờ QR</option>
-                                        <option value="Đã nhận tiền" ${order.status === 'Đã nhận tiền' ? 'selected' : ''}>Đã nhận tiền</option>
-                                        <option value="Đang giao" ${order.status === 'Đang giao' ? 'selected' : ''}>Đang giao</option>
-                                        <option value="Hoàn tất" ${order.status === 'Hoàn tất' ? 'selected' : ''}>Hoàn tất</option>
-                                    </select>
+                                    <div class="flex items-center gap-1.5">
+                                        <button type="button" onclick="printOrderSlip(${originalIdx})" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1.5 rounded-lg font-semibold transition ios-press" title="In phiếu giao hàng">
+                                            🖨️ In
+                                        </button>
+                                        <select onchange="updateOrderStatus(${originalIdx}, this.value)" 
+                                                class="text-xs font-medium px-2.5 py-1.5 rounded-lg bg-[#767680]/[0.12] border-0 text-[#1c1c1e] focus:outline-none focus:ring-2 focus:ring-[#007AFF]">
+                                            <option value="Chờ xác nhận" ${order.status === 'Chờ xác nhận' ? 'selected' : ''}>Chờ duyệt</option>
+                                            <option value="Chờ thanh toán QR" ${order.status === 'Chờ thanh toán QR' ? 'selected' : ''}>Chờ QR</option>
+                                            <option value="Đã nhận tiền" ${order.status === 'Đã nhận tiền' ? 'selected' : ''}>Đã nhận tiền</option>
+                                            <option value="Đang giao" ${order.status === 'Đang giao' ? 'selected' : ''}>Đang giao</option>
+                                            <option value="Hoàn tất" ${order.status === 'Hoàn tất' ? 'selected' : ''}>Hoàn tất</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         `;
@@ -4435,6 +4641,10 @@ function moHopThoaiDatSheetRiengTu() {
                                 </td>
                                 <td class="px-4 py-3 text-right whitespace-nowrap">
                                     <div class="inline-flex items-center justify-end gap-1.5">
+                                        <button type="button" onclick="printOrderSlip(${originalIdx})" 
+                                                class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg font-semibold transition ios-press" title="In phiếu giao hàng">
+                                            🖨️ In phiếu
+                                        </button>
                                         <a href="https://zalo.me/${sTel}" target="_blank" rel="noopener noreferrer" 
                                            class="text-xs bg-[#007AFF]/12 text-[#007AFF] px-2.5 py-1 rounded-lg font-semibold transition ios-press">
                                             Zalo
