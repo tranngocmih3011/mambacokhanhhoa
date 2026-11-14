@@ -243,9 +243,8 @@
 
     <!-- 1. MÀN HÌNH XÁC THỰC (Đăng nhập thật được xử lý phía máy chủ Cloudflare - functions/_middleware.js) -->
     <div id="loginScreen" class="fixed inset-0 z-50 bg-[#F2F2F7] flex items-center justify-center p-5">
-        <div class="flex flex-col items-center space-y-3 text-[#8E8E93]">
+        <div class="flex flex-col items-center justify-center text-[#8E8E93]">
             <span class="animate-spin text-[#007AFF] text-2xl">↻</span>
-            <span class="text-xs font-medium">Đang xác thực phiên quản trị an toàn...</span>
         </div>
     </div>
     <div id="forgotPasswordModal" class="hidden"></div>
@@ -261,7 +260,7 @@
                     <img src="./pictrure/logo.JPG" alt="Logo" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover border border-black/[0.08]">
                     <div class="flex items-center space-x-2">
                         <span class="font-semibold text-sm sm:text-base tracking-tight text-[#1c1c1e]">Ba Cô</span>
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]" title="Đã kết nối Google Sheet"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#34C759]" title="Đã kết nối Cơ sở dữ liệu"></span>
                     </div>
                 </div>
 
@@ -1164,10 +1163,10 @@
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                         <div>
                             <h2 class="font-bold text-sm text-[#1c1c1e]">🏷️ Quản Lý Mã Giảm Giá / Voucher</h2>
-                            <p class="text-[11px] text-[#8E8E93]">Tạo mã khuyến mãi mới và đồng bộ lên Google Sheet (Tab <code>Voucher</code>).</p>
+                            <p class="text-[11px] text-[#8E8E93]">Tạo mã khuyến mãi mới và đồng bộ lên Cơ sở dữ liệu.</p>
                         </div>
                         <button type="button" onclick="syncVouchersToSheet()" class="bg-[#34C759] hover:bg-emerald-600 text-white text-xs font-semibold px-3 py-2 rounded-xl transition ios-press shrink-0">
-                            ☁️ Đồng bộ lên Sheet
+                            ☁️ Đồng bộ dữ liệu
                         </button>
                     </div>
 
@@ -1239,10 +1238,6 @@
             </button>
             <button onclick="switchTab('reviews')" id="mobileTabBtn-reviews" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-black/[0.04] text-[#8E8E93] transition">
                 <span>⭐ Đánh giá</span>
-            </button>
-            <button onclick="switchTab('notifications')" id="mobileTabBtn-notifications" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-black/[0.04] text-[#8E8E93] transition">
-                <span>🔔 Thông báo</span>
-                <span id="mobileNotifBadge" class="hidden bg-[#FF3B30] text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1.5 rounded-full flex items-center justify-center">0</span>
             </button>
         </div>
 
@@ -1396,7 +1391,7 @@
                         Đóng
                     </button>
                     <button type="submit" class="flex-1 bg-[#007AFF] hover:bg-[#0066CC] text-white font-semibold py-2.5 rounded-2xl text-sm transition shadow-md ios-press">
-                        💾 Lưu & Đồng Bộ Sheet
+                        💾 Lưu & Đồng Bộ Dữ Liệu
                     </button>
                 </div>
             </form>
@@ -3552,7 +3547,6 @@ function moHopThoaiDatSheetRiengTu() {
                     <div class="text-center space-y-1.5">
                         <img src="./pictrure/logo.JPG" alt="Ba Cô" class="w-16 h-16 rounded-full object-cover mx-auto shadow ring-2 ring-[#007AFF]/25">
                         <h1 class="text-lg font-bold text-[#1c1c1e] pt-1">Ba Cô Khánh Hòa</h1>
-                        <p class="text-xs text-[#8E8E93]">Đăng nhập quản trị qua Google Sheet</p>
                     </div>
                     ${safeErr}
                     <div class="space-y-3">
@@ -3571,10 +3565,6 @@ function moHopThoaiDatSheetRiengTu() {
                     <button id="adminLoginBtn" type="submit" ${locked ? 'disabled' : ''} class="w-full py-3 rounded-xl bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.99] text-white font-semibold text-[15px] transition disabled:opacity-50 disabled:cursor-not-allowed">
                         Đăng nhập
                     </button>
-                    <div class="flex items-center justify-between text-[11px] text-[#8E8E93] pt-1">
-                        <span>🔒 Thoát trang tự động khóa phiên</span>
-                        <button type="button" onclick="openForgotPasswordModal()" class="text-[#007AFF] hover:underline font-medium">Quên mật khẩu?</button>
-                    </div>
                 </form>`;
         }
 
@@ -3622,7 +3612,7 @@ function moHopThoaiDatSheetRiengTu() {
             }
             if (btnEl) {
                 btnEl.disabled = true;
-                btnEl.textContent = 'Đang kiểm tra Google Sheet...';
+                btnEl.textContent = 'Đang đăng nhập...';
             }
             try {
                 const data = await callSheetAuthAction({
@@ -3649,22 +3639,22 @@ function moHopThoaiDatSheetRiengTu() {
                     return;
                 }
                 if (data && data.reason === 'account_locked') {
-                    renderSheetLoginForm('⛔ Tài khoản này đang ở trạng thái Khóa trong bảng QuanTriVien trên Google Sheet.', false, username);
+                    renderSheetLoginForm('⛔ Tài khoản này đang ở trạng thái Khóa trong Cơ sở dữ liệu.', false, username);
                     return;
                 }
                 if (data && data.reason === 'no_password_set') {
-                    renderSheetLoginForm('⚠️ Tài khoản chưa đặt mật khẩu trong tab QuanTriVien. Hãy mở Google Sheet → menu "🔐 Bảo Mật Ba Cô" → Đặt mật khẩu.', false, username);
+                    renderSheetLoginForm('⚠️ Tài khoản chưa được thiết lập mật khẩu trong Cơ sở dữ liệu.', false, username);
                     return;
                 }
                 const rem = typeof data?.remainingAttempts === 'number' ? ` (còn ${data.remainingAttempts} lần thử)` : '';
                 renderSheetLoginForm(`Tên đăng nhập hoặc mật khẩu không chính xác${rem}.`, false, username);
             } catch (err) {
-                renderSheetLoginForm('Không kết nối được tới Google Sheet Apps Script. Vui lòng kiểm tra lại mạng hoặc bản triển khai Web App.', false, username);
+                renderSheetLoginForm('Không kết nối được tới Cơ sở dữ liệu. Vui lòng kiểm tra lại kết nối mạng.', false, username);
             }
         }
 
         function openForgotPasswordModal() {
-            showAdminToast('Mở Google Sheet → menu "🔐 Bảo Mật Ba Cô" → "2. Đặt / Đổi Mật Khẩu Admin" để đặt lại mật khẩu.', 'info');
+            showAdminToast('Vui lòng liên hệ quản trị hệ thống để đặt lại mật khẩu trong Cơ sở dữ liệu.', 'info');
         }
         function closeForgotPasswordModal() {
             const modal = document.getElementById('forgotPasswordModal');
@@ -3743,7 +3733,7 @@ function moHopThoaiDatSheetRiengTu() {
 
         // Hàm làm mới toàn diện dữ liệu (Đơn hàng, Khách sỉ, Sản phẩm, Nội dung web)
         async function triggerManualRefresh(showToast = true) {
-            if (showToast) showAdminToast('🔄 Đang đồng bộ dữ liệu mới nhất từ Google Sheet...', 'info');
+            if (showToast) showAdminToast('🔄 Đang đồng bộ dữ liệu mới nhất từ Cơ sở dữ liệu...', 'info');
             await Promise.all([
                 fetchOrdersFromGoogleSheet(true),
                 fetchSiteAndProductsFromSheet(true)
@@ -3809,7 +3799,7 @@ function moHopThoaiDatSheetRiengTu() {
 
         // Đẩy toàn bộ Sản Phẩm & Nội Dung Website hiện tại lên Google Sheet để tạo/cập nhật 2 bảng SanPham và NoiDungWeb
         async function pushAllTablesToSheetNow(silent = false) {
-            if (!silent) showAdminToast('Đang tạo & đồng bộ bảng Sản Phẩm + Nội Dung lên Google Sheet...', 'info');
+            if (!silent) showAdminToast('Đang tạo & đồng bộ bảng Sản Phẩm + Nội Dung lên Cơ sở dữ liệu...', 'info');
             let currentContent = DEFAULT_SITE_CONTENT;
             try {
                 const raw = localStorage.getItem('baco_site_content');
@@ -3831,7 +3821,7 @@ function moHopThoaiDatSheetRiengTu() {
             });
 
             if (!silent) {
-                showAdminToast('Đã đồng bộ bảng SanPham & NoiDungWeb lên Google Sheet thành công!', 'success');
+                showAdminToast('Đã đồng bộ bảng Sản Phẩm & Nội Dung lên Cơ sở dữ liệu thành công!', 'success');
             }
         }
 
@@ -3956,7 +3946,7 @@ function moHopThoaiDatSheetRiengTu() {
             // 1. Tải đơn hàng bán lẻ từ Tab 1
             const urlRetail = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&_t=${Date.now()}`;
             try {
-                if (!silent) showAdminToast('Đang tải dữ liệu từ Google Sheet...', 'info');
+                if (!silent) showAdminToast('Đang tải dữ liệu từ Cơ sở dữ liệu...', 'info');
                 const res = await fetch(urlRetail, { cache: 'no-store' });
                 const text = await res.text();
                 const jsonMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
@@ -4104,7 +4094,7 @@ function moHopThoaiDatSheetRiengTu() {
 
             syncNotificationsFromData(true);
             updateBadges();
-            if (!silent) showAdminToast('Đã hoàn tất đồng bộ từ Google Sheet!', 'success');
+            if (!silent) showAdminToast('Đã hoàn tất đồng bộ từ Cơ sở dữ liệu!', 'success');
         }
 
         function loadData() {
@@ -4269,7 +4259,7 @@ function moHopThoaiDatSheetRiengTu() {
 
             const moreBtn = document.getElementById('mobileTabBtn-more');
             if (moreBtn) {
-                const isMoreSubtab = ['content', 'vouchers', 'reviews', 'notifications'].includes(tabName);
+                const isMoreSubtab = ['content', 'vouchers', 'reviews'].includes(tabName);
                 moreBtn.classList.toggle('text-[#007AFF]', isMoreSubtab);
                 moreBtn.classList.toggle('text-[#8E8E93]', !isMoreSubtab);
             }
@@ -4545,7 +4535,7 @@ function moHopThoaiDatSheetRiengTu() {
                 if (el) el.value = '';
             });
             renderAdminVouchers();
-            showAdminToast(`Đã lưu mã ${code}! Bấm "Đồng bộ lên Sheet" để lưu lên Google Sheet.`, 'success');
+            showAdminToast(`Đã lưu mã ${code}! Bấm "Đồng bộ dữ liệu" để lưu lên Cơ sở dữ liệu.`, 'success');
         }
 
         function toggleVoucherActive(code) {
@@ -5374,7 +5364,7 @@ function moHopThoaiDatSheetRiengTu() {
             localStorage.setItem('baco_products_custom_saved', 'true');
             renderProducts();
             renderAnalytics();
-            showAdminToast(`Đã chuyển trạng thái "${p.name}" sang ${p.inStock ? '🟢 Còn hàng' : '🔴 Tạm hết'} & đồng bộ Sheet!`, 'success');
+            showAdminToast(`Đã chuyển trạng thái "${p.name}" sang ${p.inStock ? '🟢 Còn hàng' : '🔴 Tạm hết'} & đồng bộ Cơ sở dữ liệu!`, 'success');
 
             syncToGoogleSheet({
                 action: 'save_products',
@@ -5583,7 +5573,7 @@ function moHopThoaiDatSheetRiengTu() {
                 localStorage.setItem('baco_products_custom_saved', 'true');
                 renderProducts();
                 renderAnalytics();
-                showAdminToast(`Đã xóa "${prod.name}" & đồng bộ lên Google Sheet!`, 'info');
+                showAdminToast(`Đã xóa "${prod.name}" & đồng bộ lên Cơ sở dữ liệu!`, 'info');
 
                 // Đồng bộ danh sách sản phẩm lên Google Sheet
                 syncToGoogleSheet({
@@ -5615,10 +5605,10 @@ function moHopThoaiDatSheetRiengTu() {
             if (editId) {
                 const idx = products.findIndex(p => p.id === editId);
                 if (idx !== -1) products[idx] = newProd;
-                showAdminToast('Đã cập nhật sản phẩm & đồng bộ lên Google Sheet!', 'success');
+                showAdminToast('Đã cập nhật sản phẩm & đồng bộ lên Cơ sở dữ liệu!', 'success');
             } else {
                 products.push(newProd);
-                showAdminToast('Đã thêm sản phẩm mới & đồng bộ lên Google Sheet!', 'success');
+                showAdminToast('Đã thêm sản phẩm mới & đồng bộ lên Cơ sở dữ liệu!', 'success');
             }
 
             localStorage.setItem('baco_products', JSON.stringify(products));
@@ -6866,7 +6856,7 @@ function moHopThoaiDatSheetRiengTu() {
                 localStorage.setItem('baco_site_content', JSON.stringify(data));
                 const btn = document.getElementById('cmsSaveBtnMain');
                 if (btn) {
-                    btn.innerHTML = '<span>⏳ Đang đồng bộ lên Google Sheet...</span>';
+                    btn.innerHTML = '<span>⏳ Đang đồng bộ lên Cơ sở dữ liệu...</span>';
                 }
                 await syncToGoogleSheet({
                     action: 'save_site_content',
@@ -6874,9 +6864,9 @@ function moHopThoaiDatSheetRiengTu() {
                     timestamp: new Date().toLocaleString('vi-VN')
                 });
                 if (btn) {
-                    btn.innerHTML = '<span>💾</span><span>Lưu Nội Dung & Đồng Bộ Lên Google Sheet</span>';
+                    btn.innerHTML = '<span>💾</span><span>Lưu Nội Dung & Đồng Bộ Cơ Sở Dữ Liệu</span>';
                 }
-                showAdminToast('Đã lưu nội dung website & đồng bộ lên Google Sheet thành công!', 'success');
+                showAdminToast('Đã lưu nội dung website & đồng bộ lên Cơ sở dữ liệu thành công!', 'success');
             } catch(e) {
                 showAdminToast('Lỗi lưu nội dung: ' + e.message, 'error');
             }
@@ -6892,7 +6882,7 @@ function moHopThoaiDatSheetRiengTu() {
                         content: DEFAULT_SITE_CONTENT,
                         timestamp: new Date().toLocaleString('vi-VN')
                     });
-                    showAdminToast('Đã khôi phục nội dung mặc định & đồng bộ lên Google Sheet!', 'info');
+                    showAdminToast('Đã khôi phục nội dung mặc định & đồng bộ lên Cơ sở dữ liệu!', 'info');
                 } catch(e) {}
             }
         }
