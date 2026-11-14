@@ -50,6 +50,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
     <link rel="shortcut icon" href="./favicon.ico">
     <meta name="theme-color" content="#0284c7">
+    <link rel="manifest" href="./manifest.json">
     <!-- Preload ảnh trung tâm Hero (LCP) & Preconnect Fonts -->
     <link rel="preload" as="image" href="./pictrure/hero_bottle_dish.webp" fetchpriority="high">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -394,6 +395,28 @@
             <span class="text-base font-black">Zalo</span>
             <span class="absolute left-16 bg-slate-900 text-white text-xs px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition whitespace-nowrap shadow pointer-events-none">Nhắn tin Zalo tư vấn</span>
         </a>
+    </div>
+
+    <!-- Floating Support Widget 1-Chạm (Desktop góc dưới phải) -->
+    <div id="floatingSupportWidget" class="hidden lg:flex fixed bottom-6 right-6 z-40 flex-col items-end space-y-2.5">
+        <div id="supportQuickMenu" class="hidden bg-white/95 backdrop-blur-xl border border-slate-200 rounded-2xl shadow-2xl p-2.5 w-60 space-y-1 text-xs">
+            <a href="https://zalo.me/0985520678" target="_blank" rel="noopener noreferrer" class="site-zalo-link flex items-center justify-between px-3 py-2 rounded-xl hover:bg-sky-50 text-slate-700 hover:text-sky-700 font-semibold transition">
+                <span>💬 Chat Zalo tư vấn</span><span class="text-[10px] text-sky-600">Nhanh</span>
+            </a>
+            <a href="tel:0985520678" class="site-hotline-link flex items-center justify-between px-3 py-2 rounded-xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 font-semibold transition">
+                <span>📞 Gọi <span class="site-hotline">0985 520 678</span></span><span class="text-[10px] text-emerald-600">08–21h</span>
+            </a>
+            <a href="./tra-cuu.html" class="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-amber-50 text-slate-700 hover:text-amber-700 font-semibold transition">
+                <span>🔍 Tra cứu đơn hàng</span><span class="text-[10px] text-amber-600">24/7</span>
+            </a>
+            <button type="button" onclick="toggleSupportWidget(); openQualityModal();" class="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-semibold transition text-left">
+                <span>🏅 Hồ sơ VSATTP & Lô ủ</span><span class="text-[10px] text-slate-400">Xem</span>
+            </button>
+        </div>
+        <button type="button" onclick="toggleSupportWidget()" class="h-12 px-4 rounded-full bg-slate-900 hover:bg-slate-800 text-white shadow-xl border border-white/15 flex items-center space-x-2 text-xs font-bold transition active:scale-95">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Hỗ trợ 1-chạm</span>
+        </button>
     </div>
 
     <!-- Cart Sidebar Drawer (Sạch Sẽ & Tươi Sáng) -->
@@ -2170,6 +2193,7 @@
                         <li><button type="button" onclick="openPolicyModal('shipping')" class="hover:text-white transition text-left">Giao hàng & đồng kiểm</button></li>
                         <li><button type="button" onclick="openPolicyModal('return')" class="hover:text-white transition text-left">Đổi trả & bồi hoàn vỡ chai</button></li>
                         <li><button type="button" onclick="openPolicyModal('privacy')" class="hover:text-white transition text-left">Bảo mật thông tin khách hàng</button></li>
+                        <li><button type="button" onclick="openQualityModal()" class="hover:text-amber-300 transition text-left">Kiểm định VSATTP & lô ủ</button></li>
                     </ul>
                 </div>
                 <div class="lg:col-span-3 space-y-3">
@@ -2212,6 +2236,45 @@
                 <button type="button" data-policy-tab="privacy" onclick="switchPolicyTab('privacy')" class="policy-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap">Bảo mật thông tin</button>
             </div>
             <div id="policyModalBody" class="pt-2 space-y-3 text-xs sm:text-sm text-slate-600 leading-relaxed overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <!-- Modal Hồ Sơ Kiểm Định VSATTP & Nguồn Gốc Lô Ủ -->
+    <div id="qualityCertModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 hidden font-sans">
+        <div class="fixed inset-0" onclick="closeQualityModal()"></div>
+        <div class="relative bg-white rounded-t-[28px] sm:rounded-3xl max-w-xl w-full p-5 sm:p-7 shadow-2xl border border-slate-200 z-10 max-h-[88vh] flex flex-col text-slate-800">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3.5 shrink-0">
+                <div>
+                    <h3 class="font-display text-lg sm:text-xl font-bold text-slate-900">Kiểm Định VSATTP & Nguồn Gốc Lô Ủ</h3>
+                    <p class="text-[11px] text-slate-500">Minh bạch chỉ tiêu chất lượng • Nhà thùng Vịnh Cam Ranh</p>
+                </div>
+                <button type="button" onclick="closeQualityModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold flex items-center justify-center transition">✕</button>
+            </div>
+            <div class="pt-4 space-y-3.5 text-xs sm:text-sm text-slate-600 leading-relaxed overflow-y-auto">
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div class="bg-sky-50/80 border border-sky-100 rounded-2xl p-3">
+                        <span class="text-[10px] uppercase tracking-wider text-sky-700 font-semibold block">Cơ sở ủ chượp</span>
+                        <span class="font-bold text-slate-900">Phường Cam Ranh, Khánh Hòa</span>
+                    </div>
+                    <div class="bg-amber-50/80 border border-amber-100 rounded-2xl p-3">
+                        <span class="text-[10px] uppercase tracking-wider text-amber-700 font-semibold block">Lô kéo rút hiện hành</span>
+                        <span class="font-bold text-slate-900">Lô CR-2026 • Ủ 12–18 tháng</span>
+                    </div>
+                </div>
+                <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 space-y-2">
+                    <h4 class="font-bold text-slate-900 text-xs sm:text-sm">Chỉ tiêu chất lượng & An toàn thực phẩm</h4>
+                    <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-xs pt-1">
+                        <div class="flex justify-between border-b border-slate-200/70 pb-1"><span>Đạm tổng tự nhiên</span><strong class="text-slate-900">30°N – 43°N</strong></div>
+                        <div class="flex justify-between border-b border-slate-200/70 pb-1"><span>Tỉ lệ cá : muối</span><strong class="text-slate-900">3 : 1 truyền thống</strong></div>
+                        <div class="flex justify-between border-b border-slate-200/70 pb-1"><span>Chất bảo quản / Urê</span><strong class="text-emerald-700">Không phát hiện (0%)</strong></div>
+                        <div class="flex justify-between border-b border-slate-200/70 pb-1"><span>Hương liệu / Tạo màu</span><strong class="text-emerald-700">Không sử dụng (0%)</strong></div>
+                    </div>
+                </div>
+                <div class="bg-emerald-50/70 border border-emerald-200/70 rounded-2xl p-3.5 text-xs text-emerald-900 space-y-1">
+                    <p class="font-bold">✓ Cam kết 100% nước mắm nhĩ cốt nguyên chất</p>
+                    <p>Đầy đủ hồ sơ công bố chất lượng, tem niêm phong nắp chai và hỗ trợ xuất phiếu kiểm nghiệm theo lô cho đại lý / khách doanh nghiệp.</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -2689,18 +2752,36 @@
             }
             if (totalEl) totalEl.textContent = finalPrice.toLocaleString('vi-VN') + ' đ';
 
-            // Cập nhật thông báo Freeship trong Cart Drawer
+            // Cập nhật thanh tiến độ Freeship trong Cart Drawer (khớp 100% logic computeCheckoutTotals: >= 2 sp hoặc >= 250.000đ)
             if (freeshipNotice) {
-                if (totalCount === 1) {
-                    freeshipNotice.className = "bg-amber-50 border border-amber-200 text-amber-900 p-2.5 rounded-xl text-xs flex items-center justify-between";
-                    freeshipNotice.innerHTML = `<span>🚚 Mua thêm <strong>1 sản phẩm</strong> để nhận <strong>FREESHIP toàn quốc!</strong></span><button type="button" onclick="changeCartQty(0, 1)" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-2.5 py-1 rounded-lg text-[11px] shrink-0">+ Thêm 1 chai</button>`;
-                    freeshipNotice.classList.remove('hidden');
-                } else if (totalCount >= 2) {
-                    freeshipNotice.className = "bg-emerald-50 border border-emerald-200 text-emerald-800 p-2.5 rounded-xl text-xs flex items-center space-x-1.5 font-medium";
-                    freeshipNotice.innerHTML = `<span>🎉</span><span>Đơn hàng đủ điều kiện <strong>MIỄN PHÍ VẬN CHUYỂN TOÀN QUỐC (0đ)!</strong></span>`;
+                if (totalCount === 0) {
+                    freeshipNotice.classList.add('hidden');
+                } else if (shippingFee === 0) {
+                    freeshipNotice.className = "bg-emerald-50 border border-emerald-200 text-emerald-900 p-3 rounded-xl text-xs space-y-1.5";
+                    freeshipNotice.innerHTML = `
+                        <div class="flex items-center justify-between font-semibold">
+                            <span>🎉 Đã đạt <strong>MIỄN PHÍ VẬN CHUYỂN</strong> toàn quốc!</span>
+                            <span class="text-emerald-700 font-bold">100%</span>
+                        </div>
+                        <div class="w-full h-1.5 bg-emerald-200/70 rounded-full overflow-hidden">
+                            <div class="h-full bg-emerald-500 rounded-full transition-all duration-300" style="width:100%"></div>
+                        </div>
+                    `;
                     freeshipNotice.classList.remove('hidden');
                 } else {
-                    freeshipNotice.classList.add('hidden');
+                    const needMore = Math.max(0, 250000 - subtotalPrice);
+                    const pct = Math.min(95, Math.max(15, Math.round((subtotalPrice / 250000) * 100)));
+                    freeshipNotice.className = "bg-amber-50 border border-amber-200 text-amber-950 p-3 rounded-xl text-xs space-y-2";
+                    freeshipNotice.innerHTML = `
+                        <div class="flex items-center justify-between gap-2">
+                            <span>🚚 Mua thêm <strong>${needMore.toLocaleString('vi-VN')} đ</strong> (hoặc +1 sp) để <strong>FREESHIP</strong></span>
+                            <button type="button" onclick="changeCartQty(0, 1)" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-2.5 py-1 rounded-lg text-[11px] shrink-0 transition">+1 chai</button>
+                        </div>
+                        <div class="w-full h-1.5 bg-amber-200/80 rounded-full overflow-hidden">
+                            <div class="h-full bg-amber-500 rounded-full transition-all duration-300" style="width:${pct}%"></div>
+                        </div>
+                    `;
+                    freeshipNotice.classList.remove('hidden');
                 }
             }
 
@@ -3423,6 +3504,27 @@
         function closePolicyModal() {
             const modal = document.getElementById('policyModal');
             if (modal) modal.classList.add('hidden');
+        }
+
+        function openQualityModal() {
+            const modal = document.getElementById('qualityCertModal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeQualityModal() {
+            const modal = document.getElementById('qualityCertModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function toggleSupportWidget() {
+            const menu = document.getElementById('supportQuickMenu');
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
+            });
         }
 
         // Tự động đồng bộ Sản phẩm & Nội dung Website từ Google Sheet (nếu được lưu trên thiết bị khác)

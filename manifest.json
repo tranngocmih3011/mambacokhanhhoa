@@ -1,13 +1,14 @@
 {
-  "name": "Nước Mắm Ba Cô - Quản Trị",
-  "short_name": "Ba Cô Admin",
-  "description": "Quản lý đơn hàng & khách sỉ Nước Mắm Ba Cô Khánh Hòa",
-  "start_url": "./admin.html",
+  "name": "Nước Mắm Ba Cô Khánh Hòa",
+  "short_name": "Mắm Ba Cô",
+  "description": "Đặc sản nước mắm nhĩ cốt truyền thống ủ chượp tự nhiên từ cá cơm than vịnh Cam Ranh, Khánh Hòa.",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f2f2f7",
+  "background_color": "#ffffff",
   "theme_color": "#0284c7",
+  "lang": "vi",
   "icons": [
     {
       "src": "./icon-192.png",
