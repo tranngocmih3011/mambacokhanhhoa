@@ -741,13 +741,8 @@
                             <p class="text-[11px] text-[#8E8E93] mt-0.5">Tùy biến toàn bộ nội dung, ảnh chai nước mắm, cam kết và thông số nổi bật trên banner.</p>
                         </div>
 
-                        <!-- Huy hiệu nhỏ trên cùng & Tiêu đề -->
+                        <!-- Tiêu đề Hero -->
                         <div class="space-y-3">
-                            <div>
-                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Huy hiệu nhỏ trên cùng (Tagline)</label>
-                                <input type="text" id="cms_heroTag" placeholder="ĐẶC SẢN VỊNH CAM RANH • Ủ TRUYỀN THỐNG" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none font-semibold">
-                            </div>
-
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-xs font-medium text-[#8E8E93] mb-1">Tiêu đề chính dòng 1</label>
@@ -810,11 +805,11 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                             <div>
                                 <label class="block text-xs font-medium text-[#8E8E93] mb-1">Chữ nút mua hàng chính</label>
-                                <input type="text" id="cms_heroCta1" placeholder="⚡ Đặt Mua Ngay" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm font-semibold">
+                                <input type="text" id="cms_heroCta1" placeholder="Đặt Mua Ngay" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm font-semibold">
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-[#8E8E93] mb-1">Chữ nút khám phá phụ</label>
-                                <input type="text" id="cms_heroCta2" placeholder="Khám Phá Dòng Mắm ↓" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm font-semibold">
+                                <input type="text" id="cms_heroCta2" placeholder="Khám Phá" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm font-semibold">
                             </div>
                         </div>
                     </div>
@@ -918,11 +913,11 @@
                     <div id="cmsFolderPanel-brand" class="hidden ios-card p-4 space-y-3.5">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Tên thương hiệu</label>
+                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Tên thương hiệu (Footer)</label>
                                 <input type="text" id="cms_brandName" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Slogan</label>
+                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Mô tả ngắn / Slogan (Footer)</label>
                                 <input type="text" id="cms_brandSlogan" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
                             </div>
                         </div>
@@ -938,6 +933,16 @@
                             <div>
                                 <label class="block text-xs font-medium text-[#8E8E93] mb-1">Email</label>
                                 <input type="email" id="cms_brandEmail" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Link Fanpage Facebook</label>
+                                <input type="url" id="cms_brandFacebook" placeholder="https://www.facebook.com/..." class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-[#8E8E93] mb-1">Giờ phục vụ (Footer)</label>
+                                <input type="text" id="cms_brandHours" placeholder="Phục vụ: 08:00 – 21:00 hằng ngày" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
                             </div>
                         </div>
                     </div>
@@ -6507,21 +6512,22 @@ function moHopThoaiDatSheetRiengTu() {
             headerNav8: 'Hỏi đáp',
 
             // 🌊 HERO BANNER
-            heroTag: '✨ ĐẶC SẢN VỊNH CAM RANH • Ủ TRUYỀN THỐNG 12 THÁNG',
             heroMainTitle: 'Giọt Ngọc Biển Khơi',
             heroSubTitle: 'Nước Mắm Nhĩ Thượng Hạng',
-            heroDesc: 'Chắt lọc từng giọt nước mắm nhĩ đầu tiên sánh vàng như mật ong biển, hương thơm dịu ấm, hậu vị ngọt sâu từ đạm cá tự nhiên qua 12 tháng ủ gỗ bời lời phơi nắng Cam Ranh.',
+            heroDesc: 'Chắt lọc từng giọt mắm nhĩ đầu tiên sánh vàng như mật ong biển, hương thơm dịu ấm, hậu vị ngọt sâu từ đạm cá tự nhiên qua 12 tháng ủ gỗ bời lời Cam Ranh.',
             heroBgImg: './pictrure/banner_khanhhoa.webp',
             heroProductImg: './pictrure/hero_bottle_dish.webp',
-            heroCta1: '⚡ Đặt Mua Ngay',
-            heroCta2: 'Khám Phá Dòng Mắm ↓',
+            heroCta1: 'Đặt Mua Ngay',
+            heroCta2: 'Khám Phá',
 
             // 📞 BRAND & LIÊN HỆ
-            brandName: 'Ba Cô Khánh Hòa',
-            brandSlogan: 'Nước Mắm Nhĩ Truyền Thống',
+            brandName: 'Nước Mắm Ba Cô Khánh Hòa',
+            brandSlogan: 'Mắm nhĩ cốt truyền thống ủ chượp tự nhiên từ cá cơm than vịnh Cam Ranh và muối biển tinh khiết.',
             brandPhone: '0985 520 678',
             brandAddress: 'Phường Cam Ranh, Tỉnh Khánh Hòa',
             brandEmail: 'contact@bacokhanhhoa.vn',
+            brandFacebook: 'https://www.facebook.com/profile.php?id=61589611502417',
+            brandHours: 'Phục vụ: 08:00 – 21:00 hằng ngày',
             pillar1Title: 'Cá Cơm Than Tươi',
             pillar1Desc: 'Đánh bắt rạng đông, chọn lọc từng mẻ cá cơm than béo múp, óng ánh tươi xanh và ướp muối ngay trên tàu để bảo toàn độ đạm nguyên bản.',
             pillar1Img: './pictrure/1.jpg',

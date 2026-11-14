@@ -448,8 +448,8 @@
                     <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
                 </div>
                 <div class="shrink-0">
-                    <span class="site-brand-name font-display font-bold text-base sm:text-lg lg:text-xl text-slate-900 tracking-wide block leading-tight group-hover:text-sky-700 transition">Ba Cô Khánh Hòa</span>
-                    <span class="site-brand-slogan block text-[9px] sm:text-[10px] lg:text-[11px] text-sky-700 font-semibold tracking-wider uppercase">Mắm Nhĩ Truyền Thống</span>
+                    <span class="site-header-brand-name font-display font-bold text-base sm:text-lg lg:text-xl text-slate-900 tracking-wide block leading-tight group-hover:text-sky-700 transition">Ba Cô Khánh Hòa</span>
+                    <span class="site-header-brand-slogan block text-[9px] sm:text-[10px] lg:text-[11px] text-sky-700 font-semibold tracking-wider uppercase">Mắm Nhĩ Truyền Thống</span>
                 </div>
             </a>
 
@@ -2146,12 +2146,12 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 pb-10 border-b border-white/10">
                 <div class="lg:col-span-4 space-y-3.5">
-                    <span class="site-brand-name font-display font-bold text-white text-lg sm:text-xl tracking-tight block">Nước Mắm Ba Cô Khánh Hòa</span>
-                    <p class="site-brand-slogan text-xs sm:text-sm text-slate-400 leading-relaxed max-w-sm">
+                    <span class="site-footer-brand-name font-display font-bold text-white text-lg sm:text-xl tracking-tight block">Nước Mắm Ba Cô Khánh Hòa</span>
+                    <p class="site-footer-brand-slogan text-xs sm:text-sm text-slate-400 leading-relaxed max-w-sm">
                         Mắm nhĩ cốt truyền thống ủ chượp tự nhiên từ cá cơm than vịnh Cam Ranh và muối biển tinh khiết.
                     </p>
                     <div class="flex items-center gap-2.5 pt-1">
-                        <a href="https://www.facebook.com/profile.php?id=61589611502417" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg border border-white/15 hover:border-white/35 text-xs text-slate-200 hover:text-white transition">Facebook</a>
+                        <a href="https://www.facebook.com/profile.php?id=61589611502417" target="_blank" rel="noopener noreferrer" class="site-facebook-link px-3 py-1.5 rounded-lg border border-white/15 hover:border-white/35 text-xs text-slate-200 hover:text-white transition">Facebook</a>
                         <a href="https://zalo.me/0985520678" target="_blank" rel="noopener noreferrer" class="site-zalo-link px-3 py-1.5 rounded-lg border border-amber-400/30 hover:border-amber-400/60 text-xs text-amber-300 hover:text-amber-200 transition">Zalo Tư Vấn</a>
                     </div>
                 </div>
@@ -2178,7 +2178,7 @@
                         <li>Cơ sở: <span class="site-address text-slate-200">Phường Cam Ranh, Tỉnh Khánh Hòa</span></li>
                         <li>Hotline / Zalo: <a href="tel:0985520678" class="site-hotline-link text-amber-300 hover:text-amber-200 font-semibold transition"><span class="site-hotline">0985 520 678</span></a></li>
                         <li>Email: <a href="mailto:contact@bacokhanhhoa.vn" class="site-email-link text-slate-200 hover:text-white transition"><span class="site-email">contact@bacokhanhhoa.vn</span></a></li>
-                        <li class="text-slate-500">Phục vụ: 08:00 – 21:00 hằng ngày</li>
+                        <li class="site-hours text-slate-500">Phục vụ: 08:00 – 21:00 hằng ngày</li>
                     </ul>
                 </div>
             </div>
@@ -3435,15 +3435,12 @@
                 'headerNav5', 'headerNav6', 'headerNav7', 'headerNav8',
 
                 // Banner Đầu Trang
-                'heroTag', 'heroMainTitle', 'heroSubTitle', 'heroDesc', 'heroBgImg', 'heroProductImg',
+                'heroMainTitle', 'heroSubTitle', 'heroDesc', 'heroBgImg', 'heroProductImg',
                 'heroCta1', 'heroCta2',
-                'heroBadgeTitle', 'heroBadgeSub',
-                'heroCommit1', 'heroCommit2', 'heroCommit3', 'heroCommit4',
-                'heroBadge1Title', 'heroBadge1Value', 'heroBadge2Title', 'heroBadge2Value',
-                'heroStat1Val', 'heroStat1Label', 'heroStat2Val', 'heroStat2Label', 'heroStat3Val', 'heroStat3Label',
 
                 // Brand & Liên hệ
                 'brandName', 'brandSlogan', 'brandPhone', 'brandAddress', 'brandEmail',
+                'brandFacebook', 'brandHours',
                 'pillar1Title', 'pillar1Desc', 'pillar1Img',
                 'pillar2Title', 'pillar2Desc', 'pillar2Img',
                 'pillar3Title', 'pillar3Desc', 'pillar3Img',
@@ -4219,14 +4216,14 @@
                 if (c.headerLogo) {
                     document.querySelectorAll('.site-header-logo').forEach(el => el.src = c.headerLogo);
                 }
-                // 2. Tên thương hiệu & Slogan Header (ưu tiên headerBrandName/Slogan, fallback brandName/Slogan)
+                // 2. Tên thương hiệu & Slogan Header
                 const hBrand = c.headerBrandName || c.brandName;
                 if (hBrand) {
-                    document.querySelectorAll('.site-brand-name').forEach(el => el.textContent = hBrand);
+                    document.querySelectorAll('.site-header-brand-name').forEach(el => el.textContent = hBrand);
                 }
                 const hSlogan = c.headerBrandSlogan || c.brandSlogan;
                 if (hSlogan) {
-                    document.querySelectorAll('.site-brand-slogan').forEach(el => el.textContent = hSlogan);
+                    document.querySelectorAll('.site-header-brand-slogan').forEach(el => el.textContent = hSlogan);
                 }
                 // 3. Chữ nút Giỏ Hàng
                 if (c.headerCartText) {
@@ -4245,27 +4242,22 @@
                 }
 
                 // ================= 1. HERO BANNER =================
-                // 1.1 Huy hiệu nhỏ đầu banner (Tag)
-                if (c.heroTag) {
-                    const el = document.getElementById('heroTagText');
-                    if (el) el.textContent = c.heroTag;
-                }
-                // 1.2 Tiêu đề chính & Tiêu đề phụ ánh vàng hổ phách
+                // 1.1 Tiêu đề chính & Tiêu đề phụ ánh vàng hổ phách
                 if (c.heroMainTitle) {
                     const el = document.getElementById('heroMainTitle');
                     if (el) el.innerHTML = `${c.heroMainTitle} <br><span class="bg-gradient-to-r from-amber-600 via-orange-500 to-amber-700 bg-clip-text text-transparent font-serif italic drop-shadow-2xs" id="heroSubTitle">${c.heroSubTitle || ''}</span>`;
                 }
-                // 1.3 Mô tả ngắn
+                // 1.2 Mô tả ngắn
                 if (c.heroDesc) {
                     const el = document.getElementById('heroDesc');
                     if (el) el.textContent = c.heroDesc;
                 }
-                // 1.4 Ảnh nền mờ biển đảo
+                // 1.3 Ảnh nền mờ biển đảo
                 if (c.heroBgImg) {
                     const el = document.getElementById('heroBgImg');
                     if (el) el.style.backgroundImage = `url('${c.heroBgImg}')`;
                 }
-                // 1.5 Ảnh Packshot chai mắm & chén mắm tách nền
+                // 1.4 Ảnh Packshot chai mắm & chén mắm tách nền
                 if (c.heroProductImg) {
                     const el = document.getElementById('heroProductImg');
                     if (el) {
@@ -4275,41 +4267,24 @@
                         el.src = c.heroProductImg;
                     }
                 }
-                // 1.6 4 Cam kết uy tín
-                for (let i = 1; i <= 4; i++) {
-                    const commitVal = c[`heroCommit${i}`];
-                    if (commitVal) {
-                        const el = document.getElementById(`heroCommitText${i}`);
-                        if (el) el.textContent = commitVal;
-                    }
-                }
-                // 1.7 2 Nút kêu gọi hành động CTA
+                // 1.5 2 Nút kêu gọi hành động CTA
                 if (c.heroCta1) {
                     const el = document.getElementById('heroCtaText1');
-                    if (el) el.textContent = c.heroCta1;
+                    if (el) el.textContent = String(c.heroCta1).replace(/^⚡\s*/, '');
                 }
                 if (c.heroCta2) {
                     const el = document.getElementById('heroCtaText2');
-                    if (el) el.textContent = c.heroCta2;
-                }
-                // 1.8 Huy hiệu chứng nhận chất lượng trên chai mắm
-                const bTitle = c.heroBadgeTitle || c.heroBadge1Value || c.heroBadge1Title;
-                if (bTitle) {
-                    const el = document.getElementById('heroBadgeTitle');
-                    if (el) el.textContent = bTitle;
-                }
-                const bSub = c.heroBadgeSub || c.heroBadge2Value || c.heroBadge2Title;
-                if (bSub) {
-                    const el = document.getElementById('heroBadgeSub');
-                    if (el) el.textContent = bSub;
+                    if (el) el.textContent = String(c.heroCta2).replace(/\s*↓$/, '');
                 }
 
-                // Brand Name & Slogan (fallback if not already set)
-                if (c.brandName && !c.headerBrandName) {
-                    document.querySelectorAll('.site-brand-name').forEach(el => el.textContent = c.brandName);
+                // ================= 2. THƯƠNG HIỆU & LIÊN HỆ (FOOTER) =================
+                const fBrand = c.brandName || c.headerBrandName;
+                if (fBrand) {
+                    document.querySelectorAll('.site-footer-brand-name').forEach(el => el.textContent = fBrand);
                 }
-                if (c.brandSlogan && !c.headerBrandSlogan) {
-                    document.querySelectorAll('.site-brand-slogan').forEach(el => el.textContent = c.brandSlogan);
+                const fSlogan = c.brandSlogan || c.headerBrandSlogan;
+                if (fSlogan) {
+                    document.querySelectorAll('.site-footer-brand-slogan').forEach(el => el.textContent = fSlogan);
                 }
                 // Brand Phone & Hotline & Zalo
                 if (c.brandPhone) {
@@ -4324,6 +4299,12 @@
                 if (c.brandEmail) {
                     document.querySelectorAll('.site-email').forEach(el => el.textContent = c.brandEmail);
                     document.querySelectorAll('.site-email-link').forEach(el => el.href = `mailto:${c.brandEmail}`);
+                }
+                if (c.brandFacebook) {
+                    document.querySelectorAll('.site-facebook-link').forEach(el => el.href = c.brandFacebook);
+                }
+                if (c.brandHours) {
+                    document.querySelectorAll('.site-hours').forEach(el => el.textContent = c.brandHours);
                 }
                 // 3 Pillars
                 if (c.pillar2Img && (c.pillar2Img === './pictrure/1.jpg' || c.pillar2Img.includes('1518977676601'))) c.pillar2Img = './pictrure/pillar_salt.jpg';
