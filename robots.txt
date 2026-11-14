@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /functions/
+
+Sitemap: https://nuocmambacokhanhhoa.pages.dev/sitemap.xml
