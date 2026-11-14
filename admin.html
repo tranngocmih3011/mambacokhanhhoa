@@ -303,33 +303,33 @@
             </div>
 
             <!-- Desktop Tabs Bar (Ẩn trên điện thoại, hiển thị trên máy tính) -->
-            <div class="hidden md:flex max-w-5xl mx-auto px-6 space-x-6 border-t border-black/[0.06] text-xs font-semibold">
-                <button onclick="switchTab('analytics')" id="desktopTabBtn-analytics" class="py-2.5 border-b-2 border-[#007AFF] text-[#007AFF] flex items-center space-x-1.5 transition">
+            <div class="hidden md:flex max-w-5xl mx-auto px-6 gap-5 overflow-x-auto whitespace-nowrap no-scrollbar border-t border-black/[0.06] text-xs font-semibold">
+                <button onclick="switchTab('analytics')" id="desktopTabBtn-analytics" class="py-2.5 border-b-2 border-[#007AFF] text-[#007AFF] flex items-center space-x-1.5 transition shrink-0">
                     <span>Tổng quan</span>
                 </button>
-                <button onclick="switchTab('orders')" id="desktopTabBtn-orders" class="py-2.5 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition">
+                <button onclick="switchTab('orders')" id="desktopTabBtn-orders" class="py-2.5 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition shrink-0">
                     <span>Đơn hàng</span>
                     <span id="desktopOrderCountBadge" class="bg-[#767680]/[0.12] text-[#1c1c1e] text-[10px] font-semibold px-1.5 py-0.5 rounded-full">0</span>
                 </button>
-                <button onclick="switchTab('customers')" id="desktopTabBtn-customers" class="py-2.5 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition">
+                <button onclick="switchTab('customers')" id="desktopTabBtn-customers" class="py-2.5 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition shrink-0">
                     <span>Khách hàng</span>
                     <span id="desktopCustomerCountBadge" class="bg-[#767680]/[0.12] text-[#1c1c1e] text-[10px] font-semibold px-1.5 py-0.5 rounded-full">0</span>
                 </button>
-                <button onclick="switchTab('products')" id="desktopTabBtn-products" class="py-2.5 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition">
+                <button onclick="switchTab('products')" id="desktopTabBtn-products" class="py-2.5 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition shrink-0">
                     <span>Sản phẩm</span>
                     <span id="desktopProductCountBadge" class="bg-[#767680]/[0.12] text-[#1c1c1e] text-[10px] font-semibold px-1.5 py-0.5 rounded-full">3</span>
                 </button>
-                <button onclick="switchTab('content')" id="desktopTabBtn-content" class="py-2.5 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition">
+                <button onclick="switchTab('content')" id="desktopTabBtn-content" class="py-2.5 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition shrink-0">
                     <span>Nội dung</span>
                 </button>
-                <button onclick="switchTab('reviews')" id="desktopTabBtn-reviews" class="py-2.5 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition">
+                <button onclick="switchTab('reviews')" id="desktopTabBtn-reviews" class="py-2.5 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition shrink-0">
                     <span>Đánh giá</span>
                     <span id="desktopReviewCountBadge" class="bg-[#767680]/[0.12] text-[#1c1c1e] text-[10px] font-semibold px-1.5 py-0.5 rounded-full">0</span>
                 </button>
-                <button onclick="switchTab('vouchers')" id="desktopTabBtn-vouchers" class="py-2.5 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition">
+                <button onclick="switchTab('vouchers')" id="desktopTabBtn-vouchers" class="py-2.5 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition shrink-0">
                     <span>Mã giảm giá</span>
                 </button>
-                <button onclick="switchTab('notifications')" id="desktopTabBtn-notifications" class="py-2.5 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition">
+                <button onclick="switchTab('notifications')" id="desktopTabBtn-notifications" class="py-2.5 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition shrink-0">
                     <span>Thông báo</span>
                     <span id="desktopNotifCountBadge" class="hidden bg-[#FF3B30] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
                 </button>
@@ -1229,8 +1229,25 @@
 
         </main>
 
-        <!-- ================= 3. THANH ĐIỀU HƯỚNG DƯỚI CÙNG CHUẨN iOS TAB BAR ================= -->
-        <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 ios-blur border-t border-black/[0.08] px-1 pt-1 nav-safe-bottom flex items-center justify-around">
+        <!-- Menu phụ cho Mobile Tab Bar ("Thêm") -->
+        <div id="mobileMoreMenu" class="hidden md:hidden fixed bottom-16 right-3 z-50 bg-white/95 backdrop-blur-xl border border-black/[0.08] rounded-2xl shadow-2xl p-2 w-52 space-y-1 text-xs font-semibold text-[#1c1c1e]">
+            <button onclick="switchTab('content')" id="mobileTabBtn-content" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-black/[0.04] text-[#8E8E93] transition">
+                <span>✏️ Nội dung Web</span>
+            </button>
+            <button onclick="switchTab('vouchers')" id="mobileTabBtn-vouchers" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-black/[0.04] text-[#8E8E93] transition">
+                <span>🏷️ Mã giảm giá</span>
+            </button>
+            <button onclick="switchTab('reviews')" id="mobileTabBtn-reviews" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-black/[0.04] text-[#8E8E93] transition">
+                <span>⭐ Đánh giá</span>
+            </button>
+            <button onclick="switchTab('notifications')" id="mobileTabBtn-notifications" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-black/[0.04] text-[#8E8E93] transition">
+                <span>🔔 Thông báo</span>
+                <span id="mobileNotifBadge" class="hidden bg-[#FF3B30] text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1.5 rounded-full flex items-center justify-center">0</span>
+            </button>
+        </div>
+
+        <!-- ================= 3. THANH ĐIỀU HƯỚNG DƯỚI CÙNG CHUẨN iOS TAB BAR (5 MỤC GỌN ĐẸP) ================= -->
+        <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 ios-blur border-t border-black/[0.08] px-2 pt-1.5 nav-safe-bottom flex items-center justify-around">
             <button onclick="switchTab('analytics')" id="mobileTabBtn-analytics" class="flex flex-col items-center justify-center flex-1 py-1 text-[#007AFF] transition ios-press">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                 <span class="text-[10px] font-semibold mt-0.5 leading-tight">Tổng quan</span>
@@ -1238,13 +1255,13 @@
 
             <button onclick="switchTab('orders')" id="mobileTabBtn-orders" class="relative flex flex-col items-center justify-center flex-1 py-1 text-[#8E8E93] transition ios-press">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                <span id="mobileOrderBadge" class="absolute top-0 right-2.5 bg-[#FF3B30] text-white text-[9px] font-bold min-w-[15px] h-[15px] px-1 rounded-full flex items-center justify-center">0</span>
+                <span id="mobileOrderBadge" class="absolute top-0 right-3 bg-[#FF3B30] text-white text-[9px] font-bold min-w-[15px] h-[15px] px-1 rounded-full flex items-center justify-center">0</span>
                 <span class="text-[10px] font-medium mt-0.5 leading-tight">Đơn hàng</span>
             </button>
 
             <button onclick="switchTab('customers')" id="mobileTabBtn-customers" class="flex flex-col items-center justify-center flex-1 py-1 text-[#8E8E93] transition ios-press">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                <span class="text-[10px] font-medium mt-0.5 leading-tight">Khách</span>
+                <span class="text-[10px] font-medium mt-0.5 leading-tight">Khách hàng</span>
             </button>
 
             <button onclick="switchTab('products')" id="mobileTabBtn-products" class="flex flex-col items-center justify-center flex-1 py-1 text-[#8E8E93] transition ios-press">
@@ -1252,25 +1269,9 @@
                 <span class="text-[10px] font-medium mt-0.5 leading-tight">Sản phẩm</span>
             </button>
 
-            <button onclick="switchTab('content')" id="mobileTabBtn-content" class="flex flex-col items-center justify-center flex-1 py-1 text-[#8E8E93] transition ios-press">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                <span class="text-[10px] font-medium mt-0.5 leading-tight">Nội dung</span>
-            </button>
-
-            <button onclick="switchTab('vouchers')" id="mobileTabBtn-vouchers" class="flex flex-col items-center justify-center flex-1 py-1 text-[#8E8E93] transition ios-press">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
-                <span class="text-[10px] font-medium mt-0.5 leading-tight">Mã giảm</span>
-            </button>
-
-            <button onclick="switchTab('reviews')" id="mobileTabBtn-reviews" class="flex flex-col items-center justify-center flex-1 py-1 text-[#8E8E93] transition ios-press">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-                <span class="text-[10px] font-medium mt-0.5 leading-tight">Đánh giá</span>
-            </button>
-
-            <button onclick="switchTab('notifications')" id="mobileTabBtn-notifications" class="relative flex flex-col items-center justify-center flex-1 py-1 text-[#8E8E93] transition ios-press">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                <span id="mobileNotifBadge" class="hidden absolute top-0 right-2.5 bg-[#FF3B30] text-white text-[9px] font-bold min-w-[15px] h-[15px] px-1 rounded-full flex items-center justify-center">0</span>
-                <span class="text-[10px] font-medium mt-0.5 leading-tight">Thông báo</span>
+            <button onclick="toggleMobileMoreMenu()" id="mobileTabBtn-more" class="relative flex flex-col items-center justify-center flex-1 py-1 text-[#8E8E93] transition ios-press">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                <span class="text-[10px] font-medium mt-0.5 leading-tight">Thêm</span>
             </button>
         </nav>
     </div>
@@ -4238,7 +4239,15 @@ function moHopThoaiDatSheetRiengTu() {
         }
 
         // ================= ĐIỀU HƯỚNG TABS (CẢ MOBILE & DESKTOP) =================
+        function toggleMobileMoreMenu() {
+            const menu = document.getElementById('mobileMoreMenu');
+            if (menu) menu.classList.toggle('hidden');
+        }
+
         function switchTab(tabName) {
+            const moreMenu = document.getElementById('mobileMoreMenu');
+            if (moreMenu) moreMenu.classList.add('hidden');
+
             ['analytics', 'orders', 'customers', 'products', 'content', 'vouchers', 'reviews', 'notifications'].forEach(tab => {
                 const sec = document.getElementById(`tab-${tab}`);
                 if (sec) sec.classList.add('hidden');
@@ -4257,6 +4266,13 @@ function moHopThoaiDatSheetRiengTu() {
                     dBtn.classList.add('border-transparent', 'text-[#8E8E93]');
                 }
             });
+
+            const moreBtn = document.getElementById('mobileTabBtn-more');
+            if (moreBtn) {
+                const isMoreSubtab = ['content', 'vouchers', 'reviews', 'notifications'].includes(tabName);
+                moreBtn.classList.toggle('text-[#007AFF]', isMoreSubtab);
+                moreBtn.classList.toggle('text-[#8E8E93]', !isMoreSubtab);
+            }
 
             const activeSec = document.getElementById(`tab-${tabName}`);
             if (activeSec) activeSec.classList.remove('hidden');
@@ -4285,6 +4301,15 @@ function moHopThoaiDatSheetRiengTu() {
             if (tabName === 'notifications') {
                 syncNotificationsFromData();
                 renderNotifications();
+            }
+        }
+
+        function viewCustomerOrders(phoneOrName) {
+            switchTab('orders');
+            const searchInput = document.getElementById('orderSearchInput');
+            if (searchInput) {
+                searchInput.value = phoneOrName || '';
+                if (typeof handleOrderSearch === 'function') handleOrderSearch(searchInput.value);
             }
         }
 
@@ -4374,6 +4399,7 @@ function moHopThoaiDatSheetRiengTu() {
 
             listEl.innerHTML = filtered.map(c => {
                 const tel = safePhone(c.phone);
+                const jsSafeKey = escHtml((c.phone || c.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
                 return `
                     <div class="ios-card p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div class="space-y-1 min-w-0">
@@ -4388,9 +4414,12 @@ function moHopThoaiDatSheetRiengTu() {
                             </div>
                             ${c.address ? `<p class="text-[11px] text-[#8E8E93] truncate">📍 ${escHtml(c.address)}</p>` : ''}
                         </div>
-                        <div class="flex sm:flex-col items-center sm:items-end justify-between gap-1 shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-black/[0.05]">
-                            <span class="text-sm sm:text-base font-bold text-emerald-700 tabular-nums">${c.totalSpent.toLocaleString('vi-VN')} đ</span>
-                            <span class="text-[11px] text-[#8E8E93]">${c.totalOrders} đơn (${c.successOrders} xong • ${c.cancelledOrders} hủy)</span>
+                        <div class="flex sm:flex-col items-center sm:items-end justify-between gap-1.5 shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-black/[0.05]">
+                            <div class="text-left sm:text-right">
+                                <span class="text-sm sm:text-base font-bold text-emerald-700 tabular-nums block">${c.totalSpent.toLocaleString('vi-VN')} đ</span>
+                                <span class="text-[11px] text-[#8E8E93]">${c.totalOrders} đơn (${c.successOrders} xong • ${c.cancelledOrders} hủy)</span>
+                            </div>
+                            <button type="button" onclick="viewCustomerOrders('${jsSafeKey}')" class="px-2.5 py-1 rounded-lg bg-[#007AFF]/10 hover:bg-[#007AFF]/20 text-[#007AFF] text-[11px] font-semibold transition ios-press">Xem đơn →</button>
                         </div>
                     </div>
                 `;
