@@ -575,9 +575,6 @@
                         <button type="button" onclick="handlePrintCurrentOrders()" class="grad-btn-dark text-white font-medium text-xs px-3 py-1.5 rounded-lg transition ios-press">
                             In
                         </button>
-                        <button onclick="handleClearCurrentList()" class="text-xs text-[#FF3B30] font-medium bg-rose-50/70 hover:bg-rose-100/80 border border-rose-200/70 px-2.5 py-1.5 rounded-lg ios-press">
-                            Xóa hết
-                        </button>
                     </div>
                 </div>
 
@@ -722,6 +719,12 @@
 
                     <div id="wholesalePagination"></div>
                 </div>
+
+                <div class="pt-2 flex justify-end">
+                    <button type="button" onclick="handleClearCurrentList()" class="text-[11px] font-medium text-[#FF3B30]/80 hover:text-[#FF3B30] hover:bg-rose-50 px-3 py-1.5 rounded-lg transition">
+                        🗑️ Dọn sạch danh sách hiện tại...
+                    </button>
+                </div>
             </section>
 
             <!-- ================= TAB 3: QUẢN LÝ SẢN PHẨM ================= -->
@@ -801,9 +804,6 @@
                         <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[#1c1c1e]">Nội Dung Web</h1>
                     </div>
                     <div class="flex items-center space-x-1.5">
-                        <button type="button" onclick="resetSiteContentDefault()" class="px-2.5 py-1.5 text-xs bg-white/95 hover:bg-slate-50 border border-black/[0.08] text-[#1c1c1e] rounded-lg font-medium transition ios-press">
-                            Mặc định
-                        </button>
                         <button type="button" onclick="saveSiteContentFromAdmin()" class="grad-btn-blue text-white font-semibold text-xs px-3.5 py-1.5 rounded-lg transition ios-press">
                             Lưu thay đổi
                         </button>
@@ -1139,6 +1139,11 @@
                             Lưu & Đồng Bộ Nội Dung
                         </button>
                     </div>
+                    <div class="pt-1 flex justify-end">
+                        <button type="button" onclick="resetSiteContentDefault()" class="text-[11px] font-medium text-[#8E8E93] hover:text-[#FF3B30] hover:bg-rose-50 px-3 py-1.5 rounded-lg transition">
+                            ↺ Khôi phục nội dung mặc định...
+                        </button>
+                    </div>
                 </form>
             </section>
 
@@ -1226,9 +1231,6 @@
                         <button type="button" onclick="markAllNotificationsAsRead()" class="bg-white/95 hover:bg-sky-50 text-[#1c1c1e] border border-black/[0.08] font-medium text-xs px-2.5 py-1.5 rounded-lg transition ios-press">
                             Đọc tất cả
                         </button>
-                        <button type="button" onclick="clearAllNotifications()" class="bg-rose-50/70 hover:bg-rose-100/80 text-[#FF3B30] border border-rose-200/70 font-medium text-xs px-2.5 py-1.5 rounded-lg transition ios-press">
-                            Xóa hết
-                        </button>
                     </div>
                 </div>
 
@@ -1257,6 +1259,12 @@
 
                 <!-- Danh Sách Thông Báo -->
                 <div id="notificationsContainer" class="space-y-2"></div>
+
+                <div class="pt-1 flex justify-end">
+                    <button type="button" onclick="clearAllNotifications()" class="text-[11px] font-medium text-[#FF3B30]/80 hover:text-[#FF3B30] hover:bg-rose-50 px-3 py-1.5 rounded-lg transition">
+                        🗑️ Xóa toàn bộ thông báo
+                    </button>
+                </div>
             </section>
 
             <!-- ================= TAB 6: MÃ GIẢM GIÁ (VOUCHERS) ================= -->
@@ -5091,20 +5099,24 @@ function moHopThoaiDatSheetRiengTu() {
         }
 
         function clearAllOrders() {
-            if (confirm('Bạn có chắc muốn dọn sạch danh sách đơn hàng không?')) {
-                orders = [];
-                localStorage.setItem('baco_orders', JSON.stringify(orders));
-                renderOrders();
-                renderAnalytics();
-                updateBadges();
-                showAdminToast('Đã dọn dẹp danh sách đơn hàng!', 'info');
-
-                syncToGoogleSheet({
-                    action: 'clear_all_orders'
-                }).then(() => {
-                    setTimeout(() => fetchOrdersFromGoogleSheet(true), 1200);
-                });
+            const verify = prompt('⚠️ CẢNH BÁO: Thao tác này sẽ XÓA SẠCH toàn bộ danh sách đơn hàng.\nNhập chính xác chữ XOA để xác nhận:');
+            if (verify === null) return;
+            if (verify.trim().toUpperCase() !== 'XOA') {
+                showAdminToast('Đã hủy xóa danh sách đơn hàng (chưa nhập đúng XOA).', 'info');
+                return;
             }
+            orders = [];
+            localStorage.setItem('baco_orders', JSON.stringify(orders));
+            renderOrders();
+            renderAnalytics();
+            updateBadges();
+            showAdminToast('Đã dọn dẹp danh sách đơn hàng!', 'info');
+
+            syncToGoogleSheet({
+                action: 'clear_all_orders'
+            }).then(() => {
+                setTimeout(() => fetchOrdersFromGoogleSheet(true), 1200);
+            });
         }
 
         // ================= XỬ LÝ KHÁCH SỈ & ĐẠI LÝ =================
@@ -5408,20 +5420,24 @@ function moHopThoaiDatSheetRiengTu() {
         }
 
         function clearAllWholesaleLeads() {
-            if (confirm('Bạn có chắc muốn dọn sạch toàn bộ danh sách khách sỉ & đại lý thử nghiệm?')) {
-                wholesaleLeads = [];
-                localStorage.setItem('baco_wholesale_leads', JSON.stringify(wholesaleLeads));
-                renderWholesaleLeads();
-                updateBadges();
-                showAdminToast('Đã dọn dẹp danh sách khách sỉ!', 'info');
-
-                // Đồng bộ dọn sạch toàn bộ đại lý trên Google Sheet
-                syncToGoogleSheet({
-                    action: 'clear_all_wholesale'
-                }).then(() => {
-                    setTimeout(() => fetchOrdersFromGoogleSheet(true), 1200);
-                });
+            const verify = prompt('⚠️ CẢNH BÁO: Thao tác này sẽ XÓA SẠCH toàn bộ danh sách khách sỉ & đại lý.\nNhập chính xác chữ XOA để xác nhận:');
+            if (verify === null) return;
+            if (verify.trim().toUpperCase() !== 'XOA') {
+                showAdminToast('Đã hủy xóa danh sách khách sỉ (chưa nhập đúng XOA).', 'info');
+                return;
             }
+            wholesaleLeads = [];
+            localStorage.setItem('baco_wholesale_leads', JSON.stringify(wholesaleLeads));
+            renderWholesaleLeads();
+            updateBadges();
+            showAdminToast('Đã dọn dẹp danh sách khách sỉ!', 'info');
+
+            // Đồng bộ dọn sạch toàn bộ đại lý trên Google Sheet
+            syncToGoogleSheet({
+                action: 'clear_all_wholesale'
+            }).then(() => {
+                setTimeout(() => fetchOrdersFromGoogleSheet(true), 1200);
+            });
         }
 
         function handleClearCurrentList() {
@@ -6986,18 +7002,22 @@ function moHopThoaiDatSheetRiengTu() {
         }
 
         function resetSiteContentDefault() {
-            if (confirm('Bạn có chắc chắn muốn đặt lại toàn bộ nội dung website về mặc định ban đầu không?')) {
-                try {
-                    localStorage.removeItem('baco_site_content');
-                    loadSiteContentIntoAdmin();
-                    syncToGoogleSheet({
-                        action: 'save_site_content',
-                        content: DEFAULT_SITE_CONTENT,
-                        timestamp: new Date().toLocaleString('vi-VN')
-                    });
-                    showAdminToast('Đã khôi phục nội dung mặc định & đồng bộ lên Cơ sở dữ liệu!', 'info');
-                } catch(e) {}
+            const verify = prompt('⚠️ Thao tác này sẽ ghi đè toàn bộ nội dung chữ & ảnh trang web về mặc định.\nNhập chính xác chữ MACDINH để xác nhận:');
+            if (verify === null) return;
+            if (verify.trim().toUpperCase() !== 'MACDINH') {
+                showAdminToast('Đã hủy khôi phục mặc định (chưa nhập đúng MACDINH).', 'info');
+                return;
             }
+            try {
+                localStorage.removeItem('baco_site_content');
+                loadSiteContentIntoAdmin();
+                syncToGoogleSheet({
+                    action: 'save_site_content',
+                    content: DEFAULT_SITE_CONTENT,
+                    timestamp: new Date().toLocaleString('vi-VN')
+                });
+                showAdminToast('Đã khôi phục nội dung mặc định & đồng bộ lên Cơ sở dữ liệu!', 'info');
+            } catch(e) {}
         }
 
 
