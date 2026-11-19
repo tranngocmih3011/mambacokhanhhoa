@@ -241,7 +241,7 @@
         }
     </style>
     <!-- Precompiled Tailwind CSS (đặt sau <style> để giữ đúng thứ tự ưu tiên) -->
-    <link rel="stylesheet" href="./assets/admin.css?v=20261119c">
+    <link rel="stylesheet" href="./assets/admin.css?v=20261119d">
 </head>
 <body class="bg-iosBg text-[#1c1c1e] antialiased min-h-screen flex flex-col pb-safe-bottom">
 
@@ -1341,30 +1341,45 @@
 
             <!-- TAB: DANH BẠ KHÁCH HÀNG (CRM) -->
             <section id="tab-customers" class="hidden space-y-4">
-                <div class="ios-card p-4 space-y-3">
-                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                <div class="ios-card p-4 space-y-3.5">
+                    <!-- Hàng 1: Tiêu đề + Nút đồng bộ gọn 1 dòng -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                         <div class="min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
                                 <h2 class="text-sm sm:text-base font-bold text-[#1c1c1e]">Danh Bạ Khách Hàng (CRM)</h2>
                                 <span id="crmSyncStatusBadge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 whitespace-nowrap">Lưu cục bộ &amp; CSDL</span>
                             </div>
-                            <p class="text-[11px] text-[#8E8E93] mt-0.5">Tự động tổng hợp lịch sử mua hàng, lưu trữ thông tin &amp; đồng bộ lên Tab <span class="font-semibold text-[#1c1c1e]">KhachHang</span> trên Google Sheet.</p>
+                            <p class="text-[11px] text-[#8E8E93] mt-0.5">Tổng hợp đầy đủ thông tin khách hàng đã mua thành công &amp; đồng bộ lên Tab <span class="font-semibold text-[#1c1c1e]">KhachHang</span>.</p>
                         </div>
-                        <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
-                            <input type="text" id="crmSearchInput" oninput="currentCustomerPage=1;renderCustomersCRM()" placeholder="Tìm tên hoặc SĐT..." class="px-3 py-1.5 rounded-xl bg-[#767680]/[0.08] border-0 text-xs focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none w-full sm:w-48">
-                            <select id="crmTierFilter" onchange="currentCustomerPage=1;renderCustomersCRM()" class="px-2.5 py-1.5 rounded-xl bg-[#767680]/[0.08] border-0 text-xs font-semibold text-[#1c1c1e] focus:outline-none shrink-0">
+                        <button type="button" onclick="syncCustomersToSheet(false)" class="self-start sm:self-auto bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition ios-press shrink-0 whitespace-nowrap inline-flex items-center gap-1.5">
+                            <svg width="14" height="14" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            <span>Đồng bộ CSDL</span>
+                        </button>
+                    </div>
+
+                    <!-- Hàng 2: Thanh tìm kiếm & bộ lọc cân đối -->
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                        <div class="sm:col-span-5">
+                            <input type="text" id="crmSearchInput" oninput="currentCustomerPage=1;renderCustomersCRM()" placeholder="Tìm tên, SĐT, địa chỉ, sản phẩm..." class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
+                        </div>
+                        <div class="sm:col-span-4">
+                            <select id="crmOrderScopeFilter" onchange="currentCustomerPage=1;renderCustomersCRM()" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs font-semibold text-[#1c1c1e] focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
+                                <option value="success" selected>Chỉ khách mua thành công</option>
+                                <option value="all">Tất cả khách đặt hàng</option>
+                            </select>
+                        </div>
+                        <div class="sm:col-span-3">
+                            <select id="crmTierFilter" onchange="currentCustomerPage=1;renderCustomersCRM()" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border-0 text-xs font-semibold text-[#1c1c1e] focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
                                 <option value="all">Tất cả hạng</option>
-                                <option value="vip">Khách VIP</option>
+                                <option value="vip">★ Khách VIP</option>
                                 <option value="returning">Khách quen</option>
                                 <option value="new">Khách mới</option>
                             </select>
-                            <button type="button" onclick="syncCustomersToSheet(false)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition ios-press shrink-0 whitespace-nowrap inline-flex items-center gap-1.5">
-                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                                <span>Đồng bộ CSDL</span>
-                            </button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-2.5 pt-1">
+
+                    <!-- Hàng 3: 3 thẻ thống kê -->
+                    <div class="grid grid-cols-3 gap-2.5">
                         <div class="bg-[#F2F2F7]/80 rounded-xl p-2.5 text-center">
                             <span class="text-[10px] text-indigo-700 font-semibold block">Tổng khách hàng</span>
                             <span id="crmTotalCustomers" class="text-base sm:text-lg font-extrabold text-indigo-800 tabular-nums">0</span>
@@ -4754,9 +4769,16 @@ function moHopThoaiDatSheetRiengTu() {
         }
 
         // ================= DANH BẠ KHÁCH HÀNG (CRM & ĐỒNG BỘ CSDL) =================
+        function isSuccessOrderStatus(status) {
+            const s = String(status || '').toLowerCase();
+            return s.includes('hoàn tất') || s.includes('đã nhận tiền') || s.includes('đã giao') || s.includes('thành công');
+        }
+
         function computeCustomerTier(c) {
-            if ((Number(c.totalSpent) || 0) >= 1500000 || (Number(c.totalOrders) || 0) >= 3) return 'vip';
-            if ((Number(c.totalOrders) || 0) >= 2) return 'returning';
+            const spent = Number(c.successSpent || c.totalSpent || 0);
+            const count = Number(c.successOrders || c.totalOrders || 0);
+            if (spent >= 1500000 || count >= 3) return 'vip';
+            if (count >= 2) return 'returning';
             return 'new';
         }
 
@@ -4777,6 +4799,7 @@ function moHopThoaiDatSheetRiengTu() {
                 const normPhone = rawPhone.replace(/[^0-9]/g, '');
                 const key = String(sc.key || normPhone || rawName.toLowerCase()).trim();
                 if (!key || /^\d{1,2}:\d{2}/.test(key)) return;
+                if (!normPhone && (!rawName || rawName === 'Khách hàng') && Number(sc.totalSpent || 0) <= 0) return;
                 map.set(key, {
                     key,
                     name: rawName || 'Khách hàng',
@@ -4786,29 +4809,41 @@ function moHopThoaiDatSheetRiengTu() {
                     successOrders: Number(sc.successOrders || 0),
                     cancelledOrders: Number(sc.cancelledOrders || 0),
                     totalSpent: Number(sc.totalSpent || 0),
+                    successSpent: Number(sc.successSpent || sc.totalSpent || 0),
+                    totalQty: Number(sc.totalQty || 0),
+                    purchasedProducts: Array.isArray(sc.purchasedProducts) ? [...sc.purchasedProducts] : [],
+                    paymentMethod: String(sc.paymentMethod || '').trim(),
+                    orderCodes: Array.isArray(sc.orderCodes) ? [...sc.orderCodes] : [],
                     lastDate: String(sc.lastDate || '').trim(),
                     note: String(sc.note || '').trim(),
                     _hasLiveOrders: false
                 });
             });
 
-            // Tổng hợp lại từ danh sách đơn hàng hiện có
+            // Tổng hợp đầy đủ thông tin từ danh sách đơn hàng hiện có
             (Array.isArray(orders) ? orders : []).forEach(o => {
                 const rawPhone = String(o.phone || '').trim();
                 const normPhone = rawPhone.replace(/[^0-9]/g, '');
-                const key = normPhone || String(o.name || 'Khách lẻ').trim().toLowerCase();
+                const rawName = String(o.name || '').trim();
+                const key = normPhone || rawName.toLowerCase();
                 if (!key) return;
+                if (!normPhone && (!rawName || rawName === 'Khách hàng') && Number(o.totalAmount || 0) <= 0) return;
 
                 if (!map.has(key)) {
                     map.set(key, {
                         key,
-                        name: String(o.name || 'Khách hàng').trim(),
+                        name: rawName || 'Khách hàng',
                         phone: rawPhone || normPhone,
                         address: String(o.address || '').trim(),
                         totalOrders: 0,
                         successOrders: 0,
                         cancelledOrders: 0,
                         totalSpent: 0,
+                        successSpent: 0,
+                        totalQty: 0,
+                        purchasedProducts: [],
+                        paymentMethod: '',
+                        orderCodes: [],
                         lastDate: String(o.timestamp || '').trim(),
                         note: '',
                         _hasLiveOrders: true
@@ -4822,27 +4857,52 @@ function moHopThoaiDatSheetRiengTu() {
                     c.successOrders = 0;
                     c.cancelledOrders = 0;
                     c.totalSpent = 0;
+                    c.successSpent = 0;
+                    c.totalQty = 0;
+                    c.purchasedProducts = [];
+                    c.orderCodes = [];
                     c._hasLiveOrders = true;
                 }
-                if (o.name) c.name = String(o.name).trim();
+                if (rawName) c.name = rawName;
                 if (rawPhone && !c.phone) c.phone = rawPhone;
                 if (o.address) c.address = String(o.address).trim();
-                if (o.timestamp) c.lastDate = String(o.timestamp).trim();
+                if (o.timestamp && !c.lastDate) c.lastDate = String(o.timestamp).trim();
+                if (o.paymentMethod && !c.paymentMethod) c.paymentMethod = String(o.paymentMethod).trim();
 
                 c.totalOrders += 1;
                 const st = String(o.status || '');
-                if (st === 'Đã hủy' || st === 'Hoàn hàng') {
+                const stLower = st.toLowerCase();
+                const isCancelled = stLower.includes('hủy') || stLower.includes('hoàn hàng');
+                const isSuccess = isSuccessOrderStatus(st);
+                const amount = Number(o.totalAmount || 0);
+                const qty = Math.max(1, Number(o.quantity || 1));
+
+                if (isCancelled) {
                     c.cancelledOrders += 1;
                 } else {
-                    if (st === 'Hoàn tất' || st === 'Đã nhận tiền') c.successOrders += 1;
-                    c.totalSpent += Number(o.totalAmount || 0);
+                    c.totalSpent += amount;
+                    if (isSuccess) {
+                        c.successOrders += 1;
+                        c.successSpent += amount;
+                        c.totalQty += qty;
+                        if (o.product && !c.purchasedProducts.includes(String(o.product).trim())) {
+                            c.purchasedProducts.push(String(o.product).trim());
+                        }
+                        if (o.orderCode && !c.orderCodes.includes(String(o.orderCode).trim())) {
+                            c.orderCodes.push(String(o.orderCode).trim());
+                        }
+                        if (o.timestamp) c.lastDate = String(o.timestamp).trim();
+                        if (o.paymentMethod) c.paymentMethod = String(o.paymentMethod).trim();
+                    } else if (c.purchasedProducts.length === 0 && o.product) {
+                        c.purchasedProducts.push(String(o.product).trim());
+                    }
                 }
             });
 
             const customers = Array.from(map.values()).map(c => {
                 const { _hasLiveOrders, ...clean } = c;
                 return { ...clean, tier: computeCustomerTier(clean) };
-            }).sort((a, b) => b.totalSpent - a.totalSpent || b.totalOrders - a.totalOrders);
+            }).sort((a, b) => (b.successSpent - a.successSpent) || (b.totalSpent - a.totalSpent) || (b.successOrders - a.successOrders));
 
             try {
                 localStorage.setItem('baco_customers', JSON.stringify(customers));
@@ -4884,7 +4944,7 @@ function moHopThoaiDatSheetRiengTu() {
             showAdminToast('Đã lưu ghi chú khách hàng và đồng bộ CSDL!', 'success');
         }
 
-        const CRM_PAGE_SIZE = 8;
+        const CRM_PAGE_SIZE = 10;
         let currentCustomerPage = 1;
 
         function changeCustomerPage(page) {
@@ -4894,16 +4954,27 @@ function moHopThoaiDatSheetRiengTu() {
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
+        function switchCrmScopeToAll() {
+            const sel = document.getElementById('crmOrderScopeFilter');
+            if (sel) sel.value = 'all';
+            currentCustomerPage = 1;
+            renderCustomersCRM();
+        }
+
         function renderCustomersCRM() {
             const listEl = document.getElementById('crmCustomersList');
             const pagEl = document.getElementById('crmPagination');
             if (!listEl) return;
 
-            const customers = getMergedCustomersList();
+            const allCustomers = getMergedCustomersList();
+            const scopeFilter = document.getElementById('crmOrderScopeFilter')?.value || 'success';
+            const scopedCustomers = scopeFilter === 'success'
+                ? allCustomers.filter(c => Number(c.successOrders || 0) > 0)
+                : allCustomers;
 
-            const totalCount = customers.length;
-            const vipCount = customers.filter(c => c.tier === 'vip').length;
-            const repeatCount = customers.filter(c => c.totalOrders >= 2).length;
+            const totalCount = scopedCustomers.length;
+            const vipCount = scopedCustomers.filter(c => c.tier === 'vip').length;
+            const repeatCount = scopedCustomers.filter(c => (scopeFilter === 'success' ? c.successOrders : c.totalOrders) >= 2).length;
             const repeatRate = totalCount > 0 ? Math.round((repeatCount / totalCount) * 100) : 0;
 
             const badgeEl = document.getElementById('desktopCustomerCountBadge');
@@ -4918,17 +4989,27 @@ function moHopThoaiDatSheetRiengTu() {
             const query = (document.getElementById('crmSearchInput')?.value || '').trim().toLowerCase();
             const tierFilter = document.getElementById('crmTierFilter')?.value || 'all';
 
-            const filtered = customers.filter(c => {
+            const filtered = scopedCustomers.filter(c => {
                 if (tierFilter !== 'all' && c.tier !== tierFilter) return false;
                 if (query) {
-                    const hay = `${c.name} ${c.phone} ${c.address} ${c.note || ''}`.toLowerCase();
+                    const prodsText = Array.isArray(c.purchasedProducts) ? c.purchasedProducts.join(' ') : '';
+                    const hay = `${c.name} ${c.phone} ${c.address} ${prodsText} ${c.note || ''}`.toLowerCase();
                     if (!hay.includes(query)) return false;
                 }
                 return true;
             });
 
             if (filtered.length === 0) {
-                listEl.innerHTML = `<div class="ios-card p-8 text-center text-xs text-[#8E8E93]">Không tìm thấy khách hàng phù hợp.</div>`;
+                if (scopeFilter === 'success' && allCustomers.length > 0 && !query && tierFilter === 'all') {
+                    listEl.innerHTML = `
+                        <div class="ios-card p-6 text-center space-y-2.5">
+                            <p class="text-xs sm:text-sm font-semibold text-[#1c1c1e]">Chưa có khách nào có đơn ở trạng thái Hoàn tất / Đã nhận tiền.</p>
+                            <p class="text-[11px] text-[#8E8E93]">Hiện đang có <strong>${allCustomers.length}</strong> khách có đơn đặt hàng (Chờ duyệt / Đang giao). Khi bạn đổi trạng thái đơn sang <strong>Hoàn tất</strong> hoặc <strong>Đã nhận tiền</strong>, khách sẽ tự xuất hiện tại đây.</p>
+                            <button type="button" onclick="switchCrmScopeToAll()" class="px-3.5 py-1.5 rounded-xl bg-[#007AFF] hover:bg-blue-600 text-white text-xs font-semibold transition ios-press">Xem tất cả ${allCustomers.length} khách đặt hàng</button>
+                        </div>`;
+                } else {
+                    listEl.innerHTML = `<div class="ios-card p-8 text-center text-xs text-[#8E8E93]">Không tìm thấy khách hàng phù hợp.</div>`;
+                }
                 if (pagEl) pagEl.innerHTML = '';
                 return;
             }
@@ -4949,29 +5030,39 @@ function moHopThoaiDatSheetRiengTu() {
                 const tel = safePhone(c.phone);
                 const jsSafeKey = escHtml((c.phone || c.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
                 const jsSafeCusKey = escHtml((c.key || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
+                const displaySpent = scopeFilter === 'success' ? Number(c.successSpent || 0) : Number(c.totalSpent || 0);
+                const prodsSummary = (Array.isArray(c.purchasedProducts) && c.purchasedProducts.length > 0)
+                    ? c.purchasedProducts.slice(0, 3).join(', ') + (c.purchasedProducts.length > 3 ? ` (+${c.purchasedProducts.length - 3} SP)` : '')
+                    : '';
+                const latestCodes = (Array.isArray(c.orderCodes) && c.orderCodes.length > 0)
+                    ? c.orderCodes.slice(0, 3).join(', ')
+                    : '';
                 return `
-                    <div class="ios-card p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div class="space-y-1 min-w-0">
+                    <div class="ios-card p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                        <div class="space-y-1.5 min-w-0 flex-1">
                             <div class="flex flex-wrap items-center gap-2">
                                 <span class="font-bold text-sm text-[#1c1c1e]">${escHtml(c.name)}</span>
                                 ${tierBadges[c.tier]}
+                                ${c.paymentMethod ? `<span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-medium">${escHtml(c.paymentMethod)}</span>` : ''}
                             </div>
                             <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#8E8E93]">
                                 <a href="tel:${tel}" class="text-[#007AFF] font-semibold hover:underline">📞 ${escHtml(c.phone || 'Chưa có SĐT')}</a>
                                 ${c.phone ? `<a href="https://zalo.me/${tel}" target="_blank" class="text-sky-600 font-semibold hover:underline">💬 Zalo</a>` : ''}
-                                ${c.lastDate ? `<span>Mua gần nhất: ${escHtml(c.lastDate)}</span>` : ''}
+                                ${c.lastDate ? `<span>🕒 Mua gần nhất: ${escHtml(c.lastDate)}</span>` : ''}
                             </div>
-                            ${c.address ? `<p class="text-[11px] text-[#8E8E93] truncate">📍 ${escHtml(c.address)}</p>` : ''}
+                            ${c.address ? `<p class="text-[11px] text-[#3a3a3c] leading-snug">📍 ${escHtml(c.address)}</p>` : ''}
+                            ${prodsSummary ? `<p class="text-[11px] text-[#3a3a3c] leading-snug">🛒 <strong>Đã mua:</strong> ${escHtml(prodsSummary)}${c.totalQty ? ` <span class="text-[#8E8E93]">(Tổng ${c.totalQty} SP)</span>` : ''}</p>` : ''}
+                            ${latestCodes ? `<p class="text-[10px] text-[#8E8E93]">🧾 Mã đơn thành công: <span class="font-mono text-[#1c1c1e]">${escHtml(latestCodes)}</span></p>` : ''}
                             ${c.note ? `<p class="text-[11px] text-amber-700 bg-amber-500/10 px-2 py-0.5 rounded-md inline-block">📝 ${escHtml(c.note)}</p>` : ''}
                         </div>
-                        <div class="flex sm:flex-col items-center sm:items-end justify-between gap-1.5 shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-black/[0.05]">
+                        <div class="flex sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0 border-t sm:border-t-0 pt-2.5 sm:pt-0 border-black/[0.05]">
                             <div class="text-left sm:text-right">
-                                <span class="text-sm sm:text-base font-bold text-emerald-700 tabular-nums block">${c.totalSpent.toLocaleString('vi-VN')} đ</span>
-                                <span class="text-[11px] text-[#8E8E93]">${c.totalOrders} đơn (${c.successOrders} xong • ${c.cancelledOrders} hủy)</span>
+                                <span class="text-sm sm:text-base font-bold text-emerald-700 tabular-nums block">${displaySpent.toLocaleString('vi-VN')} đ</span>
+                                <span class="text-[11px] text-[#8E8E93]">${c.successOrders} đơn thành công / ${c.totalOrders} tổng (${c.cancelledOrders} hủy)</span>
                             </div>
                             <div class="flex items-center gap-1.5">
-                                <button type="button" onclick="editCustomerNote('${jsSafeCusKey}')" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold transition ios-press">📝 Ghi chú</button>
-                                <button type="button" onclick="viewCustomerOrders('${jsSafeKey}')" class="px-2.5 py-1 rounded-lg bg-[#007AFF]/10 hover:bg-[#007AFF]/20 text-[#007AFF] text-[11px] font-semibold transition ios-press">Xem đơn →</button>
+                                <button type="button" onclick="editCustomerNote('${jsSafeCusKey}')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold transition ios-press whitespace-nowrap">📝 Ghi chú</button>
+                                <button type="button" onclick="viewCustomerOrders('${jsSafeKey}')" class="px-2.5 py-1 rounded-lg bg-[#007AFF]/10 hover:bg-[#007AFF]/20 text-[#007AFF] text-[11px] font-semibold transition ios-press whitespace-nowrap">Xem đơn →</button>
                             </div>
                         </div>
                     </div>
