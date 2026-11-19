@@ -241,7 +241,7 @@
         }
     </style>
     <!-- Precompiled Tailwind CSS (đặt sau <style> để giữ đúng thứ tự ưu tiên) -->
-    <link rel="stylesheet" href="./assets/admin.css?v=20261119e">
+    <link rel="stylesheet" href="./assets/admin.css?v=20261119f">
 </head>
 <body class="bg-iosBg text-[#1c1c1e] antialiased min-h-screen flex flex-col pb-safe-bottom">
 
@@ -480,7 +480,7 @@
                 </div>
 
                 <!-- Thống kê Widget 2x2 với dải màu Gradient phân biệt từng chỉ số -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 lg:gap-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-3 lg:gap-4">
                     <div class="ios-card p-3.5 lg:p-5">
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] lg:text-xs font-semibold text-emerald-700 block">Doanh thu</span>
@@ -685,11 +685,11 @@
 
                     <div id="targetedOrderNoticeBanner" class="hidden mb-2"></div>
 
-                    <!-- DANH SÁCH ĐƠN HÀNG TRÊN ĐIỆN THOẠI -->
-                    <div id="ordersMobileList" class="block md:hidden space-y-2"></div>
+                    <!-- DANH SÁCH ĐƠN HÀNG TRÊN ĐIỆN THOẠI & IPAD DỌC -->
+                    <div id="ordersMobileList" class="grid grid-cols-1 md:grid-cols-2 gap-2.5 lg:hidden"></div>
 
-                    <!-- Bảng danh sách đơn hàng cho Máy tính -->
-                    <div class="hidden md:block ios-card overflow-hidden">
+                    <!-- Bảng danh sách đơn hàng cho iPad ngang & Máy tính -->
+                    <div class="hidden lg:block ios-card overflow-hidden">
                         <table class="w-full text-left text-sm text-[#1c1c1e]">
                             <thead class="bg-[#F2F2F7]/60 text-[11px] uppercase font-semibold text-[#8E8E93] border-b border-black/[0.06]">
                                 <tr>
@@ -740,9 +740,9 @@
 
                     <div id="targetedWholesaleNoticeBanner" class="hidden mb-2"></div>
 
-                    <div id="wholesaleMobileList" class="block md:hidden space-y-2"></div>
+                    <div id="wholesaleMobileList" class="grid grid-cols-1 md:grid-cols-2 gap-2.5 lg:hidden"></div>
 
-                    <div class="hidden md:block ios-card overflow-hidden">
+                    <div class="hidden lg:block ios-card overflow-hidden">
                         <table class="w-full text-left text-sm text-[#1c1c1e]">
                             <thead class="bg-[#F2F2F7]/60 text-[11px] uppercase font-semibold text-[#8E8E93] border-b border-black/[0.06]">
                                 <tr>
@@ -811,11 +811,11 @@
                     </div>
                 </div>
 
-                <!-- Danh sách sản phẩm trên Điện thoại -->
-                <div class="block md:hidden ios-card overflow-hidden divide-y divide-black/[0.06]" id="productsMobileList"></div>
+                <!-- Danh sách sản phẩm trên Điện thoại & iPad dọc -->
+                <div class="block lg:hidden ios-card overflow-hidden divide-y divide-black/[0.06]" id="productsMobileList"></div>
 
-                <!-- Bảng sản phẩm trên Máy tính -->
-                <div class="hidden md:block ios-card overflow-x-auto">
+                <!-- Bảng sản phẩm trên iPad ngang & Máy tính -->
+                <div class="hidden lg:block ios-card overflow-x-auto">
                     <table class="w-full text-left text-xs sm:text-sm text-[#1c1c1e] min-w-[820px]">
                         <thead class="bg-[#F2F2F7]/60 text-[11px] uppercase font-semibold text-[#8E8E93] border-b border-black/[0.06] whitespace-nowrap">
                             <tr>
@@ -1238,9 +1238,9 @@
 
                 <div id="targetedReviewNoticeBanner" class="hidden mb-2"></div>
 
-                <div class="block md:hidden ios-card overflow-hidden divide-y divide-black/[0.06]" id="reviewsMobileList"></div>
+                <div class="block lg:hidden ios-card overflow-hidden divide-y divide-black/[0.06]" id="reviewsMobileList"></div>
 
-                <div class="hidden md:block ios-card overflow-x-auto">
+                <div class="hidden lg:block ios-card overflow-x-auto">
                     <table class="w-full text-left text-xs sm:text-sm text-[#1c1c1e] min-w-[820px]">
                         <thead class="bg-[#F2F2F7]/60 text-[11px] uppercase font-semibold text-[#8E8E93] border-b border-black/[0.06] whitespace-nowrap">
                             <tr>
@@ -4714,9 +4714,12 @@ function moHopThoaiDatSheetRiengTu() {
 
         (function initDesktopSidebarState() {
             try {
-                if (localStorage.getItem('baco_admin_sidebar_collapsed') === '1') {
-                    const sb = document.getElementById('desktopSidebar');
-                    if (sb) sb.classList.add('sidebar-collapsed');
+                const sb = document.getElementById('desktopSidebar');
+                if (!sb) return;
+                const savedPref = localStorage.getItem('baco_admin_sidebar_collapsed');
+                const isTabletPortrait = window.innerWidth >= 768 && window.innerWidth < 1024;
+                if (savedPref === '1' || (savedPref === null && isTabletPortrait)) {
+                    sb.classList.add('sidebar-collapsed');
                 }
             } catch (e) {}
         })();

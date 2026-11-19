@@ -338,7 +338,7 @@
         }
     </style>
     <!-- Precompiled Tailwind CSS (đặt sau <style> để giữ đúng thứ tự ưu tiên như Tailwind CDN) -->
-    <link rel="stylesheet" href="./assets/index.css?v=20261114a">
+    <link rel="stylesheet" href="./assets/index.css?v=20261119a">
 </head>
 <body class="font-sans liquid-canvas text-slate-800 antialiased selection:bg-sky-500 selection:text-white pb-24 lg:pb-0 relative min-h-screen overflow-x-hidden">
 
@@ -476,27 +476,27 @@
                 </div>
             </a>
 
-            <!-- Menu Desktop: Hiện từ màn hình XL (1280px+) với khoảng cách gọn gàng không chồng chéo -->
-            <nav class="hidden xl:flex items-center justify-center flex-nowrap whitespace-nowrap gap-0.5 2xl:gap-1.5 font-medium text-slate-600 text-xs 2xl:text-[13px] shrink min-w-0">
-                <a href="#about" id="headerNav1" class="px-2 2xl:px-2.5 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Câu chuyện</a>
-                <a href="#process" id="headerNav2" class="px-2 2xl:px-2.5 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Quy trình</a>
-                <a href="#gallery" id="headerNav3" class="px-2 2xl:px-2.5 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Bộ sưu tập</a>
-                <a href="#products" id="headerNav4" class="px-2.5 2xl:px-3 py-1.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200/80 font-bold transition">Sản phẩm</a>
-                <a href="#wholesale" id="headerNav5" class="px-2 2xl:px-2.5 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Mua sỉ<span class="hidden 2xl:inline"> &amp; Đại lý</span></a>
-                <a href="#recipes" id="headerNav6" class="px-2 2xl:px-2.5 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Ẩm thực</a>
-                <a href="#reviews" id="headerNav7" class="px-2 2xl:px-2.5 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Đánh giá</a>
-                <a href="#faq" id="headerNav8" class="px-2 2xl:px-2.5 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Hỏi đáp</a>
-                <a href="./tra-cuu.html" class="px-2.5 py-1.5 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/80 font-bold transition">🔍 Tra cứu</a>
+            <!-- Menu Desktop & iPad ngang: Hiện từ màn hình LG (1024px+) gọn gàng không chồng chéo -->
+            <nav class="hidden lg:flex items-center justify-center flex-nowrap whitespace-nowrap gap-0.5 xl:gap-1 2xl:gap-1.5 font-medium text-slate-600 text-[11px] xl:text-xs 2xl:text-[13px] shrink min-w-0">
+                <a href="#about" id="headerNav1" class="px-1.5 xl:px-2 2xl:px-2.5 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Câu chuyện</a>
+                <a href="#process" id="headerNav2" class="px-1.5 xl:px-2 2xl:px-2.5 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Quy trình</a>
+                <a href="#gallery" id="headerNav3" class="px-1.5 xl:px-2 2xl:px-2.5 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Bộ sưu tập</a>
+                <a href="#products" id="headerNav4" class="px-2 xl:px-2.5 2xl:px-3 py-1.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200/80 font-bold transition">Sản phẩm</a>
+                <a href="#wholesale" id="headerNav5" class="px-1.5 xl:px-2 2xl:px-2.5 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Mua sỉ<span class="hidden 2xl:inline"> &amp; Đại lý</span></a>
+                <a href="#recipes" id="headerNav6" class="px-1.5 xl:px-2 2xl:px-2.5 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Ẩm thực</a>
+                <a href="#reviews" id="headerNav7" class="px-1.5 xl:px-2 2xl:px-2.5 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Đánh giá</a>
+                <a href="#faq" id="headerNav8" class="hidden xl:inline-block px-2 2xl:px-2.5 py-1.5 rounded-full hover:bg-sky-50 hover:text-sky-700 transition">Hỏi đáp</a>
+                <a href="./tra-cuu.html" class="px-2 xl:px-2.5 py-1.5 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/80 font-bold transition">🔍 Tra cứu</a>
             </nav>
 
-            <!-- Nút Giỏ Hàng & Menu Mobile Hamburger -->
+            <!-- Nút Giỏ Hàng & Menu Mobile / iPad dọc Hamburger -->
             <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
                 <button onclick="toggleCart()" class="relative p-2 sm:p-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-900 transition flex items-center space-x-2 px-3 sm:px-4 text-xs sm:text-sm font-bold border border-sky-200 shadow-2xs active:scale-95 shrink-0">
                     <span class="text-base sm:text-lg">🛒</span>
                     <span id="headerCartBtnText" class="hidden sm:inline">Giỏ hàng</span>
                     <span id="cartNavBadge" class="bg-amber-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow-2xs">0</span>
                 </button>
-                <button id="hamburgerBtn" onclick="toggleMobileMenu()" class="xl:hidden p-2 rounded-xl bg-slate-100 text-slate-700 hover:text-sky-700 transition focus:outline-none shrink-0" aria-label="Mở Menu" aria-expanded="false">
+                <button id="hamburgerBtn" onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-xl bg-slate-100 text-slate-700 hover:text-sky-700 transition focus:outline-none shrink-0" aria-label="Mở Menu" aria-expanded="false">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                     </svg>
@@ -504,29 +504,31 @@
             </div>
         </div>
 
-        <!-- Mobile / Tablet Dropdown Menu (Hiển thị mượt mà trên tất cả màn hình < 1280px) -->
-        <div id="mobileMenu" class="hidden xl:hidden bg-white/98 backdrop-blur-xl border-b border-sky-100 shadow-xl px-4 py-3 space-y-1.5 font-medium text-slate-700 text-xs sm:text-sm max-h-[80vh] overflow-y-auto">
-            <a href="#about" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav1">1. Câu chuyện thương hiệu</span></a>
-            <a href="#process" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav2">2. Quy trình 365 ngày</span></a>
-            <a href="#gallery" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav3">3. Bộ sưu tập hình ảnh</span></a>
-            <a href="#products" onclick="toggleMobileMenu()" class="block py-2.5 px-3 rounded-xl bg-sky-50 text-sky-800 font-bold flex items-center justify-between border border-sky-200/80">
-                <span id="mobileNav4">🛍️ 4. Sản phẩm đặc sản</span>
-                <span class="text-[10px] bg-sky-600 text-white font-bold px-2 py-0.5 rounded-full">Trực tuyến</span>
-            </a>
-            <a href="#wholesale" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav5">5. Mua sỉ & Đại lý toàn quốc</span></a>
-            <a href="#recipes" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav6">6. Góc ẩm thực gia đình</span></a>
-            <a href="#reviews" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav7">7. Đánh giá khách hàng</span></a>
-            <a href="./tra-cuu.html" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl bg-amber-50 text-amber-800 border border-amber-200/80 font-bold transition">🔍 8. Tra cứu đơn hàng</a>
-            <a href="#faq" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav8">8. Hỏi đáp thường gặp</span></a>
-            <div class="pt-2 flex gap-2">
+        <!-- Mobile / iPad dọc Dropdown Menu (Lưới 2 cột trên iPad dọc, 1 cột trên điện thoại) -->
+        <div id="mobileMenu" class="hidden lg:hidden bg-white/98 backdrop-blur-xl border-b border-sky-100 shadow-xl px-4 md:px-6 py-3 font-medium text-slate-700 text-xs sm:text-sm max-h-[80vh] overflow-y-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-1.5 md:gap-2">
+                <a href="#about" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav1">1. Câu chuyện thương hiệu</span></a>
+                <a href="#process" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav2">2. Quy trình 365 ngày</span></a>
+                <a href="#gallery" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav3">3. Bộ sưu tập hình ảnh</span></a>
+                <a href="#products" onclick="toggleMobileMenu()" class="block py-2.5 px-3 rounded-xl bg-sky-50 text-sky-800 font-bold flex items-center justify-between border border-sky-200/80">
+                    <span id="mobileNav4">🛍️ 4. Sản phẩm đặc sản</span>
+                    <span class="text-[10px] bg-sky-600 text-white font-bold px-2 py-0.5 rounded-full">Trực tuyến</span>
+                </a>
+                <a href="#wholesale" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav5">5. Mua sỉ & Đại lý toàn quốc</span></a>
+                <a href="#recipes" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav6">6. Góc ẩm thực gia đình</span></a>
+                <a href="#reviews" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition"><span id="mobileNav7">7. Đánh giá khách hàng</span></a>
+                <a href="./tra-cuu.html" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl bg-amber-50 text-amber-800 border border-amber-200/80 font-bold transition">🔍 8. Tra cứu đơn hàng</a>
+                <a href="#faq" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded-xl hover:bg-sky-50 hover:text-sky-700 transition md:col-span-2"><span id="mobileNav8">9. Hỏi đáp thường gặp</span></a>
+            </div>
+            <div class="pt-2.5 mt-2 border-t border-slate-100 flex gap-2">
                 <button onclick="openCheckoutModal(); toggleMobileMenu();" class="site-header-cta-text btn-order-cta flex-1 py-2.5 px-3 rounded-xl text-white text-center font-bold shadow-md text-xs">⚡ Đặt mua ngay</button>
-                <a href="./products.html" class="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-700 text-center font-bold text-xs border border-slate-200">Xem catalog ➔</a>
+                <a href="./products.html" class="py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-700 text-center font-bold text-xs border border-slate-200">Xem catalog ➔</a>
             </div>
         </div>
     </header>
 
-    <!-- Hero Section (Phong cách Digitum Luxury Gradient Tươi Sáng - Chai Mắm Nổi Bật & Chuẩn UX Mobile Không Cần Cuộn) -->
-    <section class="relative min-h-0 sm:min-h-[620px] lg:min-h-[700px] flex items-center justify-center pt-2 pb-5 sm:pt-14 sm:pb-8 lg:pt-20 lg:pb-10 overflow-hidden bg-gradient-to-br from-sky-50 via-white to-amber-50/70">
+    <!-- Hero Section (Tối ưu cân đối cả Điện thoại, iPad dọc/ngang & Máy tính) -->
+    <section class="relative min-h-0 md:min-h-[480px] lg:min-h-[680px] flex items-center justify-center pt-2 pb-5 sm:pt-8 sm:pb-8 md:py-12 lg:pt-20 lg:pb-10 overflow-hidden bg-gradient-to-br from-sky-50 via-white to-amber-50/70">
         <!-- Ảnh nền biển đảo Cam Ranh mờ nhẹ tinh tế tạo chiều sâu thị giác -->
         <div id="heroBgImg" class="absolute inset-0 bg-[url('./pictrure/banner_khanhhoa.webp')] bg-cover bg-center opacity-10 mix-blend-multiply scale-105 transition-transform duration-1000"></div>
         <!-- Lớp phủ mesh gradient rực rỡ tươi mới -->
@@ -536,19 +538,19 @@
         <div class="shape_animate_orb w-[420px] lg:w-[500px] h-[420px] lg:h-[500px] bg-gradient-to-tr from-sky-400/25 via-blue-300/20 to-indigo-200/15 top-4 -left-12" style="filter: blur(80px);"></div>
         <div class="shape_animate_orb w-[480px] lg:w-[600px] h-[480px] lg:h-[600px] bg-gradient-to-br from-amber-400/30 via-orange-400/20 to-amber-200/30 -top-8 -right-8" style="animation-delay: -3.5s; filter: blur(80px);"></div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-8 lg:gap-14 items-center">
-            <!-- CỘT CHAI NƯỚC MẮM + CHÉN MẮM ỚT TÁCH NỀN (HIỂN THỊ ĐẦU TIÊN TRÊN MOBILE, BÊN PHẢI TRÊN DESKTOP) -->
-            <div class="order-1 lg:order-2 lg:col-span-6 relative flex flex-col justify-center items-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 md:grid-cols-12 gap-3.5 sm:gap-6 md:gap-8 lg:gap-14 items-center">
+            <!-- CỘT CHAI NƯỚC MẮM + CHÉN MẮM ỚT TÁCH NỀN (TRÊN MOBILE Ở ĐẦU, TỪ IPAD TRỞ LÊN Ở BÊN PHẢI) -->
+            <div class="order-1 md:order-2 md:col-span-5 lg:col-span-6 relative flex flex-col justify-center items-center">
                 <!-- Quầng sáng hổ phách ấm áp sau chai mắm và chén mắm -->
-                <div class="absolute -inset-4 sm:-inset-14 bg-gradient-to-tr from-amber-400/40 via-orange-400/30 to-sky-300/30 blur-2xl sm:blur-3xl rounded-full pointer-events-none -z-10 animate-pulse" style="animation-duration: 4s;"></div>
+                <div class="absolute -inset-4 sm:-inset-10 lg:-inset-14 bg-gradient-to-tr from-amber-400/40 via-orange-400/30 to-sky-300/30 blur-2xl sm:blur-3xl rounded-full pointer-events-none -z-10 animate-pulse" style="animation-duration: 4s;"></div>
 
-                <div class="relative w-full max-w-[280px] xs:max-w-[320px] sm:max-w-[420px] lg:max-w-[560px] xl:max-w-[620px] flex flex-col items-center group">
-                    <!-- CHAI NƯỚC MẮM VÀ CHÉN NƯỚC MẮM ỚT TÁCH NỀN TRONG SUỐT (TỈ LỆ VÀNG CHUẨN UX MOBILE) -->
+                <div class="relative w-full max-w-[280px] xs:max-w-[320px] sm:max-w-[360px] md:max-w-[380px] lg:max-w-[540px] xl:max-w-[620px] flex flex-col items-center group">
+                    <!-- CHAI NƯỚC MẮM VÀ CHÉN NƯỚC MẮM ỚT TÁCH NỀN TRONG SUỐT -->
                     <div class="relative flex items-center justify-center w-full py-0.5 sm:py-2">
-                        <img id="heroProductImg" src="./pictrure/hero_bottle_dish.webp" width="1024" height="1024" fetchpriority="high" decoding="async" alt="Chai Nước Mắm Nhĩ Ba Cô Khánh Hòa và Chén Mắm Ớt Tươi Tách Nền" class="w-full h-[250px] xs:h-[280px] sm:h-[400px] lg:h-[580px] xl:h-[660px] object-contain filter drop-shadow-[0_16px_30px_rgba(15,23,42,0.16)] drop-shadow-[0_6px_16px_rgba(217,119,6,0.22)] transform hover:scale-105 hover:-rotate-1 transition-all duration-700 ease-out select-none">
+                        <img id="heroProductImg" src="./pictrure/hero_bottle_dish.webp" width="1024" height="1024" fetchpriority="high" decoding="async" alt="Chai Nước Mắm Nhĩ Ba Cô Khánh Hòa và Chén Mắm Ớt Tươi Tách Nền" class="w-full h-[250px] xs:h-[280px] sm:h-[340px] md:h-[360px] lg:h-[540px] xl:h-[640px] object-contain filter drop-shadow-[0_16px_30px_rgba(15,23,42,0.16)] drop-shadow-[0_6px_16px_rgba(217,119,6,0.22)] transform hover:scale-105 hover:-rotate-1 transition-all duration-700 ease-out select-none">
                     </div>
                     <!-- 3 Huy hiệu bảo chứng chất lượng nhỏ gọn tinh xảo dưới chân chai -->
-                    <div class="flex items-center justify-center gap-1.5 xs:gap-2 mt-1 sm:mt-2 text-[10px] xs:text-[11px] font-semibold text-sky-900 select-none">
+                    <div class="flex flex-wrap items-center justify-center gap-1.5 xs:gap-2 mt-1 sm:mt-2 text-[10px] xs:text-[11px] font-semibold text-sky-900 select-none">
                         <span class="inline-flex items-center space-x-1 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full border border-sky-200/80 shadow-2xs">
                             <span class="text-amber-500 font-bold">✨</span>
                             <span>40° Đạm Thật</span>
@@ -565,24 +567,24 @@
                 </div>
             </div>
 
-            <!-- CỘT NỘI DUNG CHỮ & NÚT ĐẶT HÀNG (CÂN ĐỐI GỌN GÀNG DƯỚI CHAI TRÊN MOBILE, BÊN TRÁI TRÊN DESKTOP) -->
-            <div class="order-2 lg:order-1 lg:col-span-6 space-y-2 sm:space-y-4 lg:space-y-6 text-center lg:text-left">
+            <!-- CỘT NỘI DUNG CHỮ & NÚT ĐẶT HÀNG (CÂN ĐỐI 2 CỘT NGAY TỪ IPAD) -->
+            <div class="order-2 md:order-1 md:col-span-7 lg:col-span-6 space-y-2.5 sm:space-y-4 lg:space-y-6 text-center md:text-left">
                 <!-- Tiêu đề chính -->
-                <h1 class="font-display text-2xl xs:text-3xl sm:text-5xl lg:text-6xl xl:text-[3.8rem] font-black leading-tight tracking-tight text-slate-900" id="heroMainTitle">
+                <h1 class="font-display text-2xl xs:text-3xl sm:text-4xl md:text-[2.6rem] lg:text-6xl xl:text-[3.8rem] font-black leading-tight tracking-tight text-slate-900" id="heroMainTitle">
                     Giọt Ngọc Biển Khơi<br>
                     <span class="bg-gradient-to-r from-amber-600 via-orange-500 to-amber-700 bg-clip-text text-transparent font-serif italic drop-shadow-2xs" id="heroSubTitle">
                         Nước Mắm Nhĩ Thượng Hạng
                     </span>
                 </h1>
 
-                <!-- Đoạn mô tả giới thiệu tinh gọn trên mobile -->
-                <p class="text-xs sm:text-base lg:text-lg text-slate-600 max-w-lg mx-auto lg:mx-0 leading-relaxed font-normal" id="heroDesc">
+                <!-- Đoạn mô tả giới thiệu -->
+                <p class="text-xs sm:text-sm md:text-base lg:text-lg text-slate-600 max-w-lg mx-auto md:mx-0 leading-relaxed font-normal" id="heroDesc">
                     Chắt lọc từng giọt mắm nhĩ đầu tiên sánh vàng như mật ong biển, hương thơm dịu ấm, hậu vị ngọt sâu từ đạm cá tự nhiên qua 12 tháng ủ gỗ bời lời Cam Ranh.
                 </p>
 
-                <!-- Cụm nút hành động CTA chính (Thanh thoát, vừa vặn không bị đẩy ra ngoài màn hình) -->
-                <div class="pt-1 flex flex-row items-center justify-center lg:justify-start gap-2.5 sm:gap-4">
-                    <button onclick="openCheckoutModal()" class="btn-order-cta shimmer-btn text-white font-extrabold px-5 sm:px-8 lg:px-10 py-2.5 sm:py-3.5 lg:py-4 rounded-xl sm:rounded-2xl shadow-md text-center transition active:scale-95 text-xs sm:text-sm lg:text-base flex items-center justify-center space-x-1.5 shrink-0">
+                <!-- Cụm nút hành động CTA chính -->
+                <div class="pt-1 flex flex-row items-center justify-center md:justify-start gap-2.5 sm:gap-3.5 lg:gap-4">
+                    <button onclick="openCheckoutModal()" class="btn-order-cta shimmer-btn text-white font-extrabold px-5 sm:px-7 lg:px-10 py-2.5 sm:py-3.5 lg:py-4 rounded-xl sm:rounded-2xl shadow-md text-center transition active:scale-95 text-xs sm:text-sm lg:text-base flex items-center justify-center space-x-1.5 shrink-0">
                         <span class="text-sm sm:text-base">⚡</span>
                         <span id="heroCtaText1">Đặt Mua Ngay</span>
                     </button>
@@ -593,7 +595,7 @@
                 </div>
 
                 <!-- Đánh giá thực tế từ khách hàng -->
-                <div class="pt-0.5 flex items-center justify-center lg:justify-start space-x-2 text-[10px] xs:text-[11px] sm:text-xs text-slate-600">
+                <div class="pt-0.5 flex items-center justify-center md:justify-start space-x-2 text-[10px] xs:text-[11px] sm:text-xs text-slate-600">
                     <div class="flex text-amber-500 text-xs sm:text-sm tracking-tight">★★★★★</div>
                     <span class="font-bold text-slate-900">4.9/5</span>
                     <span class="text-slate-300">•</span>
@@ -1365,8 +1367,8 @@
     <!-- Wholesale Policy Section (Đại Lý & Khách Sỉ - White & Ocean Blue Theme) -->
     <section id="wholesale" class="relative py-12 sm:py-24 bg-gradient-to-b from-white via-sky-50/40 to-white overflow-hidden">
         <div class="shape_animate_orb w-80 h-80 bg-sky-200/30 bottom-10 right-0"></div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
-            <div class="lg:col-span-7 space-y-6 wow-reveal wow-fade-left">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-7 lg:gap-12 items-center relative z-10">
+            <div class="md:col-span-6 lg:col-span-7 space-y-6 wow-reveal wow-fade-left">
                 <span class="bg-sky-100 text-sky-800 border border-sky-200 px-4 py-1.5 text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase rounded-full inline-block">
                     HỢP TÁC • ĐẠI LÝ & KHÁCH SỈ
                 </span>
@@ -1411,7 +1413,7 @@
             </div>
 
             <!-- Form đăng ký nhận báo giá sỉ -->
-            <div class="lg:col-span-5 bg-white p-6 sm:p-8 rounded-3xl border border-sky-200 shadow-xl space-y-4 wow-reveal wow-fade-right delay-200">
+            <div class="md:col-span-6 lg:col-span-5 bg-white p-5 sm:p-6 lg:p-8 rounded-3xl border border-sky-200 shadow-xl space-y-4 wow-reveal wow-fade-right delay-200">
                 <div class="space-y-1">
                     <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-sky-700">DÀNH CHO ĐỐI TÁC THƯƠNG MẠI</span>
                     <h3 class="font-display text-xl sm:text-2xl font-bold text-slate-900">Nhận Bảng Giá Chiết Khấu Sỉ</h3>
