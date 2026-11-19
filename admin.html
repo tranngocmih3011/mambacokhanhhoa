@@ -1345,19 +1345,33 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div class="flex items-center space-x-2.5">
                             <div>
-                                <h2 class="text-sm sm:text-base font-bold text-[#1c1c1e]">Danh Bạ Khách Hàng (CRM)</h2>
-                                <p class="text-[11px] text-[#8E8E93]">Tự động tổng hợp lịch sử mua hàng, tổng chi tiêu và phân hạng theo SĐT.</p>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h2 class="text-sm sm:text-base font-bold text-[#1c1c1e]">Danh Bạ Khách Hàng (CRM)</h2>
+                                    <span id="crmSyncStatusBadge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">Lưu cục bộ &amp; CSDL</span>
+                                </div>
+                                <p class="text-[11px] text-[#8E8E93]">Tự động tổng hợp lịch sử mua hàng, lưu trữ thông tin &amp; đồng bộ lên Tab <span class="font-semibold text-[#1c1c1e]">KhachHang</span> trên Google Sheet.</p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <input type="text" id="crmSearchInput" oninput="renderCustomersCRM()" placeholder="Tìm tên hoặc SĐT..." class="px-3 py-1.5 rounded-xl bg-[#767680]/[0.08] border-0 text-xs focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none w-44 sm:w-56">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <input type="text" id="crmSearchInput" oninput="renderCustomersCRM()" placeholder="Tìm tên hoặc SĐT..." class="px-3 py-1.5 rounded-xl bg-[#767680]/[0.08] border-0 text-xs focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none w-40 sm:w-52">
                             <select id="crmTierFilter" onchange="renderCustomersCRM()" class="px-2.5 py-1.5 rounded-xl bg-[#767680]/[0.08] border-0 text-xs font-semibold text-[#1c1c1e] focus:outline-none">
                                 <option value="all">Tất cả hạng</option>
                                 <option value="vip">Khách VIP</option>
                                 <option value="returning">Khách quen</option>
                                 <option value="new">Khách mới</option>
                             </select>
+                            <button type="button" onclick="syncCustomersToSheet(false)" class="bg-[#34C759] hover:bg-emerald-600 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition ios-press shrink-0 flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                <span>Đồng bộ CSDL</span>
+                            </button>
                         </div>
+                    </div>
+                    <div class="bg-[#F2F2F7]/80 border border-black/[0.05] rounded-xl px-3 py-2 text-[11px] text-[#3a3a3c] flex flex-wrap items-center gap-x-4 gap-y-1">
+                        <span class="font-bold text-[#1c1c1e]">Cơ chế chia hạng:</span>
+                        <span><span class="font-bold text-amber-700">★ VIP</span>: Chi tiêu ≥ 1.500.000đ hoặc ≥ 3 đơn</span>
+                        <span><span class="font-bold text-sky-700">Khách quen</span>: 2 đơn</span>
+                        <span><span class="font-semibold text-slate-600">Khách mới</span>: 1 đơn</span>
+                        <span class="text-[#8E8E93]">(Không tính đơn Đã hủy / Hoàn hàng vào chi tiêu)</span>
                     </div>
                     <div class="grid grid-cols-3 gap-2.5 pt-1">
                         <div class="bg-[#F2F2F7]/80 rounded-xl p-2.5 text-center">
@@ -1832,6 +1846,10 @@ function khoiTaoBangSanPhamVaNoiDung() {
     var sRev = ss.insertSheet(&quot;DanhGia&quot;);
     khoiTaoBangDanhGia(sRev);
   }
+  if (!ss.getSheetByName(&quot;KhachHang&quot;)) {
+    var sCus = ss.insertSheet(&quot;KhachHang&quot;);
+    khoiTaoBangKhachHang(sCus);
+  }
 }
 
 function doGet(e) {
@@ -2045,6 +2063,40 @@ function doPost(e) {
         dinhDangDongSanPham(prodSheet, targetRow, p.inStock !== false);
       }
       return jsonSuccess({ saved: &quot;SanPham&quot;, count: items.length });
+    }
+
+    // 0.1b Lưu &amp; Kẻ bảng Danh Bạ Khách Hàng (Tab &quot;KhachHang&quot;)
+    if (action === &quot;save_customers&quot; &amp;&amp; data.customers) {
+      var cusSheet = ss.getSheetByName(&quot;KhachHang&quot;);
+      if (!cusSheet) {
+        cusSheet = ss.insertSheet(&quot;KhachHang&quot;);
+      } else {
+        cusSheet.clear();
+      }
+      khoiTaoBangKhachHang(cusSheet);
+
+      var cusList = data.customers || [];
+      var tierLabelMap = { vip: &quot;Khách VIP&quot;, returning: &quot;Khách quen&quot;, new: &quot;Khách mới&quot; };
+      for (var cIdx = 0; cIdx &lt; cusList.length; cIdx++) {
+        var c = cusList[cIdx];
+        var targetCusRow = 3 + cIdx;
+        var rowCusVals = [
+          c.key || (&quot;KH-&quot; + (cIdx + 1)),
+          c.name || &quot;Khách hàng&quot;,
+          c.phone ? (&quot;&#x27;&quot; + c.phone) : &quot;&quot;,
+          c.address || &quot;&quot;,
+          tierLabelMap[c.tier] || &quot;Khách mới&quot;,
+          Number(c.totalOrders) || 0,
+          Number(c.successOrders) || 0,
+          Number(c.cancelledOrders) || 0,
+          Number(c.totalSpent) || 0,
+          c.lastDate || &quot;&quot;,
+          c.note || &quot;&quot;
+        ];
+        cusSheet.getRange(targetCusRow, 1, 1, rowCusVals.length).setValues([rowCusVals]);
+        dinhDangDongKhachHang(cusSheet, targetCusRow, c.tier || &quot;new&quot;);
+      }
+      return jsonSuccess({ saved: &quot;KhachHang&quot;, count: cusList.length });
     }
 
     // 0.2 Lưu &amp; Kẻ bảng Nội Dung Website (Tab &quot;NoiDungWeb&quot;)
@@ -2717,6 +2769,47 @@ function dinhDangDongDanhGia(sheet, row) {
   range.setFontColors([[&quot;#64748b&quot;, &quot;#475569&quot;, &quot;#0369a1&quot;, &quot;#0f172a&quot;, &quot;#0284c7&quot;, &quot;#334155&quot;, &quot;#0f766e&quot;, &quot;#b45309&quot;, &quot;#475569&quot;, &quot;#0f172a&quot;, &quot;#15803d&quot;]]);
   range.setHorizontalAlignments([[&quot;center&quot;, &quot;center&quot;, &quot;center&quot;, &quot;left&quot;, &quot;center&quot;, &quot;left&quot;, &quot;left&quot;, &quot;center&quot;, &quot;left&quot;, &quot;left&quot;, &quot;center&quot;]]);
   range.setFontWeights([[&quot;normal&quot;, &quot;normal&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;normal&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;normal&quot;, &quot;normal&quot;, &quot;bold&quot;]]);
+}
+
+function khoiTaoBangKhachHang(sheet) {
+  sheet.getRange(&quot;A1:K1&quot;).merge()
+       .setValue(&quot;DANH BẠ KHÁCH HÀNG (CRM) - NƯỚC MẮM BA CÔ&quot;)
+       .setBackground(&quot;#0369a1&quot;).setFontColor(&quot;#ffffff&quot;).setFontWeight(&quot;bold&quot;).setFontSize(13).setFontFamily(&quot;Roboto&quot;)
+       .setHorizontalAlignment(&quot;center&quot;).setVerticalAlignment(&quot;middle&quot;);
+  sheet.setRowHeight(1, 40);
+
+  var headers = [&quot;Mã KH&quot;, &quot;Họ Tên&quot;, &quot;Số Điện Thoại&quot;, &quot;Địa Chỉ&quot;, &quot;Hạng Khách&quot;, &quot;Tổng Đơn&quot;, &quot;Đơn Xong&quot;, &quot;Đơn Hủy&quot;, &quot;Tổng Chi Tiêu (đ)&quot;, &quot;Mua Gần Nhất&quot;, &quot;Ghi Chú&quot;];
+  sheet.getRange(&quot;A2:K2&quot;).setValues([headers])
+       .setBackground(&quot;#e0f2fe&quot;).setFontColor(&quot;#075985&quot;).setFontWeight(&quot;bold&quot;).setFontSize(10).setFontFamily(&quot;Roboto&quot;)
+       .setHorizontalAlignment(&quot;center&quot;).setVerticalAlignment(&quot;middle&quot;);
+  sheet.setRowHeight(2, 34);
+
+  sheet.setColumnWidth(1, 110);
+  sheet.setColumnWidth(2, 160);
+  sheet.setColumnWidth(3, 120);
+  sheet.setColumnWidth(4, 240);
+  sheet.setColumnWidth(5, 110);
+  sheet.setColumnWidth(6, 80);
+  sheet.setColumnWidth(7, 80);
+  sheet.setColumnWidth(8, 80);
+  sheet.setColumnWidth(9, 140);
+  sheet.setColumnWidth(10, 140);
+  sheet.setColumnWidth(11, 220);
+}
+
+function dinhDangDongKhachHang(sheet, row, tier) {
+  var range = sheet.getRange(row, 1, 1, 11);
+  range.setFontFamily(&quot;Roboto&quot;).setFontSize(10).setVerticalAlignment(&quot;middle&quot;);
+  range.setBorder(true, true, true, true, true, true, &quot;#e2e8f0&quot;, SpreadsheetApp.BorderStyle.SOLID);
+  sheet.setRowHeight(row, 34);
+
+  var tierBg = tier === &quot;vip&quot; ? &quot;#fef3c7&quot; : (tier === &quot;returning&quot; ? &quot;#e0f2fe&quot; : &quot;#f1f5f9&quot;);
+  var tierFg = tier === &quot;vip&quot; ? &quot;#b45309&quot; : (tier === &quot;returning&quot; ? &quot;#0369a1&quot; : &quot;#475569&quot;);
+  range.setBackgrounds([[&quot;#f8fafc&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, tierBg, &quot;#ffffff&quot;, &quot;#f0fdf4&quot;, &quot;#fef2f2&quot;, &quot;#f0fdf4&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;]]);
+  range.setFontColors([[&quot;#64748b&quot;, &quot;#0f172a&quot;, &quot;#0284c7&quot;, &quot;#334155&quot;, tierFg, &quot;#0f172a&quot;, &quot;#15803d&quot;, &quot;#b91c1c&quot;, &quot;#047857&quot;, &quot;#475569&quot;, &quot;#334155&quot;]]);
+  range.setHorizontalAlignments([[&quot;center&quot;, &quot;left&quot;, &quot;center&quot;, &quot;left&quot;, &quot;center&quot;, &quot;center&quot;, &quot;center&quot;, &quot;center&quot;, &quot;right&quot;, &quot;center&quot;, &quot;left&quot;]]);
+  range.setFontWeights([[&quot;normal&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;normal&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;normal&quot;, &quot;normal&quot;, &quot;bold&quot;, &quot;normal&quot;, &quot;normal&quot;]]);
+  sheet.getRange(row, 9).setNumberFormat(&quot;#,##0&quot;);
 }
 
 // ========================================================
@@ -4044,8 +4137,19 @@ function moHopThoaiDatSheetRiengTu() {
                 timestamp: new Date().toLocaleString('vi-VN')
             });
 
+            if (typeof getMergedCustomersList === 'function') {
+                const cusList = getMergedCustomersList();
+                if (cusList.length > 0) {
+                    await syncToGoogleSheet({
+                        action: 'save_customers',
+                        customers: cusList,
+                        timestamp: new Date().toLocaleString('vi-VN')
+                    });
+                }
+            }
+
             if (!silent) {
-                showAdminToast('Đã đồng bộ bảng Sản Phẩm & Nội Dung lên Cơ sở dữ liệu thành công!', 'success');
+                showAdminToast('Đã đồng bộ bảng Sản Phẩm, Nội Dung & Khách Hàng lên Cơ sở dữ liệu thành công!', 'success');
             }
         }
 
@@ -4316,6 +4420,70 @@ function moHopThoaiDatSheetRiengTu() {
                 console.log("Tab Khách Sỉ chưa có dữ liệu hoặc chưa tạo:", errW);
             }
 
+            // 3. Tải danh bạ khách hàng từ Tab "KhachHang" (giữ lại ghi chú & khách lịch sử)
+            const urlCustomers = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('KhachHang')}&_t=${Date.now()}`;
+            try {
+                const resC = await fetch(urlCustomers, { cache: 'no-store' });
+                const textC = await resC.text();
+                const jsonMatchC = textC.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
+                if (jsonMatchC && jsonMatchC[1]) {
+                    const dataC = JSON.parse(jsonMatchC[1]);
+                    const cRows = dataC.table.rows || [];
+                    const sheetCustomers = [];
+                    for (let i = 0; i < cRows.length; i++) {
+                        const c = cRows[i].c;
+                        if (!c) continue;
+                        const getVal = idx => (c[idx] && (c[idx].v !== null && c[idx].v !== undefined)) ? (c[idx].f || c[idx].v) : '';
+                        const key = String(getVal(0) || '').trim();
+                        const name = String(getVal(1) || '').trim();
+                        const phone = String(getVal(2) || '').replace(/^'/, '').trim();
+                        const address = String(getVal(3) || '').trim();
+                        const tierRaw = String(getVal(4) || '').toLowerCase();
+                        const totalOrders = Number(getVal(5) || 0);
+                        const successOrders = Number(getVal(6) || 0);
+                        const cancelledOrders = Number(getVal(7) || 0);
+                        const totalSpent = Number(String(getVal(8) || 0).replace(/[^0-9.-]/g, '')) || 0;
+                        const lastDate = String(getVal(9) || '').trim();
+                        const note = String(getVal(10) || '').trim();
+
+                        if (!key && !name && !phone) continue;
+                        if (key === 'Mã KH' || name === 'Họ Tên' || key.includes('DANH BẠ')) continue;
+
+                        let tier = 'new';
+                        if (tierRaw.includes('vip')) tier = 'vip';
+                        else if (tierRaw.includes('quen')) tier = 'returning';
+
+                        sheetCustomers.push({
+                            key: key || phone.replace(/[^0-9]/g, '') || name.toLowerCase(),
+                            name: name || 'Khách hàng',
+                            phone,
+                            address,
+                            tier,
+                            totalOrders,
+                            successOrders,
+                            cancelledOrders,
+                            totalSpent,
+                            lastDate,
+                            note
+                        });
+                    }
+                    if (sheetCustomers.length > 0) {
+                        let localCus = [];
+                        try { localCus = JSON.parse(localStorage.getItem('baco_customers') || '[]'); } catch (e) {}
+                        const localMap = new Map(localCus.map(x => [x.key, x]));
+                        sheetCustomers.forEach(sc => {
+                            const prev = localMap.get(sc.key);
+                            if (prev && prev.note && !sc.note) sc.note = prev.note;
+                            localMap.set(sc.key, sc);
+                        });
+                        localStorage.setItem('baco_customers', JSON.stringify(Array.from(localMap.values())));
+                        if (typeof renderCustomersCRM === 'function') renderCustomersCRM();
+                    }
+                }
+            } catch (errC) {
+                console.log("Tab KhachHang chưa có dữ liệu hoặc chưa tạo:", errC);
+            }
+
             syncNotificationsFromData(true);
             updateBadges();
             if (!silent) showAdminToast('Đã hoàn tất đồng bộ từ Cơ sở dữ liệu!', 'success');
@@ -4543,12 +4711,43 @@ function moHopThoaiDatSheetRiengTu() {
             }
         }
 
-        // ================= DANH BẠ KHÁCH HÀNG (CRM) =================
-        function renderCustomersCRM() {
-            const listEl = document.getElementById('crmCustomersList');
-            if (!listEl) return;
+        // ================= DANH BẠ KHÁCH HÀNG (CRM & ĐỒNG BỘ CSDL) =================
+        function computeCustomerTier(c) {
+            if ((Number(c.totalSpent) || 0) >= 1500000 || (Number(c.totalOrders) || 0) >= 3) return 'vip';
+            if ((Number(c.totalOrders) || 0) >= 2) return 'returning';
+            return 'new';
+        }
 
+        function getMergedCustomersList() {
             const map = new Map();
+            let saved = [];
+            try {
+                saved = JSON.parse(localStorage.getItem('baco_customers') || '[]');
+                if (!Array.isArray(saved)) saved = [];
+            } catch (e) { saved = []; }
+
+            // Nạp trước dữ liệu khách đã lưu trong CSDL / localStorage (giữ ghi chú & khách cũ)
+            saved.forEach(sc => {
+                const rawPhone = String(sc.phone || '').trim();
+                const normPhone = rawPhone.replace(/[^0-9]/g, '');
+                const key = String(sc.key || normPhone || String(sc.name || '').trim().toLowerCase()).trim();
+                if (!key) return;
+                map.set(key, {
+                    key,
+                    name: String(sc.name || 'Khách hàng').trim(),
+                    phone: rawPhone || normPhone,
+                    address: String(sc.address || '').trim(),
+                    totalOrders: Number(sc.totalOrders || 0),
+                    successOrders: Number(sc.successOrders || 0),
+                    cancelledOrders: Number(sc.cancelledOrders || 0),
+                    totalSpent: Number(sc.totalSpent || 0),
+                    lastDate: String(sc.lastDate || '').trim(),
+                    note: String(sc.note || '').trim(),
+                    _hasLiveOrders: false
+                });
+            });
+
+            // Tổng hợp lại từ danh sách đơn hàng hiện có
             (Array.isArray(orders) ? orders : []).forEach(o => {
                 const rawPhone = String(o.phone || '').trim();
                 const normPhone = rawPhone.replace(/[^0-9]/g, '');
@@ -4565,11 +4764,23 @@ function moHopThoaiDatSheetRiengTu() {
                         successOrders: 0,
                         cancelledOrders: 0,
                         totalSpent: 0,
-                        lastDate: String(o.timestamp || '').trim()
+                        lastDate: String(o.timestamp || '').trim(),
+                        note: '',
+                        _hasLiveOrders: true
                     });
                 }
+
                 const c = map.get(key);
+                if (!c._hasLiveOrders) {
+                    // Reset bộ đếm khi tính lại từ orders thật để tránh cộng dồn trùng
+                    c.totalOrders = 0;
+                    c.successOrders = 0;
+                    c.cancelledOrders = 0;
+                    c.totalSpent = 0;
+                    c._hasLiveOrders = true;
+                }
                 if (o.name) c.name = String(o.name).trim();
+                if (rawPhone && !c.phone) c.phone = rawPhone;
                 if (o.address) c.address = String(o.address).trim();
                 if (o.timestamp) c.lastDate = String(o.timestamp).trim();
 
@@ -4584,11 +4795,55 @@ function moHopThoaiDatSheetRiengTu() {
             });
 
             const customers = Array.from(map.values()).map(c => {
-                let tier = 'new';
-                if (c.totalSpent >= 1500000 || c.totalOrders >= 3) tier = 'vip';
-                else if (c.totalOrders >= 2) tier = 'returning';
-                return { ...c, tier };
+                const { _hasLiveOrders, ...clean } = c;
+                return { ...clean, tier: computeCustomerTier(clean) };
             }).sort((a, b) => b.totalSpent - a.totalSpent || b.totalOrders - a.totalOrders);
+
+            try {
+                localStorage.setItem('baco_customers', JSON.stringify(customers));
+            } catch (e) {}
+            return customers;
+        }
+
+        async function syncCustomersToSheet(silent = false) {
+            const list = getMergedCustomersList();
+            if (!silent) showAdminToast(`Đang đồng bộ ${list.length} khách hàng lên Tab "KhachHang"...`, 'info');
+            const ok = await syncToGoogleSheet({
+                action: 'save_customers',
+                customers: list,
+                timestamp: new Date().toLocaleString('vi-VN')
+            });
+            const badge = document.getElementById('crmSyncStatusBadge');
+            if (badge && ok) {
+                const nowTime = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                badge.textContent = `Đã đồng bộ CSDL (${nowTime})`;
+                badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700';
+            }
+            if (!silent) {
+                showAdminToast(ok ? `Đã lưu & đồng bộ ${list.length} khách hàng lên CSDL!` : 'Không thể đồng bộ lên CSDL!', ok ? 'success' : 'error');
+            }
+        }
+
+        function editCustomerNote(key) {
+            const list = getMergedCustomersList();
+            const target = list.find(c => c.key === key);
+            if (!target) return;
+            const nextNote = prompt(`Ghi chú cho khách "${target.name}" (${target.phone || 'chưa có SĐT'}):`, target.note || '');
+            if (nextNote === null) return;
+            target.note = nextNote.trim();
+            try {
+                localStorage.setItem('baco_customers', JSON.stringify(list));
+            } catch (e) {}
+            renderCustomersCRM();
+            syncCustomersToSheet(true);
+            showAdminToast('Đã lưu ghi chú khách hàng và đồng bộ CSDL!', 'success');
+        }
+
+        function renderCustomersCRM() {
+            const listEl = document.getElementById('crmCustomersList');
+            if (!listEl) return;
+
+            const customers = getMergedCustomersList();
 
             const totalCount = customers.length;
             const vipCount = customers.filter(c => c.tier === 'vip').length;
@@ -4610,7 +4865,7 @@ function moHopThoaiDatSheetRiengTu() {
             const filtered = customers.filter(c => {
                 if (tierFilter !== 'all' && c.tier !== tierFilter) return false;
                 if (query) {
-                    const hay = `${c.name} ${c.phone} ${c.address}`.toLowerCase();
+                    const hay = `${c.name} ${c.phone} ${c.address} ${c.note || ''}`.toLowerCase();
                     if (!hay.includes(query)) return false;
                 }
                 return true;
@@ -4630,6 +4885,7 @@ function moHopThoaiDatSheetRiengTu() {
             listEl.innerHTML = filtered.map(c => {
                 const tel = safePhone(c.phone);
                 const jsSafeKey = escHtml((c.phone || c.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
+                const jsSafeCusKey = escHtml((c.key || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
                 return `
                     <div class="ios-card p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div class="space-y-1 min-w-0">
@@ -4643,13 +4899,17 @@ function moHopThoaiDatSheetRiengTu() {
                                 ${c.lastDate ? `<span>Mua gần nhất: ${escHtml(c.lastDate)}</span>` : ''}
                             </div>
                             ${c.address ? `<p class="text-[11px] text-[#8E8E93] truncate">📍 ${escHtml(c.address)}</p>` : ''}
+                            ${c.note ? `<p class="text-[11px] text-amber-700 bg-amber-500/10 px-2 py-0.5 rounded-md inline-block">📝 ${escHtml(c.note)}</p>` : ''}
                         </div>
                         <div class="flex sm:flex-col items-center sm:items-end justify-between gap-1.5 shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-black/[0.05]">
                             <div class="text-left sm:text-right">
                                 <span class="text-sm sm:text-base font-bold text-emerald-700 tabular-nums block">${c.totalSpent.toLocaleString('vi-VN')} đ</span>
                                 <span class="text-[11px] text-[#8E8E93]">${c.totalOrders} đơn (${c.successOrders} xong • ${c.cancelledOrders} hủy)</span>
                             </div>
-                            <button type="button" onclick="viewCustomerOrders('${jsSafeKey}')" class="px-2.5 py-1 rounded-lg bg-[#007AFF]/10 hover:bg-[#007AFF]/20 text-[#007AFF] text-[11px] font-semibold transition ios-press">Xem đơn →</button>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="editCustomerNote('${jsSafeCusKey}')" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold transition ios-press">📝 Ghi chú</button>
+                                <button type="button" onclick="viewCustomerOrders('${jsSafeKey}')" class="px-2.5 py-1 rounded-lg bg-[#007AFF]/10 hover:bg-[#007AFF]/20 text-[#007AFF] text-[11px] font-semibold transition ios-press">Xem đơn →</button>
+                            </div>
                         </div>
                     </div>
                 `;
