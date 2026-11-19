@@ -1341,37 +1341,28 @@
 
             <!-- TAB: DANH BẠ KHÁCH HÀNG (CRM) -->
             <section id="tab-customers" class="hidden space-y-4">
-                <div class="ios-card p-4 space-y-3 ">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div class="flex items-center space-x-2.5">
-                            <div>
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <h2 class="text-sm sm:text-base font-bold text-[#1c1c1e]">Danh Bạ Khách Hàng (CRM)</h2>
-                                    <span id="crmSyncStatusBadge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">Lưu cục bộ &amp; CSDL</span>
-                                </div>
-                                <p class="text-[11px] text-[#8E8E93]">Tự động tổng hợp lịch sử mua hàng, lưu trữ thông tin &amp; đồng bộ lên Tab <span class="font-semibold text-[#1c1c1e]">KhachHang</span> trên Google Sheet.</p>
+                <div class="ios-card p-4 space-y-3">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h2 class="text-sm sm:text-base font-bold text-[#1c1c1e]">Danh Bạ Khách Hàng (CRM)</h2>
+                                <span id="crmSyncStatusBadge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 whitespace-nowrap">Lưu cục bộ &amp; CSDL</span>
                             </div>
+                            <p class="text-[11px] text-[#8E8E93] mt-0.5">Tự động tổng hợp lịch sử mua hàng, lưu trữ thông tin &amp; đồng bộ lên Tab <span class="font-semibold text-[#1c1c1e]">KhachHang</span> trên Google Sheet.</p>
                         </div>
-                        <div class="flex flex-wrap items-center gap-2">
-                            <input type="text" id="crmSearchInput" oninput="renderCustomersCRM()" placeholder="Tìm tên hoặc SĐT..." class="px-3 py-1.5 rounded-xl bg-[#767680]/[0.08] border-0 text-xs focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none w-40 sm:w-52">
-                            <select id="crmTierFilter" onchange="renderCustomersCRM()" class="px-2.5 py-1.5 rounded-xl bg-[#767680]/[0.08] border-0 text-xs font-semibold text-[#1c1c1e] focus:outline-none">
+                        <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
+                            <input type="text" id="crmSearchInput" oninput="currentCustomerPage=1;renderCustomersCRM()" placeholder="Tìm tên hoặc SĐT..." class="px-3 py-1.5 rounded-xl bg-[#767680]/[0.08] border-0 text-xs focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none w-full sm:w-48">
+                            <select id="crmTierFilter" onchange="currentCustomerPage=1;renderCustomersCRM()" class="px-2.5 py-1.5 rounded-xl bg-[#767680]/[0.08] border-0 text-xs font-semibold text-[#1c1c1e] focus:outline-none shrink-0">
                                 <option value="all">Tất cả hạng</option>
                                 <option value="vip">Khách VIP</option>
                                 <option value="returning">Khách quen</option>
                                 <option value="new">Khách mới</option>
                             </select>
-                            <button type="button" onclick="syncCustomersToSheet(false)" class="bg-[#34C759] hover:bg-emerald-600 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition ios-press shrink-0 flex items-center gap-1.5">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            <button type="button" onclick="syncCustomersToSheet(false)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition ios-press shrink-0 whitespace-nowrap inline-flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                                 <span>Đồng bộ CSDL</span>
                             </button>
                         </div>
-                    </div>
-                    <div class="bg-[#F2F2F7]/80 border border-black/[0.05] rounded-xl px-3 py-2 text-[11px] text-[#3a3a3c] flex flex-wrap items-center gap-x-4 gap-y-1">
-                        <span class="font-bold text-[#1c1c1e]">Cơ chế chia hạng:</span>
-                        <span><span class="font-bold text-amber-700">★ VIP</span>: Chi tiêu ≥ 1.500.000đ hoặc ≥ 3 đơn</span>
-                        <span><span class="font-bold text-sky-700">Khách quen</span>: 2 đơn</span>
-                        <span><span class="font-semibold text-slate-600">Khách mới</span>: 1 đơn</span>
-                        <span class="text-[#8E8E93]">(Không tính đơn Đã hủy / Hoàn hàng vào chi tiêu)</span>
                     </div>
                     <div class="grid grid-cols-3 gap-2.5 pt-1">
                         <div class="bg-[#F2F2F7]/80 rounded-xl p-2.5 text-center">
@@ -1390,6 +1381,49 @@
                 </div>
 
                 <div id="crmCustomersList" class="space-y-2.5"></div>
+                <div id="crmPagination" class="pt-1"></div>
+
+                <!-- Bảng Cơ Chế Phân Hạng Khách Hàng -->
+                <div class="ios-card overflow-hidden">
+                    <div class="px-4 py-3 border-b border-black/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        <h3 class="text-xs sm:text-sm font-bold text-[#1c1c1e]">Bảng Cơ Chế Phân Hạng Khách Hàng</h3>
+                        <span class="text-[11px] text-[#8E8E93]">Đơn <strong>Đã hủy</strong> / <strong>Hoàn hàng</strong> không cộng vào Tổng chi tiêu</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-[#F2F2F7] text-[#8E8E93] font-semibold">
+                                <tr>
+                                    <th class="px-4 py-2.5 whitespace-nowrap">Hạng khách</th>
+                                    <th class="px-4 py-2.5 whitespace-nowrap">Điều kiện đạt hạng</th>
+                                    <th class="px-4 py-2.5">Cách tính &amp; gợi ý chăm sóc</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-black/[0.05] text-[#1c1c1e]">
+                                <tr class="bg-amber-50/40">
+                                    <td class="px-4 py-2.5 whitespace-nowrap">
+                                        <span class="bg-amber-500/15 text-amber-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full">★ Khách VIP</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-semibold whitespace-nowrap">Chi tiêu ≥ 1.500.000đ <span class="text-[#8E8E93] font-normal">hoặc</span> ≥ 3 đơn</td>
+                                    <td class="px-4 py-2.5 text-[#3a3a3c]">Ưu tiên tặng mã VIP / Freeship riêng, nhắc mua lại định kỳ qua Zalo.</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-2.5 whitespace-nowrap">
+                                        <span class="bg-sky-500/15 text-sky-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full">Khách quen</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-semibold whitespace-nowrap">Có 2 đơn hàng <span class="text-[#8E8E93] font-normal">(dưới 1.500.000đ)</span></td>
+                                    <td class="px-4 py-2.5 text-[#3a3a3c]">Khách đã quay lại lần 2; gửi mã giảm giá combo để lên hạng VIP.</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-2.5 whitespace-nowrap">
+                                        <span class="bg-slate-200/80 text-slate-600 text-[11px] font-semibold px-2.5 py-0.5 rounded-full">Khách mới</span>
+                                    </td>
+                                    <td class="px-4 py-2.5 font-semibold whitespace-nowrap">1 đơn hàng <span class="text-[#8E8E93] font-normal">(dưới 1.500.000đ)</span></td>
+                                    <td class="px-4 py-2.5 text-[#3a3a3c]">Nhắn hỏi thăm cảm nhận sau khi giao xong, mời đánh giá nhận ưu đãi.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </section>
 
         </main>
@@ -4428,44 +4462,52 @@ function moHopThoaiDatSheetRiengTu() {
                 const jsonMatchC = textC.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
                 if (jsonMatchC && jsonMatchC[1]) {
                     const dataC = JSON.parse(jsonMatchC[1]);
+                    const cCols = (dataC.table.cols || []).map(col => String(col.label || '')).join(' ');
                     const cRows = dataC.table.rows || [];
+                    const firstFewText = cRows.slice(0, 3).map(r => (r.c || []).map(cell => cell ? (cell.f || cell.v || '') : '').join(' ')).join(' ');
+                    const looksLikeKhachHang = cCols.includes('Hạng Khách') || cCols.includes('Mã KH') || firstFewText.includes('DANH BẠ KHÁCH HÀNG') || firstFewText.includes('Hạng Khách');
+                    const looksLikeOrders = cCols.includes('Mã Đơn') || firstFewText.includes('Mã Đơn') || firstFewText.includes('#BC');
+
                     const sheetCustomers = [];
-                    for (let i = 0; i < cRows.length; i++) {
-                        const c = cRows[i].c;
-                        if (!c) continue;
-                        const getVal = idx => (c[idx] && (c[idx].v !== null && c[idx].v !== undefined)) ? (c[idx].f || c[idx].v) : '';
-                        const key = String(getVal(0) || '').trim();
-                        const name = String(getVal(1) || '').trim();
-                        const phone = String(getVal(2) || '').replace(/^'/, '').trim();
-                        const address = String(getVal(3) || '').trim();
-                        const tierRaw = String(getVal(4) || '').toLowerCase();
-                        const totalOrders = Number(getVal(5) || 0);
-                        const successOrders = Number(getVal(6) || 0);
-                        const cancelledOrders = Number(getVal(7) || 0);
-                        const totalSpent = Number(String(getVal(8) || 0).replace(/[^0-9.-]/g, '')) || 0;
-                        const lastDate = String(getVal(9) || '').trim();
-                        const note = String(getVal(10) || '').trim();
+                    if (looksLikeKhachHang && !looksLikeOrders) {
+                        for (let i = 0; i < cRows.length; i++) {
+                            const c = cRows[i].c;
+                            if (!c) continue;
+                            const getVal = idx => (c[idx] && (c[idx].v !== null && c[idx].v !== undefined)) ? (c[idx].f || c[idx].v) : '';
+                            const key = String(getVal(0) || '').trim();
+                            const name = String(getVal(1) || '').trim();
+                            const phone = String(getVal(2) || '').replace(/^'/, '').trim();
+                            const address = String(getVal(3) || '').trim();
+                            const tierRaw = String(getVal(4) || '').toLowerCase();
+                            const totalOrders = Number(getVal(5) || 0);
+                            const successOrders = Number(getVal(6) || 0);
+                            const cancelledOrders = Number(getVal(7) || 0);
+                            const totalSpent = Number(String(getVal(8) || 0).replace(/[^0-9.-]/g, '')) || 0;
+                            const lastDate = String(getVal(9) || '').trim();
+                            const note = String(getVal(10) || '').trim();
 
-                        if (!key && !name && !phone) continue;
-                        if (key === 'Mã KH' || name === 'Họ Tên' || key.includes('DANH BẠ')) continue;
+                            if (!key && !name && !phone) continue;
+                            if (key === 'Mã KH' || name === 'Họ Tên' || key.includes('DANH BẠ')) continue;
+                            if (/^#?BC\d+/i.test(phone) || /^\d{1,2}:\d{2}/.test(key)) continue;
 
-                        let tier = 'new';
-                        if (tierRaw.includes('vip')) tier = 'vip';
-                        else if (tierRaw.includes('quen')) tier = 'returning';
+                            let tier = 'new';
+                            if (tierRaw.includes('vip')) tier = 'vip';
+                            else if (tierRaw.includes('quen')) tier = 'returning';
 
-                        sheetCustomers.push({
-                            key: key || phone.replace(/[^0-9]/g, '') || name.toLowerCase(),
-                            name: name || 'Khách hàng',
-                            phone,
-                            address,
-                            tier,
-                            totalOrders,
-                            successOrders,
-                            cancelledOrders,
-                            totalSpent,
-                            lastDate,
-                            note
-                        });
+                            sheetCustomers.push({
+                                key: key || phone.replace(/[^0-9]/g, '') || name.toLowerCase(),
+                                name: name || 'Khách hàng',
+                                phone,
+                                address,
+                                tier,
+                                totalOrders,
+                                successOrders,
+                                cancelledOrders,
+                                totalSpent,
+                                lastDate,
+                                note
+                            });
+                        }
                     }
                     if (sheetCustomers.length > 0) {
                         let localCus = [];
@@ -4729,12 +4771,15 @@ function moHopThoaiDatSheetRiengTu() {
             // Nạp trước dữ liệu khách đã lưu trong CSDL / localStorage (giữ ghi chú & khách cũ)
             saved.forEach(sc => {
                 const rawPhone = String(sc.phone || '').trim();
+                const rawName = String(sc.name || '').trim();
+                // Tự động loại bỏ bản ghi lỗi nếu trước đó bị đọc nhầm từ Tab Đơn Hàng
+                if (/^#?BC\d+/i.test(rawPhone) || /^\d{1,2}:\d{2}/.test(rawName)) return;
                 const normPhone = rawPhone.replace(/[^0-9]/g, '');
-                const key = String(sc.key || normPhone || String(sc.name || '').trim().toLowerCase()).trim();
-                if (!key) return;
+                const key = String(sc.key || normPhone || rawName.toLowerCase()).trim();
+                if (!key || /^\d{1,2}:\d{2}/.test(key)) return;
                 map.set(key, {
                     key,
-                    name: String(sc.name || 'Khách hàng').trim(),
+                    name: rawName || 'Khách hàng',
                     phone: rawPhone || normPhone,
                     address: String(sc.address || '').trim(),
                     totalOrders: Number(sc.totalOrders || 0),
@@ -4817,7 +4862,7 @@ function moHopThoaiDatSheetRiengTu() {
             if (badge && ok) {
                 const nowTime = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
                 badge.textContent = `Đã đồng bộ CSDL (${nowTime})`;
-                badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700';
+                badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 whitespace-nowrap';
             }
             if (!silent) {
                 showAdminToast(ok ? `Đã lưu & đồng bộ ${list.length} khách hàng lên CSDL!` : 'Không thể đồng bộ lên CSDL!', ok ? 'success' : 'error');
@@ -4839,8 +4884,19 @@ function moHopThoaiDatSheetRiengTu() {
             showAdminToast('Đã lưu ghi chú khách hàng và đồng bộ CSDL!', 'success');
         }
 
+        const CRM_PAGE_SIZE = 8;
+        let currentCustomerPage = 1;
+
+        function changeCustomerPage(page) {
+            currentCustomerPage = page;
+            renderCustomersCRM();
+            const el = document.getElementById('tab-customers');
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         function renderCustomersCRM() {
             const listEl = document.getElementById('crmCustomersList');
+            const pagEl = document.getElementById('crmPagination');
             if (!listEl) return;
 
             const customers = getMergedCustomersList();
@@ -4873,8 +4929,15 @@ function moHopThoaiDatSheetRiengTu() {
 
             if (filtered.length === 0) {
                 listEl.innerHTML = `<div class="ios-card p-8 text-center text-xs text-[#8E8E93]">Không tìm thấy khách hàng phù hợp.</div>`;
+                if (pagEl) pagEl.innerHTML = '';
                 return;
             }
+
+            const totalPages = Math.max(1, Math.ceil(filtered.length / CRM_PAGE_SIZE));
+            if (currentCustomerPage > totalPages) currentCustomerPage = totalPages;
+            if (currentCustomerPage < 1) currentCustomerPage = 1;
+            const startIdx = (currentCustomerPage - 1) * CRM_PAGE_SIZE;
+            const paged = filtered.slice(startIdx, startIdx + CRM_PAGE_SIZE);
 
             const tierBadges = {
                 vip: '<span class="bg-amber-500/15 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">★ Khách VIP</span>',
@@ -4882,7 +4945,7 @@ function moHopThoaiDatSheetRiengTu() {
                 new: '<span class="bg-slate-200/80 text-slate-600 text-[10px] font-semibold px-2 py-0.5 rounded-full">Khách mới</span>'
             };
 
-            listEl.innerHTML = filtered.map(c => {
+            listEl.innerHTML = paged.map(c => {
                 const tel = safePhone(c.phone);
                 const jsSafeKey = escHtml((c.phone || c.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
                 const jsSafeCusKey = escHtml((c.key || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
@@ -4914,6 +4977,10 @@ function moHopThoaiDatSheetRiengTu() {
                     </div>
                 `;
             }).join('');
+
+            if (typeof renderPaginationHtml === 'function') {
+                renderPaginationHtml('crmPagination', currentCustomerPage, totalPages, filtered.length, CRM_PAGE_SIZE, 'changeCustomerPage');
+            }
         }
 
         // ================= TẠO ĐƠN THỦ CÔNG & COPY TIN NHẮN ZALO =================
