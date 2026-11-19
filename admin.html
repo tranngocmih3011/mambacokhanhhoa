@@ -291,7 +291,7 @@
         }
     </style>
     <!-- Precompiled Tailwind CSS (đặt sau <style> để giữ đúng thứ tự ưu tiên) -->
-    <link rel="stylesheet" href="./assets/admin.css?v=20261119a">
+    <link rel="stylesheet" href="./assets/admin.css?v=20261119b">
 </head>
 <body class="bg-iosBg text-[#1c1c1e] antialiased min-h-screen flex flex-col pb-safe-bottom">
 
@@ -404,7 +404,7 @@
                                 <svg class="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                                 <span class="sidebar-label truncate">Đơn hàng</span>
                             </span>
-                            <span id="desktopOrderCountBadge" class="sidebar-badge bg-sky-500/12 text-sky-700 text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
+                            <span id="desktopOrderCountBadge" class="sidebar-badge bg-sky-500/15 text-sky-700 text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
                         </button>
 
                         <button onclick="switchTab('customers')" id="desktopTabBtn-customers" title="Khách hàng"
@@ -413,7 +413,7 @@
                                 <svg class="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                 <span class="sidebar-label truncate">Khách hàng</span>
                             </span>
-                            <span id="desktopCustomerCountBadge" class="sidebar-badge bg-indigo-500/12 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
+                            <span id="desktopCustomerCountBadge" class="sidebar-badge bg-indigo-500/15 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
                         </button>
 
                         <button onclick="switchTab('products')" id="desktopTabBtn-products" title="Sản phẩm"
@@ -422,7 +422,7 @@
                                 <svg class="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                                 <span class="sidebar-label truncate">Sản phẩm</span>
                             </span>
-                            <span id="desktopProductCountBadge" class="sidebar-badge bg-emerald-500/12 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">3</span>
+                            <span id="desktopProductCountBadge" class="sidebar-badge bg-emerald-500/15 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">3</span>
                         </button>
                     </div>
 
@@ -481,167 +481,176 @@
             </aside>
 
             <!-- NỘI DUNG CHÍNH -->
-            <main class="flex-1 min-w-0 max-w-5xl mx-auto px-3.5 sm:px-6 py-3.5 sm:py-5 w-full space-y-4">
+            <main class="flex-1 min-w-0 max-w-[1440px] mx-auto px-3.5 sm:px-6 lg:px-8 xl:px-10 py-3.5 sm:py-5 lg:py-6 w-full space-y-4 lg:space-y-5">
 
             <!-- ================= TAB 1: TỔNG QUAN & DOANH SỐ ================= -->
-            <section id="tab-analytics" class="space-y-3">
-                <!-- Tiêu đề lớn phong cách iOS Large Title -->
-                <div class="flex items-center justify-between gap-2">
-                    <div class="flex items-center space-x-2.5">
-                        <span class="w-1.5 h-6 rounded-full grad-bar-accent shrink-0"></span>
-                        <div class="flex items-baseline space-x-2">
-                            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[#1c1c1e]">Tổng Quan</h1>
-                            <span class="text-xs text-[#0284c7] bg-sky-50 border border-sky-200/70 px-2 py-0.5 rounded-full font-semibold" id="statTodayDate">Hôm nay</span>
+            <section id="tab-analytics" class="space-y-3 lg:space-y-4">
+                <!-- Tiêu đề + Bộ lọc thời gian + Nút xuất/in cân đối trên 1 hàng desktop -->
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 lg:gap-4">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center space-x-2.5">
+                            <span class="w-1.5 h-6 rounded-full grad-bar-accent shrink-0"></span>
+                            <div class="flex items-baseline space-x-2">
+                                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[#1c1c1e]">Tổng Quan</h1>
+                                <span class="text-xs text-[#0284c7] bg-sky-50 border border-sky-200/70 px-2 py-0.5 rounded-full font-semibold" id="statTodayDate">Hôm nay</span>
+                            </div>
+                        </div>
+                        <div class="flex lg:hidden items-center space-x-1.5">
+                            <button type="button" onclick="exportRevenueReportCsv()" class="bg-white/95 hover:bg-sky-50 text-[#1c1c1e] border border-black/[0.08] font-medium text-xs px-2.5 py-1.5 rounded-lg transition ios-press">
+                                Xuất CSV
+                            </button>
+                            <button type="button" onclick="printRevenueReport()" class="grad-btn-dark text-white font-medium text-xs px-3 py-1.5 rounded-lg transition ios-press">
+                                In báo cáo
+                            </button>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-1.5">
-                        <button type="button" onclick="exportRevenueReportCsv()" class="bg-white/95 hover:bg-sky-50 text-[#1c1c1e] border border-black/[0.08] font-medium text-xs px-2.5 py-1.5 rounded-lg transition ios-press">
-                            Xuất CSV
-                        </button>
-                        <button type="button" onclick="printRevenueReport()" class="grad-btn-dark text-white font-medium text-xs px-3 py-1.5 rounded-lg transition ios-press">
-                            In báo cáo
-                        </button>
-                    </div>
-                </div>
 
-                <!-- Segmented Control Lọc Thời Gian chuẩn iOS -->
-                <div class="flex items-center justify-between gap-2">
-                    <span id="analyticsRangeLabel" class="hidden">Toàn bộ dữ liệu</span>
-                    <div class="ios-segmented w-full sm:w-auto flex text-xs font-medium">
-                        <button type="button" onclick="setAnalyticsDateFilter('all')" id="btnAnalyticsRange-all" class="flex-1 sm:flex-initial px-3 py-1.5 transition ios-segment-btn active">
-                            Tất cả
-                        </button>
-                        <button type="button" onclick="setAnalyticsDateFilter('today')" id="btnAnalyticsRange-today" class="flex-1 sm:flex-initial px-3 py-1.5 transition ios-segment-btn">
-                            Hôm nay
-                        </button>
-                        <button type="button" onclick="setAnalyticsDateFilter('week')" id="btnAnalyticsRange-week" class="flex-1 sm:flex-initial px-3 py-1.5 transition ios-segment-btn">
-                            7 ngày
-                        </button>
-                        <button type="button" onclick="setAnalyticsDateFilter('month')" id="btnAnalyticsRange-month" class="flex-1 sm:flex-initial px-3 py-1.5 transition ios-segment-btn">
-                            Tháng này
-                        </button>
+                    <div class="flex items-center justify-between lg:justify-end gap-2.5">
+                        <span id="analyticsRangeLabel" class="hidden">Toàn bộ dữ liệu</span>
+                        <div class="ios-segmented w-full sm:w-auto flex text-xs font-medium">
+                            <button type="button" onclick="setAnalyticsDateFilter('all')" id="btnAnalyticsRange-all" class="flex-1 sm:flex-initial px-3 lg:px-3.5 py-1.5 transition ios-segment-btn active">
+                                Tất cả
+                            </button>
+                            <button type="button" onclick="setAnalyticsDateFilter('today')" id="btnAnalyticsRange-today" class="flex-1 sm:flex-initial px-3 lg:px-3.5 py-1.5 transition ios-segment-btn">
+                                Hôm nay
+                            </button>
+                            <button type="button" onclick="setAnalyticsDateFilter('week')" id="btnAnalyticsRange-week" class="flex-1 sm:flex-initial px-3 lg:px-3.5 py-1.5 transition ios-segment-btn">
+                                7 ngày
+                            </button>
+                            <button type="button" onclick="setAnalyticsDateFilter('month')" id="btnAnalyticsRange-month" class="flex-1 sm:flex-initial px-3 lg:px-3.5 py-1.5 transition ios-segment-btn">
+                                Tháng này
+                            </button>
+                        </div>
+                        <div class="hidden lg:flex items-center space-x-2 shrink-0">
+                            <button type="button" onclick="exportRevenueReportCsv()" class="bg-white/95 hover:bg-sky-50 text-[#1c1c1e] border border-black/[0.08] font-medium text-xs px-3 py-2 rounded-lg transition ios-press">
+                                Xuất CSV
+                            </button>
+                            <button type="button" onclick="printRevenueReport()" class="grad-btn-dark text-white font-medium text-xs px-3.5 py-2 rounded-lg transition ios-press">
+                                In báo cáo
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Thống kê Widget 2x2 với dải màu Gradient phân biệt từng chỉ số -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
-                    <div class="ios-card grad-card-emerald p-3.5 relative overflow-hidden">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 lg:gap-4">
+                    <div class="ios-card grad-card-emerald p-3.5 lg:p-5 relative overflow-hidden">
                         <div class="flex items-center justify-between">
-                            <span class="text-[11px] font-semibold text-emerald-700 block">Doanh thu</span>
-                            <span class="text-xs bg-emerald-500/15 text-emerald-700 w-6 h-6 rounded-lg flex items-center justify-center">💰</span>
+                            <span class="text-[11px] lg:text-xs font-semibold text-emerald-700 block">Doanh thu</span>
+                            <span class="text-xs lg:text-sm bg-emerald-500/15 text-emerald-700 w-6 h-6 lg:w-8 lg:h-8 rounded-lg flex items-center justify-center">💰</span>
                         </div>
-                        <div id="statTotalRevenue" class="text-lg sm:text-xl font-extrabold tracking-tight text-emerald-800 mt-1">0 đ</div>
+                        <div id="statTotalRevenue" class="text-lg sm:text-xl lg:text-2xl font-extrabold tracking-tight text-emerald-800 mt-1.5">0 đ</div>
                     </div>
 
-                    <div class="ios-card grad-card-sky p-3.5 relative overflow-hidden">
+                    <div class="ios-card grad-card-sky p-3.5 lg:p-5 relative overflow-hidden">
                         <div class="flex items-center justify-between">
-                            <span class="text-[11px] font-semibold text-sky-700 block">Tổng đơn hàng</span>
-                            <span class="text-xs bg-sky-500/15 text-sky-700 w-6 h-6 rounded-lg flex items-center justify-center">📦</span>
+                            <span class="text-[11px] lg:text-xs font-semibold text-sky-700 block">Tổng đơn hàng</span>
+                            <span class="text-xs lg:text-sm bg-sky-500/15 text-sky-700 w-6 h-6 lg:w-8 lg:h-8 rounded-lg flex items-center justify-center">📦</span>
                         </div>
-                        <div id="statTotalOrders" class="text-lg sm:text-xl font-extrabold tracking-tight text-sky-800 mt-1">0</div>
+                        <div id="statTotalOrders" class="text-lg sm:text-xl lg:text-2xl font-extrabold tracking-tight text-sky-800 mt-1.5">0</div>
                     </div>
 
-                    <div class="ios-card grad-card-indigo p-3.5 relative overflow-hidden">
+                    <div class="ios-card grad-card-indigo p-3.5 lg:p-5 relative overflow-hidden">
                         <div class="flex items-center justify-between">
-                            <span class="text-[11px] font-semibold text-indigo-700 block">Chuyển khoản QR</span>
-                            <span class="text-xs bg-indigo-500/15 text-indigo-700 w-6 h-6 rounded-lg flex items-center justify-center">💳</span>
+                            <span class="text-[11px] lg:text-xs font-semibold text-indigo-700 block">Chuyển khoản QR</span>
+                            <span class="text-xs lg:text-sm bg-indigo-500/15 text-indigo-700 w-6 h-6 lg:w-8 lg:h-8 rounded-lg flex items-center justify-center">💳</span>
                         </div>
-                        <div id="statTransferRate" class="text-lg sm:text-xl font-extrabold tracking-tight text-indigo-700 mt-1">0%</div>
+                        <div id="statTransferRate" class="text-lg sm:text-xl lg:text-2xl font-extrabold tracking-tight text-indigo-700 mt-1.5">0%</div>
                     </div>
 
-                    <div class="ios-card grad-card-amber p-3.5 relative overflow-hidden">
+                    <div class="ios-card grad-card-amber p-3.5 lg:p-5 relative overflow-hidden">
                         <div class="flex items-center justify-between">
-                            <span class="text-[11px] font-semibold text-amber-700 block">Trung bình / đơn</span>
-                            <span class="text-xs bg-amber-500/15 text-amber-700 w-6 h-6 rounded-lg flex items-center justify-center">💎</span>
+                            <span class="text-[11px] lg:text-xs font-semibold text-amber-700 block">Trung bình / đơn</span>
+                            <span class="text-xs lg:text-sm bg-amber-500/15 text-amber-700 w-6 h-6 lg:w-8 lg:h-8 rounded-lg flex items-center justify-center">💎</span>
                         </div>
-                        <div id="statAvgOrder" class="text-lg sm:text-xl font-extrabold tracking-tight text-amber-800 mt-1">0 đ</div>
+                        <div id="statAvgOrder" class="text-lg sm:text-xl lg:text-2xl font-extrabold tracking-tight text-amber-800 mt-1.5">0 đ</div>
                     </div>
                 </div>
 
                 <!-- Dòng tiền & Top Sản Phẩm dạng iOS Grouped List gọn gàng -->
-                <div class="ios-card p-3.5 sm:p-4 space-y-3 border-t-2 border-t-sky-500/50">
+                <div class="ios-card p-3.5 sm:p-4 lg:p-5 space-y-3.5 border-t-2 border-t-sky-500/50">
                     <div class="grid grid-cols-3 divide-x divide-black/[0.06] text-center">
-                        <div class="px-1.5">
-                            <span class="text-[10px] font-semibold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full inline-block">VietQR</span>
-                            <div id="statRevenueBank" class="text-xs sm:text-sm font-bold text-[#1c1c1e] mt-1">0 đ</div>
-                            <span id="statCountBank" class="text-[10px] text-sky-600 font-medium">0 đơn</span>
+                        <div class="px-1.5 lg:py-1">
+                            <span class="text-[10px] lg:text-[11px] font-semibold text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded-full inline-block">VietQR</span>
+                            <div id="statRevenueBank" class="text-xs sm:text-sm lg:text-base font-bold text-[#1c1c1e] mt-1">0 đ</div>
+                            <span id="statCountBank" class="text-[10px] lg:text-xs text-sky-600 font-medium">0 đơn</span>
                         </div>
-                        <div class="px-1.5">
-                            <span class="text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full inline-block">COD</span>
-                            <div id="statRevenueCod" class="text-xs sm:text-sm font-bold text-[#1c1c1e] mt-1">0 đ</div>
-                            <span id="statCountCod" class="text-[10px] text-amber-600 font-medium">0 đơn</span>
+                        <div class="px-1.5 lg:py-1">
+                            <span class="text-[10px] lg:text-[11px] font-semibold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full inline-block">COD</span>
+                            <div id="statRevenueCod" class="text-xs sm:text-sm lg:text-base font-bold text-[#1c1c1e] mt-1">0 đ</div>
+                            <span id="statCountCod" class="text-[10px] lg:text-xs text-amber-600 font-medium">0 đơn</span>
                         </div>
-                        <div class="px-1.5">
-                            <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full inline-block">Danh mục</span>
-                            <div id="statTotalStockCount" class="text-xs sm:text-sm font-bold text-[#1c1c1e] mt-1">0 SP</div>
-                            <span id="statInStockRatio" class="text-[10px] text-emerald-600 font-semibold">Đang bán</span>
+                        <div class="px-1.5 lg:py-1">
+                            <span class="text-[10px] lg:text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full inline-block">Danh mục</span>
+                            <div id="statTotalStockCount" class="text-xs sm:text-sm lg:text-base font-bold text-[#1c1c1e] mt-1">0 SP</div>
+                            <span id="statInStockRatio" class="text-[10px] lg:text-xs text-emerald-600 font-semibold">Đang bán</span>
                         </div>
                     </div>
 
-                    <div class="pt-2.5 border-t border-black/[0.06]">
-                        <div class="flex items-center space-x-1.5 mb-2">
+                    <div class="pt-3 border-t border-black/[0.06]">
+                        <div class="flex items-center space-x-1.5 mb-2.5">
                             <span class="w-2 h-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-500"></span>
-                            <span class="text-[11px] font-semibold text-[#1c1c1e] uppercase tracking-wider">Sản phẩm bán chạy</span>
+                            <span class="text-[11px] lg:text-xs font-semibold text-[#1c1c1e] uppercase tracking-wider">Sản phẩm bán chạy</span>
                         </div>
-                        <div id="statTopSellingList" class="grid grid-cols-1 sm:grid-cols-3 gap-2"></div>
+                        <div id="statTopSellingList" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 lg:gap-3"></div>
                     </div>
                 </div>
 
                 <!-- Báo Cáo Tài Chính & Tỷ Lệ Hủy/Hoàn + Cảnh Báo Tồn Kho -->
-                <div class="ios-card p-3.5 sm:p-4 space-y-3 border-t-2 border-t-emerald-500/40">
+                <div class="ios-card p-3.5 sm:p-4 lg:p-5 space-y-3.5 border-t-2 border-t-emerald-500/40">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-1.5">
                             <span class="w-2 h-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500"></span>
-                            <span class="text-[11px] font-semibold text-[#1c1c1e] uppercase tracking-wider">Báo cáo tài chính &amp; Tỷ lệ hủy/hoàn</span>
+                            <span class="text-[11px] lg:text-xs font-semibold text-[#1c1c1e] uppercase tracking-wider">Báo cáo tài chính &amp; Tỷ lệ hủy/hoàn</span>
                         </div>
                         <span id="statFinancialNetLabel" class="text-[11px] font-semibold text-emerald-700 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/70 px-2.5 py-0.5 rounded-full">Đã trừ đơn hủy/hoàn</span>
                     </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                        <div class="grad-card-emerald p-2.5 rounded-xl">
-                            <span class="text-[10px] text-emerald-700 font-semibold block">Đã thực thu (QR/Hoàn tất)</span>
-                            <div id="statRealizedRevenue" class="text-sm font-extrabold text-emerald-800 mt-0.5">0 đ</div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 lg:gap-4">
+                        <div class="grad-card-emerald p-2.5 lg:p-4 rounded-xl">
+                            <span class="text-[10px] lg:text-xs text-emerald-700 font-semibold block">Đã thực thu (QR/Hoàn tất)</span>
+                            <div id="statRealizedRevenue" class="text-sm lg:text-lg font-extrabold text-emerald-800 mt-1">0 đ</div>
                         </div>
-                        <div class="grad-card-sky p-2.5 rounded-xl">
-                            <span class="text-[10px] text-sky-700 font-semibold block">COD đang chờ thu hộ</span>
-                            <div id="statPendingCodRevenue" class="text-sm font-extrabold text-sky-800 mt-0.5">0 đ</div>
+                        <div class="grad-card-sky p-2.5 lg:p-4 rounded-xl">
+                            <span class="text-[10px] lg:text-xs text-sky-700 font-semibold block">COD đang chờ thu hộ</span>
+                            <div id="statPendingCodRevenue" class="text-sm lg:text-lg font-extrabold text-sky-800 mt-1">0 đ</div>
                         </div>
-                        <div class="grad-card-amber p-2.5 rounded-xl">
-                            <span class="text-[10px] text-amber-700 font-semibold block">Đã giảm qua Voucher</span>
-                            <div id="statTotalVoucherDiscount" class="text-sm font-extrabold text-amber-800 mt-0.5">0 đ</div>
+                        <div class="grad-card-amber p-2.5 lg:p-4 rounded-xl">
+                            <span class="text-[10px] lg:text-xs text-amber-700 font-semibold block">Đã giảm qua Voucher</span>
+                            <div id="statTotalVoucherDiscount" class="text-sm lg:text-lg font-extrabold text-amber-800 mt-1">0 đ</div>
                         </div>
-                        <div class="grad-card-rose p-2.5 rounded-xl">
-                            <span class="text-[10px] text-rose-700 font-semibold block">Tỷ lệ hủy / hoàn hàng</span>
-                            <div id="statCancelRate" class="text-sm font-extrabold text-[#FF3B30] mt-0.5">0%</div>
-                            <span id="statCancelLoss" class="text-[10px] text-rose-600 font-medium">0 đơn • 0 đ</span>
+                        <div class="grad-card-rose p-2.5 lg:p-4 rounded-xl">
+                            <span class="text-[10px] lg:text-xs text-rose-700 font-semibold block">Tỷ lệ hủy / hoàn hàng</span>
+                            <div id="statCancelRate" class="text-sm lg:text-lg font-extrabold text-[#FF3B30] mt-1">0%</div>
+                            <span id="statCancelLoss" class="text-[10px] lg:text-xs text-rose-600 font-medium">0 đơn • 0 đ</span>
                         </div>
                     </div>
-                    <div class="pt-2 border-t border-black/[0.06]">
+                    <div class="pt-2.5 border-t border-black/[0.06]">
                         <div class="flex items-center space-x-1.5 mb-1.5">
                             <span class="w-2 h-2 rounded-full bg-gradient-to-r from-amber-500 to-rose-500"></span>
-                            <span class="text-[11px] font-semibold text-[#1c1c1e] uppercase tracking-wider">Cảnh báo tồn kho (≤ 10 sản phẩm)</span>
+                            <span class="text-[11px] lg:text-xs font-semibold text-[#1c1c1e] uppercase tracking-wider">Cảnh báo tồn kho (≤ 10 sản phẩm)</span>
                         </div>
                         <div id="statLowStockAlertList" class="flex flex-wrap gap-1.5 text-xs"></div>
                     </div>
                 </div>
 
                 <!-- Biểu đồ phân tích doanh thu -->
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-2.5 sm:gap-3.5">
-                    <div class="lg:col-span-7 ios-card p-3.5 space-y-2 border-t-2 border-t-blue-500/40">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-2.5 sm:gap-3.5 lg:gap-4">
+                    <div class="lg:col-span-7 ios-card p-3.5 lg:p-5 space-y-2.5 border-t-2 border-t-blue-500/40">
                         <div class="flex items-center space-x-1.5">
                             <span class="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-sky-400"></span>
                             <span class="font-semibold text-xs text-[#1c1c1e] uppercase tracking-wider block">Biểu đồ doanh số</span>
                         </div>
-                        <div class="h-44 sm:h-52 w-full">
+                        <div class="h-44 sm:h-56 lg:h-64 w-full">
                             <canvas id="revenueChart"></canvas>
                         </div>
                     </div>
 
-                    <div class="lg:col-span-5 ios-card p-3.5 space-y-2 border-t-2 border-t-indigo-500/40">
+                    <div class="lg:col-span-5 ios-card p-3.5 lg:p-5 space-y-2.5 border-t-2 border-t-indigo-500/40">
                         <div class="flex items-center space-x-1.5">
                             <span class="w-2 h-2 rounded-full bg-gradient-to-r from-indigo-500 to-amber-400"></span>
                             <span class="font-semibold text-xs text-[#1c1c1e] uppercase tracking-wider block">Phương thức thanh toán</span>
                         </div>
-                        <div class="h-40 sm:h-48 flex items-center justify-center">
+                        <div class="h-40 sm:h-52 lg:h-60 flex items-center justify-center">
                             <canvas id="paymentMethodChart"></canvas>
                         </div>
                     </div>
