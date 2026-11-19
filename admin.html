@@ -241,7 +241,7 @@
         }
     </style>
     <!-- Precompiled Tailwind CSS (đặt sau <style> để giữ đúng thứ tự ưu tiên) -->
-    <link rel="stylesheet" href="./assets/admin.css?v=20261119d">
+    <link rel="stylesheet" href="./assets/admin.css?v=20261119e">
 </head>
 <body class="bg-iosBg text-[#1c1c1e] antialiased min-h-screen flex flex-col pb-safe-bottom">
 
@@ -1402,9 +1402,36 @@
                 <div class="ios-card overflow-hidden">
                     <div class="px-4 py-3 border-b border-black/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                         <h3 class="text-xs sm:text-sm font-bold text-[#1c1c1e]">Bảng Cơ Chế Phân Hạng Khách Hàng</h3>
-                        <span class="text-[11px] text-[#8E8E93]">Đơn <strong>Đã hủy</strong> / <strong>Hoàn hàng</strong> không cộng vào Tổng chi tiêu</span>
+                        <span class="text-[11px] text-[#8E8E93] leading-snug">Đơn <strong>Đã hủy</strong> / <strong>Hoàn hàng</strong> không cộng vào Tổng chi tiêu</span>
                     </div>
-                    <div class="overflow-x-auto">
+
+                    <!-- Giao diện thẻ dọc tối ưu cho điện thoại (không cần kéo ngang) -->
+                    <div class="sm:hidden divide-y divide-black/[0.06]">
+                        <div class="p-3.5 bg-amber-50/40 space-y-1.5">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="bg-amber-500/15 text-amber-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full">★ Khách VIP</span>
+                                <span class="text-xs font-bold text-[#1c1c1e] text-right">≥ 1.500.000đ hoặc ≥ 3 đơn</span>
+                            </div>
+                            <p class="text-[11px] text-[#3a3a3c] leading-relaxed">Ưu tiên tặng mã VIP / Freeship riêng, nhắc mua lại định kỳ qua Zalo.</p>
+                        </div>
+                        <div class="p-3.5 space-y-1.5">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="bg-sky-500/15 text-sky-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full">Khách quen</span>
+                                <span class="text-xs font-bold text-[#1c1c1e] text-right">2 đơn <span class="font-normal text-[#8E8E93]">(&lt; 1,5tr)</span></span>
+                            </div>
+                            <p class="text-[11px] text-[#3a3a3c] leading-relaxed">Khách đã quay lại lần 2; gửi mã giảm giá combo để lên hạng VIP.</p>
+                        </div>
+                        <div class="p-3.5 space-y-1.5">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="bg-slate-200/80 text-slate-600 text-[11px] font-semibold px-2.5 py-0.5 rounded-full">Khách mới</span>
+                                <span class="text-xs font-bold text-[#1c1c1e] text-right">1 đơn <span class="font-normal text-[#8E8E93]">(&lt; 1,5tr)</span></span>
+                            </div>
+                            <p class="text-[11px] text-[#3a3a3c] leading-relaxed">Nhắn hỏi thăm cảm nhận sau khi giao xong, mời đánh giá nhận ưu đãi.</p>
+                        </div>
+                    </div>
+
+                    <!-- Giao diện bảng cho máy tính / tablet -->
+                    <div class="hidden sm:block overflow-x-auto">
                         <table class="w-full text-left text-xs">
                             <thead class="bg-[#F2F2F7] text-[#8E8E93] font-semibold">
                                 <tr>
