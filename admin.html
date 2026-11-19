@@ -113,10 +113,26 @@
             background: linear-gradient(90deg, rgba(240, 249, 255, 0.9) 0%, rgba(242, 242, 247, 0.75) 55%, rgba(255, 251, 235, 0.7) 100%);
         }
 
-        /* Tab desktop đang chọn có dải nhấn xanh đại dương nhẹ */
+        /* Sidebar Desktop bên trái: trạng thái đang chọn & chế độ thu gọn */
         button[id^="desktopTabBtn-"].border-\[\#007AFF\] {
-            background: linear-gradient(180deg, rgba(0, 122, 255, 0) 0%, rgba(14, 165, 233, 0.11) 100%);
-            border-radius: 10px 10px 0 0;
+            background: linear-gradient(135deg, rgba(0, 122, 255, 0.13) 0%, rgba(14, 165, 233, 0.08) 100%);
+            box-shadow: 0 2px 8px -2px rgba(0, 122, 255, 0.16);
+        }
+        #desktopSidebar.sidebar-collapsed {
+            width: 72px;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        #desktopSidebar.sidebar-collapsed .sidebar-label,
+        #desktopSidebar.sidebar-collapsed .sidebar-group-title,
+        #desktopSidebar.sidebar-collapsed .sidebar-badge,
+        #desktopSidebar.sidebar-collapsed .sidebar-footer-card {
+            display: none;
+        }
+        #desktopSidebar.sidebar-collapsed .sidebar-nav-btn {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
         }
 
         /* iOS Segmented Control chuẩn Apple */
@@ -198,7 +214,7 @@
             #appsScriptModal,
             #productModal,
             #adminReviewModal,
-            header, nav, main, footer,
+            header, aside, #desktopSidebar, nav, main, footer,
             .no-print {
                 display: none !important;
                 visibility: hidden !important;
@@ -275,7 +291,7 @@
         }
     </style>
     <!-- Precompiled Tailwind CSS (đặt sau <style> để giữ đúng thứ tự ưu tiên) -->
-    <link rel="stylesheet" href="./assets/admin.css?v=20261115a">
+    <link rel="stylesheet" href="./assets/admin.css?v=20261119a">
 </head>
 <body class="bg-iosBg text-[#1c1c1e] antialiased min-h-screen flex flex-col pb-safe-bottom">
 
@@ -309,14 +325,19 @@
 
         <!-- Top Navigation Bar chuẩn iOS Navigation Bar -->
         <header class="sticky top-0 z-30 ios-blur border-b border-sky-200/50 shadow-[0_4px_20px_-6px_rgba(2,132,199,0.12)] transition-all">
-            <div class="max-w-5xl mx-auto px-4 sm:px-6 h-12 sm:h-14 flex items-center justify-between">
-                <!-- Logo & Brand -->
+            <div class="w-full px-4 sm:px-6 h-12 sm:h-14 flex items-center justify-between">
+                <!-- Logo & Brand + Nút Thu Gọn Sidebar trên Desktop -->
                 <div class="flex items-center space-x-2.5">
+                    <button type="button" onclick="toggleDesktopSidebar()" title="Thu gọn / Mở rộng menu trái"
+                            class="hidden md:flex w-8 h-8 rounded-lg bg-[#767680]/[0.10] hover:bg-sky-500/15 text-[#1c1c1e] hover:text-[#007AFF] items-center justify-center transition ios-press">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
                     <div class="p-0.5 rounded-xl bg-gradient-to-br from-sky-400 via-[#007AFF] to-amber-400 shadow-sm">
                         <img src="./pictrure/logo.JPG" alt="Logo" class="w-7 h-7 sm:w-8 sm:h-8 rounded-[10px] object-cover bg-white">
                     </div>
                     <div class="flex items-center space-x-2">
                         <span class="font-bold text-sm sm:text-base tracking-tight bg-gradient-to-r from-[#0f172a] via-[#1e3a8a] to-[#0284c7] bg-clip-text text-transparent">Ba Cô</span>
+                        <span class="hidden md:inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-sky-500/10 text-[#0284c7]">Quản trị</span>
                         <span class="w-2 h-2 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 ring-2 ring-emerald-400/25" title="Đã kết nối Cơ sở dữ liệu"></span>
                     </div>
                 </div>
@@ -349,7 +370,7 @@
 
             <!-- Thanh Pill Thông Báo Chưa Đọc Nổi Bật Phía Trên Đầu Màn Hình Chính (Hiện tự động khi có thông báo mới) -->
             <div id="topUnreadNotifBar" class="hidden bg-gradient-to-r from-[#007AFF] via-[#0284C7] to-[#0EA5E9] text-white cursor-pointer transition-all" onclick="switchTab('notifications')">
-                <div class="max-w-5xl mx-auto px-4 sm:px-6 py-1.5 flex items-center justify-between text-xs font-medium">
+                <div class="w-full px-4 sm:px-6 py-1.5 flex items-center justify-between text-xs font-medium">
                     <div class="flex items-center space-x-2 truncate">
                         <span class="inline-flex items-center justify-center bg-white text-[#007AFF] font-bold text-[10px] min-w-[18px] h-[18px] px-1.5 rounded-full" id="topUnreadNotifCount">0</span>
                         <span id="topUnreadNotifText" class="truncate">Bạn có thông báo mới chưa đọc</span>
@@ -357,43 +378,110 @@
                     <span class="text-[11px] font-semibold whitespace-nowrap ml-2">Xem ngay ›</span>
                 </div>
             </div>
-
-            <!-- Desktop Tabs Bar (Ẩn trên điện thoại, hiển thị trên máy tính) -->
-            <div class="hidden md:flex max-w-5xl mx-auto px-6 gap-6 lg:gap-8 overflow-x-auto whitespace-nowrap no-scrollbar border-t border-black/[0.06] text-xs font-semibold">
-                <button onclick="switchTab('analytics')" id="desktopTabBtn-analytics" class="px-1.5 py-3 border-b-2 border-[#007AFF] text-[#007AFF] flex items-center space-x-1.5 transition shrink-0">
-                    <span>Tổng quan</span>
-                </button>
-                <button onclick="switchTab('orders')" id="desktopTabBtn-orders" class="px-1.5 py-3 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition shrink-0">
-                    <span>Đơn hàng</span>
-                    <span id="desktopOrderCountBadge" class="bg-sky-500/12 text-sky-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
-                </button>
-                <button onclick="switchTab('customers')" id="desktopTabBtn-customers" class="px-1.5 py-3 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition shrink-0">
-                    <span>Khách hàng</span>
-                    <span id="desktopCustomerCountBadge" class="bg-indigo-500/12 text-indigo-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
-                </button>
-                <button onclick="switchTab('products')" id="desktopTabBtn-products" class="px-1.5 py-3 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition shrink-0">
-                    <span>Sản phẩm</span>
-                    <span id="desktopProductCountBadge" class="bg-emerald-500/12 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">3</span>
-                </button>
-                <button onclick="switchTab('content')" id="desktopTabBtn-content" class="px-1.5 py-3 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition shrink-0">
-                    <span>Nội dung</span>
-                </button>
-                <button onclick="switchTab('reviews')" id="desktopTabBtn-reviews" class="px-1.5 py-3 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition shrink-0">
-                    <span>Đánh giá</span>
-                    <span id="desktopReviewCountBadge" class="bg-amber-500/15 text-amber-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
-                </button>
-                <button onclick="switchTab('vouchers')" id="desktopTabBtn-vouchers" class="px-1.5 py-3 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition shrink-0">
-                    <span>Mã giảm giá</span>
-                </button>
-                <button onclick="switchTab('notifications')" id="desktopTabBtn-notifications" class="px-1.5 py-3 border-b-2 border-transparent text-[#8E8E93] hover:text-[#1c1c1e] flex items-center space-x-1.5 transition shrink-0">
-                    <span>Thông báo</span>
-                    <span id="desktopNotifCountBadge" class="hidden bg-gradient-to-r from-rose-500 to-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
-                </button>
-            </div>
         </header>
 
-        <!-- NỘI DUNG CHÍNH -->
-        <main class="max-w-5xl mx-auto px-3.5 sm:px-6 py-3.5 sm:py-5 flex-1 w-full space-y-4">
+        <!-- KHUNG BỐ CỤC DESKTOP (SIDEBAR TRÁI + NỘI DUNG PHẢI) — TRÊN MOBILE GIỮ NGUYÊN 1 CỘT -->
+        <div class="flex-1 flex w-full">
+
+            <!-- Desktop Left Sidebar (Chỉ hiển thị trên máy tính md+, ẩn hoàn toàn trên điện thoại) -->
+            <aside id="desktopSidebar" class="hidden md:flex flex-col justify-between shrink-0 w-60 lg:w-64 sticky top-14 h-[calc(100vh-3.5rem)] ios-blur border-r border-sky-200/50 px-3 py-4 overflow-y-auto no-scrollbar transition-all duration-200 select-none">
+                <div class="space-y-5">
+                    <!-- Nhóm 1: Bán hàng -->
+                    <div class="space-y-1">
+                        <div class="sidebar-group-title px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-[#8E8E93]">Bán hàng</div>
+
+                        <button onclick="switchTab('analytics')" id="desktopTabBtn-analytics" title="Tổng quan"
+                                class="sidebar-nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl border-l-[3px] border-[#007AFF] text-[#007AFF] hover:bg-sky-50/70 text-[13px] font-semibold transition ios-press">
+                            <span class="flex items-center gap-2.5 min-w-0">
+                                <svg class="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                                <span class="sidebar-label truncate">Tổng quan</span>
+                            </span>
+                        </button>
+
+                        <button onclick="switchTab('orders')" id="desktopTabBtn-orders" title="Đơn hàng"
+                                class="sidebar-nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl border-l-[3px] border-transparent text-[#8E8E93] hover:bg-sky-50/70 hover:text-[#1c1c1e] text-[13px] font-semibold transition ios-press">
+                            <span class="flex items-center gap-2.5 min-w-0">
+                                <svg class="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                                <span class="sidebar-label truncate">Đơn hàng</span>
+                            </span>
+                            <span id="desktopOrderCountBadge" class="sidebar-badge bg-sky-500/12 text-sky-700 text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
+                        </button>
+
+                        <button onclick="switchTab('customers')" id="desktopTabBtn-customers" title="Khách hàng"
+                                class="sidebar-nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl border-l-[3px] border-transparent text-[#8E8E93] hover:bg-sky-50/70 hover:text-[#1c1c1e] text-[13px] font-semibold transition ios-press">
+                            <span class="flex items-center gap-2.5 min-w-0">
+                                <svg class="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                <span class="sidebar-label truncate">Khách hàng</span>
+                            </span>
+                            <span id="desktopCustomerCountBadge" class="sidebar-badge bg-indigo-500/12 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
+                        </button>
+
+                        <button onclick="switchTab('products')" id="desktopTabBtn-products" title="Sản phẩm"
+                                class="sidebar-nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl border-l-[3px] border-transparent text-[#8E8E93] hover:bg-sky-50/70 hover:text-[#1c1c1e] text-[13px] font-semibold transition ios-press">
+                            <span class="flex items-center gap-2.5 min-w-0">
+                                <svg class="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                                <span class="sidebar-label truncate">Sản phẩm</span>
+                            </span>
+                            <span id="desktopProductCountBadge" class="sidebar-badge bg-emerald-500/12 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">3</span>
+                        </button>
+                    </div>
+
+                    <!-- Nhóm 2: Chăm sóc & Ưu đãi -->
+                    <div class="space-y-1">
+                        <div class="sidebar-group-title px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-[#8E8E93]">Chăm sóc &amp; Ưu đãi</div>
+
+                        <button onclick="switchTab('vouchers')" id="desktopTabBtn-vouchers" title="Mã giảm giá"
+                                class="sidebar-nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl border-l-[3px] border-transparent text-[#8E8E93] hover:bg-sky-50/70 hover:text-[#1c1c1e] text-[13px] font-semibold transition ios-press">
+                            <span class="flex items-center gap-2.5 min-w-0">
+                                <svg class="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                                <span class="sidebar-label truncate">Mã giảm giá</span>
+                            </span>
+                        </button>
+
+                        <button onclick="switchTab('reviews')" id="desktopTabBtn-reviews" title="Đánh giá"
+                                class="sidebar-nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl border-l-[3px] border-transparent text-[#8E8E93] hover:bg-sky-50/70 hover:text-[#1c1c1e] text-[13px] font-semibold transition ios-press">
+                            <span class="flex items-center gap-2.5 min-w-0">
+                                <svg class="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                                <span class="sidebar-label truncate">Đánh giá</span>
+                            </span>
+                            <span id="desktopReviewCountBadge" class="sidebar-badge bg-amber-500/15 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
+                        </button>
+
+                        <button onclick="switchTab('notifications')" id="desktopTabBtn-notifications" title="Thông báo"
+                                class="sidebar-nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl border-l-[3px] border-transparent text-[#8E8E93] hover:bg-sky-50/70 hover:text-[#1c1c1e] text-[13px] font-semibold transition ios-press">
+                            <span class="flex items-center gap-2.5 min-w-0">
+                                <svg class="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                                <span class="sidebar-label truncate">Thông báo</span>
+                            </span>
+                            <span id="desktopNotifCountBadge" class="sidebar-badge hidden bg-gradient-to-r from-rose-500 to-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
+                        </button>
+                    </div>
+
+                    <!-- Nhóm 3: Website -->
+                    <div class="space-y-1">
+                        <div class="sidebar-group-title px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-[#8E8E93]">Website</div>
+
+                        <button onclick="switchTab('content')" id="desktopTabBtn-content" title="Nội dung Web"
+                                class="sidebar-nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl border-l-[3px] border-transparent text-[#8E8E93] hover:bg-sky-50/70 hover:text-[#1c1c1e] text-[13px] font-semibold transition ios-press">
+                            <span class="flex items-center gap-2.5 min-w-0">
+                                <svg class="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                <span class="sidebar-label truncate">Nội dung Web</span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Footer nhỏ gọn cuối Sidebar -->
+                <div class="sidebar-footer-card mt-6 pt-3 border-t border-black/[0.06] space-y-2">
+                    <div class="grad-card-emerald rounded-xl px-3 py-2 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                        <span class="text-[11px] font-semibold text-emerald-800 truncate">Cơ sở dữ liệu sẵn sàng</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- NỘI DUNG CHÍNH -->
+            <main class="flex-1 min-w-0 max-w-5xl mx-auto px-3.5 sm:px-6 py-3.5 sm:py-5 w-full space-y-4">
 
             <!-- ================= TAB 1: TỔNG QUAN & DOANH SỐ ================= -->
             <section id="tab-analytics" class="space-y-3">
@@ -811,7 +899,7 @@
                 </div>
 
                 <!-- Segmented Control chọn mục nội dung (Ưu tiên Banner và Header lên đầu) -->
-                <div class="ios-segmented grid grid-cols-5 gap-1 sticky top-12 sm:top-14 md:top-[93px] z-20">
+                <div class="ios-segmented grid grid-cols-5 gap-1 sticky top-12 sm:top-14 md:top-14 z-20">
                     <button type="button" onclick="switchCmsFolder('hero')" id="cmsFolderBtn-hero" class="cms-folder-btn active py-2 px-1 sm:px-2 rounded-lg text-xs font-semibold transition text-center ios-press">
                         Banner
                     </button>
@@ -1343,6 +1431,7 @@
             </section>
 
         </main>
+        </div>
 
         <!-- Menu phụ cho Mobile Tab Bar ("Thêm") -->
         <div id="mobileMoreMenu" class="hidden md:hidden fixed bottom-[72px] right-3 z-50 bg-white/95 backdrop-blur-xl border border-black/[0.08] rounded-2xl shadow-2xl p-2.5 w-56 space-y-1.5 text-xs font-semibold text-[#1c1c1e]">
@@ -4345,6 +4434,22 @@ function moHopThoaiDatSheetRiengTu() {
         }
 
         // ================= ĐIỀU HƯỚNG TABS (CẢ MOBILE & DESKTOP) =================
+        function toggleDesktopSidebar() {
+            const sb = document.getElementById('desktopSidebar');
+            if (!sb) return;
+            const collapsed = sb.classList.toggle('sidebar-collapsed');
+            try { localStorage.setItem('baco_admin_sidebar_collapsed', collapsed ? '1' : '0'); } catch (e) {}
+        }
+
+        (function initDesktopSidebarState() {
+            try {
+                if (localStorage.getItem('baco_admin_sidebar_collapsed') === '1') {
+                    const sb = document.getElementById('desktopSidebar');
+                    if (sb) sb.classList.add('sidebar-collapsed');
+                }
+            } catch (e) {}
+        })();
+
         function toggleMobileMoreMenu() {
             const menu = document.getElementById('mobileMoreMenu');
             if (menu) menu.classList.toggle('hidden');
