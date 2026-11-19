@@ -607,6 +607,9 @@
                         <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[#1c1c1e]">Đơn Hàng</h1>
                     </div>
                     <div class="flex items-center space-x-1.5">
+                        <button type="button" onclick="openManualOrderModal()" class="bg-[#007AFF] hover:bg-[#0066D6] text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition ios-press">
+                            + Tạo đơn
+                        </button>
                         <button type="button" onclick="handleExportCurrentOrdersCsv()" class="bg-white/95 hover:bg-sky-50 text-[#1c1c1e] border border-black/[0.08] text-xs font-medium px-2.5 py-1.5 rounded-lg transition ios-press">
                             Xuất CSV
                         </button>
@@ -1433,6 +1436,77 @@
                 <button type="button" onclick="closeOrderPrintModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition">Đóng</button>
                 <button type="button" onclick="window.print()" class="flex-1 py-2.5 rounded-xl bg-[#007AFF] hover:bg-blue-600 text-white font-bold text-xs shadow transition">🖨️ In Phiếu Ngay</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal Tạo Đơn Hàng Thủ Công (Zalo / Điện thoại / Tại quầy) -->
+    <div id="manualOrderModal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 hidden no-print">
+        <div class="bg-white rounded-t-[28px] sm:rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto space-y-3.5">
+            <div class="w-10 h-1.5 bg-slate-300 rounded-full mx-auto sm:hidden mb-1"></div>
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <h3 class="text-base sm:text-lg font-bold text-[#1c1c1e]">➕ Tạo Đơn Hàng Thủ Công</h3>
+                <button type="button" onclick="closeManualOrderModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold transition ios-press">✕</button>
+            </div>
+            <form id="manualOrderForm" onsubmit="handleSaveManualOrder(event)" class="space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Tên khách hàng *</label>
+                        <input type="text" id="moName" required placeholder="VD: Anh Minh" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Số điện thoại *</label>
+                        <input type="tel" id="moPhone" required placeholder="VD: 0985520678" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Địa chỉ giao hàng *</label>
+                    <input type="text" id="moAddress" required placeholder="Số nhà, phường/xã, quận/huyện, tỉnh/thành..." class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
+                </div>
+                <div class="grid grid-cols-3 gap-2.5">
+                    <div class="col-span-2">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Sản phẩm *</label>
+                        <select id="moProductSelect" onchange="updateManualOrderPreview()" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none font-medium"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Số lượng *</label>
+                        <input type="number" id="moQty" min="1" value="1" oninput="updateManualOrderPreview(true)" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm font-bold text-center focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-2.5">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Phí ship (đ)</label>
+                        <input type="number" id="moShipFee" min="0" step="1000" value="30000" oninput="updateManualOrderPreview(false)" class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Thanh toán</label>
+                        <select id="moPayment" class="w-full px-2.5 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
+                            <option value="COD (Thanh toán tiền mặt khi nhận hàng)">Tiền mặt COD</option>
+                            <option value="Chuyển khoản VietQR (SePay)">Chuyển khoản</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Trạng thái</label>
+                        <select id="moStatus" class="w-full px-2.5 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
+                            <option value="Chờ xác nhận">Chờ duyệt</option>
+                            <option value="Đang giao">Đang giao</option>
+                            <option value="Đã nhận tiền">Đã nhận tiền</option>
+                            <option value="Hoàn tất">Hoàn tất</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Ghi chú (Zalo / Yêu cầu)</label>
+                    <input type="text" id="moNote" placeholder="VD: Khách chốt qua Zalo, giao giờ hành chính..." class="w-full px-3 py-2 rounded-xl bg-[#767680]/[0.08] border border-slate-200/70 text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#007AFF] focus:outline-none">
+                </div>
+                <div class="flex items-center justify-between bg-[#F2F2F7] px-3.5 py-2.5 rounded-xl text-xs font-bold">
+                    <span class="text-[#636366]">Tổng thu đơn hàng:</span>
+                    <span id="moTotalPreview" class="text-base text-[#007AFF] font-extrabold tabular-nums">0 đ</span>
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <button type="button" onclick="closeManualOrderModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition">Hủy</button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-[#007AFF] hover:bg-[#0066D6] text-white font-semibold text-xs transition ios-press">💾 Lưu Đơn &amp; Đồng Bộ</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -4582,6 +4656,168 @@ function moHopThoaiDatSheetRiengTu() {
             }).join('');
         }
 
+        // ================= TẠO ĐƠN THỦ CÔNG & COPY TIN NHẮN ZALO =================
+        function openManualOrderModal() {
+            const modal = document.getElementById('manualOrderModal');
+            const sel = document.getElementById('moProductSelect');
+            if (sel) {
+                const list = (Array.isArray(products) && products.length > 0) ? products : [];
+                sel.innerHTML = list.map((p, idx) => {
+                    const price = Number(p.price || 0);
+                    return `<option value="${escHtml(p.id || idx)}" data-price="${price}" data-name="${escHtml(p.name)}">${escHtml(p.name)} (${price.toLocaleString('vi-VN')}đ)</option>`;
+                }).join('');
+            }
+            const form = document.getElementById('manualOrderForm');
+            if (form) form.reset();
+            const qtyEl = document.getElementById('moQty');
+            if (qtyEl) qtyEl.value = 1;
+            updateManualOrderPreview(true);
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeManualOrderModal() {
+            const modal = document.getElementById('manualOrderModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function updateManualOrderPreview(autoShip = false) {
+            const sel = document.getElementById('moProductSelect');
+            const qtyEl = document.getElementById('moQty');
+            const shipEl = document.getElementById('moShipFee');
+            const previewEl = document.getElementById('moTotalPreview');
+            if (!sel || !qtyEl || !shipEl || !previewEl) return;
+            const opt = sel.options[sel.selectedIndex];
+            const unitPrice = opt ? Number(opt.getAttribute('data-price') || 0) : 0;
+            const qty = Math.max(1, parseInt(qtyEl.value || '1', 10) || 1);
+            const subtotal = unitPrice * qty;
+            if (autoShip) {
+                shipEl.value = (qty >= 2 || subtotal >= 250000) ? 0 : 30000;
+            }
+            const shipFee = Math.max(0, Number(shipEl.value || 0));
+            const total = subtotal + shipFee;
+            previewEl.textContent = `${total.toLocaleString('vi-VN')} đ`;
+        }
+
+        function handleSaveManualOrder(e) {
+            e.preventDefault();
+            const name = (document.getElementById('moName')?.value || '').trim();
+            const phone = (document.getElementById('moPhone')?.value || '').replace(/[\s\.\-\(\)]/g, '').trim();
+            const address = (document.getElementById('moAddress')?.value || '').trim();
+            const sel = document.getElementById('moProductSelect');
+            const opt = sel ? sel.options[sel.selectedIndex] : null;
+            const prodId = sel ? sel.value : '';
+            const prodName = opt ? (opt.getAttribute('data-name') || opt.textContent) : '';
+            const unitPrice = opt ? Number(opt.getAttribute('data-price') || 0) : 0;
+            const qty = Math.max(1, parseInt(document.getElementById('moQty')?.value || '1', 10) || 1);
+            const shipFee = Math.max(0, Number(document.getElementById('moShipFee')?.value || 0));
+            const paymentMethod = document.getElementById('moPayment')?.value || 'COD (Thanh toán tiền mặt khi nhận hàng)';
+            const status = document.getElementById('moStatus')?.value || 'Chờ xác nhận';
+            const note = (document.getElementById('moNote')?.value || '').trim();
+
+            if (name.length < 2 || phone.length < 9 || address.length < 4 || !prodName) {
+                showAdminToast('Vui lòng nhập đầy đủ Tên, SĐT, Địa chỉ và Sản phẩm!', 'warning');
+                return;
+            }
+
+            const totalAmount = (unitPrice * qty) + shipFee;
+            const orderCode = 'BC' + Math.floor(100000 + Math.random() * 900000);
+            const productLabel = `${prodName} (${unitPrice.toLocaleString('vi-VN')}đ)`;
+            const newOrder = {
+                orderCode,
+                name,
+                phone,
+                address,
+                product: productLabel,
+                quantity: qty,
+                shippingFee: shipFee,
+                totalAmount,
+                paymentMethod,
+                status,
+                note: note || 'Đơn tạo thủ công từ Admin',
+                timestamp: new Date().toLocaleDateString('vi-VN'),
+                createdAt: Date.now()
+            };
+
+            orders.unshift(newOrder);
+            localStorage.setItem('baco_orders', JSON.stringify(orders));
+
+            // Trừ tồn kho nếu sản phẩm có theo dõi số lượng
+            const prodObj = products.find(p => String(p.id) === String(prodId) || p.name === prodName);
+            if (prodObj && typeof prodObj.stock === 'number' && !isNaN(prodObj.stock)) {
+                prodObj.stock = Math.max(0, prodObj.stock - qty);
+                prodObj.inStock = prodObj.stock > 0;
+                localStorage.setItem('baco_products', JSON.stringify(products));
+            }
+
+            closeManualOrderModal();
+            currentOrderType = 'retail';
+            currentOrderPage = 1;
+            renderOrders();
+            renderProducts();
+            renderAnalytics();
+            renderCustomersCRM();
+            updateBadges();
+            showAdminToast(`✅ Đã tạo đơn #${orderCode} (${totalAmount.toLocaleString('vi-VN')} đ)!`, 'success');
+
+            syncToGoogleSheet({
+                orderCode,
+                name,
+                phone,
+                address,
+                product: productLabel,
+                quantity: qty,
+                totalAmount,
+                paymentMethod,
+                status,
+                note: newOrder.note,
+                timestamp: new Date().toLocaleString('vi-VN')
+            }).then(() => {
+                setTimeout(() => fetchOrdersFromGoogleSheet(true), 1200);
+            });
+        }
+
+        function copyOrderZaloMessage(index) {
+            const o = orders[index];
+            if (!o) return;
+            const isPaid = String(o.status || '').includes('Đã nhận tiền') || String(o.status || '').includes('Hoàn tất');
+            const totalStr = Number(o.totalAmount || 0).toLocaleString('vi-VN') + ' đ';
+            const payLine = isPaid
+                ? `💳 Thanh toán: Đã thanh toán (${totalStr})`
+                : `💵 Thu hộ (COD): ${totalStr}`;
+            const statusHint = o.status === 'Đang giao'
+                ? '🚚 Đơn hàng của mình hiện đang trên đường giao, anh/chị để ý điện thoại giúp em nhé!'
+                : '🙏 Cảm ơn anh/chị đã tin tưởng đặt Nước Mắm Ba Cô Khánh Hòa!';
+            const msg = [
+                `Dạ em chào ${o.name}, Nước Mắm Ba Cô Khánh Hòa xác nhận đơn hàng #${o.orderCode}:`,
+                `• Sản phẩm: ${o.product} (SL: ${Number(o.quantity || 1)})`,
+                `• Giao tới: ${o.address}`,
+                payLine,
+                `• Trạng thái: ${o.status || 'Chờ xác nhận'}`,
+                statusHint
+            ].join('\n');
+
+            const doneToast = () => showAdminToast(`💬 Đã copy tin nhắn Zalo cho đơn #${o.orderCode}!`, 'success');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(msg).then(doneToast).catch(() => {
+                    const ta = document.createElement('textarea');
+                    ta.value = msg;
+                    ta.style.position = 'fixed';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    try { document.execCommand('copy'); doneToast(); } catch (err) {}
+                    document.body.removeChild(ta);
+                });
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = msg;
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); doneToast(); } catch (err) {}
+                document.body.removeChild(ta);
+            }
+        }
+
         // ================= IN PHIẾU GIAO HÀNG (A6 / 80MM) =================
         function printOrderSlip(index) {
             const order = orders[index];
@@ -4958,6 +5194,9 @@ function moHopThoaiDatSheetRiengTu() {
                                     </div>
 
                                     <div class="flex items-center gap-1.5">
+                                        <button type="button" onclick="copyOrderZaloMessage(${originalIdx})" class="text-xs bg-sky-50 hover:bg-sky-100 text-[#007AFF] px-2 py-1.5 rounded-lg font-semibold transition ios-press" title="Copy tin nhắn gửi Zalo">
+                                            💬 Copy
+                                        </button>
                                         <button type="button" onclick="printOrderSlip(${originalIdx})" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1.5 rounded-lg font-semibold transition ios-press" title="In phiếu giao hàng">
                                             🖨️ In
                                         </button>
@@ -5039,6 +5278,10 @@ function moHopThoaiDatSheetRiengTu() {
                                 </td>
                                 <td class="px-4 py-3 text-right whitespace-nowrap">
                                     <div class="inline-flex items-center justify-end gap-1.5">
+                                        <button type="button" onclick="copyOrderZaloMessage(${originalIdx})" 
+                                                class="text-xs bg-sky-50 hover:bg-sky-100 text-[#007AFF] px-2.5 py-1 rounded-lg font-semibold transition ios-press" title="Copy tin nhắn xác nhận gửi Zalo">
+                                            💬 Copy Zalo
+                                        </button>
                                         <button type="button" onclick="printOrderSlip(${originalIdx})" 
                                                 class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg font-semibold transition ios-press" title="In phiếu giao hàng">
                                             🖨️ In phiếu
