@@ -25,11 +25,9 @@
     <!-- Chart.js CDN cho biểu đồ doanh số -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <style>
-        /* Apple iOS Native Minimalist Look & Feel + Semantic Gradient Accents */
+        /* Apple iOS Native Minimalist Look & Feel */
         body {
             background-color: #f2f2f7;
-            background-image: linear-gradient(155deg, #eef6ff 0%, #f2f2f7 48%, #fdf7ee 100%);
-            background-attachment: fixed;
             color: #1c1c1e;
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
             -webkit-font-smoothing: antialiased;
@@ -56,67 +54,19 @@
         .ios-blur {
             backdrop-filter: saturate(180%) blur(20px);
             -webkit-backdrop-filter: saturate(180%) blur(20px);
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(244, 249, 255, 0.88) 100%);
+            background-color: rgba(255, 255, 255, 0.88);
         }
 
         .ios-card {
             background-color: #ffffff;
             border-radius: 16px;
-            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03), 0 1px 2px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
             border: 0.5px solid rgba(60, 60, 67, 0.1);
-            transition: box-shadow 0.2s ease, border-color 0.2s ease;
-        }
-
-        /* Dải màu Gradient nhấn mạnh thông tin quan trọng */
-        .grad-card-emerald {
-            background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 58%, #f0fdfa 100%);
-            border: 1px solid rgba(16, 185, 129, 0.28);
-            box-shadow: 0 4px 14px -4px rgba(16, 185, 129, 0.14);
-        }
-        .grad-card-sky {
-            background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 58%, #eff6ff 100%);
-            border: 1px solid rgba(14, 165, 233, 0.28);
-            box-shadow: 0 4px 14px -4px rgba(14, 165, 233, 0.14);
-        }
-        .grad-card-indigo {
-            background: linear-gradient(135deg, #eef2ff 0%, #ffffff 58%, #f5f3ff 100%);
-            border: 1px solid rgba(99, 102, 241, 0.28);
-            box-shadow: 0 4px 14px -4px rgba(99, 102, 241, 0.14);
-        }
-        .grad-card-amber {
-            background: linear-gradient(135deg, #fffbeb 0%, #ffffff 58%, #fff7ed 100%);
-            border: 1px solid rgba(245, 158, 11, 0.32);
-            box-shadow: 0 4px 14px -4px rgba(245, 158, 11, 0.15);
-        }
-        .grad-card-rose {
-            background: linear-gradient(135deg, #fff1f2 0%, #ffffff 62%, #fef2f2 100%);
-            border: 1px solid rgba(244, 63, 94, 0.28);
-            box-shadow: 0 4px 14px -4px rgba(244, 63, 94, 0.12);
-        }
-
-        .grad-btn-blue {
-            background: linear-gradient(135deg, #007AFF 0%, #0EA5E9 100%);
-            box-shadow: 0 4px 12px -2px rgba(0, 122, 255, 0.32);
-        }
-        .grad-btn-emerald {
-            background: linear-gradient(135deg, #10b981 0%, #0d9488 100%);
-            box-shadow: 0 4px 12px -2px rgba(16, 185, 129, 0.28);
-        }
-        .grad-btn-dark {
-            background: linear-gradient(135deg, #334155 0%, #0f172a 100%);
-            box-shadow: 0 4px 10px -2px rgba(15, 23, 42, 0.25);
-        }
-        .grad-bar-accent {
-            background: linear-gradient(180deg, #007AFF 0%, #0EA5E9 55%, #f59e0b 100%);
-        }
-        .grad-table-head {
-            background: linear-gradient(90deg, rgba(240, 249, 255, 0.9) 0%, rgba(242, 242, 247, 0.75) 55%, rgba(255, 251, 235, 0.7) 100%);
         }
 
         /* Sidebar Desktop bên trái: trạng thái đang chọn & chế độ thu gọn */
         button[id^="desktopTabBtn-"].border-\[\#007AFF\] {
-            background: linear-gradient(135deg, rgba(0, 122, 255, 0.13) 0%, rgba(14, 165, 233, 0.08) 100%);
-            box-shadow: 0 2px 8px -2px rgba(0, 122, 255, 0.16);
+            background-color: rgba(0, 122, 255, 0.09);
         }
         #desktopSidebar.sidebar-collapsed {
             width: 72px;
@@ -146,9 +96,9 @@
             border-radius: 8px;
         }
         .ios-segment-btn.active {
-            background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);
-            color: #007AFF;
-            box-shadow: 0 2px 6px rgba(0, 122, 255, 0.12), 0 1px 1px rgba(0,0,0,0.06);
+            background-color: #ffffff;
+            color: #1c1c1e;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 1px rgba(0,0,0,0.06);
             font-weight: 600;
         }
 
@@ -158,9 +108,9 @@
             background-color: transparent;
         }
         .cms-folder-btn.active {
-            background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
+            background-color: #ffffff;
             color: #007AFF;
-            box-shadow: 0 2px 6px rgba(0, 122, 255, 0.14);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         /* Tùy chỉnh thanh cuộn tối giản */
@@ -291,7 +241,7 @@
         }
     </style>
     <!-- Precompiled Tailwind CSS (đặt sau <style> để giữ đúng thứ tự ưu tiên) -->
-    <link rel="stylesheet" href="./assets/admin.css?v=20261119b">
+    <link rel="stylesheet" href="./assets/admin.css?v=20261119c">
 </head>
 <body class="bg-iosBg text-[#1c1c1e] antialiased min-h-screen flex flex-col pb-safe-bottom">
 
@@ -313,7 +263,7 @@
     <audio id="bacoChimeAudioElement" preload="auto" playsinline></audio>
 
     <!-- 1. MÀN HÌNH XÁC THỰC (Đăng nhập thật được xử lý phía máy chủ Cloudflare - functions/_middleware.js) -->
-    <div id="loginScreen" class="fixed inset-0 z-50 bg-gradient-to-br from-sky-50 via-[#F2F2F7] to-amber-50/70 flex items-center justify-center p-5">
+    <div id="loginScreen" class="fixed inset-0 z-50 bg-[#F2F2F7] flex items-center justify-center p-5">
         <div class="flex flex-col items-center justify-center text-[#8E8E93]">
             <span class="animate-spin text-[#007AFF] text-2xl">↻</span>
         </div>
@@ -324,7 +274,7 @@
     <div id="adminApp" class="hidden flex-1 flex flex-col">
 
         <!-- Top Navigation Bar chuẩn iOS Navigation Bar -->
-        <header class="sticky top-0 z-30 ios-blur border-b border-sky-200/50 shadow-[0_4px_20px_-6px_rgba(2,132,199,0.12)] transition-all">
+        <header class="sticky top-0 z-30 ios-blur border-b border-black/[0.08] transition-all">
             <div class="w-full px-4 sm:px-6 h-12 sm:h-14 flex items-center justify-between">
                 <!-- Logo & Brand + Nút Thu Gọn Sidebar trên Desktop -->
                 <div class="flex items-center space-x-2.5">
@@ -332,13 +282,11 @@
                             class="hidden md:flex w-8 h-8 rounded-lg bg-[#767680]/[0.10] hover:bg-sky-500/15 text-[#1c1c1e] hover:text-[#007AFF] items-center justify-center transition ios-press">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
                     </button>
-                    <div class="p-0.5 rounded-xl bg-gradient-to-br from-sky-400 via-[#007AFF] to-amber-400 shadow-sm">
-                        <img src="./pictrure/logo.JPG" alt="Logo" class="w-7 h-7 sm:w-8 sm:h-8 rounded-[10px] object-cover bg-white">
-                    </div>
+                    <img src="./pictrure/logo.JPG" alt="Logo" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover border border-black/[0.08]">
                     <div class="flex items-center space-x-2">
-                        <span class="font-bold text-sm sm:text-base tracking-tight bg-gradient-to-r from-[#0f172a] via-[#1e3a8a] to-[#0284c7] bg-clip-text text-transparent">Ba Cô</span>
+                        <span class="font-bold text-sm sm:text-base tracking-tight text-[#1c1c1e]">Ba Cô</span>
                         <span class="hidden md:inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-sky-500/10 text-[#0284c7]">Quản trị</span>
-                        <span class="w-2 h-2 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 ring-2 ring-emerald-400/25" title="Đã kết nối Cơ sở dữ liệu"></span>
+                        <span class="w-2 h-2 rounded-full bg-[#34C759]" title="Đã kết nối Cơ sở dữ liệu"></span>
                     </div>
                 </div>
 
@@ -346,9 +294,9 @@
                 <div class="flex items-center gap-2.5 sm:gap-3">
                     <!-- Nút Thông Báo Phía Trên Đầu Màn Hình Chính (Kèm Badge Đếm Số Tin Chưa Đọc) -->
                     <button onclick="switchTab('notifications')" title="Thông báo" 
-                            class="relative h-8 px-2.5 rounded-full bg-gradient-to-br from-sky-50 to-blue-50/90 hover:from-sky-100 hover:to-blue-100 border border-sky-200/60 flex items-center space-x-1.5 text-[#0284c7] transition ios-press">
+                            class="relative h-8 px-2.5 rounded-full bg-[#767680]/[0.12] hover:bg-[#767680]/[0.18] flex items-center space-x-1.5 text-[#1c1c1e] transition ios-press">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                        <span id="headerNotifBadge" class="hidden bg-gradient-to-r from-rose-500 to-red-500 text-white text-[11px] font-bold min-w-[18px] h-[18px] px-1.5 rounded-full flex items-center justify-center leading-none shadow-sm">0</span>
+                        <span id="headerNotifBadge" class="hidden bg-[#FF3B30] text-white text-[11px] font-bold min-w-[18px] h-[18px] px-1.5 rounded-full flex items-center justify-center leading-none">0</span>
                     </button>
 
                     <button onclick="triggerManualRefresh(true)" title="Làm mới dữ liệu" 
@@ -369,7 +317,7 @@
             </div>
 
             <!-- Thanh Pill Thông Báo Chưa Đọc Nổi Bật Phía Trên Đầu Màn Hình Chính (Hiện tự động khi có thông báo mới) -->
-            <div id="topUnreadNotifBar" class="hidden bg-gradient-to-r from-[#007AFF] via-[#0284C7] to-[#0EA5E9] text-white cursor-pointer transition-all" onclick="switchTab('notifications')">
+            <div id="topUnreadNotifBar" class="hidden bg-[#007AFF] text-white cursor-pointer transition-all" onclick="switchTab('notifications')">
                 <div class="w-full px-4 sm:px-6 py-1.5 flex items-center justify-between text-xs font-medium">
                     <div class="flex items-center space-x-2 truncate">
                         <span class="inline-flex items-center justify-center bg-white text-[#007AFF] font-bold text-[10px] min-w-[18px] h-[18px] px-1.5 rounded-full" id="topUnreadNotifCount">0</span>
@@ -384,7 +332,7 @@
         <div class="flex-1 flex w-full">
 
             <!-- Desktop Left Sidebar (Chỉ hiển thị trên máy tính md+, ẩn hoàn toàn trên điện thoại) -->
-            <aside id="desktopSidebar" class="hidden md:flex flex-col justify-between shrink-0 w-60 lg:w-64 sticky top-14 h-[calc(100vh-3.5rem)] ios-blur border-r border-sky-200/50 px-3 py-4 overflow-y-auto no-scrollbar transition-all duration-200 select-none">
+            <aside id="desktopSidebar" class="hidden md:flex flex-col justify-between shrink-0 w-60 lg:w-64 sticky top-14 h-[calc(100vh-3.5rem)] ios-blur border-r border-black/[0.08] px-3 py-4 overflow-y-auto no-scrollbar transition-all duration-200 select-none">
                 <div class="space-y-5">
                     <!-- Nhóm 1: Bán hàng -->
                     <div class="space-y-1">
@@ -453,7 +401,7 @@
                                 <svg class="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
                                 <span class="sidebar-label truncate">Thông báo</span>
                             </span>
-                            <span id="desktopNotifCountBadge" class="sidebar-badge hidden bg-gradient-to-r from-rose-500 to-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
+                            <span id="desktopNotifCountBadge" class="sidebar-badge hidden bg-[#FF3B30] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
                         </button>
                     </div>
 
@@ -473,7 +421,7 @@
 
                 <!-- Footer nhỏ gọn cuối Sidebar -->
                 <div class="sidebar-footer-card mt-6 pt-3 border-t border-black/[0.06] space-y-2">
-                    <div class="grad-card-emerald rounded-xl px-3 py-2 flex items-center gap-2">
+                    <div class="bg-[#F2F2F7]/80 rounded-xl px-3 py-2 flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
                         <span class="text-[11px] font-semibold text-emerald-800 truncate">Cơ sở dữ liệu sẵn sàng</span>
                     </div>
@@ -489,8 +437,7 @@
                 <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 lg:gap-4">
                     <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center space-x-2.5">
-                            <span class="w-1.5 h-6 rounded-full grad-bar-accent shrink-0"></span>
-                            <div class="flex items-baseline space-x-2">
+                                <div class="flex items-baseline space-x-2">
                                 <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[#1c1c1e]">Tổng Quan</h1>
                                 <span class="text-xs text-[#0284c7] bg-sky-50 border border-sky-200/70 px-2 py-0.5 rounded-full font-semibold" id="statTodayDate">Hôm nay</span>
                             </div>
@@ -499,7 +446,7 @@
                             <button type="button" onclick="exportRevenueReportCsv()" class="bg-white/95 hover:bg-sky-50 text-[#1c1c1e] border border-black/[0.08] font-medium text-xs px-2.5 py-1.5 rounded-lg transition ios-press">
                                 Xuất CSV
                             </button>
-                            <button type="button" onclick="printRevenueReport()" class="grad-btn-dark text-white font-medium text-xs px-3 py-1.5 rounded-lg transition ios-press">
+                            <button type="button" onclick="printRevenueReport()" class="bg-[#1c1c1e] text-white font-medium text-xs px-3 py-1.5 rounded-lg transition ios-press">
                                 In báo cáo
                             </button>
                         </div>
@@ -525,7 +472,7 @@
                             <button type="button" onclick="exportRevenueReportCsv()" class="bg-white/95 hover:bg-sky-50 text-[#1c1c1e] border border-black/[0.08] font-medium text-xs px-3 py-2 rounded-lg transition ios-press">
                                 Xuất CSV
                             </button>
-                            <button type="button" onclick="printRevenueReport()" class="grad-btn-dark text-white font-medium text-xs px-3.5 py-2 rounded-lg transition ios-press">
+                            <button type="button" onclick="printRevenueReport()" class="bg-[#1c1c1e] text-white font-medium text-xs px-3.5 py-2 rounded-lg transition ios-press">
                                 In báo cáo
                             </button>
                         </div>
@@ -534,7 +481,7 @@
 
                 <!-- Thống kê Widget 2x2 với dải màu Gradient phân biệt từng chỉ số -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 lg:gap-4">
-                    <div class="ios-card grad-card-emerald p-3.5 lg:p-5 relative overflow-hidden">
+                    <div class="ios-card p-3.5 lg:p-5">
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] lg:text-xs font-semibold text-emerald-700 block">Doanh thu</span>
                             <span class="text-xs lg:text-sm bg-emerald-500/15 text-emerald-700 w-6 h-6 lg:w-8 lg:h-8 rounded-lg flex items-center justify-center">💰</span>
@@ -542,7 +489,7 @@
                         <div id="statTotalRevenue" class="text-lg sm:text-xl lg:text-2xl font-extrabold tracking-tight text-emerald-800 mt-1.5">0 đ</div>
                     </div>
 
-                    <div class="ios-card grad-card-sky p-3.5 lg:p-5 relative overflow-hidden">
+                    <div class="ios-card p-3.5 lg:p-5">
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] lg:text-xs font-semibold text-sky-700 block">Tổng đơn hàng</span>
                             <span class="text-xs lg:text-sm bg-sky-500/15 text-sky-700 w-6 h-6 lg:w-8 lg:h-8 rounded-lg flex items-center justify-center">📦</span>
@@ -550,7 +497,7 @@
                         <div id="statTotalOrders" class="text-lg sm:text-xl lg:text-2xl font-extrabold tracking-tight text-sky-800 mt-1.5">0</div>
                     </div>
 
-                    <div class="ios-card grad-card-indigo p-3.5 lg:p-5 relative overflow-hidden">
+                    <div class="ios-card p-3.5 lg:p-5">
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] lg:text-xs font-semibold text-indigo-700 block">Chuyển khoản QR</span>
                             <span class="text-xs lg:text-sm bg-indigo-500/15 text-indigo-700 w-6 h-6 lg:w-8 lg:h-8 rounded-lg flex items-center justify-center">💳</span>
@@ -558,7 +505,7 @@
                         <div id="statTransferRate" class="text-lg sm:text-xl lg:text-2xl font-extrabold tracking-tight text-indigo-700 mt-1.5">0%</div>
                     </div>
 
-                    <div class="ios-card grad-card-amber p-3.5 lg:p-5 relative overflow-hidden">
+                    <div class="ios-card p-3.5 lg:p-5">
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] lg:text-xs font-semibold text-amber-700 block">Trung bình / đơn</span>
                             <span class="text-xs lg:text-sm bg-amber-500/15 text-amber-700 w-6 h-6 lg:w-8 lg:h-8 rounded-lg flex items-center justify-center">💎</span>
@@ -568,7 +515,7 @@
                 </div>
 
                 <!-- Dòng tiền & Top Sản Phẩm dạng iOS Grouped List gọn gàng -->
-                <div class="ios-card p-3.5 sm:p-4 lg:p-5 space-y-3.5 border-t-2 border-t-sky-500/50">
+                <div class="ios-card p-3.5 sm:p-4 lg:p-5 space-y-3.5 ">
                     <div class="grid grid-cols-3 divide-x divide-black/[0.06] text-center">
                         <div class="px-1.5 lg:py-1">
                             <span class="text-[10px] lg:text-[11px] font-semibold text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded-full inline-block">VietQR</span>
@@ -589,7 +536,6 @@
 
                     <div class="pt-3 border-t border-black/[0.06]">
                         <div class="flex items-center space-x-1.5 mb-2.5">
-                            <span class="w-2 h-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-500"></span>
                             <span class="text-[11px] lg:text-xs font-semibold text-[#1c1c1e] uppercase tracking-wider">Sản phẩm bán chạy</span>
                         </div>
                         <div id="statTopSellingList" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 lg:gap-3"></div>
@@ -597,28 +543,27 @@
                 </div>
 
                 <!-- Báo Cáo Tài Chính & Tỷ Lệ Hủy/Hoàn + Cảnh Báo Tồn Kho -->
-                <div class="ios-card p-3.5 sm:p-4 lg:p-5 space-y-3.5 border-t-2 border-t-emerald-500/40">
+                <div class="ios-card p-3.5 sm:p-4 lg:p-5 space-y-3.5 ">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-1.5">
-                            <span class="w-2 h-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500"></span>
                             <span class="text-[11px] lg:text-xs font-semibold text-[#1c1c1e] uppercase tracking-wider">Báo cáo tài chính &amp; Tỷ lệ hủy/hoàn</span>
                         </div>
-                        <span id="statFinancialNetLabel" class="text-[11px] font-semibold text-emerald-700 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/70 px-2.5 py-0.5 rounded-full">Đã trừ đơn hủy/hoàn</span>
+                        <span id="statFinancialNetLabel" class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full">Đã trừ đơn hủy/hoàn</span>
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 lg:gap-4">
-                        <div class="grad-card-emerald p-2.5 lg:p-4 rounded-xl">
+                        <div class="bg-[#F2F2F7] p-2.5 lg:p-4 rounded-xl">
                             <span class="text-[10px] lg:text-xs text-emerald-700 font-semibold block">Đã thực thu (QR/Hoàn tất)</span>
                             <div id="statRealizedRevenue" class="text-sm lg:text-lg font-extrabold text-emerald-800 mt-1">0 đ</div>
                         </div>
-                        <div class="grad-card-sky p-2.5 lg:p-4 rounded-xl">
+                        <div class="bg-[#F2F2F7] p-2.5 lg:p-4 rounded-xl">
                             <span class="text-[10px] lg:text-xs text-sky-700 font-semibold block">COD đang chờ thu hộ</span>
                             <div id="statPendingCodRevenue" class="text-sm lg:text-lg font-extrabold text-sky-800 mt-1">0 đ</div>
                         </div>
-                        <div class="grad-card-amber p-2.5 lg:p-4 rounded-xl">
+                        <div class="bg-[#F2F2F7] p-2.5 lg:p-4 rounded-xl">
                             <span class="text-[10px] lg:text-xs text-amber-700 font-semibold block">Đã giảm qua Voucher</span>
                             <div id="statTotalVoucherDiscount" class="text-sm lg:text-lg font-extrabold text-amber-800 mt-1">0 đ</div>
                         </div>
-                        <div class="grad-card-rose p-2.5 lg:p-4 rounded-xl">
+                        <div class="bg-rose-50/80 border border-rose-200/70 p-2.5 lg:p-4 rounded-xl">
                             <span class="text-[10px] lg:text-xs text-rose-700 font-semibold block">Tỷ lệ hủy / hoàn hàng</span>
                             <div id="statCancelRate" class="text-sm lg:text-lg font-extrabold text-[#FF3B30] mt-1">0%</div>
                             <span id="statCancelLoss" class="text-[10px] lg:text-xs text-rose-600 font-medium">0 đơn • 0 đ</span>
@@ -626,7 +571,6 @@
                     </div>
                     <div class="pt-2.5 border-t border-black/[0.06]">
                         <div class="flex items-center space-x-1.5 mb-1.5">
-                            <span class="w-2 h-2 rounded-full bg-gradient-to-r from-amber-500 to-rose-500"></span>
                             <span class="text-[11px] lg:text-xs font-semibold text-[#1c1c1e] uppercase tracking-wider">Cảnh báo tồn kho (≤ 10 sản phẩm)</span>
                         </div>
                         <div id="statLowStockAlertList" class="flex flex-wrap gap-1.5 text-xs"></div>
@@ -635,9 +579,8 @@
 
                 <!-- Biểu đồ phân tích doanh thu -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-2.5 sm:gap-3.5 lg:gap-4">
-                    <div class="lg:col-span-7 ios-card p-3.5 lg:p-5 space-y-2.5 border-t-2 border-t-blue-500/40">
+                    <div class="lg:col-span-7 ios-card p-3.5 lg:p-5 space-y-2.5 ">
                         <div class="flex items-center space-x-1.5">
-                            <span class="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-sky-400"></span>
                             <span class="font-semibold text-xs text-[#1c1c1e] uppercase tracking-wider block">Biểu đồ doanh số</span>
                         </div>
                         <div class="h-44 sm:h-56 lg:h-64 w-full">
@@ -645,9 +588,8 @@
                         </div>
                     </div>
 
-                    <div class="lg:col-span-5 ios-card p-3.5 lg:p-5 space-y-2.5 border-t-2 border-t-indigo-500/40">
+                    <div class="lg:col-span-5 ios-card p-3.5 lg:p-5 space-y-2.5 ">
                         <div class="flex items-center space-x-1.5">
-                            <span class="w-2 h-2 rounded-full bg-gradient-to-r from-indigo-500 to-amber-400"></span>
                             <span class="font-semibold text-xs text-[#1c1c1e] uppercase tracking-wider block">Phương thức thanh toán</span>
                         </div>
                         <div class="h-40 sm:h-52 lg:h-60 flex items-center justify-center">
@@ -662,14 +604,13 @@
                 <!-- Header Đơn Hàng -->
                 <div class="flex items-center justify-between gap-2">
                     <div class="flex items-center space-x-2.5">
-                        <span class="w-1.5 h-6 rounded-full bg-gradient-to-b from-[#007AFF] to-[#0EA5E9] shrink-0"></span>
                         <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[#1c1c1e]">Đơn Hàng</h1>
                     </div>
                     <div class="flex items-center space-x-1.5">
                         <button type="button" onclick="handleExportCurrentOrdersCsv()" class="bg-white/95 hover:bg-sky-50 text-[#1c1c1e] border border-black/[0.08] text-xs font-medium px-2.5 py-1.5 rounded-lg transition ios-press">
                             Xuất CSV
                         </button>
-                        <button type="button" onclick="handlePrintCurrentOrders()" class="grad-btn-dark text-white font-medium text-xs px-3 py-1.5 rounded-lg transition ios-press">
+                        <button type="button" onclick="handlePrintCurrentOrders()" class="bg-[#1c1c1e] text-white font-medium text-xs px-3 py-1.5 rounded-lg transition ios-press">
                             In
                         </button>
                     </div>
@@ -747,7 +688,7 @@
                     <!-- Bảng danh sách đơn hàng cho Máy tính -->
                     <div class="hidden md:block ios-card overflow-hidden">
                         <table class="w-full text-left text-sm text-[#1c1c1e]">
-                            <thead class="grad-table-head text-[11px] uppercase font-semibold text-slate-600 border-b border-black/[0.06]">
+                            <thead class="bg-[#F2F2F7]/60 text-[11px] uppercase font-semibold text-[#8E8E93] border-b border-black/[0.06]">
                                 <tr>
                                     <th class="px-4 py-3">Mã đơn</th>
                                     <th class="px-4 py-3">Khách hàng</th>
@@ -800,7 +741,7 @@
 
                     <div class="hidden md:block ios-card overflow-hidden">
                         <table class="w-full text-left text-sm text-[#1c1c1e]">
-                            <thead class="grad-table-head text-[11px] uppercase font-semibold text-slate-600 border-b border-black/[0.06]">
+                            <thead class="bg-[#F2F2F7]/60 text-[11px] uppercase font-semibold text-[#8E8E93] border-b border-black/[0.06]">
                                 <tr>
                                     <th class="px-4 py-3">Mã</th>
                                     <th class="px-4 py-3">Đối tác</th>
@@ -828,14 +769,13 @@
             <section id="tab-products" class="hidden space-y-3">
                 <div class="flex items-center justify-between gap-2">
                     <div class="flex items-center space-x-2.5">
-                        <span class="w-1.5 h-6 rounded-full bg-gradient-to-b from-emerald-500 to-teal-500 shrink-0"></span>
                         <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[#1c1c1e]">Sản Phẩm</h1>
                     </div>
                     <div class="flex items-center gap-1.5">
                         <button type="button" onclick="pushAllTablesToSheetNow()" class="bg-white/95 hover:bg-emerald-50 text-[#1c1c1e] border border-black/[0.08] font-medium text-xs px-2.5 py-1.5 rounded-lg transition ios-press">
                             Đồng bộ
                         </button>
-                        <button onclick="openProductModal()" class="grad-btn-blue text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition ios-press">
+                        <button onclick="openProductModal()" class="bg-[#007AFF] hover:bg-[#0066D6] text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition ios-press">
                             + Thêm SP
                         </button>
                     </div>
@@ -874,7 +814,7 @@
                 <!-- Bảng sản phẩm trên Máy tính -->
                 <div class="hidden md:block ios-card overflow-x-auto">
                     <table class="w-full text-left text-xs sm:text-sm text-[#1c1c1e] min-w-[820px]">
-                        <thead class="grad-table-head text-[11px] uppercase font-semibold text-slate-600 border-b border-black/[0.06] whitespace-nowrap">
+                        <thead class="bg-[#F2F2F7]/60 text-[11px] uppercase font-semibold text-[#8E8E93] border-b border-black/[0.06] whitespace-nowrap">
                             <tr>
                                 <th class="px-4 py-3 w-14">Ảnh</th>
                                 <th class="px-4 py-3 min-w-[170px]">Sản phẩm</th>
@@ -897,11 +837,10 @@
             <section id="tab-content" class="hidden space-y-3">
                 <div class="flex items-center justify-between gap-2">
                     <div class="flex items-center space-x-2.5">
-                        <span class="w-1.5 h-6 rounded-full bg-gradient-to-b from-indigo-500 to-sky-500 shrink-0"></span>
                         <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[#1c1c1e]">Nội Dung Web</h1>
                     </div>
                     <div class="flex items-center space-x-1.5">
-                        <button type="button" onclick="saveSiteContentFromAdmin()" class="grad-btn-blue text-white font-semibold text-xs px-3.5 py-1.5 rounded-lg transition ios-press">
+                        <button type="button" onclick="saveSiteContentFromAdmin()" class="bg-[#007AFF] hover:bg-[#0066D6] text-white font-semibold text-xs px-3.5 py-1.5 rounded-lg transition ios-press">
                             Lưu thay đổi
                         </button>
                     </div>
@@ -1232,7 +1171,7 @@
                     </div>
 
                     <div class="flex gap-2">
-                        <button type="button" onclick="saveSiteContentFromAdmin()" id="cmsSaveBtnMain" class="flex-1 grad-btn-blue text-white font-semibold py-3 rounded-xl transition text-xs sm:text-sm ios-press">
+                        <button type="button" onclick="saveSiteContentFromAdmin()" id="cmsSaveBtnMain" class="flex-1 bg-[#007AFF] hover:bg-[#0066D6] text-white font-semibold py-3 rounded-xl transition text-xs sm:text-sm ios-press">
                             Lưu & Đồng Bộ Nội Dung
                         </button>
                     </div>
@@ -1248,14 +1187,13 @@
             <section id="tab-reviews" class="hidden space-y-3">
                 <div class="flex items-center justify-between gap-2">
                     <div class="flex items-center space-x-2.5">
-                        <span class="w-1.5 h-6 rounded-full bg-gradient-to-b from-amber-400 to-orange-500 shrink-0"></span>
                         <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[#1c1c1e]">Đánh Giá</h1>
                     </div>
                     <div class="flex items-center space-x-1.5">
                         <button type="button" onclick="exportReviewsReportCsv()" class="px-2.5 py-1.5 text-xs bg-white/95 hover:bg-amber-50 text-[#1c1c1e] border border-black/[0.08] rounded-lg font-medium transition ios-press">
                             Xuất CSV
                         </button>
-                        <button type="button" onclick="openAdminAddReviewModal()" class="grad-btn-blue text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition ios-press">
+                        <button type="button" onclick="openAdminAddReviewModal()" class="bg-[#007AFF] hover:bg-[#0066D6] text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition ios-press">
                             + Thêm
                         </button>
                     </div>
@@ -1263,19 +1201,19 @@
 
                 <!-- 4 Thẻ KPI Tối giản với dải màu Gradient -->
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                    <div class="ios-card grad-card-indigo p-3">
+                    <div class="ios-card p-3">
                         <span class="text-[11px] font-semibold text-indigo-700 block">Tổng đánh giá</span>
                         <div id="statTotalReviews" class="text-lg font-extrabold text-indigo-800 mt-0.5">0</div>
                     </div>
-                    <div class="ios-card grad-card-amber p-3">
+                    <div class="ios-card p-3">
                         <span class="text-[11px] font-semibold text-amber-700 block">Điểm TB</span>
                         <div id="statAvgRating" class="text-lg font-extrabold text-amber-700 mt-0.5">★ 5.0</div>
                     </div>
-                    <div class="ios-card grad-card-emerald p-3">
+                    <div class="ios-card p-3">
                         <span class="text-[11px] font-semibold text-emerald-700 block">Tỷ lệ 5 sao</span>
                         <div id="statFiveStarRate" class="text-lg font-extrabold text-emerald-700 mt-0.5">100%</div>
                     </div>
-                    <div class="ios-card grad-card-sky p-3">
+                    <div class="ios-card p-3">
                         <span class="text-[11px] font-semibold text-sky-700 block">Đã hiển thị</span>
                         <div id="statApprovedReviews" class="text-lg font-extrabold text-sky-700 mt-0.5">0</div>
                     </div>
@@ -1301,7 +1239,7 @@
 
                 <div class="hidden md:block ios-card overflow-x-auto">
                     <table class="w-full text-left text-xs sm:text-sm text-[#1c1c1e] min-w-[820px]">
-                        <thead class="grad-table-head text-[11px] uppercase font-semibold text-slate-600 border-b border-black/[0.06] whitespace-nowrap">
+                        <thead class="bg-[#F2F2F7]/60 text-[11px] uppercase font-semibold text-[#8E8E93] border-b border-black/[0.06] whitespace-nowrap">
                             <tr>
                                 <th class="px-4 py-3 min-w-[150px]">Khách hàng</th>
                                 <th class="px-4 py-3 min-w-[150px]">Sản phẩm</th>
@@ -1321,7 +1259,6 @@
             <section id="tab-notifications" class="hidden space-y-3">
                 <div class="flex items-center justify-between gap-2">
                     <div class="flex items-center space-x-2.5">
-                        <span class="w-1.5 h-6 rounded-full bg-gradient-to-b from-rose-500 to-amber-500 shrink-0"></span>
                         <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[#1c1c1e]">Thông Báo</h1>
                     </div>
                     <div class="flex items-center space-x-1.5">
@@ -1332,7 +1269,7 @@
                 </div>
 
                 <!-- Hàng trạng thái thông báo đẩy gọn chuẩn iOS Settings (Tối giản) -->
-                <div class="ios-card grad-card-sky px-3.5 py-2.5 flex items-center justify-between gap-2">
+                <div class="ios-card px-3.5 py-2.5 flex items-center justify-between gap-2">
                     <div class="flex items-center space-x-2.5 min-w-0">
                         <span id="pushStatusDot" class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span>
                         <span class="text-xs font-medium text-[#1c1c1e] truncate">Thông báo đẩy & Chuông báo</span>
@@ -1340,7 +1277,7 @@
                     </div>
                     <div class="flex items-center space-x-1.5 shrink-0">
                         <button type="button" id="btnEnablePush" onclick="registerDevicePushSubscription(true)" 
-                                class="grad-btn-blue text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition ios-press">
+                                class="bg-[#007AFF] hover:bg-[#0066D6] text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition ios-press">
                             Bật thông báo
                         </button>
                     </div>
@@ -1366,21 +1303,21 @@
 
             <!-- ================= TAB 6: MÃ GIẢM GIÁ (VOUCHERS) ================= -->
             <section id="tab-vouchers" class="hidden space-y-3">
-                <div class="ios-card p-3.5 sm:p-4 space-y-3 border-t-2 border-t-amber-400/70">
+                <div class="ios-card p-3.5 sm:p-4 space-y-3 ">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                         <div class="flex items-center space-x-2.5">
-                            <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center text-sm shadow-sm shrink-0">🏷️</span>
+                            <span class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-700 flex items-center justify-center text-sm shadow-sm shrink-0">🏷️</span>
                             <div>
                                 <h2 class="font-bold text-sm text-[#1c1c1e]">Quản Lý Mã Giảm Giá / Voucher</h2>
                                 <p class="text-[11px] text-[#8E8E93]">Tạo mã khuyến mãi mới và đồng bộ lên Cơ sở dữ liệu.</p>
                             </div>
                         </div>
-                        <button type="button" onclick="syncVouchersToSheet()" class="grad-btn-emerald text-white text-xs font-semibold px-3 py-2 rounded-xl transition ios-press shrink-0">
+                        <button type="button" onclick="syncVouchersToSheet()" class="bg-[#34C759] hover:bg-emerald-600 text-white text-xs font-semibold px-3 py-2 rounded-xl transition ios-press shrink-0">
                             ☁️ Đồng bộ dữ liệu
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-6 gap-2 bg-gradient-to-r from-sky-50/70 via-slate-50 to-amber-50/70 p-3 rounded-xl border border-sky-200/60">
+                    <div class="grid grid-cols-1 sm:grid-cols-6 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200/80">
                         <input type="text" id="newVoucherCode" placeholder="Mã (VD: TET20)" class="sm:col-span-1 px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-bold uppercase">
                         <select id="newVoucherType" class="sm:col-span-1 px-2.5 py-2 rounded-lg border border-slate-200 bg-white text-xs font-medium">
                             <option value="fixed">Giảm tiền (đ)</option>
@@ -1390,7 +1327,7 @@
                         <input type="number" id="newVoucherValue" placeholder="Giá trị (VD: 20000)" min="0" class="sm:col-span-1 px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs">
                         <input type="number" id="newVoucherMinOrder" placeholder="Đơn tối thiểu (đ)" min="0" value="0" class="sm:col-span-1 px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs">
                         <input type="text" id="newVoucherNote" placeholder="Mô tả (VD: Giảm 20k đơn từ 200k)" class="sm:col-span-1 px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs">
-                        <button type="button" onclick="saveAdminVoucher()" class="sm:col-span-1 grad-btn-blue text-white font-semibold text-xs py-2 px-3 rounded-lg transition ios-press">
+                        <button type="button" onclick="saveAdminVoucher()" class="sm:col-span-1 bg-[#007AFF] hover:bg-[#0066D6] text-white font-semibold text-xs py-2 px-3 rounded-lg transition ios-press">
                             + Thêm / Cập nhật
                         </button>
                     </div>
@@ -1401,10 +1338,9 @@
 
             <!-- TAB: DANH BẠ KHÁCH HÀNG (CRM) -->
             <section id="tab-customers" class="hidden space-y-4">
-                <div class="ios-card p-4 space-y-3 border-t-2 border-t-indigo-500/50">
+                <div class="ios-card p-4 space-y-3 ">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div class="flex items-center space-x-2.5">
-                            <span class="w-1.5 h-6 rounded-full bg-gradient-to-b from-indigo-500 to-amber-500 shrink-0"></span>
                             <div>
                                 <h2 class="text-sm sm:text-base font-bold text-[#1c1c1e]">Danh Bạ Khách Hàng (CRM)</h2>
                                 <p class="text-[11px] text-[#8E8E93]">Tự động tổng hợp lịch sử mua hàng, tổng chi tiêu và phân hạng theo SĐT.</p>
@@ -1421,15 +1357,15 @@
                         </div>
                     </div>
                     <div class="grid grid-cols-3 gap-2.5 pt-1">
-                        <div class="grad-card-indigo rounded-xl p-2.5 text-center">
+                        <div class="bg-[#F2F2F7]/80 rounded-xl p-2.5 text-center">
                             <span class="text-[10px] text-indigo-700 font-semibold block">Tổng khách hàng</span>
                             <span id="crmTotalCustomers" class="text-base sm:text-lg font-extrabold text-indigo-800 tabular-nums">0</span>
                         </div>
-                        <div class="grad-card-amber rounded-xl p-2.5 text-center">
+                        <div class="bg-amber-500/10 rounded-xl p-2.5 text-center">
                             <span class="text-[10px] text-amber-700 font-semibold block">Khách VIP</span>
                             <span id="crmVipCustomers" class="text-base sm:text-lg font-extrabold text-amber-800 tabular-nums">0</span>
                         </div>
-                        <div class="grad-card-emerald rounded-xl p-2.5 text-center">
+                        <div class="bg-emerald-500/10 rounded-xl p-2.5 text-center">
                             <span class="text-[10px] text-emerald-700 font-semibold block">Tỉ lệ quay lại</span>
                             <span id="crmRepeatRate" class="text-base sm:text-lg font-extrabold text-emerald-800 tabular-nums">0%</span>
                         </div>
@@ -3776,7 +3712,7 @@ function moHopThoaiDatSheetRiengTu() {
                             </div>
                         </div>
                     </div>
-                    <button id="adminLoginBtn" type="submit" ${locked ? 'disabled' : ''} class="w-full py-3 rounded-xl grad-btn-blue active:scale-[0.99] text-white font-semibold text-[15px] transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    <button id="adminLoginBtn" type="submit" ${locked ? 'disabled' : ''} class="w-full py-3 rounded-xl bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.99] text-white font-semibold text-[15px] transition disabled:opacity-50 disabled:cursor-not-allowed">
                         Đăng nhập
                     </button>
                 </form>`;
@@ -6120,11 +6056,6 @@ function moHopThoaiDatSheetRiengTu() {
                 }
             }
 
-            const revBarGrad = ctxRev.createLinearGradient(0, 0, 0, 220);
-            revBarGrad.addColorStop(0, '#0EA5E9');
-            revBarGrad.addColorStop(0.55, '#007AFF');
-            revBarGrad.addColorStop(1, '#4F46E5');
-
             revenueChartInstance = new Chart(ctxRev, {
                 type: 'bar',
                 data: {
@@ -6132,8 +6063,8 @@ function moHopThoaiDatSheetRiengTu() {
                     datasets: [{
                         label: 'Doanh thu (VNĐ)',
                         data: chartData,
-                        backgroundColor: revBarGrad,
-                        hoverBackgroundColor: '#0284C7',
+                        backgroundColor: '#007AFF',
+                        hoverBackgroundColor: '#0062CC',
                         borderRadius: 8
                     }]
                 },
