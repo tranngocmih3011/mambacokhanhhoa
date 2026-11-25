@@ -111,16 +111,13 @@ export async function onRequest(context) {
       findBcCode(body.order_code) ||
       '';
 
-    if (!matchedCode || amount <= 0) {
-      return jsonRes({ success: true, message: 'No valid BC orderCode or amount' });
-    }
-
     const gasRes = await fetch(gasUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
         action: 'sepay_webhook',
         webhookSecret: gasWebhookSecret,
+        id: body.id || '',
         orderCode: matchedCode,
         amount,
         gateway: body.gateway || 'VietinBank',
@@ -132,10 +129,13 @@ export async function onRequest(context) {
     });
     const gasData = await gasRes.json().catch(() => ({}));
     return jsonRes({
-      success: gasData.status === 'success',
+      success: gasData.status === 'success' && gasData.success !== false,
       orderCode: matchedCode,
       amount,
       underpaid: !!gasData.underpaid,
+      overpaid: !!gasData.overpaid,
+      duplicateTransaction: !!gasData.duplicateTransaction,
+      invalidContent: !!gasData.invalidContent,
     });
   } catch (err) {
     return jsonRes({ error: 'Invalid webhook payload' }, 400);

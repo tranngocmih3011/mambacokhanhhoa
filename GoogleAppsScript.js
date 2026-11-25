@@ -171,7 +171,24 @@ function doPost(e) {
       return getPushSubscriptionsData_(ss);
     }
 
-    // Khóa ghi đồng thời chống xung đột dòng khi có nhiều đơn hàng cùng lúc
+    // SAO LƯU, KIỂM THỬ KHÔI PHỤC & NHẬT KÝ HỆ THỐNG (CHỈ ADMIN)
+    if (action === "backup_now") {
+      var authBk = requireAdminSession_(data);
+      if (!authBk.ok) return jsonError(authBk.message);
+      return saoLuuDuLieuTuDong(authBk.username);
+    }
+    if (action === "test_restore") {
+      var authTr = requireAdminSession_(data);
+      if (!authTr.ok) return jsonError(authTr.message);
+      return kiemThuKhoiPhucDuLieu(authTr.username);
+    }
+    if (action === "get_system_logs") {
+      var authLogs = requireAdminSession_(data);
+      if (!authLogs.ok) return jsonError(authLogs.message);
+      return getSystemLogsData_(ss);
+    }
+
+    // Khóa ghi đồng thời (LockService) chống xung đột khi nhiều khách đặt hàng hoặc webhook chạy song song
     var isWriteOp = !action || action === "wholesale" || data.type === "wholesale" ||
                     action === "submit_review" || action === "update_order_status" ||
                     action === "delete_order" || action === "clear_all_orders" ||
@@ -179,12 +196,20 @@ function doPost(e) {
                     action === "clear_all_wholesale" || action === "save_products" ||
                     action === "save_vouchers" || action === "save_site_content" ||
                     action === "save_reviews" || action === "sync_customers_crm" ||
-                    action === "sepay_webhook";
+                    action === "sepay_webhook" || action === "save_push_subscription" ||
+                    action === "delete_expired_push_subscriptions";
+    var lockAcquired = false;
     if (isWriteOp) {
       try {
         lock = LockService.getScriptLock();
-        lock.tryLock(8000);
-      } catch (lockErr) { lock = null; }
+        lockAcquired = lock.tryLock(15000);
+      } catch (lockErr) {
+        lockAcquired = false;
+      }
+      if (!lockAcquired) {
+        logSystemError_(ss, "WARN", "LOCK_TIMEOUT:" + (action || "order"), String(data.orderCode || ""), "Không lấy được ScriptLock sau 15s");
+        return jsonError("Hệ thống đang xử lý đồng thời nhiều giao dịch, vui lòng thử lại sau 2 giây.");
+      }
     }
 
     // ========================================================
@@ -275,57 +300,59 @@ function doPost(e) {
       return jsonSuccess({ deleted: true });
     }
 
-    // 0.1 Lưu & Kẻ bảng Sản Phẩm (Tab "SanPham") - Chỉ Admin
+    // 0.1 Lưu & Kẻ bảng Sản Phẩm (Tab "SanPham") - Ghi đè từng dòng an toàn, không xóa trắng bảng
     if (action === "save_products" && data.products) {
       var authProd = requireAdminSession_(data);
       if (!authProd.ok) return jsonError(authProd.message);
       var prodSheet = ss.getSheetByName("SanPham");
       if (!prodSheet) {
         prodSheet = ss.insertSheet("SanPham");
-      } else {
-        prodSheet.clear();
+        khoiTaoBangSanPham(prodSheet);
+      } else if (prodSheet.getLastRow() < 2) {
+        khoiTaoBangSanPham(prodSheet);
       }
-      khoiTaoBangSanPham(prodSheet);
 
       var items = data.products || [];
+      var prodMatrix = [];
       for (var pIdx = 0; pIdx < items.length; pIdx++) {
         var p = items[pIdx];
-        var targetRow = 3 + pIdx;
         var hasStockField = (p.stock !== undefined && p.stock !== null && p.stock !== "");
         var stockNum = hasStockField ? Math.max(0, Math.floor(Number(p.stock) || 0)) : (p.inStock === false ? 0 : 100);
         var isAvail = (p.inStock !== false) && (stockNum > 0);
-        var rowVals = [
-          p.id || ("prod_" + (pIdx + 1)),
-          p.name || "",
-          Number(p.price) || 0,
-          p.unit || "Chai 500ml",
-          p.category || "Mắm Nhĩ Thượng Hạng",
-          p.tag || "Đặc Biệt",
+        prodMatrix.push([
+          sanitizeSheetCell_(p.id || ("prod_" + (pIdx + 1))),
+          sanitizeSheetCell_(p.name || ""),
+          Math.max(0, Number(p.price) || 0),
+          sanitizeSheetCell_(p.unit || "Chai 500ml"),
+          sanitizeSheetCell_(p.category || "Mắm Nhĩ Thượng Hạng"),
+          sanitizeSheetCell_(p.tag || "Đặc Biệt"),
           isAvail ? "Còn hàng" : "Hết hàng",
-          p.desc || "",
-          p.image || "./pictrure/1.jpg",
+          sanitizeSheetCell_(p.desc || ""),
+          String(p.image || "./pictrure/1.jpg"),
           stockNum
-        ];
-        prodSheet.getRange(targetRow, 1, 1, rowVals.length).setValues([rowVals]);
-        dinhDangDongSanPham(prodSheet, targetRow, isAvail);
+        ]);
       }
+      upsertSheetRowsInPlace_(prodSheet, 3, prodMatrix, 10);
+      for (var fIdx = 0; fIdx < prodMatrix.length; fIdx++) {
+        dinhDangDongSanPham(prodSheet, 3 + fIdx, prodMatrix[fIdx][6] === "Còn hàng");
+      }
+      logDataChange_(ss, authProd.username, "SAVE_PRODUCTS", "SanPham", "", "Cập nhật " + items.length + " sản phẩm");
       return jsonSuccess({ saved: "SanPham", count: items.length });
     }
 
-    // 0.2 Lưu & Kẻ bảng Nội Dung Website (Tab "NoiDungWeb") - Chỉ Admin
+    // 0.2 Lưu & Kẻ bảng Nội Dung Website (Tab "NoiDungWeb") - Ghi đè từng dòng an toàn
     if (action === "save_site_content" && data.content) {
       var authCfg = requireAdminSession_(data);
       if (!authCfg.ok) return jsonError(authCfg.message);
       var cfgSheet = ss.getSheetByName("NoiDungWeb");
       if (!cfgSheet) {
         cfgSheet = ss.insertSheet("NoiDungWeb");
-      } else {
-        cfgSheet.clear();
+        khoiTaoBangNoiDungWeb(cfgSheet);
+      } else if (cfgSheet.getLastRow() < 2) {
+        khoiTaoBangNoiDungWeb(cfgSheet);
       }
-      khoiTaoBangNoiDungWeb(cfgSheet);
 
       var labelsMap = {
-        // 🌊 1. BANNER ĐẦU TRANG
         heroTag: "🌊 1. Banner - Huy hiệu nhỏ đầu trang (Tagline)",
         heroMainTitle: "🌊 1. Banner - Tiêu đề lớn dòng 1",
         heroSubTitle: "🌊 1. Banner - Tiêu đề vàng dòng 2",
@@ -334,8 +361,6 @@ function doPost(e) {
         heroProductImg: "🌊 1. Banner - Ảnh chai mắm và chén mắm tách nền",
         heroCta1: "🌊 1. Banner - Chữ nút đặt mua chính",
         heroCta2: "🌊 1. Banner - Chữ nút khám phá phụ",
-
-        // 🏷️ 2. HEADER & MENU
         headerLogo: "🏷️ 2. Header - Ảnh Logo (Link/Ảnh)",
         headerBrandName: "🏷️ 2. Header - Tên thương hiệu trên thanh menu",
         headerBrandSlogan: "🏷️ 2. Header - Slogan dưới Logo",
@@ -348,8 +373,6 @@ function doPost(e) {
         headerNav6: "🏷️ 2. Header - Menu 6 (Ẩm thực)",
         headerNav7: "🏷️ 2. Header - Menu 7 (Đánh giá)",
         headerNav8: "🏷️ 2. Header - Menu 8 (Hỏi đáp)",
-
-        // 📞 3. THƯƠNG HIỆU & LIÊN HỆ
         brandName: "📞 3. Thương Hiệu - Tên thương hiệu chung",
         brandSlogan: "📞 3. Thương Hiệu - Dòng chữ phụ chung",
         brandPhone: "📞 3. Thương Hiệu - Số Hotline & Zalo",
@@ -376,55 +399,60 @@ function doPost(e) {
       };
 
       var keys = Object.keys(data.content);
+      var cfgMatrix = [];
       for (var kIdx = 0; kIdx < keys.length; kIdx++) {
         var key = keys[kIdx];
         var val = String(data.content[key] || "");
-        var r = 3 + kIdx;
-        var rowCfg = [
-          key,
-          val,
+        cfgMatrix.push([
+          sanitizeSheetCell_(key),
+          sanitizeSheetCell_(val),
           labelsMap[key] || "Cấu hình giao diện",
           nowStr
-        ];
-        cfgSheet.getRange(r, 1, 1, 4).setValues([rowCfg]);
-        dinhDangDongNoiDungWeb(cfgSheet, r);
+        ]);
       }
+      upsertSheetRowsInPlace_(cfgSheet, 3, cfgMatrix, 4);
+      for (var cIdx = 0; cIdx < cfgMatrix.length; cIdx++) {
+        dinhDangDongNoiDungWeb(cfgSheet, 3 + cIdx);
+      }
+      logDataChange_(ss, authCfg.username, "SAVE_SITE_CONTENT", "NoiDungWeb", "", "Cập nhật " + keys.length + " khóa nội dung");
       return jsonSuccess({ saved: "NoiDungWeb", count: keys.length });
     }
 
-    // 0.5 Lưu & Cập nhật toàn bộ bảng Đánh Giá (Tab "DanhGia") - Chỉ Admin
+    // 0.5 Lưu & Cập nhật toàn bộ bảng Đánh Giá (Tab "DanhGia") - Ghi đè từng dòng an toàn
     if (action === "save_reviews" && Array.isArray(data.reviews)) {
       var authRev = requireAdminSession_(data);
       if (!authRev.ok) return jsonError(authRev.message);
       var revSheet = ss.getSheetByName("DanhGia");
       if (!revSheet) {
         revSheet = ss.insertSheet("DanhGia");
-      } else {
-        revSheet.clear();
+        khoiTaoBangDanhGia(revSheet);
+      } else if (revSheet.getLastRow() < 2) {
+        khoiTaoBangDanhGia(revSheet);
       }
-      khoiTaoBangDanhGia(revSheet);
 
       var revList = data.reviews || [];
+      var revMatrix = [];
       for (var rIdx = 0; rIdx < revList.length; rIdx++) {
         var r = revList[rIdx];
-        var targetRowRev = 3 + rIdx;
-        var sttRev = rIdx + 1;
-        var rowRev = [
-          sttRev,
+        revMatrix.push([
+          rIdx + 1,
           r.date || nowStr,
-          r.id || ("REV-" + (rIdx + 1)),
-          r.name || "Khách mua online",
-          "'" + (r.phone || ""),
-          r.location || "Toàn quốc",
-          r.product || "Nước mắm Ba Cô",
-          Number(r.rating) || 5,
-          Array.isArray(r.tags) ? r.tags.join(", ") : (r.tags || ""),
-          r.comment || "",
-          r.status || "approved"
-        ];
-        revSheet.getRange(targetRowRev, 1, 1, rowRev.length).setValues([rowRev]);
-        dinhDangDongDanhGia(revSheet, targetRowRev);
+          sanitizeSheetCell_(r.id || ("REV-" + (rIdx + 1))),
+          sanitizeSheetCell_(r.name || "Khách mua online"),
+          "'" + String(r.phone || "").replace(/^'/, ""),
+          sanitizeSheetCell_(r.location || "Toàn quốc"),
+          sanitizeSheetCell_(r.product || "Nước mắm Ba Cô"),
+          Math.min(5, Math.max(1, Math.round(Number(r.rating) || 5))),
+          sanitizeSheetCell_(Array.isArray(r.tags) ? r.tags.join(", ") : (r.tags || "")),
+          sanitizeSheetCell_(r.comment || ""),
+          sanitizeSheetCell_(r.status || "approved")
+        ]);
       }
+      upsertSheetRowsInPlace_(revSheet, 3, revMatrix, 11);
+      for (var rfIdx = 0; rfIdx < revMatrix.length; rfIdx++) {
+        dinhDangDongDanhGia(revSheet, 3 + rfIdx);
+      }
+      logDataChange_(ss, authRev.username, "SAVE_REVIEWS", "DanhGia", "", "Cập nhật " + revList.length + " đánh giá");
       return jsonSuccess({ saved: "DanhGia", count: revList.length });
     }
 
@@ -433,12 +461,13 @@ function doPost(e) {
     // ========================================================
 
     // ========================================================
-    // NHÁNH SEPAY: NHẬN WEBHOOK TỰ ĐỘNG (BẮT BUỘC WEBHOOK_SECRET HỢP LỆ)
+    // NHÁNH SEPAY: NHẬN WEBHOOK TỰ ĐỘNG (CHỐNG TRÙNG GIAO DỊCH + KIỂM TRA THIẾU/THỪA/SAI NỘI DUNG)
     // ========================================================
     if (action === "sepay_webhook") {
       var secWh = getOrCreateSecurityProps_();
       var providedSecret = String(data.webhookSecret || "");
       if (!providedSecret || !constantTimeEqual_(providedSecret, secWh.WEBHOOK_SECRET)) {
+        logSystemError_(ss, "WARN", "SEPAY_UNAUTHORIZED", String(data.orderCode || ""), "Sai webhookSecret");
         return jsonError("Unauthorized webhook");
       }
 
@@ -451,11 +480,35 @@ function doPost(e) {
       if (!matchedCode && rawCode) matchedCode = chuanHoa(rawCode);
 
       var paidAmount = Number(data.amount || data.transferAmount || 0);
-      if (!matchedCode || paidAmount <= 0) {
-        return jsonError("Thiếu mã đơn hoặc số tiền giao dịch không hợp lệ.");
+      var refCode = String(data.referenceCode || data.id || "").trim().slice(0, 80);
+
+      // 1. Kiểm tra sai nội dung hoặc số tiền không hợp lệ
+      if (!matchedCode || matchedCode.indexOf("BC") !== 0 || paidAmount <= 0) {
+        logSystemError_(ss, "WARN", "SEPAY_INVALID_CONTENT", matchedCode || rawCode || "N/A", "Số tiền: " + paidAmount + " | Nội dung: " + rawContent.slice(0, 120));
+        return jsonSuccess({
+          success: false,
+          invalidContent: true,
+          message: "Nội dung chuyển khoản không chứa mã đơn BC hợp lệ hoặc số tiền <= 0."
+        });
       }
 
-      // Kiểm tra đơn hàng trong Tab 1 trước để đối chiếu số tiền nếu đơn đã tồn tại
+      // 2. Ngăn chặn xử lý trùng giao dịch thanh toán (Idempotency)
+      var txnSeed = refCode ? ("REF:" + refCode) : ("SIG:" + matchedCode + ":" + paidAmount + ":" + rawContent.slice(0, 60));
+      var txnHash = sha256Hex_(txnSeed).slice(0, 24);
+      var props = PropertiesService.getScriptProperties();
+      try {
+        var cacheTxn = CacheService.getScriptCache();
+        if ((cacheTxn && cacheTxn.get("TXN_" + txnHash)) || props.getProperty("TXN_" + txnHash)) {
+          return jsonSuccess({
+            success: true,
+            duplicateTransaction: true,
+            orderCode: matchedCode,
+            amount: paidAmount
+          });
+        }
+      } catch (tErr) {}
+
+      // 3. Đối chiếu đơn hàng trong Tab 1 (Thiếu tiền / Thừa tiền / Đủ tiền)
       var sheet = ss.getSheets()[0];
       var lastRow = sheet.getLastRow();
       var rowUpdated = -1;
@@ -472,24 +525,44 @@ function doPost(e) {
       }
 
       var isUnderpaid = (rowUpdated !== -1 && matchedOrderExpected > 0 && paidAmount < matchedOrderExpected);
+      var isOverpaid = (rowUpdated !== -1 && matchedOrderExpected > 0 && paidAmount > matchedOrderExpected);
+      var overpaidAmount = isOverpaid ? (paidAmount - matchedOrderExpected) : 0;
 
-      // Chỉ lưu PAID_ nếu không bị thiếu tiền
+      // Đánh dấu giao dịch đã xử lý để chống trùng lặp
+      try {
+        var cacheTxnPut = CacheService.getScriptCache();
+        if (cacheTxnPut) cacheTxnPut.put("TXN_" + txnHash, "1", 21600);
+        props.setProperty("TXN_" + txnHash, String(Date.now()));
+      } catch (tSaveErr) {}
+
       if (!isUnderpaid) {
         try {
-          var props = PropertiesService.getScriptProperties();
           props.setProperty("PAID_" + matchedCode, JSON.stringify({
             paid: true,
             amount: paidAmount,
+            expectedAmount: matchedOrderExpected,
+            overpaid: isOverpaid,
+            overpaidAmount: overpaidAmount,
             time: nowStr,
             gateway: String(data.gateway || "VietinBank").slice(0, 50),
-            referenceCode: String(data.referenceCode || "").slice(0, 80)
+            referenceCode: refCode
           }));
         } catch(pErr) {}
       }
 
       if (rowUpdated !== -1) {
         var cell = sheet.getRange(rowUpdated, 12);
-        var newStatus = isUnderpaid ? ("Thanh toán thiếu (" + paidAmount.toLocaleString("vi-VN") + "đ)") : "Đã nhận tiền (SePay QR)";
+        var prevOrdStatus = String(cell.getValue() || "");
+        var newStatus = "Đã nhận tiền (SePay QR)";
+        if (isUnderpaid) {
+          newStatus = "Thanh toán thiếu (" + paidAmount.toLocaleString("vi-VN") + "/" + matchedOrderExpected.toLocaleString("vi-VN") + "đ)";
+          logSystemError_(ss, "WARN", "SEPAY_UNDERPAID", matchedCode, "Nhận " + paidAmount + "đ / Cần " + matchedOrderExpected + "đ");
+        } else if (isOverpaid) {
+          newStatus = "Đã nhận tiền - Dư " + overpaidAmount.toLocaleString("vi-VN") + "đ (SePay QR)";
+          logDataChange_(ss, "SePay_Webhook", "SEPAY_OVERPAID", matchedCode, prevOrdStatus, newStatus);
+        } else {
+          logDataChange_(ss, "SePay_Webhook", "SEPAY_PAID", matchedCode, prevOrdStatus, newStatus);
+        }
         cell.setValue(newStatus);
         dinhDangTrangThaiDonHang(cell, newStatus);
 
@@ -513,6 +586,8 @@ function doPost(e) {
       return jsonSuccess({
         success: !isUnderpaid,
         underpaid: isUnderpaid,
+        overpaid: isOverpaid,
+        overpaidAmount: overpaidAmount,
         orderCode: matchedCode,
         amount: paidAmount,
         expectedAmount: matchedOrderExpected,
@@ -783,7 +858,19 @@ function doPost(e) {
         cleanOrderCode = "BC" + Math.floor(Math.random() * 899999 + 100000);
       }
 
-      // Chống ghi trùng mã đơn hàng
+      // Chống ghi trùng mã đơn hàng (CacheService + Sheet scan trong vùng LockService)
+      try {
+        var orderCache = CacheService.getScriptCache();
+        if (orderCache && orderCache.get("ORD_DUP_" + cleanOrderCode)) {
+          return jsonSuccess({
+            type: "retail",
+            duplicate: true,
+            orderCode: cleanOrderCode,
+            totalAmount: pricing.totalAmount
+          });
+        }
+      } catch (ocErr) {}
+
       var existingLastRow = sheet.getLastRow();
       if (existingLastRow >= 3) {
         var existingCodes = sheet.getRange("C3:C" + existingLastRow).getValues();
@@ -799,6 +886,13 @@ function doPost(e) {
         }
       }
 
+      // Kiểm tra & trừ tồn kho nguyên tử (ngăn chặn tồn kho âm khi nhiều khách đặt cùng lúc)
+      var stockCheck = checkAndDeductStockAtomic_(ss, pricing.items);
+      if (!stockCheck.ok) {
+        logSystemError_(ss, "WARN", "OUT_OF_STOCK", cleanOrderCode, stockCheck.message);
+        return jsonError(stockCheck.message);
+      }
+
       var rawPayMethod = String(data.paymentMethod || "COD (Thanh toán tiền mặt khi nhận hàng)").slice(0, 100);
       var payLower = rawPayMethod.toLowerCase();
       var isQrPay = (payLower.indexOf("vietqr") !== -1 || payLower.indexOf("chuyển khoản") !== -1 || payLower.indexOf("sepay") !== -1 || payLower.indexOf("qr") !== -1);
@@ -812,7 +906,9 @@ function doPost(e) {
           if (paidRaw) {
             var paidObj = JSON.parse(paidRaw);
             if (paidObj && paidObj.paid === true && Number(paidObj.amount || 0) >= pricing.totalAmount) {
-              enforcedStatus = "Đã nhận tiền (SePay QR)";
+              enforcedStatus = paidObj.overpaid
+                ? ("Đã nhận tiền - Dư " + Number(paidObj.overpaidAmount || 0).toLocaleString("vi-VN") + "đ (SePay QR)")
+                : "Đã nhận tiền (SePay QR)";
             } else if (paidObj && paidObj.paid === true && Number(paidObj.amount || 0) > 0) {
               enforcedStatus = "Thanh toán thiếu (" + Number(paidObj.amount).toLocaleString("vi-VN") + "đ)";
             }
@@ -844,7 +940,11 @@ function doPost(e) {
 
       sheet.getRange(targetRow, 2, 1, rowData.length).setValues([rowData]);
       dinhDangDongDonHang(sheet, targetRow);
-      adjustProductStock_(ss, pricing.productSummary, pricing.totalQty, -1);
+      try {
+        var ocPut = CacheService.getScriptCache();
+        if (ocPut) ocPut.put("ORD_DUP_" + cleanOrderCode, "1", 300);
+      } catch (ocPutErr) {}
+      logDataChange_(ss, "Customer:" + cleanPhoneOrder.slice(-4), "CREATE_ORDER", cleanOrderCode, "", pricing.totalAmount + "đ | " + enforcedStatus);
 
       if (enforcedStatus !== "Chờ thanh toán QR") {
         var emailOrderPayload = {
@@ -882,15 +982,15 @@ function doPost(e) {
       var vSheet = ss.getSheetByName("Voucher");
       if (!vSheet) {
         vSheet = ss.insertSheet("Voucher");
-      } else {
-        vSheet.clear();
+        khoiTaoBangVoucher(vSheet);
+      } else if (vSheet.getLastRow() < 2) {
+        khoiTaoBangVoucher(vSheet);
       }
-      khoiTaoBangVoucher(vSheet);
       var vItems = data.vouchers || [];
+      var vMatrix = [];
       for (var vIdx = 0; vIdx < vItems.length; vIdx++) {
         var v = vItems[vIdx];
-        var vRow = 3 + vIdx;
-        var rowV = [
+        vMatrix.push([
           sanitizeSheetCell_(String(v.code || "").trim().toUpperCase()),
           String(v.type || "fixed"),
           Number(v.value) || 0,
@@ -898,20 +998,28 @@ function doPost(e) {
           Number(v.maxDiscount) || 0,
           v.active === false ? "Tắt" : "Đang bật",
           sanitizeSheetCell_(String(v.note || ""))
-        ];
-        vSheet.getRange(vRow, 1, 1, rowV.length).setValues([rowV]);
-        dinhDangDongVoucher(vSheet, vRow, v.active !== false);
+        ]);
+      }
+      upsertSheetRowsInPlace_(vSheet, 3, vMatrix, 7);
+      for (var viIdx = 0; viIdx < vMatrix.length; viIdx++) {
+        dinhDangDongVoucher(vSheet, 3 + viIdx, vMatrix[viIdx][5] === "Đang bật");
       }
       try { CacheService.getScriptCache().remove("baco_vouchers_v1"); } catch (ce) {}
+      logDataChange_(ss, authVouch.username, "SAVE_VOUCHERS", "Voucher", "", "Cập nhật " + vItems.length + " mã giảm giá");
       return jsonSuccess({ saved: "Voucher", count: vItems.length });
     }
 
     return jsonSuccess({ msg: "Action processed without order creation", action: action });
 
   } catch (error) {
+    try {
+      var ssErr = layBangTinh();
+      if (ssErr) logSystemError_(ssErr, "ERROR", "doPost", "", error.toString());
+    } catch (le) {}
     return jsonError(error.toString());
   } finally {
-    if (lock) {
+    if (lock && lockAcquired) {
+      try { SpreadsheetApp.flush(); } catch (fe) {}
       try { lock.releaseLock(); } catch (le) {}
     }
   }
@@ -2237,8 +2345,275 @@ function calculateOrderPricingServer_(ss, data) {
     totalAmount: totalAmount,
     totalQty: totalQty,
     voucherCode: appliedVoucherCode,
-    productSummary: summaryParts.join(", ")
+    productSummary: summaryParts.join(", "),
+    items: parsedItems
   };
+}
+
+// Ghi đè dữ liệu theo lô (in-place batch upsert), không dùng sheet.clear() xóa trắng bảng
+function upsertSheetRowsInPlace_(sheet, startRow, matrix, numCols) {
+  if (!sheet) return;
+  if (matrix && matrix.length > 0) {
+    sheet.getRange(startRow, 1, matrix.length, numCols).setValues(matrix);
+  }
+  var expectedLastRow = startRow + (matrix ? matrix.length : 0) - 1;
+  var currentLastRow = sheet.getLastRow();
+  if (currentLastRow > expectedLastRow && currentLastRow >= startRow) {
+    var delStart = Math.max(startRow, expectedLastRow + 1);
+    var delCount = currentLastRow - delStart + 1;
+    if (delCount > 0) {
+      sheet.deleteRows(delStart, delCount);
+    }
+  }
+}
+
+// Kiểm tra và trừ tồn kho nguyên tử trong LockService — chặn tuyệt đối tồn kho âm
+function checkAndDeductStockAtomic_(ss, items) {
+  try {
+    if (!Array.isArray(items) || items.length === 0) return { ok: true };
+    var prodSheet = ss.getSheetByName("SanPham");
+    if (!prodSheet || prodSheet.getLastRow() < 3) return { ok: true };
+
+    var lastRow = prodSheet.getLastRow();
+    var names = prodSheet.getRange("B3:B" + lastRow).getValues();
+    var stocks = prodSheet.getRange("J3:J" + lastRow).getValues();
+
+    var deductions = [];
+    var virtualRemaining = {};
+
+    for (var k = 0; k < items.length; k++) {
+      var targetName = String(items[k].name || "").trim().toLowerCase();
+      var reqQty = Math.max(1, Math.floor(Number(items[k].qty) || 1));
+      var matchedRowIdx = -1;
+
+      for (var r = 0; r < names.length; r++) {
+        var sheetName = String(names[r][0] || "").trim().toLowerCase();
+        if (!sheetName) continue;
+        if (sheetName === targetName || sheetName.indexOf(targetName) !== -1 || targetName.indexOf(sheetName) !== -1) {
+          matchedRowIdx = r;
+          break;
+        }
+      }
+
+      if (matchedRowIdx !== -1) {
+        var curStock = virtualRemaining.hasOwnProperty(matchedRowIdx)
+          ? virtualRemaining[matchedRowIdx]
+          : Number(stocks[matchedRowIdx][0] === "" || stocks[matchedRowIdx][0] === null ? 100 : stocks[matchedRowIdx][0]);
+        if (isNaN(curStock)) curStock = 0;
+        if (curStock < reqQty) {
+          return {
+            ok: false,
+            message: "Sản phẩm \"" + String(names[matchedRowIdx][0]) + "\" chỉ còn " + Math.max(0, curStock) + " trong kho, không đủ số lượng đặt (" + reqQty + ")."
+          };
+        }
+        virtualRemaining[matchedRowIdx] = curStock - reqQty;
+        deductions.push({ rowIdx: matchedRowIdx, newStock: curStock - reqQty });
+      }
+    }
+
+    // Bước 2: Thực hiện trừ tồn kho sau khi đã kiểm tra đủ toàn bộ giỏ hàng
+    for (var d = 0; d < deductions.length; d++) {
+      var rowNum = 3 + deductions[d].rowIdx;
+      var ns = Math.max(0, deductions[d].newStock);
+      prodSheet.getRange(rowNum, 10).setValue(ns);
+      var avail = ns > 0;
+      prodSheet.getRange(rowNum, 7).setValue(avail ? "Còn hàng" : "Hết hàng");
+      dinhDangDongSanPham(prodSheet, rowNum, avail);
+    }
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, message: "Lỗi kiểm tra tồn kho: " + e.toString() };
+  }
+}
+
+// ========================================================
+// NHẬT KÝ LỖI & LỊCH SỬ THAY ĐỔI DỮ LIỆU (OBSERVABILITY & AUDIT)
+// ========================================================
+function logSystemError_(ss, level, source, refCode, detail) {
+  try {
+    if (!ss) return;
+    var errSheet = ss.getSheetByName("NhatKyLoi");
+    if (!errSheet) {
+      errSheet = ss.insertSheet("NhatKyLoi");
+      errSheet.appendRow(["NHẬT KÝ LỖI & CẢNH BÁO HỆ THỐNG (ERROR LOG)"]);
+      errSheet.getRange("A1:E1").merge().setBackground("#7f1d1d").setFontColor("#ffffff").setFontWeight("bold").setHorizontalAlignment("center");
+      errSheet.appendRow(["Thời gian", "Mức độ", "Nguồn / Hành động", "Mã tham chiếu", "Chi tiết"]);
+      errSheet.getRange("A2:E2").setBackground("#991b1b").setFontColor("#ffffff").setFontWeight("bold").setHorizontalAlignment("center");
+      errSheet.setFrozenRows(2);
+    }
+    errSheet.appendRow([
+      new Date().toLocaleString("vi-VN"),
+      String(level || "ERROR"),
+      sanitizeSheetCell_(String(source || "")),
+      sanitizeSheetCell_(String(refCode || "")),
+      sanitizeSheetCell_(String(detail || "").slice(0, 500))
+    ]);
+    var total = errSheet.getLastRow();
+    if (total > 502) errSheet.deleteRows(3, total - 502);
+  } catch (e) {}
+}
+
+function logDataChange_(ss, actor, actionName, targetId, beforeVal, afterVal) {
+  try {
+    if (!ss) return;
+    var chSheet = ss.getSheetByName("LichSuThayDoi");
+    if (!chSheet) {
+      chSheet = ss.insertSheet("LichSuThayDoi");
+      chSheet.appendRow(["LỊCH SỬ THAY ĐỔI DỮ LIỆU (DATA AUDIT LOG)"]);
+      chSheet.getRange("A1:F1").merge().setBackground("#0f172a").setFontColor("#38bdf8").setFontWeight("bold").setHorizontalAlignment("center");
+      chSheet.appendRow(["Thời gian", "Người thực hiện", "Hành động", "Đối tượng / Mã", "Trước thay đổi", "Sau thay đổi"]);
+      chSheet.getRange("A2:F2").setBackground("#1e293b").setFontColor("#ffffff").setFontWeight("bold").setHorizontalAlignment("center");
+      chSheet.setFrozenRows(2);
+    }
+    chSheet.appendRow([
+      new Date().toLocaleString("vi-VN"),
+      sanitizeSheetCell_(String(actor || "System")),
+      sanitizeSheetCell_(String(actionName || "")),
+      sanitizeSheetCell_(String(targetId || "")),
+      sanitizeSheetCell_(String(beforeVal || "").slice(0, 250)),
+      sanitizeSheetCell_(String(afterVal || "").slice(0, 250))
+    ]);
+    var total = chSheet.getLastRow();
+    if (total > 1002) chSheet.deleteRows(3, total - 1002);
+  } catch (e) {}
+}
+
+function getSystemLogsData_(ss) {
+  var errors = [];
+  var changes = [];
+  try {
+    var errSheet = ss.getSheetByName("NhatKyLoi");
+    if (errSheet && errSheet.getLastRow() >= 3) {
+      var lr = errSheet.getLastRow();
+      var start = Math.max(3, lr - 49);
+      var rows = errSheet.getRange(start, 1, lr - start + 1, 5).getValues();
+      for (var i = rows.length - 1; i >= 0; i--) {
+        errors.push({ time: String(rows[i][0] || ""), level: String(rows[i][1] || ""), source: String(rows[i][2] || ""), ref: String(rows[i][3] || ""), detail: String(rows[i][4] || "") });
+      }
+    }
+  } catch (e) {}
+  try {
+    var chSheet = ss.getSheetByName("LichSuThayDoi");
+    if (chSheet && chSheet.getLastRow() >= 3) {
+      var lrc = chSheet.getLastRow();
+      var startC = Math.max(3, lrc - 49);
+      var rowsC = chSheet.getRange(startC, 1, lrc - startC + 1, 6).getValues();
+      for (var j = rowsC.length - 1; j >= 0; j--) {
+        changes.push({ time: String(rowsC[j][0] || ""), actor: String(rowsC[j][1] || ""), action: String(rowsC[j][2] || ""), target: String(rowsC[j][3] || ""), before: String(rowsC[j][4] || ""), after: String(rowsC[j][5] || "") });
+      }
+    }
+  } catch (e2) {}
+  return jsonSuccess({ errors: errors, changes: changes });
+}
+
+// ========================================================
+// SAO LƯU TỰ ĐỘNG (AUTO BACKUP) & KIỂM THỬ KHÔI PHỤC DỮ LIỆU
+// ========================================================
+function getOrCreateBackupFolder_() {
+  var folderName = "BaCo_Auto_Backups";
+  var folders = DriveApp.getFoldersByName(folderName);
+  if (folders.hasNext()) return folders.next();
+  return DriveApp.createFolder(folderName);
+}
+
+function saoLuuDuLieuTuDong(actor) {
+  var ss = layBangTinh();
+  if (!ss) return jsonError("Không mở được Google Sheet để sao lưu.");
+  try {
+    var folder = getOrCreateBackupFolder_();
+    var sheets = ss.getSheets();
+    var snapshot = {
+      exportedAt: new Date().toISOString(),
+      spreadsheetId: ss.getId(),
+      spreadsheetName: ss.getName(),
+      tabs: {}
+    };
+    for (var i = 0; i < sheets.length; i++) {
+      var sh = sheets[i];
+      var name = sh.getName();
+      if (name === "QuanTriVien") continue; // Không lưu hash mật khẩu vào file backup JSON
+      var lr = sh.getLastRow();
+      var lc = sh.getLastColumn();
+      snapshot.tabs[name] = (lr > 0 && lc > 0) ? sh.getRange(1, 1, lr, lc).getValues() : [];
+    }
+    var jsonStr = JSON.stringify(snapshot);
+    var stamp = Utilities.formatDate(new Date(), "Asia/Ho_Chi_Minh", "yyyy-MM-dd_HHmmss");
+    var fileName = "BaCo_Backup_" + stamp + ".json";
+    var file = folder.createFile(fileName, jsonStr, MimeType.PLAIN_TEXT);
+
+    // Giữ tối đa 14 bản sao lưu gần nhất
+    var allFiles = [];
+    var it = folder.getFiles();
+    while (it.hasNext()) {
+      var f = it.next();
+      if (f.getName().indexOf("BaCo_Backup_") === 0) allFiles.push(f);
+    }
+    allFiles.sort(function(a, b) { return b.getDateCreated().getTime() - a.getDateCreated().getTime(); });
+    for (var k = 14; k < allFiles.length; k++) {
+      allFiles[k].setTrashed(true);
+    }
+
+    logDataChange_(ss, actor || "AutoTrigger", "AUTO_BACKUP", fileName, "", "Dung lượng: " + jsonStr.length + " bytes | Tabs: " + Object.keys(snapshot.tabs).length);
+    return jsonSuccess({ backedUp: true, fileId: file.getId(), fileName: fileName, bytes: jsonStr.length, tabCount: Object.keys(snapshot.tabs).length });
+  } catch (e) {
+    logSystemError_(ss, "ERROR", "AUTO_BACKUP", "", e.toString());
+    return jsonError("Lỗi sao lưu: " + e.toString());
+  }
+}
+
+function caiDatLichSaoLuuTuDong() {
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === "saoLuuDuLieuTuDong") {
+      ScriptApp.deleteTrigger(triggers[i]);
+    }
+  }
+  ScriptApp.newTrigger("saoLuuDuLieuTuDong").timeBased().everyDays(1).atHour(2).create();
+  try {
+    SpreadsheetApp.getUi().alert("✅ Đã bật lịch sao lưu tự động hàng ngày vào lúc 02:00 sáng (lưu tại Google Drive/BaCo_Auto_Backups).");
+  } catch (e) {}
+}
+
+// Kiểm thử khả năng khôi phục dữ liệu từ bản sao lưu mới nhất (Dry-run không ghi đè dữ liệu thật)
+function kiemThuKhoiPhucDuLieu(actor) {
+  var ss = layBangTinh();
+  try {
+    var folder = getOrCreateBackupFolder_();
+    var allFiles = [];
+    var it = folder.getFiles();
+    while (it.hasNext()) {
+      var f = it.next();
+      if (f.getName().indexOf("BaCo_Backup_") === 0) allFiles.push(f);
+    }
+    if (allFiles.length === 0) {
+      return jsonError("Chưa có bản sao lưu nào trong BaCo_Auto_Backups. Hãy chạy sao lưu trước!");
+    }
+    allFiles.sort(function(a, b) { return b.getDateCreated().getTime() - a.getDateCreated().getTime(); });
+    var latest = allFiles[0];
+    var content = latest.getBlob().getDataAsString("UTF-8");
+    var parsed = JSON.parse(content);
+    if (!parsed || !parsed.tabs || typeof parsed.tabs !== "object") {
+      throw new Error("Cấu trúc file sao lưu không hợp lệ.");
+    }
+    var tabNames = Object.keys(parsed.tabs);
+    var summary = {};
+    for (var i = 0; i < tabNames.length; i++) {
+      var tn = tabNames[i];
+      summary[tn] = Array.isArray(parsed.tabs[tn]) ? parsed.tabs[tn].length : 0;
+    }
+    if (ss) {
+      logDataChange_(ss, actor || "Admin", "RESTORE_DRY_RUN_PASS", latest.getName(), "", JSON.stringify(summary));
+    }
+    return jsonSuccess({
+      passed: true,
+      fileName: latest.getName(),
+      exportedAt: parsed.exportedAt,
+      tabsRowCounts: summary
+    });
+  } catch (e) {
+    if (ss) logSystemError_(ss, "ERROR", "RESTORE_DRY_RUN_FAIL", "", e.toString());
+    return jsonError("Kiểm thử khôi phục thất bại: " + e.toString());
+  }
 }
 
 // Tự động mã hóa PBKDF2 ngay khi người quản trị nhập mật khẩu mới vào cột D tab QuanTriVien
@@ -2268,6 +2643,10 @@ function onOpen() {
       .addItem("2. Đặt / Đổi Mật Khẩu Admin", "moHopThoaiDatMatKhau")
       .addItem("3. Mã hóa mật khẩu vừa gõ trong Sheet", "chayMaHoaMatKhauUI")
       .addItem("4. Gắn File Sheet Riêng Tư (Tùy chọn)", "moHopThoaiDatSheetRiengTu")
+      .addSeparator()
+      .addItem("5. Sao lưu dữ liệu ngay lên Drive", "saoLuuDuLieuTuDong")
+      .addItem("6. Bật sao lưu tự động hàng ngày (02:00)", "caiDatLichSaoLuuTuDong")
+      .addItem("7. Kiểm thử khôi phục từ bản sao lưu", "kiemThuKhoiPhucDuLieu")
       .addToUi();
   } catch (e) {}
 }
