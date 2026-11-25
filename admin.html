@@ -50,26 +50,33 @@
             padding-top: env(safe-area-inset-top, 0px);
         }
 
-        /* Thanh điều hướng phẳng chuẩn Stripe / Modern SaaS */
+        /* Thanh điều hướng chuẩn Stripe / Modern SaaS kèm bóng đổ nhẹ */
         .ios-blur {
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             background-color: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 4px 12px rgba(15, 23, 42, 0.03);
         }
 
         .ios-card {
             background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: none;
-            border: 1px solid #e3e8ee;
+            border-radius: 12px;
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 8px 22px -4px rgba(15, 23, 42, 0.07);
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .ios-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.07), 0 14px 28px -6px rgba(15, 23, 42, 0.11);
         }
 
-        /* Sidebar Desktop bên trái: vạch dọc Indigo tối giản chuẩn Stripe */
+        /* Sidebar Desktop bên trái: vạch dọc Indigo + nền nổi nhẹ khi active */
         button[id^="desktopTabBtn-"].border-\[\#635BFF\],
         button[id^="desktopTabBtn-"].border-\[\#007AFF\] {
-            background-color: transparent;
+            background-color: rgba(99, 91, 255, 0.07);
             border-left-color: #635BFF !important;
             color: #635BFF !important;
+            box-shadow: 0 1px 2px rgba(99, 91, 255, 0.08);
         }
         #desktopSidebar.sidebar-collapsed {
             width: 68px;
@@ -88,21 +95,22 @@
             padding-right: 0;
         }
 
-        /* Bộ lọc Segmented mảnh chuẩn SaaS */
+        /* Bộ lọc Segmented mảnh kèm đổ bóng nút chọn */
         .ios-segmented {
-            background-color: #f7f8fa;
-            border: 1px solid #e3e8ee;
-            padding: 2px;
-            border-radius: 8px;
+            background-color: #eef1f6;
+            border: 1px solid #e2e8f0;
+            padding: 3px;
+            border-radius: 9px;
+            box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
         }
         .ios-segment-btn {
             color: #697386;
-            border-radius: 6px;
+            border-radius: 7px;
         }
         .ios-segment-btn.active {
             background-color: #ffffff;
             color: #635BFF;
-            box-shadow: 0 1px 2px rgba(26, 31, 54, 0.06);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1), 0 2px 6px rgba(99, 91, 255, 0.08);
             font-weight: 600;
         }
 
@@ -245,9 +253,9 @@
         }
     </style>
     <!-- Precompiled Tailwind CSS (đặt sau <style> để giữ đúng thứ tự ưu tiên) -->
-    <link rel="stylesheet" href="./assets/admin.css?v=20261125a">
+    <link rel="stylesheet" href="./assets/admin.css?v=20261125b">
 </head>
-<body class="bg-white text-[#1a1f36] antialiased min-h-screen flex flex-col pb-safe-bottom">
+<body class="bg-[#f5f7fb] text-[#1a1f36] antialiased min-h-screen flex flex-col pb-safe-bottom">
 
     <!-- Pull to Refresh Indicator trên Mobile -->
     <div id="pullToRefreshIndicator" class="fixed top-2 inset-x-0 mx-auto w-fit z-50 pointer-events-none opacity-0 transform -translate-y-6 transition-all duration-200">
@@ -344,8 +352,8 @@
         <!-- KHUNG BỐ CỤC DESKTOP (SIDEBAR TRÁI PHẲNG + NỘI DUNG TRẮNG SẠCH) -->
         <div class="flex-1 flex w-full">
 
-            <!-- Desktop Left Sidebar (Chuẩn Stripe: phẳng, đường kẻ mảnh, vạch dọc Indigo khi active) -->
-            <aside id="desktopSidebar" class="hidden md:flex flex-col justify-between shrink-0 w-56 lg:w-60 sticky top-14 h-[calc(100vh-3.5rem)] bg-[#fafbfc] border-r border-[#e3e8ee] px-2.5 py-4 overflow-y-auto no-scrollbar transition-all duration-200 select-none">
+            <!-- Desktop Left Sidebar (Chuẩn Stripe kèm đổ bóng tách khối nhẹ) -->
+            <aside id="desktopSidebar" class="hidden md:flex flex-col justify-between shrink-0 w-56 lg:w-60 sticky top-14 h-[calc(100vh-3.5rem)] bg-white border-r border-[#e3e8ee] shadow-[2px_0_16px_rgba(15,23,42,0.04)] px-2.5 py-4 overflow-y-auto no-scrollbar transition-all duration-200 select-none">
                 <div class="space-y-6">
                     <!-- Nhóm 1: Bán hàng -->
                     <div class="space-y-0.5">
@@ -490,10 +498,10 @@
                     </div>
                 </div>
 
-                <!-- KHỐI CHÍNH BẤT ĐỐI XỨNG CHUẨN STRIPE: BIỂU ĐỒ DOANH THU LỚN (TRÁI) + THANH TOÁN (PHẢI) -->
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+                <!-- KHỐI CHÍNH BẤT ĐỐI XỨNG CHUẨN STRIPE KÈM SHADOW NỔI KHỐI -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6">
                     <!-- Cột trái 8/12: Tổng doanh thu + Biểu đồ đường mảnh Indigo -->
-                    <div class="lg:col-span-8 space-y-4">
+                    <div class="lg:col-span-8 ios-card p-4 sm:p-6 space-y-4">
                         <div class="space-y-1">
                             <div class="flex items-center gap-2">
                                 <span class="text-xs font-medium text-[#697386]">Tổng doanh thu</span>
@@ -506,8 +514,8 @@
                         </div>
                     </div>
 
-                    <!-- Cột phải 4/12: Thanh toán & Danh mục (như cột Subscriptions bên phải của Stripe) -->
-                    <div class="lg:col-span-4 border-t lg:border-t-0 lg:border-l border-[#e3e8ee] pt-5 lg:pt-0 lg:pl-7 space-y-4 flex flex-col justify-between">
+                    <!-- Cột phải 4/12: Thanh toán & Kho nổi khối riêng -->
+                    <div class="lg:col-span-4 ios-card p-4 sm:p-6 space-y-4 flex flex-col justify-between">
                         <div class="space-y-3">
                             <h2 class="text-sm font-semibold text-[#1a1f36]">Thanh toán &amp; Kho</h2>
                             <div class="divide-y divide-[#e3e8ee] text-xs">
@@ -549,39 +557,39 @@
                     </div>
                 </div>
 
-                <!-- KHỐI CHỈ SỐ TỔNG QUAN (YOUR OVERVIEW — PHẲNG, CHIA HAIRLINE) -->
-                <div class="pt-5 border-t border-[#e3e8ee] space-y-4">
+                <!-- KHỐI CHỈ SỐ TỔNG QUAN (YOUR OVERVIEW — TỪNG THẺ CÓ SHADOW NỔI RÕ) -->
+                <div class="space-y-4">
                     <h2 class="text-base font-bold tracking-tight text-[#1a1f36]">Tổng quan hoạt động</h2>
 
-                    <div class="grid grid-cols-2 md:grid-cols-4 border border-[#e3e8ee] rounded-[10px] divide-y md:divide-y-0 md:divide-x divide-[#e3e8ee] bg-white">
-                        <div class="p-4 space-y-1">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4">
+                        <div class="ios-card p-4 space-y-1">
                             <span class="text-xs font-medium text-[#697386] block">Tổng đơn hàng</span>
                             <div id="statTotalOrders" class="text-xl sm:text-2xl font-bold tracking-tight text-[#1a1f36] tabular-nums">0</div>
                         </div>
-                        <div class="p-4 space-y-1">
+                        <div class="ios-card p-4 space-y-1">
                             <span class="text-xs font-medium text-[#697386] block">Tỷ lệ chuyển khoản QR</span>
                             <div id="statTransferRate" class="text-xl sm:text-2xl font-bold tracking-tight text-[#635BFF] tabular-nums">0%</div>
                         </div>
-                        <div class="p-4 space-y-1">
+                        <div class="ios-card p-4 space-y-1">
                             <span class="text-xs font-medium text-[#697386] block">Trung bình / đơn</span>
                             <div id="statAvgOrder" class="text-xl sm:text-2xl font-bold tracking-tight text-[#1a1f36] tabular-nums">0 đ</div>
                         </div>
-                        <div class="p-4 space-y-1">
+                        <div class="ios-card p-4 space-y-1">
                             <span class="text-xs font-medium text-[#697386] block">Đã thực thu (QR/Hoàn tất)</span>
                             <div id="statRealizedRevenue" class="text-xl sm:text-2xl font-bold tracking-tight text-emerald-700 tabular-nums">0 đ</div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 border border-[#e3e8ee] rounded-[10px] divide-y sm:divide-y-0 sm:divide-x divide-[#e3e8ee] bg-[#fafbfc]">
-                        <div class="p-3.5 sm:px-4 space-y-0.5">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
+                        <div class="ios-card p-4 space-y-0.5">
                             <span class="text-[11px] font-medium text-[#697386] block">COD đang chờ thu hộ</span>
                             <div id="statPendingCodRevenue" class="text-base sm:text-lg font-bold text-[#1a1f36] tabular-nums">0 đ</div>
                         </div>
-                        <div class="p-3.5 sm:px-4 space-y-0.5">
+                        <div class="ios-card p-4 space-y-0.5">
                             <span class="text-[11px] font-medium text-[#697386] block">Đã giảm qua Voucher</span>
                             <div id="statTotalVoucherDiscount" class="text-base sm:text-lg font-bold text-[#1a1f36] tabular-nums">0 đ</div>
                         </div>
-                        <div class="p-3.5 sm:px-4 space-y-0.5">
+                        <div class="ios-card p-4 space-y-0.5">
                             <div class="flex items-center justify-between gap-2">
                                 <span class="text-[11px] font-medium text-[#697386]">Tỷ lệ hủy / hoàn hàng</span>
                                 <span id="statCancelLoss" class="text-[11px] text-[#697386] tabular-nums">0 đơn • 0 đ</span>
@@ -591,13 +599,13 @@
                     </div>
                 </div>
 
-                <!-- SẢN PHẨM BÁN CHẠY & CẢNH BÁO TỒN KHO -->
-                <div class="pt-5 border-t border-[#e3e8ee] space-y-5">
-                    <div class="space-y-2.5">
+                <!-- SẢN PHẨM BÁN CHẠY & CẢNH BÁO TỒN KHO (KHỐI NỔI SHADOW) -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6">
+                    <div class="lg:col-span-8 ios-card p-4 sm:p-5 space-y-3">
                         <h3 class="text-xs font-semibold text-[#697386] uppercase tracking-wider">Sản phẩm bán chạy</h3>
                         <div id="statTopSellingList" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
                     </div>
-                    <div class="pt-4 border-t border-[#e3e8ee] space-y-2">
+                    <div class="lg:col-span-4 ios-card p-4 sm:p-5 space-y-3">
                         <h3 class="text-xs font-semibold text-[#697386] uppercase tracking-wider">Cảnh báo tồn kho (≤ 10 sản phẩm)</h3>
                         <div id="statLowStockAlertList" class="flex flex-wrap gap-1.5 text-xs"></div>
                     </div>
@@ -6706,14 +6714,14 @@ function moHopThoaiDatSheetRiengTu() {
                     topContainer.innerHTML = `<div class="col-span-3 text-slate-400 text-xs py-1">Chưa có đơn hàng nào trong khoảng thời gian này.</div>`;
                 } else {
                     topContainer.innerHTML = topProducts.map((p, idx) => `
-                        <div class="bg-[#F2F2F7] p-2.5 rounded-xl flex items-center justify-between text-xs">
+                        <div class="bg-[#fafbfc] border border-[#e3e8ee] shadow-[0_1px_3px_rgba(15,23,42,0.04)] p-3 rounded-lg flex items-center justify-between text-xs">
                             <div class="truncate mr-2">
-                                <span class="font-bold text-[#007AFF] mr-1">#${idx + 1}</span>
-                                <span class="font-semibold text-slate-900 truncate">${p.name}</span>
+                                <span class="font-bold text-[#635BFF] mr-1">#${idx + 1}</span>
+                                <span class="font-semibold text-[#1a1f36] truncate">${p.name}</span>
                             </div>
                             <div class="text-right flex-shrink-0">
-                                <span class="font-bold text-slate-900">${p.qty} món</span>
-                                <div class="text-[10px] text-slate-400">${p.revenue.toLocaleString('vi-VN')}đ</div>
+                                <span class="font-bold text-[#1a1f36]">${p.qty} món</span>
+                                <div class="text-[10px] text-[#697386] tabular-nums">${p.revenue.toLocaleString('vi-VN')}đ</div>
                             </div>
                         </div>
                     `).join('');
