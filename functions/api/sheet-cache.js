@@ -4,7 +4,7 @@
 // - POST -> Proxy an toàn tới Google Apps Script với tự động retry khi gặp 429/5xx
 
 const SHEET_ID = '1ZvX_-wHeoc6fcv43hW_Jj-blOagtsFJiazorJJ8pBBw';
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwebXDUV66ufVUa9tWkK5ZFP0WkVwejPf0CfWqwE64TjPU8RBMaQOc1pNRNgyAZwClQuQ/exec';
 const ALLOWED_SHEETS = new Set(['SanPham', 'NoiDungWeb', 'DanhGia', 'Voucher']);
 
 export async function onRequestGet(context) {

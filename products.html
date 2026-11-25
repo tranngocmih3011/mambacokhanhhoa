@@ -1103,7 +1103,7 @@
 
     <script>
         const SHEET_ID = '1ZvX_-wHeoc6fcv43hW_Jj-blOagtsFJiazorJJ8pBBw';
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwebXDUV66ufVUa9tWkK5ZFP0WkVwejPf0CfWqwE64TjPU8RBMaQOc1pNRNgyAZwClQuQ/exec";
 
         const DEFAULT_PRODUCTS = [
             {
@@ -2278,7 +2278,7 @@
 
                 // 2. Kiểm tra trực tiếp qua Google Apps Script
                 try {
-                    const gasUrl = `https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec?action=check_payment&orderCode=${encodeURIComponent(currentOrderCode)}&_t=${Date.now()}`;
+                    const gasUrl = `https://script.google.com/macros/s/AKfycbwebXDUV66ufVUa9tWkK5ZFP0WkVwejPf0CfWqwE64TjPU8RBMaQOc1pNRNgyAZwClQuQ/exec?action=check_payment&orderCode=${encodeURIComponent(currentOrderCode)}&_t=${Date.now()}`;
                     const gasRes = await fetch(gasUrl, { cache: 'no-store' });
                     if (gasRes.ok) {
                         const gasData = await gasRes.json();
@@ -2330,7 +2330,7 @@
 
                 // 2. Kiểm tra trực tiếp qua Google Apps Script (Script Properties)
                 try {
-                    const gasUrl = `https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec?action=check_payment&orderCode=${encodeURIComponent(orderCode)}&_t=${Date.now()}`;
+                    const gasUrl = `https://script.google.com/macros/s/AKfycbwebXDUV66ufVUa9tWkK5ZFP0WkVwejPf0CfWqwE64TjPU8RBMaQOc1pNRNgyAZwClQuQ/exec?action=check_payment&orderCode=${encodeURIComponent(orderCode)}&_t=${Date.now()}`;
                     const gasRes = await fetch(gasUrl, { cache: 'no-store' });
                     if (gasRes.ok) {
                         const gasData = await gasRes.json();

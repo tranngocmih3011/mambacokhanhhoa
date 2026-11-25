@@ -2627,7 +2627,7 @@
                 const qtyVal = parseInt(document.getElementById('quantity') ? document.getElementById('quantity').value : 1, 10) || 1;
                 subtotal = calculateOrderAmount(prodVal, qtyVal);
             }
-            const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
+            const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwebXDUV66ufVUa9tWkK5ZFP0WkVwejPf0CfWqwE64TjPU8RBMaQOc1pNRNgyAZwClQuQ/exec";
             let res = { valid: false, message: 'Không thể kiểm tra mã giảm giá.' };
             if (window.BaCoStoreUtils) {
                 res = await window.BaCoStoreUtils.verifyVoucherWithSheet(GOOGLE_SCRIPT_URL, code, subtotal);
@@ -3130,7 +3130,7 @@
             }).catch(err => console.warn('Push wholesale error:', err));
 
             // 2. Gửi qua Google Apps Script Webhook vào Tab "Khách Sỉ & Đại Lý"
-            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec';
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwebXDUV66ufVUa9tWkK5ZFP0WkVwejPf0CfWqwE64TjPU8RBMaQOc1pNRNgyAZwClQuQ/exec';
             try {
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
@@ -3759,7 +3759,7 @@
             syncSiteAndProductsFromSheetOnHome();
             if (window.BaCoStoreUtils) {
                 window.BaCoStoreUtils.initVnAddressSelector({ containerId: 'vnAddressContainer', targetInputId: 'address' });
-                const gUrl = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
+                const gUrl = "https://script.google.com/macros/s/AKfycbwebXDUV66ufVUa9tWkK5ZFP0WkVwejPf0CfWqwE64TjPU8RBMaQOc1pNRNgyAZwClQuQ/exec";
                 window.BaCoStoreUtils.flushPendingSyncQueue(gUrl);
             }
         });
@@ -3892,7 +3892,7 @@
                 } catch(err) {}
 
                 // 2. GỬI ĐƠN LÊN GOOGLE SHEET TAB 1 (Kích hoạt ghi nhận đơn và tự động bắn Gmail thông báo tới admin)
-                const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
+                const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwebXDUV66ufVUa9tWkK5ZFP0WkVwejPf0CfWqwE64TjPU8RBMaQOc1pNRNgyAZwClQuQ/exec";
                 try {
                     fetch(GOOGLE_SCRIPT_URL, {
                         method: 'POST',
@@ -3990,7 +3990,7 @@
             }).catch(err => console.warn('Push error:', err));
 
             // 3. Ghi đơn hàng COD lên Google Sheet (Gửi mail báo COD)
-            const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
+            const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwebXDUV66ufVUa9tWkK5ZFP0WkVwejPf0CfWqwE64TjPU8RBMaQOc1pNRNgyAZwClQuQ/exec";
             try {
                 fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
@@ -4034,7 +4034,7 @@
 
                 // 2. Kiểm tra trực tiếp qua Google Apps Script
                 try {
-                    const gasUrl = `https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec?action=check_payment&orderCode=${encodeURIComponent(currentOrderCode)}&_t=${Date.now()}`;
+                    const gasUrl = `https://script.google.com/macros/s/AKfycbwebXDUV66ufVUa9tWkK5ZFP0WkVwejPf0CfWqwE64TjPU8RBMaQOc1pNRNgyAZwClQuQ/exec?action=check_payment&orderCode=${encodeURIComponent(currentOrderCode)}&_t=${Date.now()}`;
                     const gasRes = await fetch(gasUrl, { cache: 'no-store' });
                     if (gasRes.ok) {
                         const gasData = await gasRes.json();
@@ -4086,7 +4086,7 @@
 
                 // 2. Kiểm tra trực tiếp qua Google Apps Script (Script Properties)
                 try {
-                    const gasUrl = `https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec?action=check_payment&orderCode=${encodeURIComponent(orderCode)}&_t=${Date.now()}`;
+                    const gasUrl = `https://script.google.com/macros/s/AKfycbwebXDUV66ufVUa9tWkK5ZFP0WkVwejPf0CfWqwE64TjPU8RBMaQOc1pNRNgyAZwClQuQ/exec?action=check_payment&orderCode=${encodeURIComponent(orderCode)}&_t=${Date.now()}`;
                     const gasRes = await fetch(gasUrl, { cache: 'no-store' });
                     if (gasRes.ok) {
                         const gasData = await gasRes.json();
@@ -4164,7 +4164,7 @@
                     paymentMethod: 'Chuyển khoản VietQR (SePay)',
                     timestamp: new Date().toLocaleString('vi-VN')
                 });
-                const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
+                const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwebXDUV66ufVUa9tWkK5ZFP0WkVwejPf0CfWqwE64TjPU8RBMaQOc1pNRNgyAZwClQuQ/exec";
                 const payload = JSON.stringify(finalOrder);
                 if (navigator.sendBeacon) {
                     navigator.sendBeacon(GOOGLE_SCRIPT_URL, payload);
@@ -4323,7 +4323,7 @@
                 localStorage.setItem('baco_orders', JSON.stringify(existingOrders));
             } catch (err) {}
 
-            const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
+            const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwebXDUV66ufVUa9tWkK5ZFP0WkVwejPf0CfWqwE64TjPU8RBMaQOc1pNRNgyAZwClQuQ/exec";
 
             // 2. Ghi đơn hàng COD lên Google Sheet Tab 1 qua hàng đợi chống nghẽn (Resilient Sync)
             const orderPayload = {
