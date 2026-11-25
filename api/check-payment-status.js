@@ -1,14 +1,16 @@
-// api/check-payment-status.js
-// Endpoint kiểm tra trạng thái thanh toán đơn hàng chuẩn theo tài liệu SePay
-// (https://sepay.vn/lap-trinh-cong-thanh-toan.html - Mục 2.2.3)
+// api/check-payment-status.js (Hardened)
+const STORAGE_URL = process.env.PAID_STORAGE_URL || '';
+const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL || '';
 
-const STORAGE_URL = 'https://api.restful-api.dev/objects/ff808181a09d98f701a16276eb5f4f7e';
-const SHEET_ID = '1ZvX_-wHeoc6fcv43hW_Jj-blOagtsFJiazorJJ8pBBw';
+const ALLOWED_ORIGINS = new Set([
+  'https://mambacokhanhhoa.pages.dev',
+  'https://mambacokhanhhoa.vercel.app'
+]);
 
 const STORAGE_HEADERS = {
   'Accept': 'application/json',
   'Content-Type': 'application/json',
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+  'User-Agent': 'BaCo-PaymentCheck/2.0'
 };
 
 function isOrderCodeMatch(paidCode, queryCode) {
@@ -16,27 +18,24 @@ function isOrderCodeMatch(paidCode, queryCode) {
   const p = String(paidCode).replace(/[^A-Za-z0-9]/g, '').toUpperCase();
   const q = String(queryCode).replace(/[^A-Za-z0-9]/g, '').toUpperCase();
   if (!p || !q) return false;
-
-  // 1. Khớp tuyệt đối (BC385011 === BC385011)
   if (p === q) return true;
-
-  // 2. Chứa nhau nếu có thêm tiền tố SEVQR (ví dụ SEVQRBC385011 chứa BC385011)
   if (p.includes(q) || q.includes(p)) return true;
-
-  // 3. Khớp chính xác toàn bộ chữ số của mã đơn (ví dụ 385011 === 385011)
   const pDigits = p.replace(/\D/g, '');
   const qDigits = q.replace(/\D/g, '');
   if (pDigits && qDigits && pDigits.length >= 5 && qDigits.length >= 5) {
     if (pDigits === qDigits) return true;
   }
-
   return false;
 }
 
 module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin || '';
+  const corsOrigin = ALLOWED_ORIGINS.has(origin) ? origin : 'https://mambacokhanhhoa.pages.dev';
+  res.setHeader('Access-Control-Allow-Origin', corsOrigin);
+  res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Cache-Control', 'no-store');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -62,29 +61,27 @@ module.exports = async (req, res) => {
 
     const cleanOrder = String(order_id).replace('#', '').trim().toUpperCase();
 
-    // 1. Kiểm tra trong bộ nhớ giao dịch SePay
+    // 1. Kiểm tra trong bộ nhớ giao dịch SePay (nếu đã cấu hình PAID_STORAGE_URL)
     let match = null;
-    try {
-      const storeRes = await fetch(STORAGE_URL, { headers: STORAGE_HEADERS });
-      if (storeRes.ok) {
-        const storeData = await storeRes.json();
-        const paidOrders = (storeData && storeData.data && storeData.data.paidOrders) || [];
-
-        // Chỉ khớp đúng mã đơn hàng (không khớp bừa theo số tiền)
-        match = paidOrders.find(p => isOrderCodeMatch(p.orderCode, cleanOrder));
+    if (STORAGE_URL) {
+      try {
+        const storeRes = await fetch(STORAGE_URL, { headers: STORAGE_HEADERS });
+        if (storeRes.ok) {
+          const storeData = await storeRes.json();
+          const paidOrders = (storeData && storeData.data && storeData.data.paidOrders) || [];
+          match = paidOrders.find(p => isOrderCodeMatch(p.orderCode, cleanOrder));
+        }
+      } catch (e) {
+        console.warn('Lỗi đọc storage:', e.message);
       }
-    } catch (e) {
-      console.warn('Lỗi đọc storage:', e.message);
     }
 
     const parsedUrl = req.method !== 'POST' ? new URL(req.url, `https://${req.headers.host || 'localhost'}`) : null;
     const sinceParam = req.method === 'POST' ? (req.body?.since || 0) : (req.query?.since || (parsedUrl ? parsedUrl.searchParams.get('since') : 0));
     const since = Number(sinceParam || 0);
 
-    // 2. Nếu tìm thấy giao dịch đã thanh toán
     if (match) {
       const paidTimestamp = match.paidAt ? new Date(match.paidAt).getTime() : 0;
-      // Chỉ bỏ qua nếu thời điểm thanh toán cũ hơn thời điểm tạo đơn quá 24h (tránh lỗi lệch đồng hồ thiết bị)
       if (since > 0 && paidTimestamp > 0 && paidTimestamp < (since - 86400000)) {
         match = null;
       }
@@ -101,55 +98,27 @@ module.exports = async (req, res) => {
       });
     }
 
-    // 3. Fallback 1: Kiểm tra trực tiếp qua Google Apps Script API (Script Properties)
-    try {
-      const gasUrl = `https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec?action=check_payment&orderCode=${encodeURIComponent(cleanOrder)}&_t=${Date.now()}`;
-      const gasRes = await fetch(gasUrl, { headers: STORAGE_HEADERS, redirect: 'follow' });
-      if (gasRes.ok) {
-        const gasData = await gasRes.json();
-        if (gasData && (gasData.paid || gasData.payment_status === 'Paid')) {
-          return res.status(200).json({
-            payment_status: 'Paid',
-            paid: true,
-            order_id: cleanOrder,
-            orderCode: cleanOrder,
-            amount: gasData.amount || amount,
-            source: 'google_apps_script'
-          });
-        }
-      }
-    } catch (e) {}
-
-    // 4. Fallback 2: Kiểm tra trực tiếp trên Google Sheet nếu lưu trữ chưa kịp cập nhật
-    try {
-      const gvizUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&_t=${Date.now()}`;
-      const gRes = await fetch(gvizUrl, { headers: STORAGE_HEADERS, cache: 'no-store' });
-      if (gRes.ok) {
-        const gText = await gRes.text();
-        const jsonMatch = gText.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
-        if (jsonMatch && jsonMatch[1]) {
-          const gData = JSON.parse(jsonMatch[1]);
-          const rows = (gData.table && gData.table.rows) || [];
-          for (const r of rows) {
-            const cells = (r && r.c) || [];
-            const rCode = cells[2] && cells[2].v ? String(cells[2].v) : '';
-            const rStatus = cells[11] && cells[11].v ? String(cells[11].v) : '';
-            const statusLower = rStatus.toLowerCase();
-            if (isOrderCodeMatch(rCode, cleanOrder) && (statusLower.includes('nhận') || statusLower.includes('thanh toán') || statusLower.includes('paid'))) {
-              return res.status(200).json({
-                payment_status: 'Paid',
-                paid: true,
-                order_id: cleanOrder,
-                orderCode: cleanOrder,
-                source: 'google_sheet'
-              });
-            }
+    // 2. Kiểm tra trực tiếp qua Google Apps Script API (Script Properties & Sheet riêng tư)
+    if (GOOGLE_SCRIPT_URL) {
+      try {
+        const gasUrl = `${GOOGLE_SCRIPT_URL}?action=check_payment&orderCode=${encodeURIComponent(cleanOrder)}&_t=${Date.now()}`;
+        const gasRes = await fetch(gasUrl, { headers: STORAGE_HEADERS, redirect: 'follow' });
+        if (gasRes.ok) {
+          const gasData = await gasRes.json();
+          if (gasData && (gasData.paid || gasData.payment_status === 'Paid')) {
+            return res.status(200).json({
+              payment_status: 'Paid',
+              paid: true,
+              order_id: cleanOrder,
+              orderCode: cleanOrder,
+              amount: gasData.amount || amount,
+              source: 'google_apps_script'
+            });
           }
         }
-      }
-    } catch (e) {}
+      } catch (e) {}
+    }
 
-    // Chưa thanh toán
     return res.status(200).json({
       payment_status: 'Unpaid',
       paid: false,
@@ -157,6 +126,6 @@ module.exports = async (req, res) => {
     });
 
   } catch (error) {
-    return res.status(500).json({ payment_status: 'Error', error: error.message });
+    return res.status(500).json({ payment_status: 'Error', error: 'Internal error' });
   }
 };

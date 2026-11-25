@@ -1,21 +1,37 @@
-// api/sepay-webhook.js - Xử lý Webhook tự động từ SePay (sepay.vn)
+// api/sepay-webhook.js - Xử lý Webhook tự động từ SePay (Hardened)
+const crypto = require('crypto');
 const webpush = require('web-push');
 
-const VAPID_PUBLIC_KEY = 'BNIqo8uK0d1Fm-43McRzIOp5W0lfQv8XKbWt74wIlDyGwWEOfhct4kDcWyuasywGlAgKR4ft_ZamSMiV90Nbsr8';
-const VAPID_PRIVATE_KEY = 'KegP8AMJuN90ptkVt_tvdxi9P7uwXT0fnVPC8x52L-g';
-const VAPID_SUBJECT = 'mailto:tranngocmih3011@gmail.com';
+const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || '';
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
+const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:admin@mambacokhanhhoa.pages.dev';
 
-const SUBS_STORAGE_URL = 'https://api.restful-api.dev/objects/ff808181a09d98f701a15e3ab16c3de8';
-const PAID_STORAGE_URL = 'https://api.restful-api.dev/objects/ff808181a09d98f701a16276eb5f4f7e';
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
+const SUBS_STORAGE_URL = process.env.SUBS_STORAGE_URL || '';
+const PAID_STORAGE_URL = process.env.PAID_STORAGE_URL || '';
+const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL || '';
+const SEPAY_WEBHOOK_SECRET = process.env.SEPAY_WEBHOOK_SECRET || '';
+const GAS_WEBHOOK_SECRET = process.env.GAS_WEBHOOK_SECRET || '';
+
+const ALLOWED_ORIGINS = new Set([
+  'https://mambacokhanhhoa.pages.dev',
+  'https://mambacokhanhhoa.vercel.app'
+]);
 
 const STORAGE_HEADERS = {
   'Accept': 'application/json',
   'Content-Type': 'application/json',
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+  'User-Agent': 'BaCo-Webhook/2.0'
 };
 
+function timingSafeEqualStr(a, b) {
+  const sa = Buffer.from(String(a || ''), 'utf8');
+  const sb = Buffer.from(String(b || ''), 'utf8');
+  if (sa.length === 0 || sa.length !== sb.length) return false;
+  return crypto.timingSafeEqual(sa, sb);
+}
+
 async function getPaidData() {
+  if (!PAID_STORAGE_URL) return { paidOrders: [], lastWebhooks: [] };
   try {
     const res = await fetch(PAID_STORAGE_URL, { headers: STORAGE_HEADERS });
     if (res.ok) {
@@ -29,6 +45,7 @@ async function getPaidData() {
 }
 
 async function savePaidData(data) {
+  if (!PAID_STORAGE_URL) return false;
   try {
     const res = await fetch(PAID_STORAGE_URL, {
       method: 'PUT',
@@ -46,6 +63,7 @@ async function savePaidData(data) {
 }
 
 async function getSubsAndTelegram() {
+  if (!SUBS_STORAGE_URL) return {};
   try {
     const res = await fetch(SUBS_STORAGE_URL, { headers: STORAGE_HEADERS });
     if (res.ok) {
@@ -61,63 +79,46 @@ function isOrderCodeMatch(paidCode, queryCode) {
   const p = String(paidCode).replace(/[^A-Za-z0-9]/g, '').toUpperCase();
   const q = String(queryCode).replace(/[^A-Za-z0-9]/g, '').toUpperCase();
   if (!p || !q) return false;
-
-  // 1. Khớp chính xác hoàn toàn (BC385011 === BC385011)
   if (p === q) return true;
-
-  // 2. Chứa nhau (BC385011 trong SEVQRBC385011)
   if (p.includes(q) || q.includes(p)) return true;
-
-  // 3. Khớp chính xác toàn bộ chữ số của mã đơn (ví dụ 385011 === 385011)
   const pDigits = p.replace(/\D/g, '');
   const qDigits = q.replace(/\D/g, '');
   if (pDigits && qDigits && pDigits.length >= 5 && qDigits.length >= 5) {
     if (pDigits === qDigits) return true;
   }
-
   return false;
 }
 
-webpush.setVapidDetails(
-  VAPID_SUBJECT,
-  VAPID_PUBLIC_KEY,
-  VAPID_PRIVATE_KEY
-);
+if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+}
 
 module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin || '';
+  const corsOrigin = ALLOWED_ORIGINS.has(origin) ? origin : 'https://mambacokhanhhoa.pages.dev';
+  res.setHeader('Access-Control-Allow-Origin', corsOrigin);
+  res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Sepay-Secret');
+  res.setHeader('Cache-Control', 'no-store');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // GET: Kiểm tra trạng thái thanh toán hoặc xem debug log
+  // GET: Kiểm tra trạng thái thanh toán (đã gỡ ?debug=1 để không lộ dữ liệu giao dịch)
   if (req.method === 'GET') {
     const parsedUrl = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
     const checkOrder = (req.query && req.query.checkOrder) || parsedUrl.searchParams.get('checkOrder');
-    const debug = (req.query && req.query.debug) || parsedUrl.searchParams.get('debug');
-
-    const paidData = await getPaidData();
-    const paidOrders = paidData.paidOrders || [];
-
-    if (debug) {
-      return res.status(200).json({
-        status: 'ok',
-        paidOrders: paidOrders,
-        lastWebhooks: paidData.lastWebhooks || []
-      });
-    }
 
     if (!checkOrder) {
       return res.status(200).json({ status: 'ready', message: 'SePay Webhook Endpoint is running' });
     }
 
+    const paidData = await getPaidData();
+    const paidOrders = paidData.paidOrders || [];
     const cleanCheck = String(checkOrder).replace('#', '').trim().toUpperCase();
-
-    // Tìm đơn hàng đã thanh toán khớp theo mã đơn
-    let match = paidOrders.find(p => isOrderCodeMatch(p.orderCode, cleanCheck));
+    const match = paidOrders.find(p => isOrderCodeMatch(p.orderCode, cleanCheck));
 
     if (match) {
       return res.status(200).json({
@@ -128,28 +129,30 @@ module.exports = async (req, res) => {
       });
     }
 
-    return res.status(200).json({
-      paid: false,
-      orderCode: cleanCheck,
-      debug: {
-        paidOrdersCount: paidOrders.length,
-        codes: paidOrders.map(p => p.orderCode)
-      }
-    });
+    return res.status(200).json({ paid: false, orderCode: cleanCheck });
   }
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Xác thực chữ ký / API Key từ SePay Webhook (Fail-closed nếu chưa cấu hình SEPAY_WEBHOOK_SECRET)
+  if (!SEPAY_WEBHOOK_SECRET) {
+    return res.status(503).json({ error: 'Webhook secret not configured on server' });
+  }
+  const authHeader = String(req.headers.authorization || '').trim();
+  const headerSecret = String(req.headers['x-sepay-secret'] || '').trim();
+  const bearerOrApiKey = authHeader.replace(/^(Apikey|Bearer)\s+/i, '').trim();
+  if (!timingSafeEqualStr(bearerOrApiKey, SEPAY_WEBHOOK_SECRET) && !timingSafeEqualStr(headerSecret, SEPAY_WEBHOOK_SECRET)) {
+    return res.status(401).json({ error: 'Unauthorized webhook' });
+  }
+
   // POST: Nhận Webhook từ SePay khi có biến động số dư tiền vào
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    console.log('SePay Webhook Received:', JSON.stringify(body));
-
     const paidData = await getPaidData();
     let lastWebhooks = paidData.lastWebhooks || [];
-    lastWebhooks.unshift({ receivedAt: new Date().toISOString(), body: body });
+    lastWebhooks.unshift({ receivedAt: new Date().toISOString(), id: body.id || body.referenceCode || '' });
     if (lastWebhooks.length > 10) lastWebhooks = lastWebhooks.slice(0, 10);
     paidData.lastWebhooks = lastWebhooks;
 
@@ -232,23 +235,25 @@ module.exports = async (req, res) => {
     console.log('Cập nhật Storage SePay thành công:', saveSuccess);
 
     // 3. Cập nhật trạng thái thanh toán lên Google Apps Script & Google Sheet
-    try {
-      await fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          action: 'sepay_webhook',
-          orderCode: matchedOrderCode,
-          status: 'Đã nhận tiền (SePay QR)',
-          amount: amount,
-          gateway: body.gateway || 'VietinBank',
-          content: rawContent,
-          transferType: transferType,
-          referenceCode: body.referenceCode || ''
-        })
-      });
-    } catch(errSheet) {
-      console.warn('Lỗi gửi Google Sheet:', errSheet.message);
+    if (GOOGLE_SCRIPT_URL && GAS_WEBHOOK_SECRET) {
+      try {
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'sepay_webhook',
+            webhookSecret: GAS_WEBHOOK_SECRET,
+            orderCode: matchedOrderCode,
+            amount: amount,
+            gateway: body.gateway || 'VietinBank',
+            content: rawContent,
+            transferType: transferType,
+            referenceCode: body.referenceCode || ''
+          })
+        });
+      } catch(errSheet) {
+        console.warn('Lỗi gửi Google Sheet:', errSheet.message);
+      }
     }
 
     // 4. Bắn Thông Báo Đẩy (Web Push) về iPhone của Admin

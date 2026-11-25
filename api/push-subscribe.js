@@ -1,14 +1,27 @@
-// api/push-subscribe.js - Quản lý và lưu trữ thiết bị Push & cấu hình Telegram
-const STORAGE_URL = 'https://api.restful-api.dev/objects/ff808181a09d98f701a15e3ab16c3de8';
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec";
+// api/push-subscribe.js - Quản lý và lưu trữ thiết bị Push & cấu hình Telegram (Hardened)
+const STORAGE_URL = process.env.SUBS_STORAGE_URL || '';
+const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL || '';
+
+const ALLOWED_ORIGINS = new Set([
+  'https://mambacokhanhhoa.pages.dev',
+  'https://mambacokhanhhoa.vercel.app'
+]);
 
 module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin || '';
+  const corsOrigin = ALLOWED_ORIGINS.has(origin) ? origin : 'https://mambacokhanhhoa.pages.dev';
+  res.setHeader('Access-Control-Allow-Origin', corsOrigin);
+  res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Cache-Control', 'no-store');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
+  }
+
+  if (!STORAGE_URL) {
+    return res.status(503).json({ error: 'Storage not configured on server' });
   }
 
   // GET: Kiểm tra trạng thái thiết bị đã đăng ký
@@ -37,6 +50,24 @@ module.exports = async (req, res) => {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     const action = body.action || 'save_subscription';
 
+    // Xác thực sessionToken quản trị qua Google Apps Script cho thao tác nhạy cảm
+    if (action === 'save_telegram' || action === 'save_subscription') {
+      const sessionToken = String(body.sessionToken || '').trim();
+      if (!sessionToken || !GOOGLE_SCRIPT_URL) {
+        return res.status(401).json({ error: 'Unauthorized: Yêu cầu phiên đăng nhập quản trị hợp lệ' });
+      }
+      const verifyRes = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'verify_session', token: sessionToken }),
+        redirect: 'follow'
+      });
+      const verifyData = await verifyRes.json();
+      if (!verifyData || verifyData.status !== 'success' || verifyData.valid !== true) {
+        return res.status(401).json({ error: 'Unauthorized: Phiên quản trị không hợp lệ hoặc đã hết hạn' });
+      }
+    }
+
     // 1. Đọc dữ liệu hiện tại từ Storage
     let storeData = null;
     try {
@@ -64,7 +95,6 @@ module.exports = async (req, res) => {
       };
       storeData.data.telegram = telegram;
 
-      // Lưu lại vào Storage
       await fetch(STORAGE_URL, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },

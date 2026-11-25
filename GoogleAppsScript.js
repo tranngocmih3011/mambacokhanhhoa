@@ -106,31 +106,6 @@ function doGet(e) {
     return jsonSuccess({ paid: false, payment_status: "Unpaid", orderCode: checkCode });
   }
 
-  if (param.action === "get_push_subscriptions") {
-    var ss = layBangTinh();
-    if (!ss) return jsonSuccess({ subscriptions: [] });
-    var sheet = ss.getSheetByName("PushTokens");
-    if (!sheet) return jsonSuccess({ subscriptions: [] });
-    var lastRow = sheet.getLastRow();
-    if (lastRow < 2) return jsonSuccess({ subscriptions: [] });
-    var values = sheet.getRange(2, 1, lastRow - 1, 5).getValues();
-    var list = [];
-    for (var i = 0; i < values.length; i++) {
-      var endpoint = String(values[i][1] || '').trim();
-      var p256dh = String(values[i][2] || '').trim();
-      var auth = String(values[i][3] || '').trim();
-      if (endpoint && p256dh && auth) {
-        list.push({
-          endpoint: endpoint,
-          keys: {
-            p256dh: p256dh,
-            auth: auth
-          }
-        });
-      }
-    }
-    return jsonSuccess({ subscriptions: list });
-  }
   if (param.action === "lookup_order") {
     return lookupOrderInSheet_(param.orderCode, param.phone);
   }
@@ -138,9 +113,9 @@ function doGet(e) {
     return jsonSuccess({ vouchers: getVouchersList_() });
   }
   if (param.action === "verify_voucher") {
-    return verifyVoucherCode_(param.code, Number(param.subtotal || 0));
+    return handleVerifyVoucher_(param.code, Number(param.subtotal || 0));
   }
-  return ContentService.createTextOutput("Google Apps Script 2-Way Sync (6 Bảng) & Thông báo Gmail/Zalo/Telegram/Push đang hoạt động tốt!");
+  return ContentService.createTextOutput("Google Apps Script 2-Way Sync (Secured) đang hoạt động tốt!");
 }
 
 function doPost(e) {
@@ -152,15 +127,24 @@ function doPost(e) {
     var action = data.action || "";
     var nowStr = data.timestamp || new Date().toLocaleString("vi-VN");
 
-    // XÁC THỰC QUẢN TRỊ VIÊN TRỰC TIẾP QUA GOOGLE SHEET
+    // XÁC THỰC QUẢN TRỊ VIÊN & QUẢN LÝ PHIÊN (SESSION LIFECYCLE)
     if (action === "verify_admin") {
       return handleVerifyAdmin_(data, nowStr);
     }
     if (action === "verify_session") {
       return handleVerifySession_(data);
     }
+    if (action === "refresh_session") {
+      return handleRefreshSession_(data);
+    }
+    if (action === "logout" || action === "revoke_session") {
+      return handleLogoutSession_(data);
+    }
+    if (action === "revoke_all_sessions") {
+      return handleRevokeAllSessions_(data);
+    }
 
-    // TRA CỨU ĐƠN HÀNG & KIỂM TRA VOUCHER (KHÔNG CẦN LOCK GHI)
+    // TRA CỨU ĐƠN HÀNG & KIỂM TRA VOUCHER (CÔNG KHAI CÓ GIỚI HẠN)
     if (action === "lookup_order") {
       return lookupOrderInSheet_(data.orderCode, data.phone);
     }
@@ -171,11 +155,30 @@ function doPost(e) {
       return handleVerifyVoucher_(data.code, Number(data.subtotal) || 0);
     }
 
-    // Khóa ghi đồng thời chống xung đột dòng khi có nhiều đơn hàng cùng lúc (Ưu tiên 3)
+    // ĐỌC DỮ LIỆU QUẢN TRỊ & PUSH SUBSCRIPTIONS (BẮT BUỘC XÁC THỰC SERVER-SIDE)
+    if (action === "get_admin_dashboard_data") {
+      var authRead = requireAdminSession_(data);
+      if (!authRead.ok) return jsonError(authRead.message);
+      return getAdminDashboardData_(ss);
+    }
+    if (action === "get_push_subscriptions") {
+      var secPush = getOrCreateSecurityProps_();
+      var hasApiSecret = data.adminApiSecret && constantTimeEqual_(String(data.adminApiSecret), secPush.ADMIN_API_SECRET);
+      if (!hasApiSecret) {
+        var authPush = requireAdminSession_(data);
+        if (!authPush.ok) return jsonError(authPush.message);
+      }
+      return getPushSubscriptionsData_(ss);
+    }
+
+    // Khóa ghi đồng thời chống xung đột dòng khi có nhiều đơn hàng cùng lúc
     var isWriteOp = !action || action === "wholesale" || data.type === "wholesale" ||
                     action === "submit_review" || action === "update_order_status" ||
-                    action === "delete_order" || action === "save_products" ||
+                    action === "delete_order" || action === "clear_all_orders" ||
+                    action === "update_wholesale_status" || action === "delete_wholesale" ||
+                    action === "clear_all_wholesale" || action === "save_products" ||
                     action === "save_vouchers" || action === "save_site_content" ||
+                    action === "save_reviews" || action === "sync_customers_crm" ||
                     action === "sepay_webhook";
     if (isWriteOp) {
       try {
@@ -187,13 +190,10 @@ function doPost(e) {
     // ========================================================
     // TẦNG BẢO VỆ CHỐNG BOT SPAM & CÀO DỮ LIỆU (ANTI-BOT & RATE LIMIT)
     // ========================================================
-    // 1. Kiểm tra Bẫy Bot Tàng hình (Honeypot Trap)
-    // Nếu bot tự động điền trường website_trap_hp -> Phản hồi ảo, không lưu DB & không gửi mail
     if (data.website_trap_hp && String(data.website_trap_hp).trim() !== "") {
       return jsonSuccess({ status: "success", msg: "Bot trap triggered - Ignored", ignored: true });
     }
 
-    // 2. Chống Spam liên tục vào Webhook qua CacheService (Rate limiting 3 giây)
     var isNewSubmission = (data.type === "wholesale" || action === "wholesale" || action === "submit_review" || !action);
     if (isNewSubmission) {
       var phoneRaw = String(data.phone || (data.review && data.review.phone) || "").replace(/\D/g, "");
@@ -212,11 +212,13 @@ function doPost(e) {
     }
 
     // ========================================================
-    // NHÁNH 0: ĐỒNG BỘ BẢNG SẢN PHẨM & BẢNG NỘI DUNG WEBSITE
+    // NHÁNH 0: CÁC LỆNH QUẢN TRỊ HỆ THỐNG (BẮT BUỘC SESSION TOKEN HỢP LỆ)
     // ========================================================
 
-        // 0.3 Lưu Push Subscription (Tab "PushTokens")
+    // 0.3 Lưu Push Subscription (Tab "PushTokens") - Chỉ Admin đã xác thực
     if (action === "save_push_subscription" && data.subscription) {
+      var authSub = requireAdminSession_(data);
+      if (!authSub.ok) return jsonError(authSub.message);
       var tokenSheet = ss.getSheetByName("PushTokens");
       if (!tokenSheet) {
         tokenSheet = ss.insertSheet("PushTokens");
@@ -224,11 +226,11 @@ function doPost(e) {
         tokenSheet.getRange("A1:E1").setFontWeight("bold").setBackground("#e2e8f0");
       }
       var sub = data.subscription;
-      var endpoint = sub.endpoint || "";
+      var endpoint = String(sub.endpoint || "").slice(0, 500);
       var keys = sub.keys || {};
-      var p256dh = keys.p256dh || "";
-      var auth = keys.auth || "";
-      var uAgent = String(data.userAgent || "").slice(0, 200);
+      var p256dh = String(keys.p256dh || "").slice(0, 300);
+      var auth = String(keys.auth || "").slice(0, 300);
+      var uAgent = sanitizeSheetCell_(String(data.userAgent || "").slice(0, 200));
 
       var lastRow = tokenSheet.getLastRow();
       var updated = false;
@@ -248,8 +250,14 @@ function doPost(e) {
       return jsonSuccess({ saved: true });
     }
 
-    // 0.4 Xóa Push Subscription hết hạn
+    // 0.4 Xóa Push Subscription hết hạn - Chỉ Admin hoặc API Secret
     if (action === "delete_expired_push_subscriptions" && Array.isArray(data.endpoints)) {
+      var secDelPush = getOrCreateSecurityProps_();
+      var hasDelSecret = data.adminApiSecret && constantTimeEqual_(String(data.adminApiSecret), secDelPush.ADMIN_API_SECRET);
+      if (!hasDelSecret) {
+        var authDelPush = requireAdminSession_(data);
+        if (!authDelPush.ok) return jsonError(authDelPush.message);
+      }
       var tokenSheet = ss.getSheetByName("PushTokens");
       if (tokenSheet) {
         var lastRow = tokenSheet.getLastRow();
@@ -267,8 +275,10 @@ function doPost(e) {
       return jsonSuccess({ deleted: true });
     }
 
-    // 0.1 Lưu & Kẻ bảng Sản Phẩm (Tab "SanPham")
+    // 0.1 Lưu & Kẻ bảng Sản Phẩm (Tab "SanPham") - Chỉ Admin
     if (action === "save_products" && data.products) {
+      var authProd = requireAdminSession_(data);
+      if (!authProd.ok) return jsonError(authProd.message);
       var prodSheet = ss.getSheetByName("SanPham");
       if (!prodSheet) {
         prodSheet = ss.insertSheet("SanPham");
@@ -302,8 +312,10 @@ function doPost(e) {
       return jsonSuccess({ saved: "SanPham", count: items.length });
     }
 
-    // 0.2 Lưu & Kẻ bảng Nội Dung Website (Tab "NoiDungWeb")
+    // 0.2 Lưu & Kẻ bảng Nội Dung Website (Tab "NoiDungWeb") - Chỉ Admin
     if (action === "save_site_content" && data.content) {
+      var authCfg = requireAdminSession_(data);
+      if (!authCfg.ok) return jsonError(authCfg.message);
       var cfgSheet = ss.getSheetByName("NoiDungWeb");
       if (!cfgSheet) {
         cfgSheet = ss.insertSheet("NoiDungWeb");
@@ -380,8 +392,10 @@ function doPost(e) {
       return jsonSuccess({ saved: "NoiDungWeb", count: keys.length });
     }
 
-    // 0.5 Lưu & Cập nhật toàn bộ bảng Đánh Giá (Tab "DanhGia")
+    // 0.5 Lưu & Cập nhật toàn bộ bảng Đánh Giá (Tab "DanhGia") - Chỉ Admin
     if (action === "save_reviews" && Array.isArray(data.reviews)) {
+      var authRev = requireAdminSession_(data);
+      if (!authRev.ok) return jsonError(authRev.message);
       var revSheet = ss.getSheetByName("DanhGia");
       if (!revSheet) {
         revSheet = ss.insertSheet("DanhGia");
@@ -419,10 +433,15 @@ function doPost(e) {
     // ========================================================
 
     // ========================================================
-    // NHÁNH SEPAY: NHẬN WEBHOOK TỰ ĐỘNG & CẬP NHẬT TRẠNG THÁI THANH TOÁN
+    // NHÁNH SEPAY: NHẬN WEBHOOK TỰ ĐỘNG (BẮT BUỘC WEBHOOK_SECRET HỢP LỆ)
     // ========================================================
-    var isSepayDirect = data.transferType || data.transferAmount || (data.content && String(data.content).indexOf("SEVQR") !== -1);
-    if (action === "sepay_webhook" || isSepayDirect) {
+    if (action === "sepay_webhook") {
+      var secWh = getOrCreateSecurityProps_();
+      var providedSecret = String(data.webhookSecret || "");
+      if (!providedSecret || !constantTimeEqual_(providedSecret, secWh.WEBHOOK_SECRET)) {
+        return jsonError("Unauthorized webhook");
+      }
+
       var rawContent = String(data.content || data.description || "");
       var rawCode = String(data.orderCode || data.code || "");
       var matchedCode = "";
@@ -432,74 +451,90 @@ function doPost(e) {
       if (!matchedCode && rawCode) matchedCode = chuanHoa(rawCode);
 
       var paidAmount = Number(data.amount || data.transferAmount || 0);
+      if (!matchedCode || paidAmount <= 0) {
+        return jsonError("Thiếu mã đơn hoặc số tiền giao dịch không hợp lệ.");
+      }
 
-      if (matchedCode) {
-        // Lưu vào Script Properties để client query tức thì
+      // Kiểm tra đơn hàng trong Tab 1 trước để đối chiếu số tiền nếu đơn đã tồn tại
+      var sheet = ss.getSheets()[0];
+      var lastRow = sheet.getLastRow();
+      var rowUpdated = -1;
+      var matchedOrderExpected = 0;
+      if (lastRow >= 3) {
+        var codes = sheet.getRange("C3:C" + lastRow).getValues();
+        for (var i = 0; i < codes.length; i++) {
+          if (chuanHoa(codes[i][0]) === matchedCode) {
+            rowUpdated = 3 + i;
+            matchedOrderExpected = Number(sheet.getRange(rowUpdated, 9).getValue() || 0);
+            break;
+          }
+        }
+      }
+
+      var isUnderpaid = (rowUpdated !== -1 && matchedOrderExpected > 0 && paidAmount < matchedOrderExpected);
+
+      // Chỉ lưu PAID_ nếu không bị thiếu tiền
+      if (!isUnderpaid) {
         try {
           var props = PropertiesService.getScriptProperties();
           props.setProperty("PAID_" + matchedCode, JSON.stringify({
             paid: true,
             amount: paidAmount,
             time: nowStr,
-            gateway: data.gateway || "VietinBank"
+            gateway: String(data.gateway || "VietinBank").slice(0, 50),
+            referenceCode: String(data.referenceCode || "").slice(0, 80)
           }));
         } catch(pErr) {}
-
-        // Cập nhật dòng đơn hàng nếu đã có trong Tab 1
-        var sheet = ss.getSheets()[0];
-        var lastRow = sheet.getLastRow();
-        var rowUpdated = -1;
-        if (lastRow >= 3) {
-          var codes = sheet.getRange("C3:C" + lastRow).getValues();
-          for (var i = 0; i < codes.length; i++) {
-            if (chuanHoa(codes[i][0]) === matchedCode) {
-              rowUpdated = 3 + i;
-              var cell = sheet.getRange(rowUpdated, 12);
-              var newStatus = "Đã nhận tiền (SePay QR)";
-              cell.setValue(newStatus);
-              dinhDangTrangThaiDonHang(cell, newStatus);
-
-              // Gửi email thông báo đơn đã nhận tiền
-              try {
-                sendOrderEmail({
-                  orderCode: codes[i][0],
-                  name: sheet.getRange(rowUpdated, 4).getValue(),
-                  phone: sheet.getRange(rowUpdated, 5).getValue(),
-                  address: sheet.getRange(rowUpdated, 6).getValue(),
-                  product: sheet.getRange(rowUpdated, 7).getValue(),
-                  quantity: sheet.getRange(rowUpdated, 8).getValue(),
-                  totalAmount: sheet.getRange(rowUpdated, 9).getValue() || paidAmount,
-                  paymentMethod: "Chuyển khoản VietQR (SePay)",
-                  status: newStatus
-                }, codes[i][0], nowStr);
-              } catch(eMail) {}
-              break;
-            }
-          }
-        }
-
-        return jsonSuccess({
-          success: true,
-          orderCode: matchedCode,
-          amount: paidAmount,
-          rowUpdated: rowUpdated
-        });
       }
+
+      if (rowUpdated !== -1) {
+        var cell = sheet.getRange(rowUpdated, 12);
+        var newStatus = isUnderpaid ? ("Thanh toán thiếu (" + paidAmount.toLocaleString("vi-VN") + "đ)") : "Đã nhận tiền (SePay QR)";
+        cell.setValue(newStatus);
+        dinhDangTrangThaiDonHang(cell, newStatus);
+
+        if (!isUnderpaid) {
+          try {
+            sendOrderEmail({
+              orderCode: sheet.getRange(rowUpdated, 3).getValue(),
+              name: sheet.getRange(rowUpdated, 4).getValue(),
+              phone: sheet.getRange(rowUpdated, 5).getValue(),
+              address: sheet.getRange(rowUpdated, 6).getValue(),
+              product: sheet.getRange(rowUpdated, 7).getValue(),
+              quantity: sheet.getRange(rowUpdated, 8).getValue(),
+              totalAmount: matchedOrderExpected || paidAmount,
+              paymentMethod: "Chuyển khoản VietQR (SePay)",
+              status: newStatus
+            }, sheet.getRange(rowUpdated, 3).getValue(), nowStr);
+          } catch(eMail) {}
+        }
+      }
+
+      return jsonSuccess({
+        success: !isUnderpaid,
+        underpaid: isUnderpaid,
+        orderCode: matchedCode,
+        amount: paidAmount,
+        expectedAmount: matchedOrderExpected,
+        rowUpdated: rowUpdated
+      });
     }
 
-    // 1.1 Cập nhật trạng thái đơn bán lẻ (Tab 1)
+    // 1.1 Cập nhật trạng thái đơn bán lẻ (Tab 1) - Chỉ Admin
     if (action === "update_order_status") {
+      var authUpdOrd = requireAdminSession_(data);
+      if (!authUpdOrd.ok) return jsonError(authUpdOrd.message);
       var sheet = ss.getSheets()[0];
       var cleanCode = chuanHoa(data.orderCode);
 
-      // Nếu trạng thái là đã nhận tiền, lưu vào Script Properties để client query tức thì
       if (String(data.status || "").toLowerCase().indexOf("nhận") !== -1) {
         try {
           var props = PropertiesService.getScriptProperties();
           props.setProperty("PAID_" + cleanCode, JSON.stringify({
             paid: true,
             amount: Number(data.amount || 0),
-            time: nowStr
+            time: nowStr,
+            verifiedBy: authUpdOrd.username
           }));
         } catch(pErr) {}
       }
@@ -512,7 +547,7 @@ function doPost(e) {
             var targetRow = 3 + i;
             var cell = sheet.getRange(targetRow, 12);
             var prevStatus = String(cell.getValue() || "");
-            var nextStatus = String(data.status || "");
+            var nextStatus = sanitizeSheetCell_(String(data.status || "").slice(0, 100));
             var isPrevCancel = (prevStatus.indexOf("Hủy") !== -1 || prevStatus.indexOf("hủy") !== -1 || prevStatus.indexOf("Hoàn hàng") !== -1);
             var isNextCancel = (nextStatus.indexOf("Hủy") !== -1 || nextStatus.indexOf("hủy") !== -1 || nextStatus.indexOf("Hoàn hàng") !== -1);
             cell.setValue(nextStatus);
@@ -533,8 +568,10 @@ function doPost(e) {
       return jsonSuccess({ status: data.status, msg: "Đã cập nhật trạng thái: " + cleanCode });
     }
 
-    // 1.2 Xóa đơn hàng bán lẻ (Tab 1)
+    // 1.2 Xóa đơn hàng bán lẻ (Tab 1) - Chỉ Admin
     if (action === "delete_order") {
+      var authDelOrd = requireAdminSession_(data);
+      if (!authDelOrd.ok) return jsonError(authDelOrd.message);
       var sheet = ss.getSheets()[0];
       var cleanCode = chuanHoa(data.orderCode);
       var lastRow = sheet.getLastRow();
@@ -550,8 +587,10 @@ function doPost(e) {
       return jsonError("Không tìm thấy mã đơn để xóa: " + data.orderCode);
     }
 
-    // 1.3 Dọn sạch toàn bộ đơn bán lẻ (Tab 1)
+    // 1.3 Dọn sạch toàn bộ đơn bán lẻ (Tab 1) - Chỉ Admin
     if (action === "clear_all_orders") {
+      var authClrOrd = requireAdminSession_(data);
+      if (!authClrOrd.ok) return jsonError(authClrOrd.message);
       var sheet = ss.getSheets()[0];
       var lastRow = sheet.getLastRow();
       if (lastRow >= 3) {
@@ -560,8 +599,10 @@ function doPost(e) {
       return jsonSuccess({ cleared: true });
     }
 
-    // 1.4 Cập nhật trạng thái khách sỉ & đại lý (Tab 2)
+    // 1.4 Cập nhật trạng thái khách sỉ & đại lý (Tab 2) - Chỉ Admin
     if (action === "update_wholesale_status") {
+      var authUpdWs = requireAdminSession_(data);
+      if (!authUpdWs.ok) return jsonError(authUpdWs.message);
       var wholesaleSheet = ss.getSheetByName("Khách Sỉ & Đại Lý");
       if (wholesaleSheet) {
         var cleanCode = chuanHoa(data.leadCode);
@@ -572,9 +613,10 @@ function doPost(e) {
             if (chuanHoa(codes[i][0]) === cleanCode) {
               var targetRow = 3 + i;
               var cell = wholesaleSheet.getRange(targetRow, 9);
-              cell.setValue(data.status);
-              dinhDangTrangThaiDaiLy(cell, data.status);
-              return jsonSuccess({ row: targetRow, status: data.status });
+              var safeWsStatus = sanitizeSheetCell_(String(data.status || "").slice(0, 100));
+              cell.setValue(safeWsStatus);
+              dinhDangTrangThaiDaiLy(cell, safeWsStatus);
+              return jsonSuccess({ row: targetRow, status: safeWsStatus });
             }
           }
         }
@@ -582,8 +624,10 @@ function doPost(e) {
       return jsonError("Không tìm thấy mã đại lý: " + data.leadCode);
     }
 
-    // 1.5 Xóa khách sỉ & đại lý (Tab 2)
+    // 1.5 Xóa khách sỉ & đại lý (Tab 2) - Chỉ Admin
     if (action === "delete_wholesale") {
+      var authDelWs = requireAdminSession_(data);
+      if (!authDelWs.ok) return jsonError(authDelWs.message);
       var wholesaleSheet = ss.getSheetByName("Khách Sỉ & Đại Lý");
       if (wholesaleSheet) {
         var cleanCode = chuanHoa(data.leadCode);
@@ -601,8 +645,10 @@ function doPost(e) {
       return jsonError("Không tìm thấy mã đại lý để xóa: " + data.leadCode);
     }
 
-    // 1.6 Dọn sạch toàn bộ khách sỉ & đại lý (Tab 2)
+    // 1.6 Dọn sạch toàn bộ khách sỉ & đại lý (Tab 2) - Chỉ Admin
     if (action === "clear_all_wholesale") {
+      var authClrWs = requireAdminSession_(data);
+      if (!authClrWs.ok) return jsonError(authClrWs.message);
       var wholesaleSheet = ss.getSheetByName("Khách Sỉ & Đại Lý");
       if (wholesaleSheet) {
         var lastRow = wholesaleSheet.getLastRow();
@@ -628,29 +674,40 @@ function doPost(e) {
       var lastRow = wholesaleSheet.getLastRow();
       var targetRow = Math.max(lastRow + 1, 3);
       var stt = targetRow - 2;
-      var leadCode = data.leadCode || ("#DL" + Math.floor(Math.random()*899999 + 100000));
+      var leadCode = "#DL" + Math.floor(Math.random() * 899999 + 100000);
+      var safeNameWs = sanitizeSheetCell_(String(data.name || "Chưa có tên").trim().slice(0, 120));
+      var safePhoneWs = String(data.phone || "").replace(/[^\d+\-\s()]/g, "").slice(0, 20);
+      var safeAreaWs = sanitizeSheetCell_(String(data.area || "Toàn quốc").trim().slice(0, 120));
+      var safeBizWs = sanitizeSheetCell_(String(data.businessModel || "Đại lý phân phối").trim().slice(0, 120));
+      var safeNoteWs = sanitizeSheetCell_(String(data.note || "").trim().slice(0, 500));
 
       var rowData = [
         stt,
         nowStr,
         leadCode,
-        data.name || "Chưa có tên",
-        "'" + (data.phone || ""),
-        data.area || "Toàn quốc",
-        data.businessModel || "Đại lý phân phối",
-        data.note || "",
-        data.status || "Chờ gọi tư vấn"
+        safeNameWs,
+        "'" + safePhoneWs,
+        safeAreaWs,
+        safeBizWs,
+        safeNoteWs,
+        "Chờ gọi tư vấn"
       ];
 
       wholesaleSheet.getRange(targetRow, 1, 1, rowData.length).setValues([rowData]);
       dinhDangDongKhachSi(wholesaleSheet, targetRow);
 
-      // 🔔 GỬI EMAIL THÔNG BÁO TỨC THÌ KÈM NÚT MỞ ZALO CHAT
-      sendWholesaleEmail(data, leadCode, nowStr);
-      sendTelegramWholesale(data, leadCode, nowStr);
-      sendServerWebPush(data, leadCode, "wholesale");
+      var cleanWsData = {
+        name: safeNameWs,
+        phone: safePhoneWs,
+        area: safeAreaWs,
+        businessModel: safeBizWs,
+        note: safeNoteWs
+      };
+      sendWholesaleEmail(cleanWsData, leadCode, nowStr);
+      sendTelegramWholesale(cleanWsData, leadCode, nowStr);
+      sendServerWebPush(cleanWsData, leadCode, "wholesale");
 
-      return jsonSuccess({ type: "wholesale", row: targetRow });
+      return jsonSuccess({ type: "wholesale", leadCode: leadCode, row: targetRow });
     }
 
     // 2.2 Khách gửi đánh giá & cảm nhận mới (Tab "DanhGia")
@@ -665,70 +722,163 @@ function doPost(e) {
       var lastRowRev = revSheet.getLastRow();
       var targetRowRev = Math.max(lastRowRev + 1, 3);
       var sttRev = targetRowRev - 2;
+      var clampedRating = Math.min(5, Math.max(1, Math.round(Number(r.rating) || 5)));
+      var safeRevName = sanitizeSheetCell_(String(r.name || "Khách mua online").trim().slice(0, 100));
+      var safeRevPhone = String(r.phone || "").replace(/[^\d+\-\s()]/g, "").slice(0, 20);
+      var safeRevLoc = sanitizeSheetCell_(String(r.location || "Toàn quốc").trim().slice(0, 100));
+      var safeRevProd = sanitizeSheetCell_(String(r.product || "Nước mắm Ba Cô").trim().slice(0, 160));
+      var safeRevTags = Array.isArray(r.tags) ? r.tags.slice(0, 6).map(function(t) { return sanitizeSheetCell_(String(t).slice(0, 60)); }).join(", ") : "";
+      var safeRevComment = sanitizeSheetCell_(String(r.comment || "").trim().slice(0, 800));
 
       var rowRev = [
         sttRev,
         nowStr,
-        r.id || ("REV-" + Date.now().toString().slice(-6)),
-        r.name || "Khách mua online",
-        "'" + (r.phone || ""),
-        r.location || "Toàn quốc",
-        r.product || "Nước mắm Ba Cô",
-        Number(r.rating) || 5,
-        (r.tags || []).join(", "),
-        r.comment || "",
-        r.status || "approved"
+        "REV-" + Date.now().toString().slice(-6),
+        safeRevName,
+        "'" + safeRevPhone,
+        safeRevLoc,
+        safeRevProd,
+        clampedRating,
+        safeRevTags,
+        safeRevComment,
+        "approved"
       ];
 
       revSheet.getRange(targetRowRev, 1, 1, rowRev.length).setValues([rowRev]);
       dinhDangDongDanhGia(revSheet, targetRowRev);
 
-      // 🔔 GỬI EMAIL THÔNG BÁO ĐÁNH GIÁ MỚI KÈM NÚT MỞ ZALO CẢM ƠN
-      sendReviewEmail(r, nowStr);
+      sendReviewEmail({
+        name: safeRevName,
+        phone: safeRevPhone,
+        location: safeRevLoc,
+        product: safeRevProd,
+        rating: clampedRating,
+        tags: Array.isArray(r.tags) ? r.tags.slice(0, 6) : [],
+        comment: safeRevComment
+      }, nowStr);
 
       return jsonSuccess({ type: "review", row: targetRowRev });
     }
 
-    // 2.3 Đơn hàng bán lẻ từ B7 (Tab 1)
-    // CHỈ TẠO ĐƠN KHI ĐÚNG LÀ ĐƠN HÀNG HỢP LỆ (Có mã đơn BC hoặc có sản phẩm + SĐT)
-    var isRealOrder = (data.orderCode && String(data.orderCode).startsWith("BC")) ||
-                      (data.product && (data.phone || data.totalAmount));
+    // 2.3 Đơn hàng bán lẻ (Tab 1) - TÍNH GIÁ & XÁC MINH TRẠNG THÁI THANH TOÁN TẠI BACKEND
+    var isRealOrder = (data.orderCode && String(data.orderCode).replace("#", "").toUpperCase().indexOf("BC") === 0) ||
+                      (data.product && data.phone) ||
+                      (Array.isArray(data.items) && data.items.length > 0 && data.phone);
 
     if (isRealOrder) {
+      var cleanPhoneOrder = String(data.phone || "").replace(/\D/g, "");
+      if (cleanPhoneOrder.length < 9 || cleanPhoneOrder.length > 13) {
+        return jsonError("Số điện thoại đặt hàng không hợp lệ.");
+      }
+
+      // Tính toán toàn bộ giá trị đơn hàng từ bảng SanPham & Voucher trên Server (chống sửa giá từ client)
+      var pricing = calculateOrderPricingServer_(ss, data);
+      if (!pricing.ok) {
+        return jsonError(pricing.message || "Không xác định được sản phẩm hoặc giá trị đơn hàng.");
+      }
+
       var sheet = ss.getSheets()[0];
+      var cleanOrderCode = chuanHoa(data.orderCode);
+      if (!cleanOrderCode || cleanOrderCode.indexOf("BC") !== 0) {
+        cleanOrderCode = "BC" + Math.floor(Math.random() * 899999 + 100000);
+      }
+
+      // Chống ghi trùng mã đơn hàng
+      var existingLastRow = sheet.getLastRow();
+      if (existingLastRow >= 3) {
+        var existingCodes = sheet.getRange("C3:C" + existingLastRow).getValues();
+        for (var ec = 0; ec < existingCodes.length; ec++) {
+          if (chuanHoa(existingCodes[ec][0]) === cleanOrderCode) {
+            return jsonSuccess({
+              type: "retail",
+              duplicate: true,
+              orderCode: cleanOrderCode,
+              totalAmount: pricing.totalAmount
+            });
+          }
+        }
+      }
+
+      var rawPayMethod = String(data.paymentMethod || "COD (Thanh toán tiền mặt khi nhận hàng)").slice(0, 100);
+      var payLower = rawPayMethod.toLowerCase();
+      var isQrPay = (payLower.indexOf("vietqr") !== -1 || payLower.indexOf("chuyển khoản") !== -1 || payLower.indexOf("sepay") !== -1 || payLower.indexOf("qr") !== -1);
+
+      // Ngăn chặn giả mạo trạng thái thanh toán: chỉ xác nhận Đã nhận tiền khi ScriptProperties có giao dịch SePay hợp lệ >= tổng đơn
+      var enforcedStatus = isQrPay ? "Chờ thanh toán QR" : "Chờ xác nhận";
+      if (isQrPay) {
+        try {
+          var propsOrder = PropertiesService.getScriptProperties();
+          var paidRaw = propsOrder.getProperty("PAID_" + cleanOrderCode);
+          if (paidRaw) {
+            var paidObj = JSON.parse(paidRaw);
+            if (paidObj && paidObj.paid === true && Number(paidObj.amount || 0) >= pricing.totalAmount) {
+              enforcedStatus = "Đã nhận tiền (SePay QR)";
+            } else if (paidObj && paidObj.paid === true && Number(paidObj.amount || 0) > 0) {
+              enforcedStatus = "Thanh toán thiếu (" + Number(paidObj.amount).toLocaleString("vi-VN") + "đ)";
+            }
+          }
+        } catch (pCheckErr) {}
+      }
+
       var targetRow = timDongTrong(sheet);
-      var orderCode = data.orderCode || ("#BC" + Math.floor(Math.random()*899999 + 100000));
+      var safeNameOrd = sanitizeSheetCell_(String(data.name || "").trim().slice(0, 120));
+      var safeAddrOrd = sanitizeSheetCell_(String(data.address || "").trim().slice(0, 300));
+      var safeProdOrd = sanitizeSheetCell_(pricing.productSummary.slice(0, 400));
+      var safePayOrd = sanitizeSheetCell_(rawPayMethod);
+      var voucherTag = pricing.voucherCode ? (" [Mã: " + pricing.voucherCode + " -" + pricing.discountAmount.toLocaleString("vi-VN") + "đ]") : "";
+      var safeNoteOrd = sanitizeSheetCell_((String(data.note || "").replace(/\s*\[Mã:[^\]]*\]/g, "").trim() + voucherTag).slice(0, 500));
 
       var rowData = [
         nowStr,
-        orderCode,
-        data.name || "",
-        "'" + (data.phone || ""),
-        data.address || "",
-        data.product || "",
-        Number(data.quantity) || 1,
-        Number(data.totalAmount) || 0,
-        data.paymentMethod || "COD",
-        data.note || "",
-        data.status || "Chờ xác nhận"
+        cleanOrderCode,
+        safeNameOrd,
+        "'" + cleanPhoneOrder,
+        safeAddrOrd,
+        safeProdOrd,
+        pricing.totalQty,
+        pricing.totalAmount,
+        safePayOrd,
+        safeNoteOrd,
+        enforcedStatus
       ];
 
       sheet.getRange(targetRow, 2, 1, rowData.length).setValues([rowData]);
       dinhDangDongDonHang(sheet, targetRow);
-      adjustProductStock_(ss, data.product || "", Number(data.quantity) || 1, -1);
+      adjustProductStock_(ss, pricing.productSummary, pricing.totalQty, -1);
 
-      // 🔔 GỬI EMAIL THÔNG BÁO ĐƠN HÀNG MỚI (Trừ khi khách đang ở trạng thái 'Chờ thanh toán QR' để tránh báo sớm)
-      var currentStatus = String(data.status || "Chờ xác nhận");
-      if (currentStatus !== "Chờ thanh toán QR") {
-        sendOrderEmail(data, orderCode, nowStr);
-        sendTelegramNotification(data, orderCode, nowStr);
-        sendServerWebPush(data, orderCode, "orders");
+      if (enforcedStatus !== "Chờ thanh toán QR") {
+        var emailOrderPayload = {
+          orderCode: cleanOrderCode,
+          name: safeNameOrd,
+          phone: cleanPhoneOrder,
+          address: safeAddrOrd,
+          product: safeProdOrd,
+          quantity: pricing.totalQty,
+          totalAmount: pricing.totalAmount,
+          paymentMethod: safePayOrd,
+          note: safeNoteOrd,
+          status: enforcedStatus
+        };
+        sendOrderEmail(emailOrderPayload, cleanOrderCode, nowStr);
+        sendTelegramNotification(emailOrderPayload, cleanOrderCode, nowStr);
+        sendServerWebPush(emailOrderPayload, cleanOrderCode, "orders");
       }
 
-      return jsonSuccess({ type: "retail", row: targetRow });
+      return jsonSuccess({
+        type: "retail",
+        row: targetRow,
+        orderCode: cleanOrderCode,
+        subtotal: pricing.subtotal,
+        discountAmount: pricing.discountAmount,
+        shippingFee: pricing.shippingFee,
+        totalAmount: pricing.totalAmount,
+        orderStatus: enforcedStatus
+      });
     }
 
     if (action === "save_vouchers" && Array.isArray(data.vouchers)) {
+      var authVouch = requireAdminSession_(data);
+      if (!authVouch.ok) return jsonError(authVouch.message);
       var vSheet = ss.getSheetByName("Voucher");
       if (!vSheet) {
         vSheet = ss.insertSheet("Voucher");
@@ -741,13 +891,13 @@ function doPost(e) {
         var v = vItems[vIdx];
         var vRow = 3 + vIdx;
         var rowV = [
-          String(v.code || "").trim().toUpperCase(),
-          v.type || "fixed",
+          sanitizeSheetCell_(String(v.code || "").trim().toUpperCase()),
+          String(v.type || "fixed"),
           Number(v.value) || 0,
           Number(v.minOrder) || 0,
           Number(v.maxDiscount) || 0,
           v.active === false ? "Tắt" : "Đang bật",
-          v.note || ""
+          sanitizeSheetCell_(String(v.note || ""))
         ];
         vSheet.getRange(vRow, 1, 1, rowV.length).setValues([rowV]);
         dinhDangDongVoucher(vSheet, vRow, v.active !== false);
@@ -788,17 +938,17 @@ function sendOrderEmail(d, code, timeStr) {
     '<div style="padding: 24px;">' +
       '<div style="background: #f8fafc; border-left: 4px solid #f59e0b; padding: 12px 16px; margin-bottom: 20px; border-radius: 4px;">' +
         '<span style="font-size: 13px; color: #64748b;">Mã Đơn Hàng:</span> ' +
-        '<strong style="font-size: 16px; color: #0f172a;">#' + code + '</strong>' +
-        '<div style="font-size: 12px; color: #64748b; margin-top: 4px;">Thời gian: ' + timeStr + '</div>' +
+        '<strong style="font-size: 16px; color: #0f172a;">#' + escapeHtmlGas_(code) + '</strong>' +
+        '<div style="font-size: 12px; color: #64748b; margin-top: 4px;">Thời gian: ' + escapeHtmlGas_(timeStr) + '</div>' +
       '</div>' +
       '<table style="width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 20px;">' +
-        '<tr><td style="padding: 8px 0; color: #64748b; width: 130px;">Khách Hàng:</td><td style="padding: 8px 0; font-weight: bold; color: #0f172a;">' + (d.name || "") + '</td></tr>' +
-        '<tr><td style="padding: 8px 0; color: #64748b;">Số Điện Thoại:</td><td style="padding: 8px 0; font-weight: bold; color: #0f172a; font-size: 16px;">' + (d.phone || "") + '</td></tr>' +
-        '<tr><td style="padding: 8px 0; color: #64748b;">Địa Chỉ Giao:</td><td style="padding: 8px 0; color: #0f172a;">' + (d.address || "") + '</td></tr>' +
-        '<tr><td style="padding: 8px 0; color: #64748b;">Sản Phẩm Đặt:</td><td style="padding: 8px 0; font-weight: bold; color: #047857;">' + (d.product || "") + ' (SL: ' + (d.quantity || 1) + ')</td></tr>' +
-        '<tr><td style="padding: 8px 0; color: #64748b;">Tổng Tiền:</td><td style="padding: 8px 0; font-weight: bold; font-size: 18px; color: #b45309;">' + totalFormatted + '</td></tr>' +
-        '<tr><td style="padding: 8px 0; color: #64748b;">Thanh Toán:</td><td style="padding: 8px 0; color: #0f172a;">' + (d.paymentMethod || "COD") + '</td></tr>' +
-        '<tr><td style="padding: 8px 0; color: #64748b;">Ghi Chú:</td><td style="padding: 8px 0; color: #64748b; font-style: italic;">' + (d.note || "Không có") + '</td></tr>' +
+        '<tr><td style="padding: 8px 0; color: #64748b; width: 130px;">Khách Hàng:</td><td style="padding: 8px 0; font-weight: bold; color: #0f172a;">' + escapeHtmlGas_(d.name || "") + '</td></tr>' +
+        '<tr><td style="padding: 8px 0; color: #64748b;">Số Điện Thoại:</td><td style="padding: 8px 0; font-weight: bold; color: #0f172a; font-size: 16px;">' + escapeHtmlGas_(d.phone || "") + '</td></tr>' +
+        '<tr><td style="padding: 8px 0; color: #64748b;">Địa Chỉ Giao:</td><td style="padding: 8px 0; color: #0f172a;">' + escapeHtmlGas_(d.address || "") + '</td></tr>' +
+        '<tr><td style="padding: 8px 0; color: #64748b;">Sản Phẩm Đặt:</td><td style="padding: 8px 0; font-weight: bold; color: #047857;">' + escapeHtmlGas_(d.product || "") + ' (SL: ' + escapeHtmlGas_(d.quantity || 1) + ')</td></tr>' +
+        '<tr><td style="padding: 8px 0; color: #64748b;">Tổng Tiền:</td><td style="padding: 8px 0; font-weight: bold; font-size: 18px; color: #b45309;">' + escapeHtmlGas_(totalFormatted) + '</td></tr>' +
+        '<tr><td style="padding: 8px 0; color: #64748b;">Thanh Toán:</td><td style="padding: 8px 0; color: #0f172a;">' + escapeHtmlGas_(d.paymentMethod || "COD") + '</td></tr>' +
+        '<tr><td style="padding: 8px 0; color: #64748b;">Ghi Chú:</td><td style="padding: 8px 0; color: #64748b; font-style: italic;">' + escapeHtmlGas_(d.note || "Không có") + '</td></tr>' +
       '</table>' +
       (zaloLink ? 
         '<div style="text-align: center; padding-top: 15px; border-top: 1px dashed #cbd5e1;">' +
@@ -1275,11 +1425,25 @@ function sendServerWebPush(d, code, type) {
 }
 
 // ========================================================
-// HỆ THỐNG BẢO MẬT & XÁC THỰC QUẢN TRỊ QUA GOOGLE SHEET
-// - Tài khoản quản trị nằm trong tab "QuanTriVien" (hoặc 1 file Google Sheet riêng tư qua AUTH_SPREADSHEET_ID)
-// - Mật khẩu được băm 500 vòng SHA-256 + Salt ngẫu nhiên + AUTH_PEPPER (chỉ lưu trong Script Properties)
-// - Nhật ký mọi lần đăng nhập được lưu tại tab "NhatKyDangNhap"
+// HỆ THỐNG BẢO MẬT, MÃ HÓA PBKDF2 & QUẢN LÝ PHIÊN (SESSION LIFECYCLE)
 // ========================================================
+
+function sanitizeSheetCell_(val) {
+  var s = String(val === null || val === undefined ? "" : val);
+  if (s && /^[=+\-@\t\r]/.test(s)) {
+    return "'" + s;
+  }
+  return s;
+}
+
+function escapeHtmlGas_(str) {
+  return String(str === null || str === undefined ? "" : str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 function bytesToHex_(bytes) {
   var hex = [];
@@ -1318,47 +1482,59 @@ function getOrCreateSecurityProps_() {
     signKey = sha256Hex_(Utilities.getUuid() + ":" + Date.now() + ":session");
     changed.SESSION_SIGN_KEY = signKey;
   }
+  var webhookSecret = props.getProperty("WEBHOOK_SECRET");
+  if (!webhookSecret) {
+    webhookSecret = sha256Hex_(Utilities.getUuid() + ":" + Date.now() + ":webhook");
+    changed.WEBHOOK_SECRET = webhookSecret;
+  }
+  var adminApiSecret = props.getProperty("ADMIN_API_SECRET");
+  if (!adminApiSecret) {
+    adminApiSecret = sha256Hex_(Utilities.getUuid() + ":" + Date.now() + ":adminapi");
+    changed.ADMIN_API_SECRET = adminApiSecret;
+  }
   if (Object.keys(changed).length > 0) {
     props.setProperties(changed);
   }
   return {
     AUTH_PEPPER: pepper,
     SESSION_SIGN_KEY: signKey,
+    WEBHOOK_SECRET: webhookSecret,
+    ADMIN_API_SECRET: adminApiSecret,
     AUTH_SPREADSHEET_ID: props.getProperty("AUTH_SPREADSHEET_ID") || ""
   };
+}
+
+function hmacSignBytes_(payloadBytesOrStr, keyBytesOrStr) {
+  return Utilities.computeHmacSha256Signature(payloadBytesOrStr, keyBytesOrStr);
 }
 
 function hmacSignHex_(payload, secret) {
   return bytesToHex_(Utilities.computeHmacSha256Signature(String(payload || ""), String(secret || "")));
 }
 
-function createSignedSession_(username, role, signKey) {
-  var expMs = Date.now() + 7 * 24 * 3600 * 1000;
-  var uB64 = Utilities.base64EncodeWebSafe(String(username || "admin"), Utilities.Charset.UTF_8).replace(/=+$/, "");
-  var rB64 = Utilities.base64EncodeWebSafe(String(role || "Quản trị viên"), Utilities.Charset.UTF_8).replace(/=+$/, "");
-  var payload = "v1." + expMs + "." + uB64 + "." + rB64;
-  var sig = hmacSignHex_(payload, signKey);
-  return { token: payload + "." + sig, expiresAt: expMs };
-}
-
-function verifySignedSession_(token, signKey) {
-  var parts = String(token || "").split(".");
-  if (parts.length !== 5 || parts[0] !== "v1") return null;
-  var expMs = Number(parts[1]);
-  if (!expMs || expMs < Date.now()) return null;
-  var payload = parts.slice(0, 4).join(".");
-  var expected = hmacSignHex_(payload, signKey);
-  if (!constantTimeEqual_(expected, parts[4])) return null;
-  try {
-    var uname = Utilities.newBlob(Utilities.base64DecodeWebSafe(parts[2])).getDataAsString("UTF-8");
-    var urole = Utilities.newBlob(Utilities.base64DecodeWebSafe(parts[3])).getDataAsString("UTF-8");
-    return { username: uname, role: urole, expiresAt: expMs };
-  } catch (e) {
-    return null;
+// PBKDF2-HMAC-SHA256 (RFC 2898) với 10.000 vòng lặp + Salt ngẫu nhiên + Pepper
+function pbkdf2HmacSha256_(password, salt, iterations, pepper) {
+  var iters = Math.max(1000, Math.min(20000, Number(iterations) || 10000));
+  var pwdKey = String(pepper || "") + ":" + String(password || "");
+  var blockInput = String(salt || "") + "\x00\x00\x00\x01";
+  var u = Utilities.computeHmacSha256Signature(blockInput, pwdKey);
+  var t = u.slice();
+  for (var i = 1; i < iters; i++) {
+    u = Utilities.computeHmacSha256Signature(u, pwdKey);
+    for (var j = 0; j < t.length; j++) {
+      t[j] = t[j] ^ u[j];
+    }
   }
+  return bytesToHex_(t);
 }
 
 function hashPasswordWithSalt_(password, salt, pepper) {
+  var iterations = 10000;
+  var dk = pbkdf2HmacSha256_(password, salt, iterations, pepper);
+  return "baco$pbkdf2$" + iterations + "$" + salt + "$" + dk;
+}
+
+function hashLegacySha256_(password, salt, pepper) {
   var acc = sha256Hex_(pepper + ":" + salt + ":" + String(password || ""));
   for (var r = 0; r < 499; r++) {
     acc = sha256Hex_(acc + ":" + salt + ":" + pepper);
@@ -1368,12 +1544,136 @@ function hashPasswordWithSalt_(password, salt, pepper) {
 
 function verifyPasswordHash_(password, storedValue, pepper) {
   var val = String(storedValue || "").trim();
-  if (val.indexOf("baco$sha256$") !== 0) return false;
-  var parts = val.split("$");
-  if (parts.length !== 4) return false;
-  var salt = parts[2];
-  var expected = hashPasswordWithSalt_(password, salt, pepper);
-  return constantTimeEqual_(expected, val);
+  if (val.indexOf("baco$pbkdf2$") === 0) {
+    var parts = val.split("$");
+    if (parts.length !== 5) return false;
+    var iters = parseInt(parts[2], 10);
+    var salt = parts[3];
+    var expectedDk = pbkdf2HmacSha256_(password, salt, iters, pepper);
+    return constantTimeEqual_(expectedDk, parts[4]);
+  }
+  if (val.indexOf("baco$sha256$") === 0) {
+    var oldParts = val.split("$");
+    if (oldParts.length !== 4) return false;
+    var oldSalt = oldParts[2];
+    var expectedOld = hashLegacySha256_(password, oldSalt, pepper);
+    return constantTimeEqual_(expectedOld, val);
+  }
+  return false;
+}
+
+function getUserTokenVersion_(username) {
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var v = parseInt(props.getProperty("TV_" + String(username || "admin").toLowerCase()) || "1", 10);
+    return isNaN(v) || v < 1 ? 1 : v;
+  } catch (e) {
+    return 1;
+  }
+}
+
+function bumpUserTokenVersion_(username) {
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var key = "TV_" + String(username || "admin").toLowerCase();
+    var next = getUserTokenVersion_(username) + 1;
+    props.setProperty(key, String(next));
+    return next;
+  } catch (e) {
+    return 1;
+  }
+}
+
+function revokeSessionJti_(jti, expMs) {
+  if (!jti) return;
+  var ttlSec = Math.max(60, Math.min(21600, Math.ceil(((Number(expMs) || Date.now()) - Date.now()) / 1000) + 60));
+  try {
+    var cache = CacheService.getScriptCache();
+    if (cache) cache.put("REV_" + jti, "1", ttlSec);
+  } catch (e) {}
+  try {
+    var props = PropertiesService.getScriptProperties();
+    props.setProperty("REV_" + jti, String(expMs || (Date.now() + 7200000)));
+  } catch (e2) {}
+}
+
+function isSessionRevoked_(jti) {
+  if (!jti) return true;
+  try {
+    var cache = CacheService.getScriptCache();
+    if (cache && cache.get("REV_" + jti)) return true;
+  } catch (e) {}
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var val = props.getProperty("REV_" + jti);
+    if (val) {
+      if (Number(val) < Date.now()) {
+        props.deleteProperty("REV_" + jti);
+        return false;
+      }
+      return true;
+    }
+  } catch (e2) {}
+  return false;
+}
+
+// Session Token ngắn hạn (2 giờ), có jti & tokenVersion để hỗ trợ thu hồi & làm mới
+function createSignedSession_(username, role, signKey) {
+  var expMs = Date.now() + 2 * 3600 * 1000;
+  var jti = sha256Hex_(Utilities.getUuid() + ":" + Date.now()).slice(0, 16);
+  var ver = getUserTokenVersion_(username);
+  var uB64 = Utilities.base64EncodeWebSafe(String(username || "admin"), Utilities.Charset.UTF_8).replace(/=+$/, "");
+  var rB64 = Utilities.base64EncodeWebSafe(String(role || "Quản trị viên"), Utilities.Charset.UTF_8).replace(/=+$/, "");
+  var payload = "v2." + expMs + "." + jti + "." + ver + "." + uB64 + "." + rB64;
+  var sig = hmacSignHex_(payload, signKey);
+  return { token: payload + "." + sig, expiresAt: expMs };
+}
+
+function verifySignedSession_(token, signKey) {
+  var parts = String(token || "").split(".");
+  if (parts.length !== 7 || parts[0] !== "v2") return null;
+  var expMs = Number(parts[1]);
+  if (!expMs || expMs < Date.now()) return null;
+  var jti = String(parts[2] || "");
+  var ver = parseInt(parts[3], 10);
+  var payload = parts.slice(0, 6).join(".");
+  var expected = hmacSignHex_(payload, signKey);
+  if (!constantTimeEqual_(expected, parts[6])) return null;
+  if (isSessionRevoked_(jti)) return null;
+  try {
+    var uname = Utilities.newBlob(Utilities.base64DecodeWebSafe(parts[4])).getDataAsString("UTF-8");
+    var urole = Utilities.newBlob(Utilities.base64DecodeWebSafe(parts[5])).getDataAsString("UTF-8");
+    if (ver !== getUserTokenVersion_(uname)) return null;
+    return { username: uname, role: urole, expiresAt: expMs, jti: jti, ver: ver };
+  } catch (e) {
+    return null;
+  }
+}
+
+function requireAdminSession_(data) {
+  var token = String((data && (data.sessionToken || data.token)) || "").trim();
+  if (!token) return { ok: false, message: "Unauthorized: Thiếu phiên đăng nhập quản trị." };
+  var sec = getOrCreateSecurityProps_();
+  var sess = verifySignedSession_(token, sec.SESSION_SIGN_KEY);
+  if (!sess) return { ok: false, message: "Unauthorized: Phiên đăng nhập đã hết hạn hoặc bị thu hồi." };
+
+  var authCtx = getAuthSpreadsheet_();
+  if (!authCtx.ss) return { ok: false, message: "Auth sheet unavailable" };
+  var userSheet = authCtx.ss.getSheetByName("QuanTriVien");
+  if (!userSheet || userSheet.getLastRow() < 3) return { ok: false, message: "Unauthorized" };
+
+  var targetUser = String(sess.username || "").trim().toLowerCase();
+  var rows = userSheet.getRange(3, 1, userSheet.getLastRow() - 2, 4).getValues();
+  for (var i = 0; i < rows.length; i++) {
+    var rowUser = String(rows[i][0] || "").trim().toLowerCase();
+    if (rowUser !== targetUser) continue;
+    var rowStatus = String(rows[i][2] || "").trim().toLowerCase();
+    if (rowStatus === "hoạt động" || rowStatus === "active") {
+      return { ok: true, username: rowUser, role: String(rows[i][1] || sess.role), sess: sess };
+    }
+    return { ok: false, message: "Tài khoản quản trị đã bị khóa." };
+  }
+  return { ok: false, message: "Unauthorized: Không tìm thấy tài khoản." };
 }
 
 function getAuthSpreadsheet_() {
@@ -1395,7 +1695,7 @@ function ensureAdminSecuritySheets_(ss) {
     userSheet = ss.insertSheet("QuanTriVien");
     userSheet.appendRow(["BẢNG TÀI KHOẢN QUẢN TRỊ BẢO MẬT — NƯỚC MẮM BA CÔ KHÁNH HÒA"]);
     userSheet.getRange("A1:G1").merge().setBackground("#0f172a").setFontColor("#fbbf24").setFontWeight("bold").setFontSize(11).setHorizontalAlignment("center");
-    userSheet.appendRow(["Tên đăng nhập", "Vai trò", "Trạng thái", "Mật khẩu (Mã hóa SHA-256)", "Lần đăng nhập cuối", "IP đăng nhập cuối", "Ghi chú"]);
+    userSheet.appendRow(["Tên đăng nhập", "Vai trò", "Trạng thái", "Mật khẩu (Mã hóa PBKDF2)", "Lần đăng nhập cuối", "IP đăng nhập cuối", "Ghi chú"]);
     userSheet.getRange("A2:G2").setBackground("#1e293b").setFontColor("#ffffff").setFontWeight("bold").setHorizontalAlignment("center");
     userSheet.appendRow(["admin", "Chủ xưởng (Owner)", "Hoạt động", "", "", "", "Dùng menu 🔐 Bảo Mật Quản Trị -> Đặt mật khẩu"]);
     userSheet.setFrozenRows(2);
@@ -1433,11 +1733,11 @@ function appendLoginAudit_(logSheet, timeStr, username, statusLabel, detail, ip,
     if (!logSheet) return;
     logSheet.appendRow([
       String(timeStr || new Date().toLocaleString("vi-VN")),
-      String(username || ""),
-      String(statusLabel || ""),
-      String(detail || ""),
-      String(ip || ""),
-      String(ua || "").slice(0, 180)
+      sanitizeSheetCell_(String(username || "")),
+      sanitizeSheetCell_(String(statusLabel || "")),
+      sanitizeSheetCell_(String(detail || "")),
+      sanitizeSheetCell_(String(ip || "")),
+      sanitizeSheetCell_(String(ua || "").slice(0, 180))
     ]);
     var total = logSheet.getLastRow();
     if (total > 502) {
@@ -1446,7 +1746,6 @@ function appendLoginAudit_(logSheet, timeStr, username, statusLabel, detail, ip,
   } catch (e) {}
 }
 
-// Hàm chạy 1 lần trong Apps Script để khởi tạo bảng QuanTriVien & NhatKyDangNhap
 function khoiTaoBaoMatQuanTri() {
   getOrCreateSecurityProps_();
   var authCtx = getAuthSpreadsheet_();
@@ -1458,12 +1757,11 @@ function khoiTaoBaoMatQuanTri() {
   Logger.log("✅ Đã khởi tạo bảng QuanTriVien & NhatKyDangNhap thành công!");
 }
 
-// Hàm đặt hoặc đổi mật khẩu quản trị trực tiếp (tự động băm SHA-256 + salt + pepper)
 function datMatKhauQuanTri(username, plainPassword, role) {
   var uname = String(username || "admin").trim().toLowerCase();
   var pw = String(plainPassword || "");
-  if (!uname || pw.length < 6) {
-    throw new Error("Tên đăng nhập không được trống và mật khẩu phải từ 6 ký tự trở lên.");
+  if (!uname || pw.length < 8) {
+    throw new Error("Tên đăng nhập không được trống và mật khẩu phải từ 8 ký tự trở lên.");
   }
   var sec = getOrCreateSecurityProps_();
   var authCtx = getAuthSpreadsheet_();
@@ -1471,8 +1769,9 @@ function datMatKhauQuanTri(username, plainPassword, role) {
   var sheets = ensureAdminSecuritySheets_(authCtx.ss);
   var userSheet = sheets.userSheet;
 
-  var salt = sha256Hex_(Utilities.getUuid() + ":" + Date.now()).slice(0, 16);
+  var salt = sha256Hex_(Utilities.getUuid() + ":" + Date.now()).slice(0, 24);
   var hashed = hashPasswordWithSalt_(pw, salt, sec.AUTH_PEPPER);
+  bumpUserTokenVersion_(uname);
 
   var lastRow = userSheet.getLastRow();
   if (lastRow >= 3) {
@@ -1483,16 +1782,15 @@ function datMatKhauQuanTri(username, plainPassword, role) {
         if (role) userSheet.getRange(r, 2).setValue(role);
         userSheet.getRange(r, 3).setValue("Hoạt động");
         userSheet.getRange(r, 4).setValue(hashed);
-        userSheet.getRange(r, 7).setValue("Cập nhật mật khẩu lúc " + new Date().toLocaleString("vi-VN"));
+        userSheet.getRange(r, 7).setValue("Cập nhật PBKDF2 lúc " + new Date().toLocaleString("vi-VN"));
         return true;
       }
     }
   }
-  userSheet.appendRow([uname, role || "Quản trị viên", "Hoạt động", hashed, "", "", "Tạo mới lúc " + new Date().toLocaleString("vi-VN")]);
+  userSheet.appendRow([uname, role || "Quản trị viên", "Hoạt động", hashed, "", "", "Tạo mới PBKDF2 lúc " + new Date().toLocaleString("vi-VN")]);
   return true;
 }
 
-// Mã hóa tất cả mật khẩu dạng chữ thường vừa nhập trực tiếp trong cột D của tab QuanTriVien
 function maHoaTatCaMatKhauSheet() {
   var sec = getOrCreateSecurityProps_();
   var authCtx = getAuthSpreadsheet_();
@@ -1506,10 +1804,10 @@ function maHoaTatCaMatKhauSheet() {
   var count = 0;
   for (var i = 0; i < vals.length; i++) {
     var rawPw = String(vals[i][3] || "").trim();
-    if (rawPw && rawPw.indexOf("baco$sha256$") !== 0) {
-      var salt = sha256Hex_(Utilities.getUuid() + ":" + i + ":" + Date.now()).slice(0, 16);
+    if (rawPw && rawPw.indexOf("baco$pbkdf2$") !== 0 && rawPw.indexOf("baco$sha256$") !== 0) {
+      var salt = sha256Hex_(Utilities.getUuid() + ":" + i + ":" + Date.now()).slice(0, 24);
       userSheet.getRange(3 + i, 4).setValue(hashPasswordWithSalt_(rawPw, salt, sec.AUTH_PEPPER));
-      userSheet.getRange(3 + i, 7).setValue("Đã mã hóa tự động " + new Date().toLocaleString("vi-VN"));
+      userSheet.getRange(3 + i, 7).setValue("Đã mã hóa PBKDF2 " + new Date().toLocaleString("vi-VN"));
       count++;
     }
   }
@@ -1532,7 +1830,6 @@ function saveBruteForceState_(username, state) {
   } catch (e) {}
 }
 
-// Truy vấn Google Sheet xác thực đăng nhập trực tiếp & trả về sessionToken ký HMAC
 function handleVerifyAdmin_(data, nowStr) {
   var sec = getOrCreateSecurityProps_();
   var authCtx = getAuthSpreadsheet_();
@@ -1551,7 +1848,6 @@ function handleVerifyAdmin_(data, nowStr) {
     return jsonSuccess({ valid: false, reason: "invalid_credentials" });
   }
 
-  // Chống brute-force 5 lần sai -> khóa 15 phút
   var nowMs = Date.now();
   var bf = getBruteForceState_(username);
   if (bf.lockUntil && bf.lockUntil > nowMs) {
@@ -1585,21 +1881,18 @@ function handleVerifyAdmin_(data, nowStr) {
       return jsonSuccess({ valid: false, reason: "no_password_set" });
     }
 
-    var matched = false;
-    if (storedSecret.indexOf("baco$sha256$") === 0) {
-      matched = verifyPasswordHash_(password, storedSecret, sec.AUTH_PEPPER);
-    } else if (authCtx.isPrivate && storedSecret.length >= 6) {
-      matched = constantTimeEqual_(password, storedSecret);
-      if (matched) {
-        var newSalt = sha256Hex_(Utilities.getUuid() + ":" + Date.now()).slice(0, 16);
-        userSheet.getRange(3 + i, 4).setValue(hashPasswordWithSalt_(password, newSalt, sec.AUTH_PEPPER));
-      }
+    var matched = verifyPasswordHash_(password, storedSecret, sec.AUTH_PEPPER);
+    // Tự động nâng cấp hash cũ SHA-256 sang PBKDF2-HMAC-SHA256 khi đăng nhập thành công
+    if (matched && storedSecret.indexOf("baco$sha256$") === 0) {
+      var upSalt = sha256Hex_(Utilities.getUuid() + ":" + Date.now()).slice(0, 24);
+      userSheet.getRange(3 + i, 4).setValue(hashPasswordWithSalt_(password, upSalt, sec.AUTH_PEPPER));
+      userSheet.getRange(3 + i, 7).setValue("Nâng cấp PBKDF2 lúc " + nowStr);
     }
 
     if (matched) {
       saveBruteForceState_(username, { fails: 0, lockUntil: 0 });
       userSheet.getRange(3 + i, 5).setValue(nowStr);
-      userSheet.getRange(3 + i, 6).setValue(ip);
+      userSheet.getRange(3 + i, 6).setValue(sanitizeSheetCell_(ip));
       appendLoginAudit_(logSheet, nowStr, username, "Thành công", "Đăng nhập hợp lệ (" + rowRole + ")", ip, ua);
       var sess = createSignedSession_(rowUser, rowRole, sec.SESSION_SIGN_KEY);
       return jsonSuccess({
@@ -1611,7 +1904,6 @@ function handleVerifyAdmin_(data, nowStr) {
       });
     }
 
-    // Sai mật khẩu -> làm chậm + đếm số lần thất bại
     try { Utilities.sleep(450); } catch (e) {}
     bf.fails = (bf.fails || 0) + 1;
     if (bf.fails >= 5) {
@@ -1640,32 +1932,316 @@ function handleVerifyAdmin_(data, nowStr) {
   return jsonSuccess({ valid: false, remainingAttempts: 5 - bf.fails, reason: "not_found" });
 }
 
-// Xác thực lại sessionToken từ trình duyệt (kiểm tra chữ ký HMAC + hạn + trạng thái Hoạt động trong Sheet)
 function handleVerifySession_(data) {
-  var sec = getOrCreateSecurityProps_();
-  var sess = verifySignedSession_(data.token, sec.SESSION_SIGN_KEY);
-  if (!sess) return jsonSuccess({ valid: false, reason: "invalid_or_expired" });
-
-  var authCtx = getAuthSpreadsheet_();
-  if (!authCtx.ss) return jsonSuccess({ valid: false, reason: "sheet_unavailable" });
-  var userSheet = authCtx.ss.getSheetByName("QuanTriVien");
-  if (!userSheet || userSheet.getLastRow() < 3) return jsonSuccess({ valid: false, reason: "no_users" });
-
-  var targetUser = String(sess.username || "").trim().toLowerCase();
-  var rows = userSheet.getRange(3, 1, userSheet.getLastRow() - 2, 4).getValues();
-  for (var i = 0; i < rows.length; i++) {
-    var rowUser = String(rows[i][0] || "").trim().toLowerCase();
-    if (rowUser !== targetUser) continue;
-    var rowStatus = String(rows[i][2] || "").trim().toLowerCase();
-    if (rowStatus === "hoạt động" || rowStatus === "active") {
-      return jsonSuccess({ valid: true, username: rowUser, role: String(rows[i][1] || sess.role) });
-    }
-    return jsonSuccess({ valid: false, reason: "account_locked" });
-  }
-  return jsonSuccess({ valid: false, reason: "not_found" });
+  var auth = requireAdminSession_(data);
+  if (!auth.ok) return jsonSuccess({ valid: false, reason: "invalid_or_expired" });
+  return jsonSuccess({ valid: true, username: auth.username, role: auth.role, expiresAt: auth.sess.expiresAt });
 }
 
-// Tự động mã hóa ngay khi người quản trị nhập mật khẩu mới vào cột D tab QuanTriVien
+function handleRefreshSession_(data) {
+  var auth = requireAdminSession_(data);
+  if (!auth.ok) return jsonSuccess({ valid: false, reason: "invalid_or_expired" });
+  var sec = getOrCreateSecurityProps_();
+  revokeSessionJti_(auth.sess.jti, auth.sess.expiresAt);
+  var nextSess = createSignedSession_(auth.username, auth.role, sec.SESSION_SIGN_KEY);
+  return jsonSuccess({
+    valid: true,
+    username: auth.username,
+    role: auth.role,
+    sessionToken: nextSess.token,
+    expiresAt: nextSess.expiresAt
+  });
+}
+
+function handleLogoutSession_(data) {
+  var token = String((data && (data.sessionToken || data.token)) || "").trim();
+  if (token) {
+    var sec = getOrCreateSecurityProps_();
+    var sess = verifySignedSession_(token, sec.SESSION_SIGN_KEY);
+    if (sess) {
+      revokeSessionJti_(sess.jti, sess.expiresAt);
+    }
+  }
+  return jsonSuccess({ revoked: true });
+}
+
+function handleRevokeAllSessions_(data) {
+  var auth = requireAdminSession_(data);
+  if (!auth.ok) return jsonError(auth.message);
+  bumpUserTokenVersion_(auth.username);
+  return jsonSuccess({ revokedAll: true });
+}
+
+// Đọc toàn bộ dữ liệu quản trị qua API có xác thực (cho phép đặt Google Sheet ở chế độ Riêng tư)
+function getAdminDashboardData_(ss) {
+  var retail = [];
+  var wholesale = [];
+  var customers = [];
+  var products = [];
+  var siteContent = {};
+
+  try {
+    var sheet1 = ss.getSheets()[0];
+    var lr1 = sheet1.getLastRow();
+    if (lr1 >= 7) {
+      var rows1 = sheet1.getRange("B7:L" + lr1).getValues();
+      for (var i = 0; i < rows1.length; i++) {
+        var r1 = rows1[i];
+        var code1 = String(r1[1] || "").trim();
+        var name1 = String(r1[2] || "").trim();
+        if (!code1 && !name1) continue;
+        retail.push({
+          timestamp: String(r1[0] || ""),
+          orderCode: code1.replace("#", "").trim() || ("BC" + (i + 1)),
+          name: name1,
+          phone: String(r1[3] || "").replace(/^'/, ""),
+          address: String(r1[4] || ""),
+          product: String(r1[5] || ""),
+          quantity: Number(r1[6]) || 1,
+          totalAmount: Number(r1[7]) || 0,
+          paymentMethod: String(r1[8] || "COD"),
+          note: String(r1[9] || ""),
+          status: String(r1[10] || "Chờ xác nhận")
+        });
+      }
+      retail.reverse();
+    }
+  } catch (e1) {}
+
+  try {
+    var wsSheet = ss.getSheetByName("Khách Sỉ & Đại Lý");
+    if (wsSheet && wsSheet.getLastRow() >= 3) {
+      var rowsWs = wsSheet.getRange("B3:I" + wsSheet.getLastRow()).getValues();
+      for (var w = 0; w < rowsWs.length; w++) {
+        var rw = rowsWs[w];
+        var lCode = String(rw[1] || "").trim();
+        var lName = String(rw[2] || "").trim();
+        if (!lCode && !lName) continue;
+        wholesale.push({
+          timestamp: String(rw[0] || ""),
+          leadCode: lCode || ("#DL" + (w + 1)),
+          name: lName,
+          phone: String(rw[3] || "").replace(/^'/, ""),
+          area: String(rw[4] || ""),
+          businessModel: String(rw[5] || ""),
+          note: String(rw[6] || ""),
+          status: String(rw[7] || "Chờ gọi tư vấn")
+        });
+      }
+      wholesale.reverse();
+    }
+  } catch (e2) {}
+
+  try {
+    var custSheet = ss.getSheetByName("KhachHang");
+    if (custSheet && custSheet.getLastRow() >= 3) {
+      var rowsC = custSheet.getRange("A3:H" + custSheet.getLastRow()).getValues();
+      for (var c = 0; c < rowsC.length; c++) {
+        var rc = rowsC[c];
+        var cPhone = String(rc[1] || "").replace(/^'/, "").trim();
+        var cName = String(rc[0] || "").trim();
+        if (!cPhone || cName.indexOf("#BC") !== -1) continue;
+        customers.push({
+          name: cName,
+          phone: cPhone,
+          address: String(rc[2] || ""),
+          orderCount: Number(rc[3]) || 0,
+          totalSpent: Number(rc[4]) || 0,
+          lastOrderAt: String(rc[5] || ""),
+          tier: String(rc[6] || "Thành viên"),
+          note: String(rc[7] || "")
+        });
+      }
+    }
+  } catch (e3) {}
+
+  try {
+    var prodSheet = ss.getSheetByName("SanPham");
+    if (prodSheet && prodSheet.getLastRow() >= 3) {
+      var rowsP = prodSheet.getRange("A3:J" + prodSheet.getLastRow()).getValues();
+      for (var p = 0; p < rowsP.length; p++) {
+        var rp = rowsP[p];
+        if (!rp[1]) continue;
+        var st = String(rp[6] || "").toLowerCase();
+        var stockV = (rp[9] === "" || rp[9] === null || rp[9] === undefined) ? (st.indexOf("hết") !== -1 ? 0 : 100) : Number(rp[9]);
+        products.push({
+          id: String(rp[0] || ("prod_" + (p + 1))),
+          name: String(rp[1] || ""),
+          price: Number(rp[2]) || 0,
+          unit: String(rp[3] || "Chai 500ml"),
+          category: String(rp[4] || "Mắm Nhĩ Thượng Hạng"),
+          tag: String(rp[5] || ""),
+          inStock: st.indexOf("hết") === -1 && stockV > 0,
+          desc: String(rp[7] || ""),
+          image: String(rp[8] || "./pictrure/1.jpg"),
+          stock: Math.max(0, Math.floor(stockV || 0))
+        });
+      }
+    }
+  } catch (e4) {}
+
+  try {
+    var cfgSheet = ss.getSheetByName("NoiDungWeb");
+    if (cfgSheet && cfgSheet.getLastRow() >= 3) {
+      var rowsCfg = cfgSheet.getRange("A3:B" + cfgSheet.getLastRow()).getValues();
+      for (var k = 0; k < rowsCfg.length; k++) {
+        var key = String(rowsCfg[k][0] || "").trim();
+        if (key) siteContent[key] = String(rowsCfg[k][1] || "");
+      }
+    }
+  } catch (e5) {}
+
+  return jsonSuccess({
+    orders: retail,
+    wholesale: wholesale,
+    customers: customers,
+    products: products,
+    siteContent: siteContent,
+    vouchers: getVouchersList_()
+  });
+}
+
+function getPushSubscriptionsData_(ss) {
+  var sheet = ss.getSheetByName("PushTokens");
+  if (!sheet || sheet.getLastRow() < 2) return jsonSuccess({ subscriptions: [] });
+  var values = sheet.getRange(2, 1, sheet.getLastRow() - 1, 5).getValues();
+  var list = [];
+  for (var i = 0; i < values.length; i++) {
+    var endpoint = String(values[i][1] || "").trim();
+    var p256dh = String(values[i][2] || "").trim();
+    var auth = String(values[i][3] || "").trim();
+    if (endpoint && p256dh && auth) {
+      list.push({ endpoint: endpoint, keys: { p256dh: p256dh, auth: auth } });
+    }
+  }
+  return jsonSuccess({ subscriptions: list });
+}
+
+// Tính toán giá trị đơn hàng hoàn toàn tại backend từ SanPham & Voucher
+function calculateOrderPricingServer_(ss, data) {
+  var catalog = [];
+  try {
+    var prodSheet = ss.getSheetByName("SanPham");
+    if (prodSheet && prodSheet.getLastRow() >= 3) {
+      var pRows = prodSheet.getRange("A3:J" + prodSheet.getLastRow()).getValues();
+      for (var i = 0; i < pRows.length; i++) {
+        var pName = String(pRows[i][1] || "").trim();
+        var pPrice = Number(pRows[i][2]) || 0;
+        if (pName && pPrice > 0) {
+          catalog.push({
+            id: String(pRows[i][0] || "").trim(),
+            name: pName,
+            price: pPrice,
+            nameLower: pName.toLowerCase()
+          });
+        }
+      }
+    }
+  } catch (e) {}
+
+  if (catalog.length === 0) {
+    catalog = [
+      { id: "prod_1", name: "Nước Mắm Nhĩ Thượng Hạng 43°N", price: 145000, nameLower: "nước mắm nhĩ thượng hạng 43°n" },
+      { id: "prod_2", name: "Nước Mắm Truyền Thống 35°N", price: 110000, nameLower: "nước mắm truyền thống 35°n" },
+      { id: "prod_3", name: "Can 2 Lít Mắm Nhĩ Đậm Đà", price: 240000, nameLower: "can 2 lít mắm nhĩ đậm đà" },
+      { id: "prod_4", name: "Hộp Quà Biếu 2 Chai Thủy Tinh", price: 320000, nameLower: "hộp quà biếu 2 chai thủy tinh" }
+    ];
+  }
+
+  function findCatalogProduct(idOrName) {
+    var key = String(idOrName || "").trim();
+    if (!key) return null;
+    var keyLow = key.toLowerCase();
+    for (var i = 0; i < catalog.length; i++) {
+      if (catalog[i].id && catalog[i].id === key) return catalog[i];
+      if (catalog[i].nameLower === keyLow) return catalog[i];
+    }
+    for (var j = 0; j < catalog.length; j++) {
+      if (keyLow.indexOf(catalog[j].nameLower) !== -1 || catalog[j].nameLower.indexOf(keyLow) !== -1) {
+        return catalog[j];
+      }
+    }
+    return null;
+  }
+
+  var parsedItems = [];
+  if (Array.isArray(data.items) && data.items.length > 0) {
+    for (var k = 0; k < data.items.length; k++) {
+      var it = data.items[k];
+      var qty = Math.min(500, Math.max(1, Math.floor(Number(it.qty || it.quantity || 1) || 1)));
+      var prod = findCatalogProduct(it.id || it.name);
+      if (!prod) return { ok: false, message: "Sản phẩm không hợp lệ: " + String(it.name || it.id || "") };
+      parsedItems.push({ name: prod.name, price: prod.price, qty: qty });
+    }
+  } else {
+    var rawProdStr = String(data.product || "").trim();
+    if (!rawProdStr) return { ok: false, message: "Thiếu thông tin sản phẩm đặt hàng." };
+    var parts = rawProdStr.split(",");
+    for (var pIdx = 0; pIdx < parts.length; pIdx++) {
+      var part = String(parts[pIdx] || "").trim();
+      if (!part) continue;
+      var m = part.match(/^(.*?)\s*\(x(\d+)\)\s*$/i);
+      var pNamePart = m ? m[1].trim() : part;
+      var pQtyPart = m ? Math.min(500, Math.max(1, parseInt(m[2], 10) || 1)) : Math.min(500, Math.max(1, Math.floor(Number(data.quantity) || 1)));
+      var foundP = findCatalogProduct(pNamePart);
+      if (!foundP) return { ok: false, message: "Không tìm thấy sản phẩm trong bảng giá: " + pNamePart };
+      parsedItems.push({ name: foundP.name, price: foundP.price, qty: pQtyPart });
+    }
+  }
+
+  if (parsedItems.length === 0) {
+    return { ok: false, message: "Giỏ hàng trống hoặc sản phẩm không hợp lệ." };
+  }
+
+  var subtotal = 0;
+  var totalQty = 0;
+  var summaryParts = [];
+  for (var idx = 0; idx < parsedItems.length; idx++) {
+    subtotal += parsedItems[idx].price * parsedItems[idx].qty;
+    totalQty += parsedItems[idx].qty;
+    summaryParts.push(parsedItems[idx].name + " (x" + parsedItems[idx].qty + ")");
+  }
+
+  var discountAmount = 0;
+  var freeShipping = false;
+  var appliedVoucherCode = "";
+  var vCode = String(data.voucherCode || "").trim().toUpperCase();
+  if (vCode) {
+    var vList = getVouchersList_();
+    for (var vi = 0; vi < vList.length; vi++) {
+      var v = vList[vi];
+      if (v.code === vCode && v.active && (v.minOrder <= 0 || subtotal >= v.minOrder)) {
+        appliedVoucherCode = v.code;
+        if (v.type === "freeship") {
+          freeShipping = true;
+        } else if (v.type === "percent") {
+          discountAmount = Math.round((subtotal * v.value) / 100);
+          if (v.maxDiscount > 0 && discountAmount > v.maxDiscount) discountAmount = v.maxDiscount;
+        } else {
+          discountAmount = Math.min(v.value, subtotal);
+        }
+        break;
+      }
+    }
+  }
+
+  var shippingFee = (totalQty >= 2 || subtotal >= 250000 || freeShipping || totalQty === 0) ? 0 : 30000;
+  var totalAmount = Math.max(0, subtotal - discountAmount) + shippingFee;
+  if (totalAmount <= 0) return { ok: false, message: "Giá trị đơn hàng không hợp lệ." };
+
+  return {
+    ok: true,
+    subtotal: subtotal,
+    discountAmount: discountAmount,
+    shippingFee: shippingFee,
+    totalAmount: totalAmount,
+    totalQty: totalQty,
+    voucherCode: appliedVoucherCode,
+    productSummary: summaryParts.join(", ")
+  };
+}
+
+// Tự động mã hóa PBKDF2 ngay khi người quản trị nhập mật khẩu mới vào cột D tab QuanTriVien
 function onEdit(e) {
   try {
     if (!e || !e.range) return;
@@ -1673,11 +2249,11 @@ function onEdit(e) {
     if (sheet.getName() !== "QuanTriVien") return;
     if (e.range.getRow() >= 3 && e.range.getColumn() === 4) {
       var val = String(e.value || "").trim();
-      if (val && val.indexOf("baco$sha256$") !== 0) {
+      if (val && val.indexOf("baco$pbkdf2$") !== 0 && val.indexOf("baco$sha256$") !== 0) {
         var sec = getOrCreateSecurityProps_();
-        var salt = sha256Hex_(Utilities.getUuid() + ":" + Date.now()).slice(0, 16);
+        var salt = sha256Hex_(Utilities.getUuid() + ":" + Date.now()).slice(0, 24);
         e.range.setValue(hashPasswordWithSalt_(val, salt, sec.AUTH_PEPPER));
-        sheet.getRange(e.range.getRow(), 7).setValue("Đã tự mã hóa SHA-256 lúc " + new Date().toLocaleString("vi-VN"));
+        sheet.getRange(e.range.getRow(), 7).setValue("Đã tự mã hóa PBKDF2 lúc " + new Date().toLocaleString("vi-VN"));
       }
     }
   } catch (err) {}
@@ -1735,13 +2311,13 @@ function moHopThoaiDatSheetRiengTu() {
 }
 
 // ========================================================
-// TRA CỨU ĐƠN HÀNG CÔNG KHAI (MÃ ĐƠN + SĐT BẢO MẬT)
+// TRA CỨU ĐƠN HÀNG CÔNG KHAI (MÃ ĐƠN CHÍNH XÁC + SĐT + CHE PII)
 // ========================================================
 function lookupOrderInSheet_(orderCodeRaw, phoneRaw) {
   var code = chuanHoa(orderCodeRaw);
   var phoneDigits = String(phoneRaw || "").replace(/\D/g, "");
-  if (!code || phoneDigits.length < 4) {
-    return jsonError("Vui lòng nhập mã đơn hàng và tối thiểu 4 số cuối điện thoại.");
+  if (!code || code.length < 5 || phoneDigits.length < 4) {
+    return jsonError("Vui lòng nhập đầy đủ mã đơn hàng và tối thiểu 4 số cuối điện thoại.");
   }
 
   var ss = layBangTinh();
@@ -1754,25 +2330,35 @@ function lookupOrderInSheet_(orderCodeRaw, phoneRaw) {
   for (var i = rows.length - 1; i >= 0; i--) {
     var rCode = chuanHoa(rows[i][1]);
     var rPhone = String(rows[i][3] || "").replace(/\D/g, "");
-    var codeMatch = (rCode === code) || (rCode && code && rCode.indexOf(code) !== -1 && code.length >= 6);
+    var codeMatch = (rCode && rCode === code);
     var phoneMatch = rPhone && (rPhone === phoneDigits || rPhone.slice(-4) === phoneDigits.slice(-4));
     if (codeMatch && phoneMatch) {
       var maskedPhone = rPhone.length >= 7
         ? rPhone.slice(0, 3) + "****" + rPhone.slice(-3)
         : "****" + rPhone.slice(-3);
+      var rawName = String(rows[i][2] || "").trim();
+      var nameParts = rawName.split(/\s+/);
+      var maskedName = nameParts.length > 1
+        ? nameParts[0] + " *** " + nameParts[nameParts.length - 1]
+        : (rawName.slice(0, 2) + "***");
+      var rawAddr = String(rows[i][4] || "").trim();
+      var addrParts = rawAddr.split(",");
+      var maskedAddr = addrParts.length >= 2
+        ? "***, " + addrParts.slice(-2).join(",").trim()
+        : "*** (Đã ẩn địa chỉ chi tiết để bảo mật)";
+
       return jsonSuccess({
         found: true,
         order: {
           createdAt: String(rows[i][0] || ""),
           orderCode: String(rows[i][1] || ""),
-          name: String(rows[i][2] || ""),
+          name: maskedName,
           phoneMasked: maskedPhone,
-          address: String(rows[i][4] || ""),
+          address: maskedAddr,
           product: String(rows[i][5] || ""),
           quantity: Number(rows[i][6]) || 1,
           totalAmount: Number(rows[i][7]) || 0,
           paymentMethod: String(rows[i][8] || "COD"),
-          note: String(rows[i][9] || ""),
           status: String(rows[i][10] || "Chờ xác nhận")
         }
       });

@@ -147,8 +147,8 @@ export async function onRequest(context) {
     return deny(429, 'Too Many Requests — vui lòng thử lại sau ít giây.', { 'Retry-After': '15' });
   }
 
-  // 6. Bảo vệ các endpoint API nội bộ nhạy cảm (chỉ cho phép gọi từ chính website)
-  if ((path === '/api/send-push' || path === '/api/push-subscribe') && method === 'POST') {
+  // 6. Bảo vệ các endpoint API nội bộ nhạy cảm (chỉ cho phép gọi từ chính website — chống CSRF)
+  if ((path === '/api/send-push' || path === '/api/push-subscribe' || path === '/api/sheet-cache') && method === 'POST') {
     if (!isSameOriginRequest(request, url)) return deny(403, 'Forbidden');
   }
 

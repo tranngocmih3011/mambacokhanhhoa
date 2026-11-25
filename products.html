@@ -1034,7 +1034,7 @@
                 </div>
             </div>
             <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-center text-[11px] text-slate-400">
-                <a href="./admin.html?lock=1" class="hover:text-amber-300 transition cursor-pointer select-none">
+                <a href="./admin.html" class="hover:text-amber-300 transition cursor-pointer select-none">
                     © 2026 Nước Mắm Ba Cô Khánh Hòa. All rights reserved.
                 </a>
                 <span>Ủ chượp tự nhiên • Giao hàng toàn quốc</span>
@@ -2351,41 +2351,7 @@
                     }
                 } catch(e) {}
 
-                // 4. Kiểm tra trực tiếp trên Google Sheet mỗi 4 giây (chống gọi dồn dập)
-                if (attempts % 2 === 0) {
-                    const isPaidOnSheet = await checkGoogleSheetPayment(orderCode);
-                    if (isPaidOnSheet) {
-                        finalizePaidOrder();
-                        return;
-                    }
-                }
             }, 2000);
-        }
-
-        async function checkGoogleSheetPayment(orderCode) {
-            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&_t=${Date.now()}`;
-            try {
-                const res = await fetch(url, { cache: 'no-store' });
-                const text = await res.text();
-                const jsonMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
-                if (jsonMatch && jsonMatch[1]) {
-                    const data = JSON.parse(jsonMatch[1]);
-                    const rows = data.table.rows || [];
-                    const cleanTargetCode = String(orderCode).replace('#', '').trim().toUpperCase();
-                    for (const r of rows) {
-                        if (!r.c) continue;
-                        const getVal = idx => (r.c[idx] && r.c[idx].v !== null) ? (r.c[idx].f || r.c[idx].v) : '';
-                        const code = String(getVal(2) || '').replace('#', '').trim().toUpperCase();
-                        const status = String(getVal(11) || '').trim().toLowerCase();
-                        if (code === cleanTargetCode) {
-                            if (status.includes('đã nhận tiền') || status.includes('hoàn tất') || status.includes('paid')) {
-                                return true;
-                            }
-                        }
-                    }
-                }
-            } catch(e) {}
-            return false;
         }
 
         async function finalizePaidOrder(sepayData = null) {
@@ -2520,17 +2486,20 @@
             let productSummary = '';
             let totalQuantity = 1;
             let subtotal = 0;
+            let orderItems = [];
 
             if (cart.length > 0) {
                 productSummary = cart.map(i => `${i.name} (x${i.quantity})`).join(', ');
                 totalQuantity = cart.reduce((s, i) => s + i.quantity, 0);
                 subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+                orderItems = cart.map(i => ({ id: i.id || '', name: i.name, qty: i.quantity }));
             } else {
                 const prodVal = document.getElementById('product').value;
                 const qtyVal = parseInt(document.getElementById('quantity').value) || 1;
                 productSummary = prodVal;
                 totalQuantity = qtyVal;
                 subtotal = calculateOrderAmount(prodVal, qtyVal);
+                orderItems = [{ id: '', name: prodVal, qty: qtyVal }];
             }
 
             const { shippingFee, discountAmount, total: totalAmount } = computeCheckoutTotals(subtotal, totalQuantity);
@@ -2542,6 +2511,7 @@
                 phone: cleanPhone,
                 address: rawAddress,
                 product: productSummary,
+                items: orderItems,
                 quantity: totalQuantity,
                 subtotal: subtotal,
                 discountAmount: discountAmount,

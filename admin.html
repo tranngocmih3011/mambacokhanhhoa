@@ -173,7 +173,6 @@
             #adminApp,
             #loginScreen,
             #adminToastContainer,
-            #appsScriptModal,
             #productModal,
             #adminReviewModal,
             header, aside, #desktopSidebar, nav, main, footer,
@@ -1863,1717 +1862,6 @@
         </div>
     </div>
 
-    <!-- MODAL HƯỚNG DẪN MÃ APPS SCRIPT ĐỒNG BỘ SẢN PHẨM & NỘI DUNG LÊN GOOGLE SHEET -->
-    <div id="appsScriptModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto space-y-3.5">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                <div>
-                    <h3 class="text-base sm:text-lg font-bold text-slate-900">☁️ Cấu Hình Báo Đơn Tự Động Về Gmail & Zalo Cá Nhân</h3>
-                    <p class="text-xs text-slate-500">Đã cấu hình sẵn cho Email: <strong class="text-emerald-700">tranngocmih3011@gmail.com</strong></p>
-                </div>
-                <button onclick="document.getElementById('appsScriptModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 font-bold">✕</button>
-            </div>
-            <div class="text-xs text-slate-600 space-y-2 leading-relaxed bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200/80">
-                <p><strong>💡 Cách kích hoạt thông báo tự động (Mất 1 phút):</strong></p>
-                <ol class="list-decimal pl-4 space-y-1">
-                    <li>Vào Google Sheet của bạn → Chọn menu <strong>Tiện ích mở rộng (Extensions) → Apps Script</strong>.</li>
-                    <li>Xóa toàn bộ nội dung cũ trong file <code>Mã.gs</code> (hoặc <code>Code.gs</code>).</li>
-                    <li>Bấm nút <strong>"📋 Sao Chép Toàn Bộ Mã"</strong> bên dưới rồi dán vào Apps Script (Email <code>tranngocmih3011@gmail.com</code> đã được điền sẵn).</li>
-                    <li>Bấm biểu tượng <strong>💾 Lưu</strong>, sau đó bấm <strong>Triển khai (Deploy) → Quản lý bản triển khai mới</strong> (Chọn <em>Ứng dụng web / Web App</em>, Người có quyền truy cập: <em>Bất kỳ ai / Anyone</em>) rồi bấm <strong>Triển khai</strong>.</li>
-                    <li>Khi có đơn mới, sỉ mới, đánh giá mới, điện thoại của bạn sẽ kêu ting-ting thông báo từ Gmail kèm nút <strong>[💬 Mở Zalo Nhắn Khách]</strong>!</li>
-                </ol>
-            </div>
-            <div class="relative">
-                <pre id="appsScriptCodeBlock" class="bg-slate-900 text-emerald-300 p-3.5 rounded-2xl text-[11px] overflow-x-auto font-mono leading-relaxed max-h-72">// =========================================================================
-// HỆ THỐNG ĐỒNG BỘ GOOGLE SHEET &amp; BÁO ĐƠN TỰ ĐỘNG VỀ GMAIL + ZALO - BA CÔ
-// Google Sheet ID: 1ZvX_-wHeoc6fcv43hW_Jj-blOagtsFJiazorJJ8pBBw
-// Email nhận thông báo: tranngocmih3011@gmail.com
-// =========================================================================
-
-const SPREADSHEET_ID = &quot;1ZvX_-wHeoc6fcv43hW_Jj-blOagtsFJiazorJJ8pBBw&quot;;
-const ADMIN_EMAIL = &quot;tranngocmih3011@gmail.com&quot;;
-
-// =========================================================================
-// BƯỚC QUAN TRỌNG: BẤM CHỌN HÀM NÀY VÀ BẤM NÚT &quot;CHẠY (RUN)&quot; ĐỂ CẤP QUYỀN GỬI EMAIL
-// Khi bấm &quot;Chạy&quot;, Google sẽ hiện bảng yêu cầu cấp quyền -&gt; Bấm &quot;Xem lại quyền&quot;
-// -&gt; Chọn tài khoản Google của bạn -&gt; Bấm &quot;Nâng cao (Advanced)&quot; -&gt; Bấm &quot;Đi tới... (không an toàn)&quot; -&gt; Bấm &quot;Cho phép&quot;.
-// =========================================================================
-function testGuiEmailVaCapQuyen() {
-  MailApp.sendEmail({
-    to: ADMIN_EMAIL,
-    subject: &quot;✅ KIỂM TRA KẾT NỐI EMAIL THÀNH CÔNG - NƯỚC MẮM BA CÔ&quot;,
-    htmlBody: &quot;&lt;h2 style=&#x27;color:#15803d;&#x27;&gt;Chúc mừng bạn! Kết nối email thành công.&lt;/h2&gt;&lt;p&gt;Hệ thống thông báo đơn hàng của Nước Mắm Ba Cô đã được cấp quyền gửi email tự động tới &lt;b&gt;&quot; + ADMIN_EMAIL + &quot;&lt;/b&gt;.&lt;/p&gt;&quot;
-  });
-  Logger.log(&quot;Đã gửi email thử nghiệm thành công tới: &quot; + ADMIN_EMAIL);
-}
-
-function layBangTinh() {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    if (ss) return ss;
-  } catch(e) {}
-  try {
-    return SpreadsheetApp.openById(SPREADSHEET_ID);
-  } catch(e) {
-    return null;
-  }
-}
-
-// Hàm chạy 1 lần nếu bạn muốn bấm nút &quot;Chạy (Run)&quot; trực tiếp trong Apps Script để tạo sẵn 3 bảng mới
-function khoiTaoBangSanPhamVaNoiDung() {
-  var ss = layBangTinh();
-  if (!ss) return;
-  if (!ss.getSheetByName(&quot;SanPham&quot;)) {
-    var sProd = ss.insertSheet(&quot;SanPham&quot;);
-    khoiTaoBangSanPham(sProd);
-  }
-  if (!ss.getSheetByName(&quot;NoiDungWeb&quot;)) {
-    var sCfg = ss.insertSheet(&quot;NoiDungWeb&quot;);
-    khoiTaoBangNoiDungWeb(sCfg);
-  }
-  if (!ss.getSheetByName(&quot;DanhGia&quot;)) {
-    var sRev = ss.insertSheet(&quot;DanhGia&quot;);
-    khoiTaoBangDanhGia(sRev);
-  }
-  if (!ss.getSheetByName(&quot;KhachHang&quot;)) {
-    var sCus = ss.insertSheet(&quot;KhachHang&quot;);
-    khoiTaoBangKhachHang(sCus);
-  }
-}
-
-function doGet(e) {
-  var param = (e &amp;&amp; e.parameter) || {};
-
-  // KIỂM TRA TRẠNG THÁI THANH TOÁN TỨC THÌ (CHO KHÁCH QUÉT QR SEPAY)
-  if (param.action === &quot;check_payment&quot; || param.action === &quot;check_payment_status&quot;) {
-    var checkCode = chuanHoa(param.orderCode || param.order_id || param.code);
-    if (!checkCode) return jsonSuccess({ paid: false, payment_status: &quot;Unpaid&quot;, message: &quot;Thiếu orderCode&quot; });
-
-    // 1. Kiểm tra trong Script Properties
-    try {
-      var props = PropertiesService.getScriptProperties();
-      var pVal = props.getProperty(&quot;PAID_&quot; + checkCode);
-      if (pVal) {
-        var pData = JSON.parse(pVal);
-        return jsonSuccess({
-          paid: true,
-          payment_status: &quot;Paid&quot;,
-          orderCode: checkCode,
-          amount: pData.amount || 0,
-          paidAt: pData.time || &quot;&quot;,
-          source: &quot;script_properties&quot;
-        });
-      }
-    } catch(errProp) {}
-
-    // 2. Kiểm tra trong Tab 1 (Đơn bán lẻ)
-    try {
-      var ss = layBangTinh();
-      if (ss) {
-        var sheet = ss.getSheets()[0];
-        var lastRow = sheet.getLastRow();
-        if (lastRow &gt;= 3) {
-          var rows = sheet.getRange(&quot;C3:L&quot; + lastRow).getValues();
-          for (var i = 0; i &lt; rows.length; i++) {
-            var rCode = chuanHoa(rows[i][0]);
-            var rStatus = String(rows[i][9] || &quot;&quot;).toLowerCase();
-            if (rCode === checkCode || (rCode &amp;&amp; checkCode &amp;&amp; (rCode.indexOf(checkCode) !== -1 || checkCode.indexOf(rCode) !== -1))) {
-              if (rStatus.indexOf(&quot;nhận&quot;) !== -1 || rStatus.indexOf(&quot;thanh toán&quot;) !== -1 || rStatus.indexOf(&quot;paid&quot;) !== -1) {
-                return jsonSuccess({
-                  paid: true,
-                  payment_status: &quot;Paid&quot;,
-                  orderCode: checkCode,
-                  status: rows[i][9],
-                  source: &quot;google_sheet&quot;
-                });
-              }
-            }
-          }
-        }
-      }
-    } catch(errSheet) {}
-
-    return jsonSuccess({ paid: false, payment_status: &quot;Unpaid&quot;, orderCode: checkCode });
-  }
-
-  if (param.action === &quot;get_push_subscriptions&quot;) {
-    var ss = layBangTinh();
-    if (!ss) return jsonSuccess({ subscriptions: [] });
-    var sheet = ss.getSheetByName(&quot;PushTokens&quot;);
-    if (!sheet) return jsonSuccess({ subscriptions: [] });
-    var lastRow = sheet.getLastRow();
-    if (lastRow &lt; 2) return jsonSuccess({ subscriptions: [] });
-    var values = sheet.getRange(2, 1, lastRow - 1, 5).getValues();
-    var list = [];
-    for (var i = 0; i &lt; values.length; i++) {
-      var endpoint = String(values[i][1] || &#x27;&#x27;).trim();
-      var p256dh = String(values[i][2] || &#x27;&#x27;).trim();
-      var auth = String(values[i][3] || &#x27;&#x27;).trim();
-      if (endpoint &amp;&amp; p256dh &amp;&amp; auth) {
-        list.push({
-          endpoint: endpoint,
-          keys: {
-            p256dh: p256dh,
-            auth: auth
-          }
-        });
-      }
-    }
-    return jsonSuccess({ subscriptions: list });
-  }
-  return ContentService.createTextOutput(&quot;Google Apps Script 2-Way Sync (5 Bảng) &amp; Thông báo Gmail/Zalo/Telegram/Push đang hoạt động tốt!&quot;);
-}
-
-function doPost(e) {
-  try {
-    var ss = layBangTinh();
-    if (!ss) return jsonError(&quot;Không thể mở bảng tính Google Sheet!&quot;);
-    var data = JSON.parse(e.postData.contents);
-    var action = data.action || &quot;&quot;;
-    var nowStr = data.timestamp || new Date().toLocaleString(&quot;vi-VN&quot;);
-
-    // XÁC THỰC QUẢN TRỊ VIÊN TRỰC TIẾP QUA GOOGLE SHEET
-    if (action === &quot;verify_admin&quot;) {
-      return handleVerifyAdmin_(data, nowStr);
-    }
-    if (action === &quot;verify_session&quot;) {
-      return handleVerifySession_(data);
-    }
-
-    // ========================================================
-    // TẦNG BẢO VỆ CHỐNG BOT SPAM &amp; CÀO DỮ LIỆU (ANTI-BOT &amp; RATE LIMIT)
-    // ========================================================
-    // 1. Kiểm tra Bẫy Bot Tàng hình (Honeypot Trap)
-    // Nếu bot tự động điền trường website_trap_hp -&gt; Phản hồi ảo, không lưu DB &amp; không gửi mail
-    if (data.website_trap_hp &amp;&amp; String(data.website_trap_hp).trim() !== &quot;&quot;) {
-      return jsonSuccess({ status: &quot;success&quot;, msg: &quot;Bot trap triggered - Ignored&quot;, ignored: true });
-    }
-
-    // 2. Chống Spam liên tục vào Webhook qua CacheService (Rate limiting 3 giây)
-    var isNewSubmission = (data.type === &quot;wholesale&quot; || action === &quot;wholesale&quot; || action === &quot;submit_review&quot; || !action);
-    if (isNewSubmission) {
-      var phoneRaw = String(data.phone || (data.review &amp;&amp; data.review.phone) || &quot;&quot;).replace(/\D/g, &quot;&quot;);
-      if (phoneRaw.length &gt;= 9) {
-        try {
-          var cache = CacheService.getScriptCache();
-          if (cache) {
-            var cacheKey = &quot;baco_spam_&quot; + phoneRaw;
-            if (cache.get(cacheKey)) {
-              return jsonError(&quot;Thao tác quá nhanh! Vui lòng chờ 2 giây trước khi gửi tiếp.&quot;);
-            }
-            cache.put(cacheKey, &quot;sent&quot;, 3);
-          }
-        } catch(cErr) {}
-      }
-    }
-
-    // ========================================================
-    // NHÁNH 0: ĐỒNG BỘ BẢNG SẢN PHẨM &amp; BẢNG NỘI DUNG WEBSITE
-    // ========================================================
-
-        // 0.3 Lưu Push Subscription (Tab &quot;PushTokens&quot;)
-    if (action === &quot;save_push_subscription&quot; &amp;&amp; data.subscription) {
-      var tokenSheet = ss.getSheetByName(&quot;PushTokens&quot;);
-      if (!tokenSheet) {
-        tokenSheet = ss.insertSheet(&quot;PushTokens&quot;);
-        tokenSheet.getRange(&quot;A1:E1&quot;).setValues([[&quot;Thời Gian&quot;, &quot;Endpoint&quot;, &quot;p256dh&quot;, &quot;auth&quot;, &quot;User Agent&quot;]]);
-        tokenSheet.getRange(&quot;A1:E1&quot;).setFontWeight(&quot;bold&quot;).setBackground(&quot;#e2e8f0&quot;);
-      }
-      var sub = data.subscription;
-      var endpoint = sub.endpoint || &quot;&quot;;
-      var keys = sub.keys || {};
-      var p256dh = keys.p256dh || &quot;&quot;;
-      var auth = keys.auth || &quot;&quot;;
-      var uAgent = String(data.userAgent || &quot;&quot;).slice(0, 200);
-
-      var lastRow = tokenSheet.getLastRow();
-      var updated = false;
-      if (lastRow &gt;= 2) {
-        var existingEndpoints = tokenSheet.getRange(2, 2, lastRow - 1, 1).getValues();
-        for (var i = 0; i &lt; existingEndpoints.length; i++) {
-          if (existingEndpoints[i][0] === endpoint) {
-            tokenSheet.getRange(2 + i, 1, 1, 5).setValues([[nowStr, endpoint, p256dh, auth, uAgent]]);
-            updated = true;
-            break;
-          }
-        }
-      }
-      if (!updated) {
-        tokenSheet.appendRow([nowStr, endpoint, p256dh, auth, uAgent]);
-      }
-      return jsonSuccess({ saved: true });
-    }
-
-    // 0.4 Xóa Push Subscription hết hạn
-    if (action === &quot;delete_expired_push_subscriptions&quot; &amp;&amp; Array.isArray(data.endpoints)) {
-      var tokenSheet = ss.getSheetByName(&quot;PushTokens&quot;);
-      if (tokenSheet) {
-        var lastRow = tokenSheet.getLastRow();
-        if (lastRow &gt;= 2) {
-          var epSet = {};
-          data.endpoints.forEach(function(ep) { epSet[ep] = true; });
-          var rows = tokenSheet.getRange(2, 2, lastRow - 1, 1).getValues();
-          for (var i = rows.length - 1; i &gt;= 0; i--) {
-            if (epSet[rows[i][0]]) {
-              tokenSheet.deleteRow(2 + i);
-            }
-          }
-        }
-      }
-      return jsonSuccess({ deleted: true });
-    }
-
-    // 0.1 Lưu &amp; Kẻ bảng Sản Phẩm (Tab &quot;SanPham&quot;)
-    if (action === &quot;save_products&quot; &amp;&amp; data.products) {
-      var prodSheet = ss.getSheetByName(&quot;SanPham&quot;);
-      if (!prodSheet) {
-        prodSheet = ss.insertSheet(&quot;SanPham&quot;);
-      } else {
-        prodSheet.clear();
-      }
-      khoiTaoBangSanPham(prodSheet);
-
-      var items = data.products || [];
-      for (var pIdx = 0; pIdx &lt; items.length; pIdx++) {
-        var p = items[pIdx];
-        var targetRow = 3 + pIdx;
-        var rowVals = [
-          p.id || (&quot;prod_&quot; + (pIdx + 1)),
-          p.name || &quot;&quot;,
-          Number(p.price) || 0,
-          p.unit || &quot;Chai 500ml&quot;,
-          p.category || &quot;Mắm Nhĩ Thượng Hạng&quot;,
-          p.tag || &quot;Đặc Biệt&quot;,
-          p.inStock === false ? &quot;Hết hàng&quot; : &quot;Còn hàng&quot;,
-          p.desc || &quot;&quot;,
-          p.image || &quot;./pictrure/1.jpg&quot;
-        ];
-        prodSheet.getRange(targetRow, 1, 1, rowVals.length).setValues([rowVals]);
-        dinhDangDongSanPham(prodSheet, targetRow, p.inStock !== false);
-      }
-      return jsonSuccess({ saved: &quot;SanPham&quot;, count: items.length });
-    }
-
-    // 0.1b Lưu &amp; Kẻ bảng Danh Bạ Khách Hàng (Tab &quot;KhachHang&quot;)
-    if (action === &quot;save_customers&quot; &amp;&amp; data.customers) {
-      var cusSheet = ss.getSheetByName(&quot;KhachHang&quot;);
-      if (!cusSheet) {
-        cusSheet = ss.insertSheet(&quot;KhachHang&quot;);
-      } else {
-        cusSheet.clear();
-      }
-      khoiTaoBangKhachHang(cusSheet);
-
-      var cusList = data.customers || [];
-      var tierLabelMap = { vip: &quot;Khách VIP&quot;, returning: &quot;Khách quen&quot;, new: &quot;Khách mới&quot; };
-      for (var cIdx = 0; cIdx &lt; cusList.length; cIdx++) {
-        var c = cusList[cIdx];
-        var targetCusRow = 3 + cIdx;
-        var rowCusVals = [
-          c.key || (&quot;KH-&quot; + (cIdx + 1)),
-          c.name || &quot;Khách hàng&quot;,
-          c.phone ? (&quot;&#x27;&quot; + c.phone) : &quot;&quot;,
-          c.address || &quot;&quot;,
-          tierLabelMap[c.tier] || &quot;Khách mới&quot;,
-          Number(c.totalOrders) || 0,
-          Number(c.successOrders) || 0,
-          Number(c.cancelledOrders) || 0,
-          Number(c.totalSpent) || 0,
-          c.lastDate || &quot;&quot;,
-          c.note || &quot;&quot;
-        ];
-        cusSheet.getRange(targetCusRow, 1, 1, rowCusVals.length).setValues([rowCusVals]);
-        dinhDangDongKhachHang(cusSheet, targetCusRow, c.tier || &quot;new&quot;);
-      }
-      return jsonSuccess({ saved: &quot;KhachHang&quot;, count: cusList.length });
-    }
-
-    // 0.2 Lưu &amp; Kẻ bảng Nội Dung Website (Tab &quot;NoiDungWeb&quot;)
-    if (action === &quot;save_site_content&quot; &amp;&amp; data.content) {
-      var cfgSheet = ss.getSheetByName(&quot;NoiDungWeb&quot;);
-      if (!cfgSheet) {
-        cfgSheet = ss.insertSheet(&quot;NoiDungWeb&quot;);
-      } else {
-        cfgSheet.clear();
-      }
-      khoiTaoBangNoiDungWeb(cfgSheet);
-
-      var labelsMap = {
-        // 🌊 1. BANNER ĐẦU TRANG
-        heroTag: &quot;🌊 1. Banner - Huy hiệu nhỏ đầu trang (Tagline)&quot;,
-        heroMainTitle: &quot;🌊 1. Banner - Tiêu đề lớn dòng 1&quot;,
-        heroSubTitle: &quot;🌊 1. Banner - Tiêu đề vàng dòng 2&quot;,
-        heroDesc: &quot;🌊 1. Banner - Đoạn mô tả giới thiệu&quot;,
-        heroBgImg: &quot;🌊 1. Banner - Ảnh nền biển (Link/Ảnh)&quot;,
-        heroProductImg: &quot;🌊 1. Banner - Ảnh chai mắm và chén mắm tách nền&quot;,
-        heroCta1: &quot;🌊 1. Banner - Chữ nút đặt mua chính&quot;,
-        heroCta2: &quot;🌊 1. Banner - Chữ nút khám phá phụ&quot;,
-
-        // 🏷️ 2. HEADER &amp; MENU
-        headerLogo: &quot;🏷️ 2. Header - Ảnh Logo (Link/Ảnh)&quot;,
-        headerBrandName: &quot;🏷️ 2. Header - Tên thương hiệu trên thanh menu&quot;,
-        headerBrandSlogan: &quot;🏷️ 2. Header - Slogan dưới Logo&quot;,
-        headerCartText: &quot;🏷️ 2. Header - Chữ nút giỏ hàng&quot;,
-        headerNav1: &quot;🏷️ 2. Header - Menu 1 (Câu chuyện)&quot;,
-        headerNav2: &quot;🏷️ 2. Header - Menu 2 (Quy trình)&quot;,
-        headerNav3: &quot;🏷️ 2. Header - Menu 3 (Bộ sưu tập)&quot;,
-        headerNav4: &quot;🏷️ 2. Header - Menu 4 (Sản phẩm)&quot;,
-        headerNav5: &quot;🏷️ 2. Header - Menu 5 (Mua sỉ)&quot;,
-        headerNav6: &quot;🏷️ 2. Header - Menu 6 (Ẩm thực)&quot;,
-        headerNav7: &quot;🏷️ 2. Header - Menu 7 (Đánh giá)&quot;,
-        headerNav8: &quot;🏷️ 2. Header - Menu 8 (Hỏi đáp)&quot;,
-
-        // 📞 3. THƯƠNG HIỆU &amp; LIÊN HỆ
-        brandName: &quot;📞 3. Thương Hiệu - Tên thương hiệu chung&quot;,
-        brandSlogan: &quot;📞 3. Thương Hiệu - Dòng chữ phụ chung&quot;,
-        brandPhone: &quot;📞 3. Thương Hiệu - Số Hotline &amp; Zalo&quot;,
-        brandAddress: &quot;📞 2. Thương Hiệu - Địa chỉ cơ sở sản xuất&quot;,
-        brandEmail: &quot;📞 2. Thương Hiệu - Email liên hệ&quot;,
-        pillar1Title: &quot;🪵 3. Ba Trụ Cột - Tiêu đề trụ cột 1&quot;,
-        pillar1Desc: &quot;🪵 3. Ba Trụ Cột - Mô tả trụ cột 1&quot;,
-        pillar1Img: &quot;🪵 3. Ba Trụ Cột - Hình ảnh trụ cột 1&quot;,
-        pillar2Title: &quot;🪵 3. Ba Trụ Cột - Tiêu đề trụ cột 2&quot;,
-        pillar2Desc: &quot;🪵 3. Ba Trụ Cột - Mô tả trụ cột 2&quot;,
-        pillar2Img: &quot;🪵 3. Ba Trụ Cột - Hình ảnh trụ cột 2&quot;,
-        pillar3Title: &quot;🪵 3. Ba Trụ Cột - Tiêu đề trụ cột 3&quot;,
-        pillar3Desc: &quot;🪵 3. Ba Trụ Cột - Mô tả trụ cột 3&quot;,
-        pillar3Img: &quot;🪵 3. Ba Trụ Cột - Hình ảnh trụ cột 3&quot;,
-        recipe1Title: &quot;🍲 4. Góc Ẩm Thực - Tên món ăn 1&quot;,
-        recipe1Desc: &quot;🍲 4. Góc Ẩm Thực - Mô tả món ăn 1&quot;,
-        recipe1Img: &quot;🍲 4. Góc Ẩm Thực - Hình ảnh món ăn 1&quot;,
-        recipe2Title: &quot;🍲 4. Góc Ẩm Thực - Tên món ăn 2&quot;,
-        recipe2Desc: &quot;🍲 4. Góc Ẩm Thực - Mô tả món ăn 2&quot;,
-        recipe2Img: &quot;🍲 4. Góc Ẩm Thực - Hình ảnh món ăn 2&quot;,
-        recipe3Title: &quot;🍲 4. Góc Ẩm Thực - Tên món ăn 3&quot;,
-        recipe3Desc: &quot;🍲 4. Góc Ẩm Thực - Mô tả món ăn 3&quot;,
-        recipe3Img: &quot;🍲 4. Góc Ẩm Thực - Hình ảnh món ăn 3&quot;
-      };
-
-      var keys = Object.keys(data.content);
-      for (var kIdx = 0; kIdx &lt; keys.length; kIdx++) {
-        var key = keys[kIdx];
-        var val = String(data.content[key] || &quot;&quot;);
-        var r = 3 + kIdx;
-        var rowCfg = [
-          key,
-          val,
-          labelsMap[key] || &quot;Cấu hình giao diện&quot;,
-          nowStr
-        ];
-        cfgSheet.getRange(r, 1, 1, 4).setValues([rowCfg]);
-        dinhDangDongNoiDungWeb(cfgSheet, r);
-      }
-      return jsonSuccess({ saved: &quot;NoiDungWeb&quot;, count: keys.length });
-    }
-
-    // 0.5 Lưu &amp; Cập nhật toàn bộ bảng Đánh Giá (Tab &quot;DanhGia&quot;)
-    if (action === &quot;save_reviews&quot; &amp;&amp; Array.isArray(data.reviews)) {
-      var revSheet = ss.getSheetByName(&quot;DanhGia&quot;);
-      if (!revSheet) {
-        revSheet = ss.insertSheet(&quot;DanhGia&quot;);
-      } else {
-        revSheet.clear();
-      }
-      khoiTaoBangDanhGia(revSheet);
-
-      var revList = data.reviews || [];
-      for (var rIdx = 0; rIdx &lt; revList.length; rIdx++) {
-        var r = revList[rIdx];
-        var targetRowRev = 3 + rIdx;
-        var sttRev = rIdx + 1;
-        var rowRev = [
-          sttRev,
-          r.date || nowStr,
-          r.id || (&quot;REV-&quot; + (rIdx + 1)),
-          r.name || &quot;Khách mua online&quot;,
-          &quot;&#x27;&quot; + (r.phone || &quot;&quot;),
-          r.location || &quot;Toàn quốc&quot;,
-          r.product || &quot;Nước mắm Ba Cô&quot;,
-          Number(r.rating) || 5,
-          Array.isArray(r.tags) ? r.tags.join(&quot;, &quot;) : (r.tags || &quot;&quot;),
-          r.comment || &quot;&quot;,
-          r.status || &quot;approved&quot;
-        ];
-        revSheet.getRange(targetRowRev, 1, 1, rowRev.length).setValues([rowRev]);
-        dinhDangDongDanhGia(revSheet, targetRowRev);
-      }
-      return jsonSuccess({ saved: &quot;DanhGia&quot;, count: revList.length });
-    }
-
-    // ========================================================
-    // NHÁNH 1: CÁC LỆNH ĐỒNG BỘ ĐƠN HÀNG &amp; KHÁCH SỈ TỪ ADMIN
-    // ========================================================
-
-    // ========================================================
-    // NHÁNH SEPAY: NHẬN WEBHOOK TỰ ĐỘNG &amp; CẬP NHẬT TRẠNG THÁI THANH TOÁN
-    // ========================================================
-    var isSepayDirect = data.transferType || data.transferAmount || (data.content &amp;&amp; String(data.content).indexOf(&quot;SEVQR&quot;) !== -1);
-    if (action === &quot;sepay_webhook&quot; || isSepayDirect) {
-      var rawContent = String(data.content || data.description || &quot;&quot;);
-      var rawCode = String(data.orderCode || data.code || &quot;&quot;);
-      var matchedCode = &quot;&quot;;
-
-      var m = (rawCode + &quot; &quot; + rawContent).match(/BC\d{4,9}/i);
-      if (m) matchedCode = chuanHoa(m[0]);
-      if (!matchedCode &amp;&amp; rawCode) matchedCode = chuanHoa(rawCode);
-
-      var paidAmount = Number(data.amount || data.transferAmount || 0);
-
-      if (matchedCode) {
-        // Lưu vào Script Properties để client query tức thì
-        try {
-          var props = PropertiesService.getScriptProperties();
-          props.setProperty(&quot;PAID_&quot; + matchedCode, JSON.stringify({
-            paid: true,
-            amount: paidAmount,
-            time: nowStr,
-            gateway: data.gateway || &quot;VietinBank&quot;
-          }));
-        } catch(pErr) {}
-
-        // Cập nhật dòng đơn hàng nếu đã có trong Tab 1
-        var sheet = ss.getSheets()[0];
-        var lastRow = sheet.getLastRow();
-        var rowUpdated = -1;
-        if (lastRow &gt;= 3) {
-          var codes = sheet.getRange(&quot;C3:C&quot; + lastRow).getValues();
-          for (var i = 0; i &lt; codes.length; i++) {
-            if (chuanHoa(codes[i][0]) === matchedCode) {
-              rowUpdated = 3 + i;
-              var cell = sheet.getRange(rowUpdated, 12);
-              var newStatus = &quot;Đã nhận tiền (SePay QR)&quot;;
-              cell.setValue(newStatus);
-              dinhDangTrangThaiDonHang(cell, newStatus);
-
-              // Gửi email thông báo đơn đã nhận tiền
-              try {
-                sendOrderEmail({
-                  orderCode: codes[i][0],
-                  name: sheet.getRange(rowUpdated, 4).getValue(),
-                  phone: sheet.getRange(rowUpdated, 5).getValue(),
-                  address: sheet.getRange(rowUpdated, 6).getValue(),
-                  product: sheet.getRange(rowUpdated, 7).getValue(),
-                  quantity: sheet.getRange(rowUpdated, 8).getValue(),
-                  totalAmount: sheet.getRange(rowUpdated, 9).getValue() || paidAmount,
-                  paymentMethod: &quot;Chuyển khoản VietQR (SePay)&quot;,
-                  status: newStatus
-                }, codes[i][0], nowStr);
-              } catch(eMail) {}
-              break;
-            }
-          }
-        }
-
-        return jsonSuccess({
-          success: true,
-          orderCode: matchedCode,
-          amount: paidAmount,
-          rowUpdated: rowUpdated
-        });
-      }
-    }
-
-    // 1.1 Cập nhật trạng thái đơn bán lẻ (Tab 1)
-    if (action === &quot;update_order_status&quot;) {
-      var sheet = ss.getSheets()[0];
-      var cleanCode = chuanHoa(data.orderCode);
-
-      // Nếu trạng thái là đã nhận tiền, lưu vào Script Properties để client query tức thì
-      if (String(data.status || &quot;&quot;).toLowerCase().indexOf(&quot;nhận&quot;) !== -1) {
-        try {
-          var props = PropertiesService.getScriptProperties();
-          props.setProperty(&quot;PAID_&quot; + cleanCode, JSON.stringify({
-            paid: true,
-            amount: Number(data.amount || 0),
-            time: nowStr
-          }));
-        } catch(pErr) {}
-      }
-
-      var lastRow = sheet.getLastRow();
-      if (lastRow &gt;= 3) {
-        var codes = sheet.getRange(&quot;C3:C&quot; + lastRow).getValues();
-        for (var i = 0; i &lt; codes.length; i++) {
-          if (chuanHoa(codes[i][0]) === cleanCode) {
-            var targetRow = 3 + i;
-            var cell = sheet.getRange(targetRow, 12);
-            cell.setValue(data.status);
-            dinhDangTrangThaiDonHang(cell, data.status);
-            return jsonSuccess({ row: targetRow, status: data.status });
-          }
-        }
-      }
-      return jsonSuccess({ status: data.status, msg: &quot;Đã cập nhật trạng thái: &quot; + cleanCode });
-    }
-
-    // 1.2 Xóa đơn hàng bán lẻ (Tab 1)
-    if (action === &quot;delete_order&quot;) {
-      var sheet = ss.getSheets()[0];
-      var cleanCode = chuanHoa(data.orderCode);
-      var lastRow = sheet.getLastRow();
-      if (lastRow &gt;= 3) {
-        var codes = sheet.getRange(&quot;C3:C&quot; + lastRow).getValues();
-        for (var i = 0; i &lt; codes.length; i++) {
-          if (chuanHoa(codes[i][0]) === cleanCode) {
-            sheet.deleteRow(3 + i);
-            return jsonSuccess({ deleted: cleanCode });
-          }
-        }
-      }
-      return jsonError(&quot;Không tìm thấy mã đơn để xóa: &quot; + data.orderCode);
-    }
-
-    // 1.3 Dọn sạch toàn bộ đơn bán lẻ (Tab 1)
-    if (action === &quot;clear_all_orders&quot;) {
-      var sheet = ss.getSheets()[0];
-      var lastRow = sheet.getLastRow();
-      if (lastRow &gt;= 3) {
-        sheet.deleteRows(3, lastRow - 2);
-      }
-      return jsonSuccess({ cleared: true });
-    }
-
-    // 1.4 Cập nhật trạng thái khách sỉ &amp; đại lý (Tab 2)
-    if (action === &quot;update_wholesale_status&quot;) {
-      var wholesaleSheet = ss.getSheetByName(&quot;Khách Sỉ &amp; Đại Lý&quot;);
-      if (wholesaleSheet) {
-        var cleanCode = chuanHoa(data.leadCode);
-        var lastRow = wholesaleSheet.getLastRow();
-        if (lastRow &gt;= 3) {
-          var codes = wholesaleSheet.getRange(&quot;C3:C&quot; + lastRow).getValues();
-          for (var i = 0; i &lt; codes.length; i++) {
-            if (chuanHoa(codes[i][0]) === cleanCode) {
-              var targetRow = 3 + i;
-              var cell = wholesaleSheet.getRange(targetRow, 9);
-              cell.setValue(data.status);
-              dinhDangTrangThaiDaiLy(cell, data.status);
-              return jsonSuccess({ row: targetRow, status: data.status });
-            }
-          }
-        }
-      }
-      return jsonError(&quot;Không tìm thấy mã đại lý: &quot; + data.leadCode);
-    }
-
-    // 1.5 Xóa khách sỉ &amp; đại lý (Tab 2)
-    if (action === &quot;delete_wholesale&quot;) {
-      var wholesaleSheet = ss.getSheetByName(&quot;Khách Sỉ &amp; Đại Lý&quot;);
-      if (wholesaleSheet) {
-        var cleanCode = chuanHoa(data.leadCode);
-        var lastRow = wholesaleSheet.getLastRow();
-        if (lastRow &gt;= 3) {
-          var codes = wholesaleSheet.getRange(&quot;C3:C&quot; + lastRow).getValues();
-          for (var i = 0; i &lt; codes.length; i++) {
-            if (chuanHoa(codes[i][0]) === cleanCode) {
-              wholesaleSheet.deleteRow(3 + i);
-              return jsonSuccess({ deleted: cleanCode });
-            }
-          }
-        }
-      }
-      return jsonError(&quot;Không tìm thấy mã đại lý để xóa: &quot; + data.leadCode);
-    }
-
-    // 1.6 Dọn sạch toàn bộ khách sỉ &amp; đại lý (Tab 2)
-    if (action === &quot;clear_all_wholesale&quot;) {
-      var wholesaleSheet = ss.getSheetByName(&quot;Khách Sỉ &amp; Đại Lý&quot;);
-      if (wholesaleSheet) {
-        var lastRow = wholesaleSheet.getLastRow();
-        if (lastRow &gt;= 3) {
-          wholesaleSheet.deleteRows(3, lastRow - 2);
-        }
-      }
-      return jsonSuccess({ cleared: true });
-    }
-
-    // ========================================================
-    // NHÁNH 2: GHI ĐƠN MỚI TỪ TRANG WEB &amp; BẮN GMAIL + ZALO
-    // ========================================================
-
-    // 2.1 Đăng ký khách sỉ &amp; đại lý
-    if (data.type === &quot;wholesale&quot; || action === &quot;wholesale&quot;) {
-      var wholesaleSheet = ss.getSheetByName(&quot;Khách Sỉ &amp; Đại Lý&quot;);
-      if (!wholesaleSheet) {
-        wholesaleSheet = ss.insertSheet(&quot;Khách Sỉ &amp; Đại Lý&quot;);
-        khoiTaoBangKhachSi(wholesaleSheet);
-      }
-
-      var lastRow = wholesaleSheet.getLastRow();
-      var targetRow = Math.max(lastRow + 1, 3);
-      var stt = targetRow - 2;
-      var leadCode = data.leadCode || (&quot;#DL&quot; + Math.floor(Math.random()*899999 + 100000));
-
-      var rowData = [
-        stt,
-        nowStr,
-        leadCode,
-        data.name || &quot;Chưa có tên&quot;,
-        &quot;&#x27;&quot; + (data.phone || &quot;&quot;),
-        data.area || &quot;Toàn quốc&quot;,
-        data.businessModel || &quot;Đại lý phân phối&quot;,
-        data.note || &quot;&quot;,
-        data.status || &quot;Chờ gọi tư vấn&quot;
-      ];
-
-      wholesaleSheet.getRange(targetRow, 1, 1, rowData.length).setValues([rowData]);
-      dinhDangDongKhachSi(wholesaleSheet, targetRow);
-
-      // 🔔 GỬI EMAIL THÔNG BÁO TỨC THÌ KÈM NÚT MỞ ZALO CHAT
-      sendWholesaleEmail(data, leadCode, nowStr);
-      sendTelegramWholesale(data, leadCode, nowStr);
-      sendServerWebPush(data, leadCode, &quot;wholesale&quot;);
-
-      return jsonSuccess({ type: &quot;wholesale&quot;, row: targetRow });
-    }
-
-    // 2.2 Khách gửi đánh giá &amp; cảm nhận mới (Tab &quot;DanhGia&quot;)
-    if (action === &quot;submit_review&quot; &amp;&amp; data.review) {
-      var revSheet = ss.getSheetByName(&quot;DanhGia&quot;);
-      if (!revSheet) {
-        revSheet = ss.insertSheet(&quot;DanhGia&quot;);
-        khoiTaoBangDanhGia(revSheet);
-      }
-
-      var r = data.review;
-      var lastRowRev = revSheet.getLastRow();
-      var targetRowRev = Math.max(lastRowRev + 1, 3);
-      var sttRev = targetRowRev - 2;
-
-      var rowRev = [
-        sttRev,
-        nowStr,
-        r.id || (&quot;REV-&quot; + Date.now().toString().slice(-6)),
-        r.name || &quot;Khách mua online&quot;,
-        &quot;&#x27;&quot; + (r.phone || &quot;&quot;),
-        r.location || &quot;Toàn quốc&quot;,
-        r.product || &quot;Nước mắm Ba Cô&quot;,
-        Number(r.rating) || 5,
-        (r.tags || []).join(&quot;, &quot;),
-        r.comment || &quot;&quot;,
-        r.status || &quot;approved&quot;
-      ];
-
-      revSheet.getRange(targetRowRev, 1, 1, rowRev.length).setValues([rowRev]);
-      dinhDangDongDanhGia(revSheet, targetRowRev);
-
-      // 🔔 GỬI EMAIL THÔNG BÁO ĐÁNH GIÁ MỚI KÈM NÚT MỞ ZALO CẢM ƠN
-      sendReviewEmail(r, nowStr);
-
-      return jsonSuccess({ type: &quot;review&quot;, row: targetRowRev });
-    }
-
-    // 2.3 Đơn hàng bán lẻ từ B7 (Tab 1)
-    // CHỈ TẠO ĐƠN KHI ĐÚNG LÀ ĐƠN HÀNG HỢP LỆ (Có mã đơn BC hoặc có sản phẩm + SĐT)
-    var isRealOrder = (data.orderCode &amp;&amp; String(data.orderCode).startsWith(&quot;BC&quot;)) ||
-                      (data.product &amp;&amp; (data.phone || data.totalAmount));
-
-    if (isRealOrder) {
-      var sheet = ss.getSheets()[0];
-      var targetRow = timDongTrong(sheet);
-      var orderCode = data.orderCode || (&quot;#BC&quot; + Math.floor(Math.random()*899999 + 100000));
-
-      var rowData = [
-        nowStr,
-        orderCode,
-        data.name || &quot;&quot;,
-        &quot;&#x27;&quot; + (data.phone || &quot;&quot;),
-        data.address || &quot;&quot;,
-        data.product || &quot;&quot;,
-        Number(data.quantity) || 1,
-        Number(data.totalAmount) || 0,
-        data.paymentMethod || &quot;COD&quot;,
-        data.note || &quot;&quot;,
-        data.status || &quot;Chờ xác nhận&quot;
-      ];
-
-      sheet.getRange(targetRow, 2, 1, rowData.length).setValues([rowData]);
-      dinhDangDongDonHang(sheet, targetRow);
-
-      // 🔔 GỬI EMAIL THÔNG BÁO ĐƠN HÀNG MỚI (Trừ khi khách đang ở trạng thái &#x27;Chờ thanh toán QR&#x27; để tránh báo sớm)
-      var currentStatus = String(data.status || &quot;Chờ xác nhận&quot;);
-      if (currentStatus !== &quot;Chờ thanh toán QR&quot;) {
-        sendOrderEmail(data, orderCode, nowStr);
-        sendTelegramNotification(data, orderCode, nowStr);
-        sendServerWebPush(data, orderCode, &quot;orders&quot;);
-      }
-
-      return jsonSuccess({ type: &quot;retail&quot;, row: targetRow });
-    }
-
-    return jsonSuccess({ msg: &quot;Action processed without order creation&quot;, action: action });
-
-  } catch (error) {
-    return jsonError(error.toString());
-  }
-}
-
-// ========================================================
-// HÀM GỬI EMAIL THÔNG BÁO TỰ ĐỘNG VỀ GMAIL + NÚT MỞ ZALO
-// ========================================================
-
-function sendOrderEmail(d, code, timeStr) {
-  if (!ADMIN_EMAIL || ADMIN_EMAIL.indexOf(&quot;@&quot;) === -1) return;
-  var phoneClean = String(d.phone || &quot;&quot;).replace(/\D/g, &quot;&quot;);
-  var zaloLink = phoneClean ? &quot;https://zalo.me/&quot; + phoneClean : &quot;&quot;;
-  var callLink = phoneClean ? &quot;tel:&quot; + phoneClean : &quot;&quot;;
-  var totalFormatted = Number(d.totalAmount || 0).toLocaleString(&quot;vi-VN&quot;) + &quot; đ&quot;;
-
-  var subject = &quot;🔔 [ĐƠN HÀNG MỚI #&quot; + code + &quot;] - &quot; + totalFormatted + &quot; từ &quot; + (d.name || &quot;Khách lẻ&quot;);
-
-  var htmlBody = &#x27;&lt;div style=&quot;font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;&quot;&gt;&#x27; +
-    &#x27;&lt;div style=&quot;background: linear-gradient(135deg, #0f172a, #1e293b); padding: 20px; text-align: center; color: #ffffff;&quot;&gt;&#x27; +
-      &#x27;&lt;h2 style=&quot;margin: 0; font-size: 20px; text-transform: uppercase; letter-spacing: 1px; color: #fbbf24;&quot;&gt;Nước Mắm Truyền Thống Ba Cô&lt;/h2&gt;&#x27; +
-      &#x27;&lt;p style=&quot;margin: 5px 0 0; font-size: 14px; color: #94a3b8;&quot;&gt;Thông báo đơn hàng bán lẻ mới&lt;/p&gt;&#x27; +
-    &#x27;&lt;/div&gt;&#x27; +
-    &#x27;&lt;div style=&quot;padding: 24px;&quot;&gt;&#x27; +
-      &#x27;&lt;div style=&quot;background: #f8fafc; border-left: 4px solid #f59e0b; padding: 12px 16px; margin-bottom: 20px; border-radius: 4px;&quot;&gt;&#x27; +
-        &#x27;&lt;span style=&quot;font-size: 13px; color: #64748b;&quot;&gt;Mã Đơn Hàng:&lt;/span&gt; &#x27; +
-        &#x27;&lt;strong style=&quot;font-size: 16px; color: #0f172a;&quot;&gt;#&#x27; + code + &#x27;&lt;/strong&gt;&#x27; +
-        &#x27;&lt;div style=&quot;font-size: 12px; color: #64748b; margin-top: 4px;&quot;&gt;Thời gian: &#x27; + timeStr + &#x27;&lt;/div&gt;&#x27; +
-      &#x27;&lt;/div&gt;&#x27; +
-      &#x27;&lt;table style=&quot;width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 20px;&quot;&gt;&#x27; +
-        &#x27;&lt;tr&gt;&lt;td style=&quot;padding: 8px 0; color: #64748b; width: 130px;&quot;&gt;Khách Hàng:&lt;/td&gt;&lt;td style=&quot;padding: 8px 0; font-weight: bold; color: #0f172a;&quot;&gt;&#x27; + (d.name || &quot;&quot;) + &#x27;&lt;/td&gt;&lt;/tr&gt;&#x27; +
-        &#x27;&lt;tr&gt;&lt;td style=&quot;padding: 8px 0; color: #64748b;&quot;&gt;Số Điện Thoại:&lt;/td&gt;&lt;td style=&quot;padding: 8px 0; font-weight: bold; color: #0f172a; font-size: 16px;&quot;&gt;&#x27; + (d.phone || &quot;&quot;) + &#x27;&lt;/td&gt;&lt;/tr&gt;&#x27; +
-        &#x27;&lt;tr&gt;&lt;td style=&quot;padding: 8px 0; color: #64748b;&quot;&gt;Địa Chỉ Giao:&lt;/td&gt;&lt;td style=&quot;padding: 8px 0; color: #0f172a;&quot;&gt;&#x27; + (d.address || &quot;&quot;) + &#x27;&lt;/td&gt;&lt;/tr&gt;&#x27; +
-        &#x27;&lt;tr&gt;&lt;td style=&quot;padding: 8px 0; color: #64748b;&quot;&gt;Sản Phẩm Đặt:&lt;/td&gt;&lt;td style=&quot;padding: 8px 0; font-weight: bold; color: #047857;&quot;&gt;&#x27; + (d.product || &quot;&quot;) + &#x27; (SL: &#x27; + (d.quantity || 1) + &#x27;)&lt;/td&gt;&lt;/tr&gt;&#x27; +
-        &#x27;&lt;tr&gt;&lt;td style=&quot;padding: 8px 0; color: #64748b;&quot;&gt;Tổng Tiền:&lt;/td&gt;&lt;td style=&quot;padding: 8px 0; font-weight: bold; font-size: 18px; color: #b45309;&quot;&gt;&#x27; + totalFormatted + &#x27;&lt;/td&gt;&lt;/tr&gt;&#x27; +
-        &#x27;&lt;tr&gt;&lt;td style=&quot;padding: 8px 0; color: #64748b;&quot;&gt;Thanh Toán:&lt;/td&gt;&lt;td style=&quot;padding: 8px 0; color: #0f172a;&quot;&gt;&#x27; + (d.paymentMethod || &quot;COD&quot;) + &#x27;&lt;/td&gt;&lt;/tr&gt;&#x27; +
-        &#x27;&lt;tr&gt;&lt;td style=&quot;padding: 8px 0; color: #64748b;&quot;&gt;Ghi Chú:&lt;/td&gt;&lt;td style=&quot;padding: 8px 0; color: #64748b; font-style: italic;&quot;&gt;&#x27; + (d.note || &quot;Không có&quot;) + &#x27;&lt;/td&gt;&lt;/tr&gt;&#x27; +
-      &#x27;&lt;/table&gt;&#x27; +
-      (zaloLink ? 
-        &#x27;&lt;div style=&quot;text-align: center; padding-top: 15px; border-top: 1px dashed #cbd5e1;&quot;&gt;&#x27; +
-          &#x27;&lt;p style=&quot;font-size: 13px; color: #475569; margin-bottom: 12px; font-weight: bold;&quot;&gt;⚡ HÀNH ĐỘNG NHANH VỚI KHÁCH HÀNG:&lt;/p&gt;&#x27; +
-          &#x27;&lt;a href=&quot;&#x27; + zaloLink + &#x27;&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; background: #0068ff; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 14px; padding: 12px 24px; border-radius: 8px; margin: 4px; box-shadow: 0 2px 4px rgba(0,104,255,0.3);&quot;&gt;&#x27; +
-            &#x27;💬 MỞ ZALO NHẮN CHO KHÁCH NGAY&#x27; +
-          &#x27;&lt;/a&gt;&#x27; +
-          &#x27;&lt;a href=&quot;&#x27; + callLink + &#x27;&quot; style=&quot;display: inline-block; background: #10b981; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 14px; padding: 12px 20px; border-radius: 8px; margin: 4px;&quot;&gt;&#x27; +
-            &#x27;📞 GỌI ĐIỆN CHO KHÁCH&#x27; +
-          &#x27;&lt;/a&gt;&#x27; +
-        &#x27;&lt;/div&gt;&#x27; : &#x27;&#x27;) +
-    &#x27;&lt;/div&gt;&#x27; +
-    &#x27;&lt;div style=&quot;background: #f1f5f9; padding: 12px; text-align: center; font-size: 11px; color: #94a3b8;&quot;&gt;&#x27; +
-      &#x27;Email thông báo tự động từ Hệ Thống Quản Trị Ba Cô Khánh Hòa&#x27; +
-    &#x27;&lt;/div&gt;&#x27; +
-  &#x27;&lt;/div&gt;&#x27;;
-
-  try {
-    MailApp.sendEmail({ to: ADMIN_EMAIL, subject: subject, htmlBody: htmlBody });
-  } catch(err) {
-    Logger.log(&quot;Lỗi gửi email đơn hàng: &quot; + err);
-  }
-}
-
-function sendWholesaleEmail(d, code, timeStr) {
-  if (!ADMIN_EMAIL || ADMIN_EMAIL.indexOf(&quot;@&quot;) === -1) return;
-  var phoneClean = String(d.phone || &quot;&quot;).replace(/\D/g, &quot;&quot;);
-  var zaloLink = phoneClean ? &quot;https://zalo.me/&quot; + phoneClean : &quot;&quot;;
-  var callLink = phoneClean ? &quot;tel:&quot; + phoneClean : &quot;&quot;;
-
-  var subject = &quot;🤝 [KHÁCH SỈ / ĐẠI LÝ MỚI &quot; + code + &quot;] - &quot; + (d.name || &quot;&quot;) + &quot; (&quot; + (d.area || &quot;&quot;) + &quot;)&quot;;
-
-  var htmlBody = &#x27;&lt;div style=&quot;font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;&quot;&gt;&#x27; +
-    &#x27;&lt;div style=&quot;background: linear-gradient(135deg, #4c1d95, #6d28d9); padding: 20px; text-align: center; color: #ffffff;&quot;&gt;&#x27; +
-      &#x27;&lt;h2 style=&quot;margin: 0; font-size: 20px; text-transform: uppercase; color: #fde047;&quot;&gt;Ba Cô Khánh Hòa&lt;/h2&gt;&#x27; +
-      &#x27;&lt;p style=&quot;margin: 5px 0 0; font-size: 14px; color: #e9d5ff;&quot;&gt;Yêu cầu hợp tác phân phối / Khách sỉ mới&lt;/p&gt;&#x27; +
-    &#x27;&lt;/div&gt;&#x27; +
-    &#x27;&lt;div style=&quot;padding: 24px;&quot;&gt;&#x27; +
-      &#x27;&lt;table style=&quot;width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 20px;&quot;&gt;&#x27; +
-        &#x27;&lt;tr&gt;&lt;td style=&quot;padding: 8px 0; color: #64748b; width: 130px;&quot;&gt;Đối Tác:&lt;/td&gt;&lt;td style=&quot;padding: 8px 0; font-weight: bold; color: #0f172a; font-size: 16px;&quot;&gt;&#x27; + (d.name || &quot;&quot;) + &#x27;&lt;/td&gt;&lt;/tr&gt;&#x27; +
-        &#x27;&lt;tr&gt;&lt;td style=&quot;padding: 8px 0; color: #64748b;&quot;&gt;Số Điện Thoại:&lt;/td&gt;&lt;td style=&quot;padding: 8px 0; font-weight: bold; color: #0f172a; font-size: 16px;&quot;&gt;&#x27; + (d.phone || &quot;&quot;) + &#x27;&lt;/td&gt;&lt;/tr&gt;&#x27; +
-        &#x27;&lt;tr&gt;&lt;td style=&quot;padding: 8px 0; color: #64748b;&quot;&gt;Khu Vực:&lt;/td&gt;&lt;td style=&quot;padding: 8px 0; font-weight: bold; color: #7c3aed;&quot;&gt;&#x27; + (d.area || &quot;&quot;) + &#x27;&lt;/td&gt;&lt;/tr&gt;&#x27; +
-        &#x27;&lt;tr&gt;&lt;td style=&quot;padding: 8px 0; color: #64748b;&quot;&gt;Mô Hình:&lt;/td&gt;&lt;td style=&quot;padding: 8px 0; color: #0f172a;&quot;&gt;&#x27; + (d.businessModel || &quot;&quot;) + &#x27;&lt;/td&gt;&lt;/tr&gt;&#x27; +
-        &#x27;&lt;tr&gt;&lt;td style=&quot;padding: 8px 0; color: #64748b;&quot;&gt;Nhu Cầu:&lt;/td&gt;&lt;td style=&quot;padding: 8px 0; color: #0f172a; font-style: italic;&quot;&gt;&#x27; + (d.note || &quot;Không có&quot;) + &#x27;&lt;/td&gt;&lt;/tr&gt;&#x27; +
-        &#x27;&lt;tr&gt;&lt;td style=&quot;padding: 8px 0; color: #64748b;&quot;&gt;Thời Gian:&lt;/td&gt;&lt;td style=&quot;padding: 8px 0; color: #64748b;&quot;&gt;&#x27; + timeStr + &#x27;&lt;/td&gt;&lt;/tr&gt;&#x27; +
-      &#x27;&lt;/table&gt;&#x27; +
-      (zaloLink ? 
-        &#x27;&lt;div style=&quot;text-align: center; padding-top: 15px; border-top: 1px dashed #cbd5e1;&quot;&gt;&#x27; +
-          &#x27;&lt;a href=&quot;&#x27; + zaloLink + &#x27;&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; background: #0068ff; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 14px; padding: 12px 24px; border-radius: 8px; margin: 4px;&quot;&gt;&#x27; +
-            &#x27;💬 MỞ ZALO BÁO GIÁ CHO ĐỐI TÁC&#x27; +
-          &#x27;&lt;/a&gt;&#x27; +
-          &#x27;&lt;a href=&quot;&#x27; + callLink + &#x27;&quot; style=&quot;display: inline-block; background: #10b981; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 14px; padding: 12px 20px; border-radius: 8px; margin: 4px;&quot;&gt;&#x27; +
-            &#x27;📞 GỌI ĐIỆN THOẠI NGAY&#x27; +
-          &#x27;&lt;/a&gt;&#x27; +
-        &#x27;&lt;/div&gt;&#x27; : &#x27;&#x27;) +
-    &#x27;&lt;/div&gt;&#x27; +
-  &#x27;&lt;/div&gt;&#x27;;
-
-  try {
-    MailApp.sendEmail({ to: ADMIN_EMAIL, subject: subject, htmlBody: htmlBody });
-  } catch(err) {
-    Logger.log(&quot;Lỗi gửi email khách sỉ: &quot; + err);
-  }
-}
-
-function sendReviewEmail(r, timeStr) {
-  if (!ADMIN_EMAIL || ADMIN_EMAIL.indexOf(&quot;@&quot;) === -1) return;
-  var phoneClean = String(r.phone || &quot;&quot;).replace(/\D/g, &quot;&quot;);
-  var zaloLink = phoneClean ? &quot;https://zalo.me/&quot; + phoneClean : &quot;&quot;;
-  var starIcons = &quot;★★★★★&quot;.slice(0, Number(r.rating) || 5);
-
-  var subject = &quot;⭐ [ĐÁNH GIÁ MỚI &quot; + starIcons + &quot;] - &quot; + (r.name || &quot;Khách online&quot;) + &quot; (&quot; + (r.product || &quot;&quot;) + &quot;)&quot;;
-
-  var htmlBody = &#x27;&lt;div style=&quot;font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;&quot;&gt;&#x27; +
-    &#x27;&lt;div style=&quot;background: linear-gradient(135deg, #d97706, #b45309); padding: 18px; text-align: center; color: #ffffff;&quot;&gt;&#x27; +
-      &#x27;&lt;h2 style=&quot;margin: 0; font-size: 18px; text-transform: uppercase;&quot;&gt;Ba Cô Khánh Hòa&lt;/h2&gt;&#x27; +
-      &#x27;&lt;p style=&quot;margin: 4px 0 0; font-size: 13px; color: #fef3c7;&quot;&gt;Khách hàng vừa gửi đánh giá cảm nhận sản phẩm&lt;/p&gt;&#x27; +
-    &#x27;&lt;/div&gt;&#x27; +
-    &#x27;&lt;div style=&quot;padding: 20px;&quot;&gt;&#x27; +
-      &#x27;&lt;div style=&quot;text-align: center; margin-bottom: 15px;&quot;&gt;&#x27; +
-        &#x27;&lt;div style=&quot;font-size: 26px; color: #f59e0b; font-weight: bold;&quot;&gt;&#x27; + starIcons + &#x27; (&#x27; + (r.rating || 5) + &#x27;/5 sao)&lt;/div&gt;&#x27; +
-        &#x27;&lt;div style=&quot;font-size: 14px; color: #047857; font-weight: bold; margin-top: 4px;&quot;&gt;&#x27; + (r.product || &quot;Nước mắm Ba Cô&quot;) + &#x27;&lt;/div&gt;&#x27; +
-      &#x27;&lt;/div&gt;&#x27; +
-      &#x27;&lt;div style=&quot;background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 16px; font-style: italic; color: #334155; font-size: 14px;&quot;&gt;&#x27; +
-        &#x27;&quot;&#x27; + (r.comment || &quot;&quot;) + &#x27;&quot;&#x27; +
-      &#x27;&lt;/div&gt;&#x27; +
-      &#x27;&lt;p style=&quot;font-size: 13px; color: #64748b; margin: 4px 0;&quot;&gt;&lt;strong&gt;Khách hàng:&lt;/strong&gt; &#x27; + (r.name || &quot;&quot;) + &#x27; (&#x27; + (r.phone || &quot;&quot;) + &#x27;) - &#x27; + (r.location || &quot;&quot;) + &#x27;&lt;/p&gt;&#x27; +
-      &#x27;&lt;p style=&quot;font-size: 13px; color: #64748b; margin: 4px 0;&quot;&gt;&lt;strong&gt;Tiêu chí:&lt;/strong&gt; &#x27; + ((r.tags || []).join(&#x27;, &#x27;) || &quot;Không chọn&quot;) + &#x27;&lt;/p&gt;&#x27; +
-      (zaloLink ? 
-        &#x27;&lt;div style=&quot;text-align: center; padding-top: 15px; margin-top: 15px; border-top: 1px dashed #cbd5e1;&quot;&gt;&#x27; +
-          &#x27;&lt;a href=&quot;&#x27; + zaloLink + &#x27;&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; background: #0068ff; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 13px; padding: 10px 20px; border-radius: 8px;&quot;&gt;&#x27; +
-            &#x27;💬 MỞ ZALO NHẮN TIN CẢM ƠN KHÁCH&#x27; +
-          &#x27;&lt;/a&gt;&#x27; +
-        &#x27;&lt;/div&gt;&#x27; : &#x27;&#x27;) +
-    &#x27;&lt;/div&gt;&#x27; +
-  &#x27;&lt;/div&gt;&#x27;;
-
-  try {
-    MailApp.sendEmail({ to: ADMIN_EMAIL, subject: subject, htmlBody: htmlBody });
-  } catch(err) {
-    Logger.log(&quot;Lỗi gửi email đánh giá: &quot; + err);
-  }
-}
-
-// ========================================================
-// CÁC HÀM KẺ BẢNG &amp; ĐỊNH DẠNG CHO BẢNG SẢN PHẨM &amp; NỘI DUNG WEB
-// ========================================================
-
-function khoiTaoBangSanPham(sheet) {
-  sheet.getRange(&quot;A1:I1&quot;).merge()
-       .setValue(&quot;DANH SÁCH SẢN PHẨM KINH DOANH - NƯỚC MẮM BA CÔ KHÁNH HÒA&quot;)
-       .setBackground(&quot;#b45309&quot;).setFontColor(&quot;#ffffff&quot;).setFontWeight(&quot;bold&quot;).setFontSize(13).setFontFamily(&quot;Roboto&quot;)
-       .setHorizontalAlignment(&quot;center&quot;).setVerticalAlignment(&quot;middle&quot;);
-  sheet.setRowHeight(1, 40);
-
-  var headers = [&quot;Mã SP&quot;, &quot;Tên Sản Phẩm&quot;, &quot;Giá Bán (VNĐ)&quot;, &quot;Quy Cách&quot;, &quot;Dòng Sản Phẩm&quot;, &quot;Huy Hiệu&quot;, &quot;Trạng Thái Kho&quot;, &quot;Mô Tả Chi Tiết&quot;, &quot;Hình Ảnh (Link / Dữ Liệu)&quot;];
-  sheet.getRange(&quot;A2:I2&quot;).setValues([headers])
-       .setBackground(&quot;#fef3c7&quot;).setFontColor(&quot;#78350f&quot;).setFontWeight(&quot;bold&quot;).setFontSize(10).setFontFamily(&quot;Roboto&quot;)
-       .setHorizontalAlignment(&quot;center&quot;).setVerticalAlignment(&quot;middle&quot;);
-  sheet.setRowHeight(2, 34);
-
-  sheet.setColumnWidth(1, 90);
-  sheet.setColumnWidth(2, 240);
-  sheet.setColumnWidth(3, 120);
-  sheet.setColumnWidth(4, 140);
-  sheet.setColumnWidth(5, 160);
-  sheet.setColumnWidth(6, 120);
-  sheet.setColumnWidth(7, 120);
-  sheet.setColumnWidth(8, 280);
-  sheet.setColumnWidth(9, 220);
-}
-
-function dinhDangDongSanPham(sheet, row, inStock) {
-  var range = sheet.getRange(row, 1, 1, 9);
-  range.setFontFamily(&quot;Roboto&quot;).setFontSize(10).setVerticalAlignment(&quot;middle&quot;);
-  range.setBorder(true, true, true, true, true, true, &quot;#e2e8f0&quot;, SpreadsheetApp.BorderStyle.SOLID);
-  sheet.setRowHeight(row, 38);
-
-  var stockBg = inStock ? &quot;#dcfce7&quot; : &quot;#fee2e2&quot;;
-  var stockColor = inStock ? &quot;#15803d&quot; : &quot;#b91c1c&quot;;
-
-  range.setBackgrounds([[&quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#f0fdfa&quot;, &quot;#fffbeb&quot;, stockBg, &quot;#ffffff&quot;, &quot;#f8fafc&quot;]]);
-  range.setFontColors([[&quot;#64748b&quot;, &quot;#0f172a&quot;, &quot;#b45309&quot;, &quot;#334155&quot;, &quot;#0f766e&quot;, &quot;#b45309&quot;, stockColor, &quot;#475569&quot;, &quot;#64748b&quot;]]);
-  range.setHorizontalAlignments([[&quot;center&quot;, &quot;left&quot;, &quot;right&quot;, &quot;center&quot;, &quot;center&quot;, &quot;center&quot;, &quot;center&quot;, &quot;left&quot;, &quot;left&quot;]]);
-  range.setFontWeights([[&quot;bold&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;normal&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;normal&quot;, &quot;normal&quot;]]);
-  sheet.getRange(row, 3).setNumberFormat(&quot;#,##0 \&quot;đ\&quot;&quot;);
-}
-
-function khoiTaoBangNoiDungWeb(sheet) {
-  sheet.getRange(&quot;A1:D1&quot;).merge()
-       .setValue(&quot;BẢNG QUẢN LÝ NỘI DUNG &amp; HÌNH ẢNH WEBSITE - NƯỚC MẮM BA CÔ KHÁNH HÒA&quot;)
-       .setBackground(&quot;#0f766e&quot;).setFontColor(&quot;#ffffff&quot;).setFontWeight(&quot;bold&quot;).setFontSize(13).setFontFamily(&quot;Roboto&quot;)
-       .setHorizontalAlignment(&quot;center&quot;).setVerticalAlignment(&quot;middle&quot;);
-  sheet.setRowHeight(1, 40);
-
-  var headers = [&quot;Mã Mục (Key)&quot;, &quot;Nội Dung / Hình Ảnh Đang Hiển Thị&quot;, &quot;Thư Mục / Vị Trí Trên Website&quot;, &quot;Cập Nhật Lúc&quot;];
-  sheet.getRange(&quot;A2:D2&quot;).setValues([headers])
-       .setBackground(&quot;#ccfbf1&quot;).setFontColor(&quot;#115e59&quot;).setFontWeight(&quot;bold&quot;).setFontSize(10).setFontFamily(&quot;Roboto&quot;)
-       .setHorizontalAlignment(&quot;center&quot;).setVerticalAlignment(&quot;middle&quot;);
-  sheet.setRowHeight(2, 34);
-
-  sheet.setColumnWidth(1, 150);
-  sheet.setColumnWidth(2, 380);
-  sheet.setColumnWidth(3, 260);
-  sheet.setColumnWidth(4, 150);
-}
-
-function dinhDangDongNoiDungWeb(sheet, row) {
-  var range = sheet.getRange(row, 1, 1, 4);
-  range.setFontFamily(&quot;Roboto&quot;).setFontSize(10).setVerticalAlignment(&quot;middle&quot;);
-  range.setBorder(true, true, true, true, true, true, &quot;#e2e8f0&quot;, SpreadsheetApp.BorderStyle.SOLID);
-  sheet.setRowHeight(row, 34);
-
-  range.setBackgrounds([[&quot;#f8fafc&quot;, &quot;#ffffff&quot;, &quot;#f0fdfa&quot;, &quot;#ffffff&quot;]]);
-  range.setFontColors([[&quot;#475569&quot;, &quot;#0f172a&quot;, &quot;#0f766e&quot;, &quot;#64748b&quot;]]);
-  range.setHorizontalAlignments([[&quot;left&quot;, &quot;left&quot;, &quot;left&quot;, &quot;center&quot;]]);
-  range.setFontWeights([[&quot;bold&quot;, &quot;normal&quot;, &quot;bold&quot;, &quot;normal&quot;]]);
-}
-
-// ========================================================
-// KẺ BẢNG &amp; ĐỊNH DẠNG CHO BẢNG ĐÁNH GIÁ (TAB &quot;DanhGia&quot;)
-// ========================================================
-
-function khoiTaoBangDanhGia(sheet) {
-  sheet.getRange(&quot;A1:K1&quot;).merge()
-       .setValue(&quot;DANH SÁCH ĐÁNH GIÁ &amp; CẢM NHẬN KHÁCH HÀNG - NƯỚC MẮM BA CÔ&quot;)
-       .setBackground(&quot;#0369a1&quot;).setFontColor(&quot;#ffffff&quot;).setFontWeight(&quot;bold&quot;).setFontSize(13).setFontFamily(&quot;Roboto&quot;)
-       .setHorizontalAlignment(&quot;center&quot;).setVerticalAlignment(&quot;middle&quot;);
-  sheet.setRowHeight(1, 40);
-
-  var headers = [&quot;STT&quot;, &quot;Thời Gian&quot;, &quot;Mã Đánh Giá&quot;, &quot;Họ Tên Khách&quot;, &quot;SĐT&quot;, &quot;Khu Vực&quot;, &quot;Sản Phẩm Đánh Giá&quot;, &quot;Số Sao&quot;, &quot;Tiêu Chí Nổi Bật&quot;, &quot;Nội Dung Cảm Nhận&quot;, &quot;Trạng Thái&quot;];
-  sheet.getRange(&quot;A2:K2&quot;).setValues([headers])
-       .setBackground(&quot;#e0f2fe&quot;).setFontColor(&quot;#075985&quot;).setFontWeight(&quot;bold&quot;).setFontSize(10).setFontFamily(&quot;Roboto&quot;)
-       .setHorizontalAlignment(&quot;center&quot;).setVerticalAlignment(&quot;middle&quot;);
-  sheet.setRowHeight(2, 34);
-
-  sheet.setColumnWidth(1, 50);
-  sheet.setColumnWidth(2, 150);
-  sheet.setColumnWidth(3, 110);
-  sheet.setColumnWidth(4, 160);
-  sheet.setColumnWidth(5, 120);
-  sheet.setColumnWidth(6, 140);
-  sheet.setColumnWidth(7, 200);
-  sheet.setColumnWidth(8, 80);
-  sheet.setColumnWidth(9, 200);
-  sheet.setColumnWidth(10, 280);
-  sheet.setColumnWidth(11, 100);
-}
-
-function dinhDangDongDanhGia(sheet, row) {
-  var range = sheet.getRange(row, 1, 1, 11);
-  range.setFontFamily(&quot;Roboto&quot;).setFontSize(10).setVerticalAlignment(&quot;middle&quot;);
-  range.setBorder(true, true, true, true, true, true, &quot;#e2e8f0&quot;, SpreadsheetApp.BorderStyle.SOLID);
-  sheet.setRowHeight(row, 36);
-
-  range.setBackgrounds([[&quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#f0fdfa&quot;, &quot;#fffbeb&quot;, &quot;#f8fafc&quot;, &quot;#ffffff&quot;, &quot;#dcfce7&quot;]]);
-  range.setFontColors([[&quot;#64748b&quot;, &quot;#475569&quot;, &quot;#0369a1&quot;, &quot;#0f172a&quot;, &quot;#0284c7&quot;, &quot;#334155&quot;, &quot;#0f766e&quot;, &quot;#b45309&quot;, &quot;#475569&quot;, &quot;#0f172a&quot;, &quot;#15803d&quot;]]);
-  range.setHorizontalAlignments([[&quot;center&quot;, &quot;center&quot;, &quot;center&quot;, &quot;left&quot;, &quot;center&quot;, &quot;left&quot;, &quot;left&quot;, &quot;center&quot;, &quot;left&quot;, &quot;left&quot;, &quot;center&quot;]]);
-  range.setFontWeights([[&quot;normal&quot;, &quot;normal&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;normal&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;normal&quot;, &quot;normal&quot;, &quot;bold&quot;]]);
-}
-
-function khoiTaoBangKhachHang(sheet) {
-  sheet.getRange(&quot;A1:K1&quot;).merge()
-       .setValue(&quot;DANH BẠ KHÁCH HÀNG (CRM) - NƯỚC MẮM BA CÔ&quot;)
-       .setBackground(&quot;#0369a1&quot;).setFontColor(&quot;#ffffff&quot;).setFontWeight(&quot;bold&quot;).setFontSize(13).setFontFamily(&quot;Roboto&quot;)
-       .setHorizontalAlignment(&quot;center&quot;).setVerticalAlignment(&quot;middle&quot;);
-  sheet.setRowHeight(1, 40);
-
-  var headers = [&quot;Mã KH&quot;, &quot;Họ Tên&quot;, &quot;Số Điện Thoại&quot;, &quot;Địa Chỉ&quot;, &quot;Hạng Khách&quot;, &quot;Tổng Đơn&quot;, &quot;Đơn Xong&quot;, &quot;Đơn Hủy&quot;, &quot;Tổng Chi Tiêu (đ)&quot;, &quot;Mua Gần Nhất&quot;, &quot;Ghi Chú&quot;];
-  sheet.getRange(&quot;A2:K2&quot;).setValues([headers])
-       .setBackground(&quot;#e0f2fe&quot;).setFontColor(&quot;#075985&quot;).setFontWeight(&quot;bold&quot;).setFontSize(10).setFontFamily(&quot;Roboto&quot;)
-       .setHorizontalAlignment(&quot;center&quot;).setVerticalAlignment(&quot;middle&quot;);
-  sheet.setRowHeight(2, 34);
-
-  sheet.setColumnWidth(1, 110);
-  sheet.setColumnWidth(2, 160);
-  sheet.setColumnWidth(3, 120);
-  sheet.setColumnWidth(4, 240);
-  sheet.setColumnWidth(5, 110);
-  sheet.setColumnWidth(6, 80);
-  sheet.setColumnWidth(7, 80);
-  sheet.setColumnWidth(8, 80);
-  sheet.setColumnWidth(9, 140);
-  sheet.setColumnWidth(10, 140);
-  sheet.setColumnWidth(11, 220);
-}
-
-function dinhDangDongKhachHang(sheet, row, tier) {
-  var range = sheet.getRange(row, 1, 1, 11);
-  range.setFontFamily(&quot;Roboto&quot;).setFontSize(10).setVerticalAlignment(&quot;middle&quot;);
-  range.setBorder(true, true, true, true, true, true, &quot;#e2e8f0&quot;, SpreadsheetApp.BorderStyle.SOLID);
-  sheet.setRowHeight(row, 34);
-
-  var tierBg = tier === &quot;vip&quot; ? &quot;#fef3c7&quot; : (tier === &quot;returning&quot; ? &quot;#e0f2fe&quot; : &quot;#f1f5f9&quot;);
-  var tierFg = tier === &quot;vip&quot; ? &quot;#b45309&quot; : (tier === &quot;returning&quot; ? &quot;#0369a1&quot; : &quot;#475569&quot;);
-  range.setBackgrounds([[&quot;#f8fafc&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, tierBg, &quot;#ffffff&quot;, &quot;#f0fdf4&quot;, &quot;#fef2f2&quot;, &quot;#f0fdf4&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;]]);
-  range.setFontColors([[&quot;#64748b&quot;, &quot;#0f172a&quot;, &quot;#0284c7&quot;, &quot;#334155&quot;, tierFg, &quot;#0f172a&quot;, &quot;#15803d&quot;, &quot;#b91c1c&quot;, &quot;#047857&quot;, &quot;#475569&quot;, &quot;#334155&quot;]]);
-  range.setHorizontalAlignments([[&quot;center&quot;, &quot;left&quot;, &quot;center&quot;, &quot;left&quot;, &quot;center&quot;, &quot;center&quot;, &quot;center&quot;, &quot;center&quot;, &quot;right&quot;, &quot;center&quot;, &quot;left&quot;]]);
-  range.setFontWeights([[&quot;normal&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;normal&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;normal&quot;, &quot;normal&quot;, &quot;bold&quot;, &quot;normal&quot;, &quot;normal&quot;]]);
-  sheet.getRange(row, 9).setNumberFormat(&quot;#,##0&quot;);
-}
-
-// ========================================================
-// CÁC HÀM TIỆN ÍCH ĐƠN HÀNG &amp; KHÁCH SỈ (GIỮ NGUYÊN)
-// ========================================================
-
-function chuanHoa(str) {
-  return String(str || &quot;&quot;).replace(/#/g, &quot;&quot;).trim().toLowerCase();
-}
-
-function jsonSuccess(obj) {
-  obj.status = &quot;success&quot;;
-  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
-}
-
-function jsonError(msg) {
-  return ContentService.createTextOutput(JSON.stringify({ status: &quot;error&quot;, message: msg })).setMimeType(ContentService.MimeType.JSON);
-}
-
-function timDongTrong(sheet) {
-  var startRow = 7;
-  var lastRow = sheet.getLastRow();
-  if (lastRow &lt; startRow) return startRow;
-  var colB = sheet.getRange(&quot;B&quot; + startRow + &quot;:B&quot; + (lastRow + 10)).getValues();
-  for (var i = 0; i &lt; colB.length; i++) {
-    if (colB[i][0] === &quot;&quot; || colB[i][0] === null || colB[i][0] === undefined) {
-      return startRow + i;
-    }
-  }
-  return startRow + colB.length;
-}
-
-function dinhDangDongDonHang(sheet, row) {
-  var range = sheet.getRange(row, 2, 1, 11);
-  range.setFontFamily(&quot;Roboto&quot;).setFontSize(10).setVerticalAlignment(&quot;middle&quot;);
-  range.setBorder(true, true, true, true, true, true, &quot;#e2e8f0&quot;, SpreadsheetApp.BorderStyle.SOLID);
-  sheet.setRowHeight(row, 36);
-
-  range.setBackgrounds([[&quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#fef3c7&quot;]]);
-  range.setFontColors([[&quot;#475569&quot;, &quot;#b45309&quot;, &quot;#0f172a&quot;, &quot;#0284c7&quot;, &quot;#334155&quot;, &quot;#0f172a&quot;, &quot;#0f172a&quot;, &quot;#15803d&quot;, &quot;#64748b&quot;, &quot;#64748b&quot;, &quot;#b45309&quot;]]);
-  range.setHorizontalAlignments([[&quot;center&quot;, &quot;center&quot;, &quot;left&quot;, &quot;center&quot;, &quot;left&quot;, &quot;left&quot;, &quot;center&quot;, &quot;right&quot;, &quot;center&quot;, &quot;left&quot;, &quot;center&quot;]]);
-  range.setFontWeights([[&quot;normal&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;normal&quot;, &quot;normal&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;normal&quot;, &quot;normal&quot;, &quot;bold&quot;]]);
-
-  sheet.getRange(row, 9).setNumberFormat(&quot;#,##0 \&quot;đ\&quot;&quot;);
-  sheet.getRange(row, 8).setNumberFormat(&quot;#,##0&quot;);
-}
-
-function dinhDangTrangThaiDonHang(cell, status) {
-  var s = String(status || &quot;&quot;).toLowerCase();
-  if (s.indexOf(&quot;nhận&quot;) !== -1 || s.indexOf(&quot;thanh toán&quot;) !== -1) {
-    cell.setBackground(&quot;#dcfce7&quot;).setFontColor(&quot;#15803d&quot;).setFontWeight(&quot;bold&quot;);
-  } else if (s.indexOf(&quot;giao&quot;) !== -1) {
-    cell.setBackground(&quot;#dbeafe&quot;).setFontColor(&quot;#1d4ed8&quot;).setFontWeight(&quot;bold&quot;);
-  } else if (s.indexOf(&quot;hoàn&quot;) !== -1 || s.indexOf(&quot;tất&quot;) !== -1) {
-    cell.setBackground(&quot;#f1f5f9&quot;).setFontColor(&quot;#475569&quot;).setFontWeight(&quot;bold&quot;);
-  } else {
-    cell.setBackground(&quot;#fef3c7&quot;).setFontColor(&quot;#b45309&quot;).setFontWeight(&quot;bold&quot;);
-  }
-}
-
-function dinhDangTrangThaiDaiLy(cell, status) {
-  var s = String(status || &quot;&quot;).toLowerCase();
-  if (s.indexOf(&quot;liên hệ&quot;) !== -1 || s.indexOf(&quot;tư vấn&quot;) !== -1) {
-    cell.setBackground(&quot;#e0f2fe&quot;).setFontColor(&quot;#0369a1&quot;).setFontWeight(&quot;bold&quot;);
-  } else if (s.indexOf(&quot;hợp đồng&quot;) !== -1 || s.indexOf(&quot;hđ&quot;) !== -1 || s.indexOf(&quot;thành công&quot;) !== -1) {
-    cell.setBackground(&quot;#dcfce7&quot;).setFontColor(&quot;#15803d&quot;).setFontWeight(&quot;bold&quot;);
-  } else if (s.indexOf(&quot;từ chối&quot;) !== -1 || s.indexOf(&quot;hủy&quot;) !== -1) {
-    cell.setBackground(&quot;#fee2e2&quot;).setFontColor(&quot;#b91c1c&quot;).setFontWeight(&quot;bold&quot;);
-  } else {
-    cell.setBackground(&quot;#fef3c7&quot;).setFontColor(&quot;#b45309&quot;).setFontWeight(&quot;bold&quot;);
-  }
-}
-
-function khoiTaoBangKhachSi(sheet) {
-  sheet.getRange(&quot;A1:I1&quot;).merge()
-       .setValue(&quot;DANH SÁCH ĐĂNG KÝ KHÁCH SỈ &amp; ĐẠI LÝ PHÂN PHỐI - NƯỚC MẮM BA CÔ&quot;)
-       .setBackground(&quot;#581c87&quot;).setFontColor(&quot;#ffffff&quot;).setFontWeight(&quot;bold&quot;).setFontSize(13).setFontFamily(&quot;Roboto&quot;)
-       .setHorizontalAlignment(&quot;center&quot;).setVerticalAlignment(&quot;middle&quot;);
-  sheet.setRowHeight(1, 40);
-
-  var headers = [&quot;STT&quot;, &quot;Thời Gian&quot;, &quot;Mã Đại Lý&quot;, &quot;Họ Tên&quot;, &quot;SĐT / Zalo&quot;, &quot;Khu Vực&quot;, &quot;Mô Hình&quot;, &quot;Ghi Chú Nhu Cầu&quot;, &quot;Trạng Thái&quot;];
-  var headerRange = sheet.getRange(&quot;A2:I2&quot;);
-  headerRange.setValues([headers])
-             .setBackground(&quot;#ede9fe&quot;).setFontColor(&quot;#4c1d95&quot;).setFontWeight(&quot;bold&quot;).setFontSize(10).setFontFamily(&quot;Roboto&quot;)
-             .setHorizontalAlignment(&quot;center&quot;).setVerticalAlignment(&quot;middle&quot;);
-  sheet.setRowHeight(2, 34);
-
-  sheet.setColumnWidth(1, 50);
-  sheet.setColumnWidth(2, 150);
-  sheet.setColumnWidth(3, 110);
-  sheet.setColumnWidth(4, 160);
-  sheet.setColumnWidth(5, 120);
-  sheet.setColumnWidth(6, 160);
-  sheet.setColumnWidth(7, 180);
-  sheet.setColumnWidth(8, 220);
-  sheet.setColumnWidth(9, 140);
-}
-
-function dinhDangDongKhachSi(sheet, row) {
-  var range = sheet.getRange(row, 1, 1, 9);
-  range.setFontFamily(&quot;Roboto&quot;).setFontSize(10).setVerticalAlignment(&quot;middle&quot;);
-  range.setBorder(true, true, true, true, true, true, &quot;#e2e8f0&quot;, SpreadsheetApp.BorderStyle.SOLID);
-  sheet.setRowHeight(row, 36);
-
-  range.setBackgrounds([[&quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#ffffff&quot;, &quot;#fef3c7&quot;]]);
-  range.setFontColors([[&quot;#64748b&quot;, &quot;#475569&quot;, &quot;#7e22ce&quot;, &quot;#0f172a&quot;, &quot;#0284c7&quot;, &quot;#334155&quot;, &quot;#0f172a&quot;, &quot;#64748b&quot;, &quot;#b45309&quot;]]);
-  range.setHorizontalAlignments([[&quot;center&quot;, &quot;center&quot;, &quot;center&quot;, &quot;left&quot;, &quot;center&quot;, &quot;left&quot;, &quot;left&quot;, &quot;left&quot;, &quot;center&quot;]]);
-  range.setFontWeights([[&quot;normal&quot;, &quot;normal&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;bold&quot;, &quot;normal&quot;, &quot;normal&quot;, &quot;normal&quot;, &quot;bold&quot;]]);
-}
-
-// ========================================================
-// HỆ THỐNG THÔNG BÁO TELEGRAM BOT (ĐẨY KHÓA MÀN HÌNH TỨC THÌ)
-// ========================================================
-const TELEGRAM_BOT_TOKEN = &quot;&quot;; // Điền Token từ @BotFather (VD: 123456:ABC-DEF...)
-const TELEGRAM_CHAT_ID = &quot;&quot;;   // Điền Chat ID cá nhân nhận tin nhắn
-
-function sendTelegramNotification(d, code, timeStr) {
-  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
-  try {
-    var totalFormatted = Number(d.totalAmount || 0).toLocaleString(&quot;vi-VN&quot;) + &quot; đ&quot;;
-    var msg = &quot;🔔 *CÓ ĐƠN HÀNG MỚI #&quot; + code + &quot;*\n\n&quot; +
-              &quot;👤 *Khách hàng:* &quot; + (d.name || &quot;Khách lẻ&quot;) + &quot;\n&quot; +
-              &quot;📞 *Số điện thoại:* &quot; + (d.phone || &quot;Chưa có&quot;) + &quot;\n&quot; +
-              &quot;📍 *Địa chỉ:* &quot; + (d.address || &quot;Chưa có&quot;) + &quot;\n&quot; +
-              &quot;🛒 *Sản phẩm:* &quot; + (d.product || &quot;Nước mắm&quot;) + &quot; (x&quot; + (d.quantity || 1) + &quot;)\n&quot; +
-              &quot;💰 *Tổng tiền:* *&quot; + totalFormatted + &quot;* (&quot; + (d.paymentMethod || &quot;COD&quot;) + &quot;)\n&quot; +
-              &quot;⏰ *Thời gian:* &quot; + timeStr + &quot;\n\n&quot; +
-              &quot;👉 [Bấm Vào Đây Để Mở Trang Quản Trị](https://mambacokhanhhoa.pages.dev/admin.html)&quot;;
-
-    var url = &quot;https://api.telegram.org/bot&quot; + TELEGRAM_BOT_TOKEN + &quot;/sendMessage&quot;;
-    UrlFetchApp.fetch(url, {
-      method: &quot;post&quot;,
-      contentType: &quot;application/json&quot;,
-      payload: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: msg,
-        parse_mode: &quot;Markdown&quot;
-      }),
-      muteHttpExceptions: true
-    });
-  } catch(e) {
-    Logger.log(&quot;Telegram Error: &quot; + e.toString());
-  }
-}
-
-function sendTelegramWholesale(d, code, timeStr) {
-  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
-  try {
-    var msg = &quot;🤝 *ĐẠI LÝ SỈ MỚI ĐĂNG KÝ #&quot; + code + &quot;*\n\n&quot; +
-              &quot;👤 *Đối tác:* &quot; + (d.name || &quot;Khách sỉ&quot;) + &quot;\n&quot; +
-              &quot;📞 *SĐT / Zalo:* &quot; + (d.phone || &quot;Chưa có&quot;) + &quot;\n&quot; +
-              &quot;📍 *Khu vực:* &quot; + (d.area || &quot;Toàn quốc&quot;) + &quot;\n&quot; +
-              &quot;🏢 *Mô hình:* &quot; + (d.businessModel || &quot;Đại lý&quot;) + &quot;\n&quot; +
-              &quot;📝 *Nhu cầu:* &quot; + (d.note || &quot;Tư vấn bảng giá&quot;) + &quot;\n&quot; +
-              &quot;⏰ *Thời gian:* &quot; + timeStr + &quot;\n\n&quot; +
-              &quot;👉 [Bấm Vào Đây Để Mở Trang Quản Trị](https://mambacokhanhhoa.pages.dev/admin.html)&quot;;
-
-    var url = &quot;https://api.telegram.org/bot&quot; + TELEGRAM_BOT_TOKEN + &quot;/sendMessage&quot;;
-    UrlFetchApp.fetch(url, {
-      method: &quot;post&quot;,
-      contentType: &quot;application/json&quot;,
-      payload: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: msg,
-        parse_mode: &quot;Markdown&quot;
-      }),
-      muteHttpExceptions: true
-    });
-  } catch(e) {
-    Logger.log(&quot;Telegram Wholesale Error: &quot; + e.toString());
-  }
-}
-
-// ========================================================
-// HỆ THỐNG GỬI WEB PUSH THẲNG TỪ GOOGLE CLOUD VỀ ĐIỆN THOẠI
-// ========================================================
-function sendServerWebPush(d, code, type) {
-  try {
-    var url = &quot;https://mambacokhanhhoa.vercel.app/api/send-push&quot;;
-    var title = &quot;&quot;;
-    var body = &quot;&quot;;
-    if (type === &quot;wholesale&quot;) {
-      title = &quot;🤝 Khách Sỉ Mới #&quot; + code;
-      body = (d.name || &quot;Khách sỉ&quot;) + &quot; (&quot; + (d.phone || &quot;&quot;) + &quot;) đăng ký tại &quot; + (d.area || &quot;Toàn quốc&quot;);
-    } else {
-      var totalFormatted = Number(d.totalAmount || 0).toLocaleString(&quot;vi-VN&quot;) + &quot;đ&quot;;
-      title = &quot;🛒 Đơn Hàng Mới #&quot; + code + &quot; - &quot; + totalFormatted;
-      body = (d.name || &quot;Khách hàng&quot;) + &quot; (&quot; + (d.phone || &quot;&quot;) + &quot;) vừa đặt: &quot; + (d.product || &quot;Nước mắm&quot;) + &quot; - &quot; + (d.address || &quot;&quot;);
-    }
-    UrlFetchApp.fetch(url, {
-      method: &quot;post&quot;,
-      contentType: &quot;application/json&quot;,
-      payload: JSON.stringify({
-        title: title,
-        body: body,
-        url: &quot;./admin.html&quot;,
-        code: code,
-        type: type || &quot;orders&quot;
-      }),
-      muteHttpExceptions: true
-    });
-  } catch(e) {
-    Logger.log(&quot;Lỗi sendServerWebPush: &quot; + e.toString());
-  }
-}
-
-// ========================================================
-// HỆ THỐNG BẢO MẬT &amp; XÁC THỰC QUẢN TRỊ QUA GOOGLE SHEET
-// - Tài khoản quản trị nằm trong tab &quot;QuanTriVien&quot; (hoặc 1 file Google Sheet riêng tư qua AUTH_SPREADSHEET_ID)
-// - Mật khẩu được băm 500 vòng SHA-256 + Salt ngẫu nhiên + AUTH_PEPPER (chỉ lưu trong Script Properties)
-// - Nhật ký mọi lần đăng nhập được lưu tại tab &quot;NhatKyDangNhap&quot;
-// ========================================================
-
-function bytesToHex_(bytes) {
-  var hex = [];
-  for (var i = 0; i &lt; bytes.length; i++) {
-    var b = bytes[i] &amp; 0xff;
-    hex.push((b &lt; 16 ? &quot;0&quot; : &quot;&quot;) + b.toString(16));
-  }
-  return hex.join(&quot;&quot;);
-}
-
-function sha256Hex_(text) {
-  return bytesToHex_(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(text || &quot;&quot;), Utilities.Charset.UTF_8));
-}
-
-function constantTimeEqual_(a, b) {
-  var sa = String(a || &quot;&quot;);
-  var sb = String(b || &quot;&quot;);
-  var diff = sa.length ^ sb.length;
-  var len = Math.max(sa.length, sb.length);
-  for (var i = 0; i &lt; len; i++) {
-    diff |= (sa.charCodeAt(i) || 0) ^ (sb.charCodeAt(i) || 0);
-  }
-  return diff === 0;
-}
-
-function getOrCreateSecurityProps_() {
-  var props = PropertiesService.getScriptProperties();
-  var changed = {};
-  var pepper = props.getProperty(&quot;AUTH_PEPPER&quot;);
-  if (!pepper) {
-    pepper = sha256Hex_(Utilities.getUuid() + &quot;:&quot; + Math.random() + &quot;:pepper&quot;);
-    changed.AUTH_PEPPER = pepper;
-  }
-  var signKey = props.getProperty(&quot;SESSION_SIGN_KEY&quot;);
-  if (!signKey) {
-    signKey = sha256Hex_(Utilities.getUuid() + &quot;:&quot; + Date.now() + &quot;:session&quot;);
-    changed.SESSION_SIGN_KEY = signKey;
-  }
-  if (Object.keys(changed).length &gt; 0) {
-    props.setProperties(changed);
-  }
-  return {
-    AUTH_PEPPER: pepper,
-    SESSION_SIGN_KEY: signKey,
-    AUTH_SPREADSHEET_ID: props.getProperty(&quot;AUTH_SPREADSHEET_ID&quot;) || &quot;&quot;
-  };
-}
-
-function hmacSignHex_(payload, secret) {
-  return bytesToHex_(Utilities.computeHmacSha256Signature(String(payload || &quot;&quot;), String(secret || &quot;&quot;)));
-}
-
-function createSignedSession_(username, role, signKey) {
-  var expMs = Date.now() + 7 * 24 * 3600 * 1000;
-  var uB64 = Utilities.base64EncodeWebSafe(String(username || &quot;admin&quot;), Utilities.Charset.UTF_8).replace(/=+$/, &quot;&quot;);
-  var rB64 = Utilities.base64EncodeWebSafe(String(role || &quot;Quản trị viên&quot;), Utilities.Charset.UTF_8).replace(/=+$/, &quot;&quot;);
-  var payload = &quot;v1.&quot; + expMs + &quot;.&quot; + uB64 + &quot;.&quot; + rB64;
-  var sig = hmacSignHex_(payload, signKey);
-  return { token: payload + &quot;.&quot; + sig, expiresAt: expMs };
-}
-
-function verifySignedSession_(token, signKey) {
-  var parts = String(token || &quot;&quot;).split(&quot;.&quot;);
-  if (parts.length !== 5 || parts[0] !== &quot;v1&quot;) return null;
-  var expMs = Number(parts[1]);
-  if (!expMs || expMs &lt; Date.now()) return null;
-  var payload = parts.slice(0, 4).join(&quot;.&quot;);
-  var expected = hmacSignHex_(payload, signKey);
-  if (!constantTimeEqual_(expected, parts[4])) return null;
-  try {
-    var uname = Utilities.newBlob(Utilities.base64DecodeWebSafe(parts[2])).getDataAsString(&quot;UTF-8&quot;);
-    var urole = Utilities.newBlob(Utilities.base64DecodeWebSafe(parts[3])).getDataAsString(&quot;UTF-8&quot;);
-    return { username: uname, role: urole, expiresAt: expMs };
-  } catch (e) {
-    return null;
-  }
-}
-
-function hashPasswordWithSalt_(password, salt, pepper) {
-  var acc = sha256Hex_(pepper + &quot;:&quot; + salt + &quot;:&quot; + String(password || &quot;&quot;));
-  for (var r = 0; r &lt; 499; r++) {
-    acc = sha256Hex_(acc + &quot;:&quot; + salt + &quot;:&quot; + pepper);
-  }
-  return &quot;baco$sha256$&quot; + salt + &quot;$&quot; + acc;
-}
-
-function verifyPasswordHash_(password, storedValue, pepper) {
-  var val = String(storedValue || &quot;&quot;).trim();
-  if (val.indexOf(&quot;baco$sha256$&quot;) !== 0) return false;
-  var parts = val.split(&quot;$&quot;);
-  if (parts.length !== 4) return false;
-  var salt = parts[2];
-  var expected = hashPasswordWithSalt_(password, salt, pepper);
-  return constantTimeEqual_(expected, val);
-}
-
-function getAuthSpreadsheet_() {
-  var props = PropertiesService.getScriptProperties();
-  var privateId = props.getProperty(&quot;AUTH_SPREADSHEET_ID&quot;);
-  if (privateId) {
-    try {
-      return { ss: SpreadsheetApp.openById(privateId), isPrivate: true };
-    } catch (e) {
-      Logger.log(&quot;Không mở được AUTH_SPREADSHEET_ID: &quot; + e.toString());
-    }
-  }
-  return { ss: layBangTinh(), isPrivate: false };
-}
-
-function ensureAdminSecuritySheets_(ss) {
-  var userSheet = ss.getSheetByName(&quot;QuanTriVien&quot;);
-  if (!userSheet) {
-    userSheet = ss.insertSheet(&quot;QuanTriVien&quot;);
-    userSheet.appendRow([&quot;BẢNG TÀI KHOẢN QUẢN TRỊ BẢO MẬT — NƯỚC MẮM BA CÔ KHÁNH HÒA&quot;]);
-    userSheet.getRange(&quot;A1:G1&quot;).merge().setBackground(&quot;#0f172a&quot;).setFontColor(&quot;#fbbf24&quot;).setFontWeight(&quot;bold&quot;).setFontSize(11).setHorizontalAlignment(&quot;center&quot;);
-    userSheet.appendRow([&quot;Tên đăng nhập&quot;, &quot;Vai trò&quot;, &quot;Trạng thái&quot;, &quot;Mật khẩu (Mã hóa SHA-256)&quot;, &quot;Lần đăng nhập cuối&quot;, &quot;IP đăng nhập cuối&quot;, &quot;Ghi chú&quot;]);
-    userSheet.getRange(&quot;A2:G2&quot;).setBackground(&quot;#1e293b&quot;).setFontColor(&quot;#ffffff&quot;).setFontWeight(&quot;bold&quot;).setHorizontalAlignment(&quot;center&quot;);
-    userSheet.appendRow([&quot;admin&quot;, &quot;Chủ xưởng (Owner)&quot;, &quot;Hoạt động&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;Dùng menu 🔐 Bảo Mật Quản Trị -&gt; Đặt mật khẩu&quot;]);
-    userSheet.setFrozenRows(2);
-    userSheet.setColumnWidth(1, 150);
-    userSheet.setColumnWidth(2, 180);
-    userSheet.setColumnWidth(3, 120);
-    userSheet.setColumnWidth(4, 340);
-    userSheet.setColumnWidth(5, 170);
-    userSheet.setColumnWidth(6, 150);
-    userSheet.setColumnWidth(7, 260);
-    var statusRule = SpreadsheetApp.newDataValidation().requireValueInList([&quot;Hoạt động&quot;, &quot;Khóa&quot;], true).build();
-    userSheet.getRange(&quot;C3:C50&quot;).setDataValidation(statusRule);
-  }
-
-  var logSheet = ss.getSheetByName(&quot;NhatKyDangNhap&quot;);
-  if (!logSheet) {
-    logSheet = ss.insertSheet(&quot;NhatKyDangNhap&quot;);
-    logSheet.appendRow([&quot;NHẬT KÝ ĐĂNG NHẬP QUẢN TRỊ (AUDIT LOG)&quot;]);
-    logSheet.getRange(&quot;A1:F1&quot;).merge().setBackground(&quot;#0f172a&quot;).setFontColor(&quot;#38bdf8&quot;).setFontWeight(&quot;bold&quot;).setFontSize(11).setHorizontalAlignment(&quot;center&quot;);
-    logSheet.appendRow([&quot;Thời gian&quot;, &quot;Tên đăng nhập&quot;, &quot;Trạng thái&quot;, &quot;Chi tiết&quot;, &quot;Địa chỉ IP&quot;, &quot;Thiết bị (User-Agent)&quot;]);
-    logSheet.getRange(&quot;A2:F2&quot;).setBackground(&quot;#1e293b&quot;).setFontColor(&quot;#ffffff&quot;).setFontWeight(&quot;bold&quot;).setHorizontalAlignment(&quot;center&quot;);
-    logSheet.setFrozenRows(2);
-    logSheet.setColumnWidth(1, 165);
-    logSheet.setColumnWidth(2, 140);
-    logSheet.setColumnWidth(3, 130);
-    logSheet.setColumnWidth(4, 240);
-    logSheet.setColumnWidth(5, 140);
-    logSheet.setColumnWidth(6, 320);
-  }
-  return { userSheet: userSheet, logSheet: logSheet };
-}
-
-function appendLoginAudit_(logSheet, timeStr, username, statusLabel, detail, ip, ua) {
-  try {
-    if (!logSheet) return;
-    logSheet.appendRow([
-      String(timeStr || new Date().toLocaleString(&quot;vi-VN&quot;)),
-      String(username || &quot;&quot;),
-      String(statusLabel || &quot;&quot;),
-      String(detail || &quot;&quot;),
-      String(ip || &quot;&quot;),
-      String(ua || &quot;&quot;).slice(0, 180)
-    ]);
-    var total = logSheet.getLastRow();
-    if (total &gt; 502) {
-      logSheet.deleteRows(3, total - 502);
-    }
-  } catch (e) {}
-}
-
-// Hàm chạy 1 lần trong Apps Script để khởi tạo bảng QuanTriVien &amp; NhatKyDangNhap
-function khoiTaoBaoMatQuanTri() {
-  getOrCreateSecurityProps_();
-  var authCtx = getAuthSpreadsheet_();
-  if (!authCtx.ss) {
-    Logger.log(&quot;Không tìm thấy bảng tính Google Sheet.&quot;);
-    return;
-  }
-  ensureAdminSecuritySheets_(authCtx.ss);
-  Logger.log(&quot;✅ Đã khởi tạo bảng QuanTriVien &amp; NhatKyDangNhap thành công!&quot;);
-}
-
-// Hàm đặt hoặc đổi mật khẩu quản trị trực tiếp (tự động băm SHA-256 + salt + pepper)
-function datMatKhauQuanTri(username, plainPassword, role) {
-  var uname = String(username || &quot;admin&quot;).trim().toLowerCase();
-  var pw = String(plainPassword || &quot;&quot;);
-  if (!uname || pw.length &lt; 6) {
-    throw new Error(&quot;Tên đăng nhập không được trống và mật khẩu phải từ 6 ký tự trở lên.&quot;);
-  }
-  var sec = getOrCreateSecurityProps_();
-  var authCtx = getAuthSpreadsheet_();
-  if (!authCtx.ss) throw new Error(&quot;Không mở được Google Sheet.&quot;);
-  var sheets = ensureAdminSecuritySheets_(authCtx.ss);
-  var userSheet = sheets.userSheet;
-
-  var salt = sha256Hex_(Utilities.getUuid() + &quot;:&quot; + Date.now()).slice(0, 16);
-  var hashed = hashPasswordWithSalt_(pw, salt, sec.AUTH_PEPPER);
-
-  var lastRow = userSheet.getLastRow();
-  if (lastRow &gt;= 3) {
-    var rows = userSheet.getRange(3, 1, lastRow - 2, 7).getValues();
-    for (var i = 0; i &lt; rows.length; i++) {
-      if (String(rows[i][0] || &quot;&quot;).trim().toLowerCase() === uname) {
-        var r = 3 + i;
-        if (role) userSheet.getRange(r, 2).setValue(role);
-        userSheet.getRange(r, 3).setValue(&quot;Hoạt động&quot;);
-        userSheet.getRange(r, 4).setValue(hashed);
-        userSheet.getRange(r, 7).setValue(&quot;Cập nhật mật khẩu lúc &quot; + new Date().toLocaleString(&quot;vi-VN&quot;));
-        return true;
-      }
-    }
-  }
-  userSheet.appendRow([uname, role || &quot;Quản trị viên&quot;, &quot;Hoạt động&quot;, hashed, &quot;&quot;, &quot;&quot;, &quot;Tạo mới lúc &quot; + new Date().toLocaleString(&quot;vi-VN&quot;)]);
-  return true;
-}
-
-// Mã hóa tất cả mật khẩu dạng chữ thường vừa nhập trực tiếp trong cột D của tab QuanTriVien
-function maHoaTatCaMatKhauSheet() {
-  var sec = getOrCreateSecurityProps_();
-  var authCtx = getAuthSpreadsheet_();
-  if (!authCtx.ss) return 0;
-  var sheets = ensureAdminSecuritySheets_(authCtx.ss);
-  var userSheet = sheets.userSheet;
-  var lastRow = userSheet.getLastRow();
-  if (lastRow &lt; 3) return 0;
-  var range = userSheet.getRange(3, 1, lastRow - 2, 7);
-  var vals = range.getValues();
-  var count = 0;
-  for (var i = 0; i &lt; vals.length; i++) {
-    var rawPw = String(vals[i][3] || &quot;&quot;).trim();
-    if (rawPw &amp;&amp; rawPw.indexOf(&quot;baco$sha256$&quot;) !== 0) {
-      var salt = sha256Hex_(Utilities.getUuid() + &quot;:&quot; + i + &quot;:&quot; + Date.now()).slice(0, 16);
-      userSheet.getRange(3 + i, 4).setValue(hashPasswordWithSalt_(rawPw, salt, sec.AUTH_PEPPER));
-      userSheet.getRange(3 + i, 7).setValue(&quot;Đã mã hóa tự động &quot; + new Date().toLocaleString(&quot;vi-VN&quot;));
-      count++;
-    }
-  }
-  return count;
-}
-
-function getBruteForceState_(username) {
-  try {
-    var cache = CacheService.getScriptCache();
-    var raw = cache.get(&quot;BF_&quot; + String(username || &quot;admin&quot;).slice(0, 48));
-    if (raw) return JSON.parse(raw);
-  } catch (e) {}
-  return { fails: 0, lockUntil: 0 };
-}
-
-function saveBruteForceState_(username, state) {
-  try {
-    var cache = CacheService.getScriptCache();
-    cache.put(&quot;BF_&quot; + String(username || &quot;admin&quot;).slice(0, 48), JSON.stringify(state), 900);
-  } catch (e) {}
-}
-
-// Truy vấn Google Sheet xác thực đăng nhập trực tiếp &amp; trả về sessionToken ký HMAC
-function handleVerifyAdmin_(data, nowStr) {
-  var sec = getOrCreateSecurityProps_();
-  var authCtx = getAuthSpreadsheet_();
-  if (!authCtx.ss) return jsonError(&quot;Auth sheet unavailable&quot;);
-  var sheets = ensureAdminSecuritySheets_(authCtx.ss);
-  var userSheet = sheets.userSheet;
-  var logSheet = sheets.logSheet;
-
-  var username = String(data.username || &quot;admin&quot;).trim().toLowerCase().slice(0, 64);
-  var password = String(data.password || &quot;&quot;).slice(0, 128);
-  var ip = String(data.ip || &quot;Direct Sheet Auth&quot;);
-  var ua = String(data.userAgent || &quot;&quot;);
-
-  if (!username || !password) {
-    appendLoginAudit_(logSheet, nowStr, username, &quot;Thất bại&quot;, &quot;Thiếu tài khoản hoặc mật khẩu&quot;, ip, ua);
-    return jsonSuccess({ valid: false, reason: &quot;invalid_credentials&quot; });
-  }
-
-  // Chống brute-force 5 lần sai -&gt; khóa 15 phút
-  var nowMs = Date.now();
-  var bf = getBruteForceState_(username);
-  if (bf.lockUntil &amp;&amp; bf.lockUntil &gt; nowMs) {
-    var mins = Math.max(1, Math.ceil((bf.lockUntil - nowMs) / 60000));
-    appendLoginAudit_(logSheet, nowStr, username, &quot;Bị chặn&quot;, &quot;Đang bị khóa chống dò mật khẩu (&quot; + mins + &quot; phút)&quot;, ip, ua);
-    return jsonSuccess({ valid: false, locked: true, retryAfterMinutes: mins, reason: &quot;locked&quot; });
-  }
-
-  var lastRow = userSheet.getLastRow();
-  if (lastRow &lt; 3) {
-    appendLoginAudit_(logSheet, nowStr, username, &quot;Thất bại&quot;, &quot;Chưa có tài khoản trong QuanTriVien&quot;, ip, ua);
-    return jsonSuccess({ valid: false, reason: &quot;no_password_set&quot; });
-  }
-
-  var rows = userSheet.getRange(3, 1, lastRow - 2, 7).getValues();
-  for (var i = 0; i &lt; rows.length; i++) {
-    var rowUser = String(rows[i][0] || &quot;&quot;).trim().toLowerCase();
-    if (!rowUser || rowUser !== username) continue;
-
-    var rowRole = String(rows[i][1] || &quot;Quản trị viên&quot;).trim();
-    var rowStatus = String(rows[i][2] || &quot;&quot;).trim().toLowerCase();
-    var storedSecret = String(rows[i][3] || &quot;&quot;).trim();
-
-    if (rowStatus !== &quot;hoạt động&quot; &amp;&amp; rowStatus !== &quot;active&quot;) {
-      appendLoginAudit_(logSheet, nowStr, username, &quot;Bị chặn&quot;, &quot;Tài khoản đang bị khóa trong Sheet&quot;, ip, ua);
-      return jsonSuccess({ valid: false, reason: &quot;account_locked&quot; });
-    }
-
-    if (!storedSecret) {
-      appendLoginAudit_(logSheet, nowStr, username, &quot;Thất bại&quot;, &quot;Chưa thiết lập mật khẩu trong QuanTriVien&quot;, ip, ua);
-      return jsonSuccess({ valid: false, reason: &quot;no_password_set&quot; });
-    }
-
-    var matched = false;
-    if (storedSecret.indexOf(&quot;baco$sha256$&quot;) === 0) {
-      matched = verifyPasswordHash_(password, storedSecret, sec.AUTH_PEPPER);
-    } else if (authCtx.isPrivate &amp;&amp; storedSecret.length &gt;= 6) {
-      matched = constantTimeEqual_(password, storedSecret);
-      if (matched) {
-        var newSalt = sha256Hex_(Utilities.getUuid() + &quot;:&quot; + Date.now()).slice(0, 16);
-        userSheet.getRange(3 + i, 4).setValue(hashPasswordWithSalt_(password, newSalt, sec.AUTH_PEPPER));
-      }
-    }
-
-    if (matched) {
-      saveBruteForceState_(username, { fails: 0, lockUntil: 0 });
-      userSheet.getRange(3 + i, 5).setValue(nowStr);
-      userSheet.getRange(3 + i, 6).setValue(ip);
-      appendLoginAudit_(logSheet, nowStr, username, &quot;Thành công&quot;, &quot;Đăng nhập hợp lệ (&quot; + rowRole + &quot;)&quot;, ip, ua);
-      var sess = createSignedSession_(rowUser, rowRole, sec.SESSION_SIGN_KEY);
-      return jsonSuccess({
-        valid: true,
-        username: rowUser,
-        role: rowRole,
-        sessionToken: sess.token,
-        expiresAt: sess.expiresAt
-      });
-    }
-
-    // Sai mật khẩu -&gt; làm chậm + đếm số lần thất bại
-    try { Utilities.sleep(450); } catch (e) {}
-    bf.fails = (bf.fails || 0) + 1;
-    if (bf.fails &gt;= 5) {
-      bf.lockUntil = nowMs + 15 * 60 * 1000;
-      bf.fails = 0;
-      saveBruteForceState_(username, bf);
-      appendLoginAudit_(logSheet, nowStr, username, &quot;Bị chặn&quot;, &quot;Sai 5 lần liên tiếp -&gt; khóa 15 phút&quot;, ip, ua);
-      return jsonSuccess({ valid: false, locked: true, retryAfterMinutes: 15, reason: &quot;locked&quot; });
-    }
-    saveBruteForceState_(username, bf);
-    appendLoginAudit_(logSheet, nowStr, username, &quot;Thất bại&quot;, &quot;Sai mật khẩu (lần &quot; + bf.fails + &quot;/5)&quot;, ip, ua);
-    return jsonSuccess({ valid: false, remainingAttempts: 5 - bf.fails, reason: &quot;wrong_password&quot; });
-  }
-
-  try { Utilities.sleep(450); } catch (e) {}
-  bf.fails = (bf.fails || 0) + 1;
-  if (bf.fails &gt;= 5) {
-    bf.lockUntil = nowMs + 15 * 60 * 1000;
-    bf.fails = 0;
-    saveBruteForceState_(username, bf);
-    appendLoginAudit_(logSheet, nowStr, username, &quot;Bị chặn&quot;, &quot;Dò tài khoản 5 lần -&gt; khóa 15 phút&quot;, ip, ua);
-    return jsonSuccess({ valid: false, locked: true, retryAfterMinutes: 15, reason: &quot;locked&quot; });
-  }
-  saveBruteForceState_(username, bf);
-  appendLoginAudit_(logSheet, nowStr, username, &quot;Thất bại&quot;, &quot;Không tồn tại tài khoản&quot;, ip, ua);
-  return jsonSuccess({ valid: false, remainingAttempts: 5 - bf.fails, reason: &quot;not_found&quot; });
-}
-
-// Xác thực lại sessionToken từ trình duyệt (kiểm tra chữ ký HMAC + hạn + trạng thái Hoạt động trong Sheet)
-function handleVerifySession_(data) {
-  var sec = getOrCreateSecurityProps_();
-  var sess = verifySignedSession_(data.token, sec.SESSION_SIGN_KEY);
-  if (!sess) return jsonSuccess({ valid: false, reason: &quot;invalid_or_expired&quot; });
-
-  var authCtx = getAuthSpreadsheet_();
-  if (!authCtx.ss) return jsonSuccess({ valid: false, reason: &quot;sheet_unavailable&quot; });
-  var userSheet = authCtx.ss.getSheetByName(&quot;QuanTriVien&quot;);
-  if (!userSheet || userSheet.getLastRow() &lt; 3) return jsonSuccess({ valid: false, reason: &quot;no_users&quot; });
-
-  var targetUser = String(sess.username || &quot;&quot;).trim().toLowerCase();
-  var rows = userSheet.getRange(3, 1, userSheet.getLastRow() - 2, 4).getValues();
-  for (var i = 0; i &lt; rows.length; i++) {
-    var rowUser = String(rows[i][0] || &quot;&quot;).trim().toLowerCase();
-    if (rowUser !== targetUser) continue;
-    var rowStatus = String(rows[i][2] || &quot;&quot;).trim().toLowerCase();
-    if (rowStatus === &quot;hoạt động&quot; || rowStatus === &quot;active&quot;) {
-      return jsonSuccess({ valid: true, username: rowUser, role: String(rows[i][1] || sess.role) });
-    }
-    return jsonSuccess({ valid: false, reason: &quot;account_locked&quot; });
-  }
-  return jsonSuccess({ valid: false, reason: &quot;not_found&quot; });
-}
-
-// Tự động mã hóa ngay khi người quản trị nhập mật khẩu mới vào cột D tab QuanTriVien
-function onEdit(e) {
-  try {
-    if (!e || !e.range) return;
-    var sheet = e.range.getSheet();
-    if (sheet.getName() !== &quot;QuanTriVien&quot;) return;
-    if (e.range.getRow() &gt;= 3 &amp;&amp; e.range.getColumn() === 4) {
-      var val = String(e.value || &quot;&quot;).trim();
-      if (val &amp;&amp; val.indexOf(&quot;baco$sha256$&quot;) !== 0) {
-        var sec = getOrCreateSecurityProps_();
-        var salt = sha256Hex_(Utilities.getUuid() + &quot;:&quot; + Date.now()).slice(0, 16);
-        e.range.setValue(hashPasswordWithSalt_(val, salt, sec.AUTH_PEPPER));
-        sheet.getRange(e.range.getRow(), 7).setValue(&quot;Đã tự mã hóa SHA-256 lúc &quot; + new Date().toLocaleString(&quot;vi-VN&quot;));
-      }
-    }
-  } catch (err) {}
-}
-
-// Menu thao tác nhanh ngay trên thanh công cụ Google Sheets
-function onOpen() {
-  try {
-    SpreadsheetApp.getUi()
-      .createMenu(&quot;🔐 Bảo Mật Ba Cô&quot;)
-      .addItem(&quot;1. Khởi tạo Bảng Tài Khoản &amp; Nhật Ký&quot;, &quot;khoiTaoBaoMatQuanTri&quot;)
-      .addItem(&quot;2. Đặt / Đổi Mật Khẩu Admin&quot;, &quot;moHopThoaiDatMatKhau&quot;)
-      .addItem(&quot;3. Mã hóa mật khẩu vừa gõ trong Sheet&quot;, &quot;chayMaHoaMatKhauUI&quot;)
-      .addItem(&quot;4. Gắn File Sheet Riêng Tư (Tùy chọn)&quot;, &quot;moHopThoaiDatSheetRiengTu&quot;)
-      .addToUi();
-  } catch (e) {}
-}
-
-function moHopThoaiDatMatKhau() {
-  var ui = SpreadsheetApp.getUi();
-  var uRes = ui.prompt(&quot;Đặt / Đổi Mật Khẩu Quản Trị&quot;, &quot;Nhập tên đăng nhập (mặc định: admin):&quot;, ui.ButtonSet.OK_CANCEL);
-  if (uRes.getSelectedButton() !== ui.Button.OK) return;
-  var uname = String(uRes.getResponseText() || &quot;admin&quot;).trim().toLowerCase() || &quot;admin&quot;;
-  var pRes = ui.prompt(&quot;Nhập Mật Khẩu Mới cho &#x27;&quot; + uname + &quot;&#x27;&quot;, &quot;Nên dùng ít nhất 8–12 ký tự (sẽ được tự động băm SHA-256):&quot;, ui.ButtonSet.OK_CANCEL);
-  if (pRes.getSelectedButton() !== ui.Button.OK) return;
-  var pw = String(pRes.getResponseText() || &quot;&quot;);
-  if (pw.length &lt; 6) {
-    ui.alert(&quot;Mật khẩu phải có ít nhất 6 ký tự.&quot;);
-    return;
-  }
-  datMatKhauQuanTri(uname, pw);
-  ui.alert(&quot;✅ Đã lưu &amp; mã hóa mật khẩu cho tài khoản &#x27;&quot; + uname + &quot;&#x27; thành công!&quot;);
-}
-
-function chayMaHoaMatKhauUI() {
-  var count = maHoaTatCaMatKhauSheet();
-  SpreadsheetApp.getUi().alert(&quot;✅ Đã mã hóa an toàn &quot; + count + &quot; dòng mật khẩu trong tab QuanTriVien.&quot;);
-}
-
-function moHopThoaiDatSheetRiengTu() {
-  var ui = SpreadsheetApp.getUi();
-  var res = ui.prompt(&quot;Gắn Google Sheet Riêng Tư (Tùy chọn nâng cao)&quot;, &quot;Dán Spreadsheet ID của file Sheet chỉ mình bạn có quyền xem (để trống nếu dùng chung file hiện tại):&quot;, ui.ButtonSet.OK_CANCEL);
-  if (res.getSelectedButton() !== ui.Button.OK) return;
-  var id = String(res.getResponseText() || &quot;&quot;).trim();
-  var props = PropertiesService.getScriptProperties();
-  if (id) {
-    props.setProperty(&quot;AUTH_SPREADSHEET_ID&quot;, id);
-    var ctx = getAuthSpreadsheet_();
-    if (ctx.ss) ensureAdminSecuritySheets_(ctx.ss);
-    ui.alert(&quot;✅ Đã chuyển dữ liệu đăng nhập sang Sheet riêng tư: &quot; + id);
-  } else {
-    props.deleteProperty(&quot;AUTH_SPREADSHEET_ID&quot;);
-    ui.alert(&quot;ℹ️ Đã chuyển về dùng tab QuanTriVien trong file Sheet chính.&quot;);
-  }
-}
-
-
-</pre>
-                <button type="button" onclick="copyAppsScriptCode()" class="mt-2.5 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow transition ios-press">
-                    📋 Sao Chép Toàn Bộ Mã Apps Script Đầy Đủ
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL CẤU HÌNH BÁO ĐƠN TỨC THÌ VỀ TELEGRAM BOT (ĐÁNH THỨC IPHONE KHI KHÓA MÁY) -->
     <div id="telegramGuideModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto space-y-4">
@@ -3911,11 +2199,17 @@ function moHopThoaiDatSheetRiengTu() {
             sessionStorage.removeItem('baco_sheet_session');
         }
 
+        let sessionRefreshTimer = null;
+
         function lockAdminSession() {
             activeSheetSession = null;
             if (adminSheetSyncTimer) {
                 clearInterval(adminSheetSyncTimer);
                 adminSheetSyncTimer = null;
+            }
+            if (sessionRefreshTimer) {
+                clearInterval(sessionRefreshTimer);
+                sessionRefreshTimer = null;
             }
             clearSavedAuthArtifacts();
             renderSheetLoginForm();
@@ -4070,9 +2364,27 @@ function moHopThoaiDatSheetRiengTu() {
         function handleResetPinWithPhone() { openForgotPasswordModal(); }
         function sendPinToAdminEmail() { openForgotPasswordModal(); }
 
-        function handleAdminLogout() {
+        async function handleAdminLogout() {
+            const tokenToRevoke = activeSheetSession && activeSheetSession.token ? activeSheetSession.token : '';
             lockAdminSession();
-            showAdminToast('Đã đăng xuất & khóa trang quản trị.', 'info');
+            if (tokenToRevoke) {
+                callSheetAuthAction({ action: 'logout', sessionToken: tokenToRevoke }).catch(() => {});
+            }
+            showAdminToast('Đã đăng xuất & thu hồi phiên quản trị.', 'info');
+        }
+
+        async function refreshAdminSessionIfNeeded() {
+            if (!activeSheetSession || !activeSheetSession.token) return;
+            try {
+                const res = await callSheetAuthAction({ action: 'refresh_session', sessionToken: activeSheetSession.token });
+                if (res && res.status === 'success' && res.valid === true && res.sessionToken) {
+                    activeSheetSession.token = res.sessionToken;
+                    activeSheetSession.expiresAt = res.expiresAt || (Date.now() + 2 * 3600 * 1000);
+                } else {
+                    lockAdminSession();
+                    showAdminToast('Phiên quản trị đã hết hạn hoặc bị thu hồi. Vui lòng đăng nhập lại.', 'error');
+                }
+            } catch (e) {}
         }
 
         // ================= XỬ LÝ KÉO XUỐNG LÀM MỚI (PULL-TO-REFRESH) TRÊN ĐIỆN THOẠI =================
@@ -4140,10 +2452,7 @@ function moHopThoaiDatSheetRiengTu() {
         // Hàm làm mới toàn diện dữ liệu (Đơn hàng, Khách sỉ, Sản phẩm, Nội dung web)
         async function triggerManualRefresh(showToast = true) {
             if (showToast) showAdminToast('🔄 Đang đồng bộ dữ liệu mới nhất từ Cơ sở dữ liệu...', 'info');
-            await Promise.all([
-                fetchOrdersFromGoogleSheet(true),
-                fetchSiteAndProductsFromSheet(true)
-            ]);
+            await fetchOrdersFromGoogleSheet(true);
             if (showToast) showAdminToast('✅ Đã cập nhật bản mới nhất thành công!', 'success');
         }
 
@@ -4159,13 +2468,19 @@ function moHopThoaiDatSheetRiengTu() {
             syncNotificationsFromData();
             renderNotifications();
             fetchOrdersFromGoogleSheet(true);
-            fetchSiteAndProductsFromSheet(true);
 
-            // Tự động kiểm tra và cập nhật đơn hàng mới từ Google Sheet mỗi 5 giây
+            // Tự động đồng bộ dữ liệu từ backend có xác thực mỗi 8 giây
             if (!adminSheetSyncTimer) {
                 adminSheetSyncTimer = setInterval(() => {
                     fetchOrdersFromGoogleSheet(true);
-                }, 5000);
+                }, 8000);
+            }
+
+            // Tự động làm mới Session Token mỗi 25 phút trước khi hết hạn (TTL 2h)
+            if (!sessionRefreshTimer) {
+                sessionRefreshTimer = setInterval(() => {
+                    refreshAdminSessionIfNeeded();
+                }, 25 * 60 * 1000);
             }
         }
 
@@ -4183,20 +2498,32 @@ function moHopThoaiDatSheetRiengTu() {
             }
         });
 
-        // ================= KẾT NỐI TỰ ĐỘNG VỚI GOOGLE SHEET (ĐỒNG BỘ 2 CHIỀU) =================
+        // ================= KẾT NỐI TỰ ĐỘNG VỚI GOOGLE SHEET (ĐỒNG BỘ 2 CHIỀU CÓ XÁC THỰC) =================
         const SHEET_ID = '1ZvX_-wHeoc6fcv43hW_Jj-blOagtsFJiazorJJ8pBBw';
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxsz6e-XXYaNO3LihXxlHIzYkYqZsnaBiIke58PxN4FJA62FR_a2evQBxCgihxasbQiw/exec';
 
-        // Gửi lệnh đồng bộ 2 chiều lên Google Sheet (Xóa dòng / Đổi trạng thái / Lưu Sản Phẩm / Lưu Nội Dung Web)
+        // Gửi lệnh đồng bộ 2 chiều lên Google Sheet kèm sessionToken xác thực server-side
         async function syncToGoogleSheet(payload) {
+            if (!activeSheetSession || !activeSheetSession.token) {
+                lockAdminSession();
+                return false;
+            }
             try {
-                await fetch(GOOGLE_SCRIPT_URL, {
+                const securedPayload = Object.assign({}, payload, { sessionToken: activeSheetSession.token });
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(securedPayload),
+                    redirect: 'follow',
+                    cache: 'no-store'
                 });
-                return true;
+                const json = await res.json().catch(() => null);
+                if (json && json.status === 'error' && String(json.message || '').toLowerCase().includes('unauthorized')) {
+                    lockAdminSession();
+                    showAdminToast('Phiên đăng nhập hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.', 'error');
+                    return false;
+                }
+                return !json || json.status === 'success';
             } catch (err) {
                 console.error("Lỗi đồng bộ lên Google Sheet:", err);
                 return false;
@@ -4359,231 +2686,99 @@ function moHopThoaiDatSheetRiengTu() {
         }
 
         async function fetchOrdersFromGoogleSheet(silent = false) {
-            
-            // 1. Tải đơn hàng bán lẻ từ Tab 1
-            const urlRetail = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&_t=${Date.now()}`;
+            if (!activeSheetSession || !activeSheetSession.token) {
+                lockAdminSession();
+                return;
+            }
             try {
-                if (!silent) showAdminToast('Đang tải dữ liệu từ Cơ sở dữ liệu...', 'info');
-                const res = await fetch(urlRetail, { cache: 'no-store' });
-                const text = await res.text();
-                const jsonMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
-                if (jsonMatch && jsonMatch[1]) {
-                    const data = JSON.parse(jsonMatch[1]);
-                    const gRows = data.table.rows || [];
-                    
-                    const sheetOrders = [];
-                    for (let i = 0; i < gRows.length; i++) {
-                        const c = gRows[i].c;
-                        if (!c) continue;
-                        
-                        const getVal = idx => (c[idx] && (c[idx].v !== null && c[idx].v !== undefined)) ? (c[idx].f || c[idx].v) : '';
-                        
-                        const time = getVal(1);      // Cột B: Thời Gian
-                        const orderCode = String(getVal(2) || '').replace('#', '').trim(); // Cột C: Mã Đơn
-                        const name = String(getVal(3) || '').trim();      // Cột D: Họ Và Tên
-                        const phone = String(getVal(4) || '').trim();     // Cột E: Số Điện Thoại
-                        const address = getVal(5);   // Cột F: Địa Chỉ
-                        const product = getVal(6);   // Cột G: Sản Phẩm
-                        const qty = Number(getVal(7)) || 1; // Cột H: Số Lượng
-                        const total = Number(String(getVal(8) || '0').replace(/\D/g, '')) || 0; // Cột I: Tổng Tiền
-                        const payment = getVal(9) || 'COD'; // Cột J: Thanh Toán
-                        const note = getVal(10);     // Cột K: Ghi Chú
-                        const status = getVal(11) || 'Chờ xác nhận'; // Cột L: Trạng Thái
+                if (!silent) showAdminToast('Đang tải dữ liệu bảo mật từ Cơ sở dữ liệu...', 'info');
+                const res = await callSheetAuthAction({
+                    action: 'get_admin_dashboard_data',
+                    sessionToken: activeSheetSession.token
+                });
 
-                        // Bỏ qua dòng tiêu đề nếu lọt vào dữ liệu từ Google Sheet
-                        const orderUpper = orderCode.toUpperCase();
-                        const nameUpper = name.toUpperCase();
-                        const timeUpper = String(time || '').toUpperCase();
-                        if (orderUpper.includes('MÃ ĐƠN') || orderUpper.includes('MÃ') || nameUpper.includes('HỌ VÀ TÊN') || nameUpper.includes('HỌ TÊN') || timeUpper.includes('THỜI GIAN') || nameUpper.includes('BẢNG QUẢN LÝ')) {
-                            continue;
-                        }
+                if (res && res.status === 'error' && String(res.message || '').toLowerCase().includes('unauthorized')) {
+                    lockAdminSession();
+                    showAdminToast('Phiên đăng nhập hết hạn hoặc đã bị thu hồi.', 'error');
+                    return;
+                }
+                if (!res || res.status !== 'success') return;
 
-                        if (orderCode || phone || name) {
-                            sheetOrders.push({
-                                orderCode: orderCode || ('BC' + (i + 1)),
-                                name: name || 'Khách hàng',
-                                phone: phone || '',
-                                address: address || '',
-                                product: product || 'Nước mắm',
-                                quantity: qty,
-                                totalAmount: total,
-                                paymentMethod: payment,
-                                note: note || '',
-                                status: status,
-                                timestamp: time || 'Mới đặt'
-                            });
-                        }
-                    }
+                // 1. Đơn hàng bán lẻ
+                const sheetOrders = Array.isArray(res.orders) ? res.orders : [];
+                let localOrders = [];
+                try { localOrders = JSON.parse(localStorage.getItem('baco_orders') || '[]'); } catch (e) {}
+                const tenMinsAgo = Date.now() - 10 * 60 * 1000;
+                const pendingLocalOrders = localOrders.filter(lo => {
+                    const isFresh = (lo.createdAt && lo.createdAt > tenMinsAgo);
+                    const notOnSheet = !sheetOrders.some(so => so.orderCode === lo.orderCode);
+                    return isFresh && notOnSheet;
+                });
+                orders = [...pendingLocalOrders, ...sheetOrders];
+                localStorage.setItem('baco_orders', JSON.stringify(orders));
+                renderOrders();
+                renderAnalytics();
 
-                    if (sheetOrders.length > 0) {
-                        sheetOrders.reverse(); // Đơn hàng mới nhất lên đầu danh sách
+                // 2. Khách sỉ & đại lý
+                const leads = Array.isArray(res.wholesale) ? res.wholesale : [];
+                let localLeads = [];
+                try { localLeads = JSON.parse(localStorage.getItem('baco_wholesale_leads') || '[]'); } catch (e) {}
+                const pendingLocalLeads = localLeads.filter(ll => {
+                    const isFresh = (ll.createdAt && ll.createdAt > tenMinsAgo);
+                    const notOnSheet = !leads.some(sl => sl.leadCode === ll.leadCode);
+                    return isFresh && notOnSheet;
+                });
+                wholesaleLeads = [...pendingLocalLeads, ...leads];
+                localStorage.setItem('baco_wholesale_leads', JSON.stringify(wholesaleLeads));
+                renderWholesaleLeads();
 
-                        // Giữ lại các đơn hàng vừa mới đặt trong vòng 10 phút trên máy này mà chưa kịp có trên Google Sheet
-                        let localOrders = [];
-                        try {
-                            localOrders = JSON.parse(localStorage.getItem('baco_orders') || '[]');
-                        } catch (e) {}
-
-                        const tenMinsAgo = Date.now() - 10 * 60 * 1000;
-                        const pendingLocalOrders = localOrders.filter(lo => {
-                            const isFresh = (lo.createdAt && lo.createdAt > tenMinsAgo);
-                            const notOnSheet = !sheetOrders.some(so => so.orderCode === lo.orderCode);
-                            return isFresh && notOnSheet;
+                // 3. Danh bạ khách hàng CRM
+                const rawCus = Array.isArray(res.customers) ? res.customers : [];
+                if (rawCus.length > 0) {
+                    let localCus = [];
+                    try { localCus = JSON.parse(localStorage.getItem('baco_customers') || '[]'); } catch (e) {}
+                    const localMap = new Map(localCus.map(x => [x.key, x]));
+                    rawCus.forEach(sc => {
+                        const key = (sc.phone || '').replace(/[^0-9]/g, '') || (sc.name || '').toLowerCase();
+                        const tierRaw = String(sc.tier || '').toLowerCase();
+                        const tier = tierRaw.includes('vip') ? 'vip' : (tierRaw.includes('quen') || tierRaw.includes('returning') ? 'returning' : 'new');
+                        const prev = localMap.get(key);
+                        localMap.set(key, {
+                            key,
+                            name: sc.name || 'Khách hàng',
+                            phone: sc.phone || '',
+                            address: sc.address || '',
+                            tier,
+                            totalOrders: Number(sc.orderCount || 0),
+                            successOrders: Number(sc.orderCount || 0),
+                            cancelledOrders: 0,
+                            totalSpent: Number(sc.totalSpent || 0),
+                            lastDate: sc.lastOrderAt || '',
+                            note: sc.note || (prev && prev.note) || ''
                         });
+                    });
+                    localStorage.setItem('baco_customers', JSON.stringify(Array.from(localMap.values())));
+                    if (typeof renderCustomersCRM === 'function') renderCustomersCRM();
+                }
 
-                        // Google Sheet là nguồn dữ liệu chuẩn xác nhất từ mọi thiết bị (cập nhật trạng thái và xóa đồng bộ)
-                        orders = [...pendingLocalOrders, ...sheetOrders];
-                        localStorage.setItem('baco_orders', JSON.stringify(orders));
-                        renderOrders();
-                        renderAnalytics();
-                    } else {
-                        // Nếu Google Sheet rỗng (đã xóa sạch đơn trên thiết bị khác)
-                        orders = [];
-                        localStorage.setItem('baco_orders', JSON.stringify(orders));
-                        renderOrders();
-                        renderAnalytics();
-                    }
+                // 4. Sản phẩm & Nội dung web (nếu có)
+                if (Array.isArray(res.products) && res.products.length > 0) {
+                    products = res.products.map(p => Object.assign({}, p, { image: upgradeLegacyProductImage(p.id, p.image) }));
+                    localStorage.setItem('baco_products', JSON.stringify(products));
+                    renderProducts();
+                }
+                if (res.siteContent && Object.keys(res.siteContent).length > 0) {
+                    const mergedCfg = Object.assign({}, DEFAULT_SITE_CONTENT, res.siteContent);
+                    localStorage.setItem('baco_site_content', JSON.stringify(mergedCfg));
+                    loadSiteContentIntoAdmin();
                 }
             } catch (err) {
-                console.error("Lỗi Google Sheet Đơn Hàng:", err);
-            }
-
-            // 2. Tải danh sách khách sỉ từ Tab "Khách Sỉ & Đại Lý"
-            const urlWholesale = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('Khách Sỉ & Đại Lý')}&_t=${Date.now()}`;
-            try {
-                const resW = await fetch(urlWholesale, { cache: 'no-store' });
-                const textW = await resW.text();
-                const jsonMatchW = textW.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
-                if (jsonMatchW && jsonMatchW[1]) {
-                    const dataW = JSON.parse(jsonMatchW[1]);
-                    const wRows = dataW.table.rows || [];
-                    const leads = [];
-                    
-                    // Duyệt toàn bộ hàng trả về từ Google Sheet
-                    for (let i = 0; i < wRows.length; i++) {
-                        const c = wRows[i].c;
-                        if (!c) continue;
-                        const getVal = idx => (c[idx] && (c[idx].v !== null && c[idx].v !== undefined)) ? (c[idx].f || c[idx].v) : '';
-                        const time = getVal(1);      // Cột B: Thời gian
-                        const leadCode = String(getVal(2) || '').replace('#', ''); // Cột C: Mã Đại Lý
-                        const name = getVal(3);      // Cột D: Họ Tên
-                        const phone = getVal(4);     // Cột E: SĐT
-                        const area = getVal(5);      // Cột F: Khu vực
-                        const model = getVal(6);     // Cột G: Mô hình
-                        const note = getVal(7);      // Cột H: Ghi chú
-                        const status = getVal(8) || 'Chờ gọi tư vấn'; // Cột I: Trạng thái
-
-                        // Bỏ qua dòng tiêu đề nếu bị lọt vào dữ liệu
-                        if (String(leadCode).includes('Mã') || String(name).includes('Họ') || String(name).includes('DANH SÁCH') || String(name).includes('Khách Sỉ')) continue;
-
-                        if (leadCode || phone || name) {
-                            leads.push({ leadCode: leadCode || ('DL' + (i+1)), name, phone, area, businessModel: model, note, status, timestamp: time });
-                        }
-                    }
-
-                    if (leads.length > 0) {
-                        leads.reverse(); // Đại lý mới nhất lên đầu danh sách
-
-                        let localLeads = [];
-                        try {
-                            localLeads = JSON.parse(localStorage.getItem('baco_wholesale_leads') || '[]');
-                        } catch (e) {}
-
-                        const tenMinsAgo = Date.now() - 10 * 60 * 1000;
-                        const pendingLocalLeads = localLeads.filter(ll => {
-                            const isFresh = (ll.createdAt && ll.createdAt > tenMinsAgo);
-                            const notOnSheet = !leads.some(sl => sl.leadCode === ll.leadCode);
-                            return isFresh && notOnSheet;
-                        });
-
-                        wholesaleLeads = [...pendingLocalLeads, ...leads];
-                        localStorage.setItem('baco_wholesale_leads', JSON.stringify(wholesaleLeads));
-                        renderWholesaleLeads();
-                    } else {
-                        wholesaleLeads = [];
-                        localStorage.setItem('baco_wholesale_leads', JSON.stringify(wholesaleLeads));
-                        renderWholesaleLeads();
-                    }
-                }
-            } catch (errW) {
-                console.log("Tab Khách Sỉ chưa có dữ liệu hoặc chưa tạo:", errW);
-            }
-
-            // 3. Tải danh bạ khách hàng từ Tab "KhachHang" (giữ lại ghi chú & khách lịch sử)
-            const urlCustomers = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('KhachHang')}&_t=${Date.now()}`;
-            try {
-                const resC = await fetch(urlCustomers, { cache: 'no-store' });
-                const textC = await resC.text();
-                const jsonMatchC = textC.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
-                if (jsonMatchC && jsonMatchC[1]) {
-                    const dataC = JSON.parse(jsonMatchC[1]);
-                    const cCols = (dataC.table.cols || []).map(col => String(col.label || '')).join(' ');
-                    const cRows = dataC.table.rows || [];
-                    const firstFewText = cRows.slice(0, 3).map(r => (r.c || []).map(cell => cell ? (cell.f || cell.v || '') : '').join(' ')).join(' ');
-                    const looksLikeKhachHang = cCols.includes('Hạng Khách') || cCols.includes('Mã KH') || firstFewText.includes('DANH BẠ KHÁCH HÀNG') || firstFewText.includes('Hạng Khách');
-                    const looksLikeOrders = cCols.includes('Mã Đơn') || firstFewText.includes('Mã Đơn') || firstFewText.includes('#BC');
-
-                    const sheetCustomers = [];
-                    if (looksLikeKhachHang && !looksLikeOrders) {
-                        for (let i = 0; i < cRows.length; i++) {
-                            const c = cRows[i].c;
-                            if (!c) continue;
-                            const getVal = idx => (c[idx] && (c[idx].v !== null && c[idx].v !== undefined)) ? (c[idx].f || c[idx].v) : '';
-                            const key = String(getVal(0) || '').trim();
-                            const name = String(getVal(1) || '').trim();
-                            const phone = String(getVal(2) || '').replace(/^'/, '').trim();
-                            const address = String(getVal(3) || '').trim();
-                            const tierRaw = String(getVal(4) || '').toLowerCase();
-                            const totalOrders = Number(getVal(5) || 0);
-                            const successOrders = Number(getVal(6) || 0);
-                            const cancelledOrders = Number(getVal(7) || 0);
-                            const totalSpent = Number(String(getVal(8) || 0).replace(/[^0-9.-]/g, '')) || 0;
-                            const lastDate = String(getVal(9) || '').trim();
-                            const note = String(getVal(10) || '').trim();
-
-                            if (!key && !name && !phone) continue;
-                            if (key === 'Mã KH' || name === 'Họ Tên' || key.includes('DANH BẠ')) continue;
-                            if (/^#?BC\d+/i.test(phone) || /^\d{1,2}:\d{2}/.test(key)) continue;
-
-                            let tier = 'new';
-                            if (tierRaw.includes('vip')) tier = 'vip';
-                            else if (tierRaw.includes('quen')) tier = 'returning';
-
-                            sheetCustomers.push({
-                                key: key || phone.replace(/[^0-9]/g, '') || name.toLowerCase(),
-                                name: name || 'Khách hàng',
-                                phone,
-                                address,
-                                tier,
-                                totalOrders,
-                                successOrders,
-                                cancelledOrders,
-                                totalSpent,
-                                lastDate,
-                                note
-                            });
-                        }
-                    }
-                    if (sheetCustomers.length > 0) {
-                        let localCus = [];
-                        try { localCus = JSON.parse(localStorage.getItem('baco_customers') || '[]'); } catch (e) {}
-                        const localMap = new Map(localCus.map(x => [x.key, x]));
-                        sheetCustomers.forEach(sc => {
-                            const prev = localMap.get(sc.key);
-                            if (prev && prev.note && !sc.note) sc.note = prev.note;
-                            localMap.set(sc.key, sc);
-                        });
-                        localStorage.setItem('baco_customers', JSON.stringify(Array.from(localMap.values())));
-                        if (typeof renderCustomersCRM === 'function') renderCustomersCRM();
-                    }
-                }
-            } catch (errC) {
-                console.log("Tab KhachHang chưa có dữ liệu hoặc chưa tạo:", errC);
+                console.error("Lỗi đồng bộ dữ liệu quản trị:", err);
             }
 
             syncNotificationsFromData(true);
             updateBadges();
-            if (!silent) showAdminToast('Đã hoàn tất đồng bộ từ Cơ sở dữ liệu!', 'success');
+            if (!silent) showAdminToast('Đã hoàn tất đồng bộ bảo mật từ Cơ sở dữ liệu!', 'success');
         }
 
         function loadData() {
@@ -7842,19 +6037,6 @@ function moHopThoaiDatSheetRiengTu() {
             if (m) m.classList.add('hidden');
         }
 
-        function openAppsScriptModal() {
-            document.getElementById('appsScriptModal').classList.remove('hidden');
-        }
-
-        function copyAppsScriptCode() {
-            const codeEl = document.getElementById('appsScriptCodeBlock');
-            if (!codeEl) return;
-            navigator.clipboard.writeText(codeEl.innerText).then(() => {
-                showAdminToast('Đã sao chép đoạn mã Apps Script vào bộ nhớ tạm!', 'success');
-            }).catch(() => {
-                showAdminToast('Vui lòng bôi đen và copy đoạn mã trên màn hình.', 'info');
-            });
-        }
 
         // ================= TRUNG TÂM THÔNG BÁO (NOTIFICATION CENTER) =================
         function syncNotificationsFromData(allowAlert = false) {
@@ -8620,6 +6802,7 @@ function moHopThoaiDatSheetRiengTu() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         action: 'save_subscription',
+                        sessionToken: activeSheetSession ? activeSheetSession.token : '',
                         subscription: subJson,
                         userAgent: navigator.userAgent
                     })
@@ -8808,6 +6991,7 @@ function moHopThoaiDatSheetRiengTu() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         action: 'save_telegram',
+                        sessionToken: activeSheetSession ? activeSheetSession.token : '',
                         botToken: botToken,
                         chatId: chatId
                     })
